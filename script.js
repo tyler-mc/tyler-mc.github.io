@@ -1101,7 +1101,19 @@ function initMysteryCard() {
       closeMysteryModal();
     }
   });
+
+  // Add touchstart for instant open on mobile
+  mysteryCard.addEventListener('touchstart', (e) => {
+    // If not already active, prevent default to avoid hover/click conflicts and open immediately
+    if (!mysteryModal.classList.contains('active')) {
+      e.preventDefault();
+      openMysteryModal();
+    }
+  }, { passive: false });
 }
+
+// Track timeouts to allow cancellation
+window.mysteryTimeouts = [];
 
 /**
  * Open mystery modal and start typewriter effect
@@ -1112,6 +1124,12 @@ function openMysteryModal() {
 
   mysteryModal.classList.add('active');
   document.body.style.overflow = 'hidden';
+
+  // Clear any existing timeouts to prevent overlapping typewriters
+  if (window.mysteryTimeouts) {
+    window.mysteryTimeouts.forEach(id => clearTimeout(id));
+  }
+  window.mysteryTimeouts = [];
 
   // Reset paragraphs
   paragraphs.forEach(p => {
@@ -1125,9 +1143,10 @@ function openMysteryModal() {
   });
 
   // Start typewriter effect after a short delay
-  setTimeout(() => {
+  const startTimeout = setTimeout(() => {
     typewriteParagraphs(paragraphs, 0);
   }, 1500);
+  window.mysteryTimeouts.push(startTimeout);
 }
 
 /**
@@ -1156,7 +1175,8 @@ function typewriteParagraphs(paragraphs, index) {
     if (charIndex < charSpans.length) {
       charSpans[charIndex].classList.add('revealed');
       charIndex++;
-      setTimeout(revealChar, speed);
+      const timeoutId = setTimeout(revealChar, speed);
+      window.mysteryTimeouts.push(timeoutId);
     } else {
       // Paragraph complete - restore original HTML
       p.classList.remove('typing');
@@ -1164,9 +1184,10 @@ function typewriteParagraphs(paragraphs, index) {
       p.innerHTML = originalHtml;
 
       // Start next paragraph after a pause
-      setTimeout(() => {
+      const nextTimeout = setTimeout(() => {
         typewriteParagraphs(paragraphs, index + 1);
       }, 800);
+      window.mysteryTimeouts.push(nextTimeout);
     }
   }
 
@@ -1235,6 +1256,20 @@ function closeMysteryModal() {
   const mysteryModal = document.getElementById('mysteryModal');
   mysteryModal.classList.remove('active');
   document.body.style.overflow = '';
+
+  // Clear all typing timeouts
+  if (window.mysteryTimeouts) {
+    window.mysteryTimeouts.forEach(id => clearTimeout(id));
+  }
+  window.mysteryTimeouts = [];
+
+  // Reset all content immediately
+  const paragraphs = mysteryModal.querySelectorAll('.mystery-modal__text p');
+  paragraphs.forEach(p => {
+    p.classList.remove('typing', 'complete');
+    p.style.opacity = '0';
+    p.innerHTML = '';
+  });
 }
 
 /**
