@@ -1274,6 +1274,12 @@ function closeMysteryModal() {
 
 /**
  * Particle Field - Mouse-responsive background particles (Global)
+ * Updated with Neo-Brutalist geometric shapes (crosses, squares)
+ */
+/**
+ * Particle Field - Mouse-responsive background particles (Global)
+ * Updated with Neo-Brutalist geometric shapes (crosses, squares)
+ * & Swirl effect on Contact text hover
  */
 function initParticleField() {
   const canvas = document.getElementById('globalParticles');
@@ -1285,16 +1291,29 @@ function initParticleField() {
   let mouseY = 0;
   let animationId;
 
+  // Swirl target state
+  let swirlActive = false;
+  let swirlCenter = {
+    x: 0,
+    y: 0
+  };
+  const contactTitle = document.querySelector('#contact .section-title');
+
   // Particle configuration
   const config = {
-    particleCount: 80, // Increased count for full page
-    particleColor: '#FF3333',
-    particleColorAlt: '#0A0A0A',
-    maxSize: 4,
-    minSize: 1,
-    speed: 0.5,
-    mouseRadius: 150,
-    mouseForce: 0.05
+    particleCount: 70,
+    particleColor: '#FF3333', // Accent Red
+    particleColorAlt: '#333333', // Dark Grey for contrast
+    maxSize: 5,
+    minSize: 2,
+    speed: 0.4,
+    mouseRadius: 200,
+    mouseForce: 0.08,
+    swirlForce: 0.0025, // Speed of attraction to swirl center (50% slower: 0.05 -> 0.025)
+    swirlSpeed: 0.0020, // Rotation speed (50% slower: 0.005 -> 0.0025)
+    swirlRadiusMin: 120, // Minimum orbit radius (creates empty center)
+    swirlRadiusMax: 250, // Maximum orbit radius
+    swirlEllipseRatio: 1.5 // Ellipse ratio (width/height)
   };
 
   // Resize canvas
@@ -1314,9 +1333,46 @@ function initParticleField() {
         size: Math.random() * (config.maxSize - config.minSize) + config.minSize,
         speedX: (Math.random() - 0.5) * config.speed,
         speedY: (Math.random() - 0.5) * config.speed,
-        color: Math.random() > 0.7 ? config.particleColor : config.particleColorAlt
+        color: Math.random() > 0.85 ? config.particleColor : config.particleColorAlt,
+        shape: Math.random() > 0.6 ? 'cross' : (Math.random() > 0.5 ? 'square' : 'x'),
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.02,
+        angle: Math.random() * Math.PI * 2, // For swirl orbit
+        radius: Math.random() * (config.swirlRadiusMax - config.swirlRadiusMin) + config.swirlRadiusMin // Donut range
       });
     }
+  }
+
+  // Bind hover events for swirl effect
+  if (contactTitle) {
+    contactTitle.addEventListener('mouseenter', () => {
+      swirlActive = true;
+      const rect = contactTitle.getBoundingClientRect();
+      swirlCenter = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+      };
+    });
+
+    contactTitle.addEventListener('mouseleave', () => {
+      swirlActive = false;
+      // Give particles a little random push to disperse them naturally
+      particles.forEach(p => {
+        p.speedX = (Math.random() - 0.5) * 2;
+        p.speedY = (Math.random() - 0.5) * 2;
+      });
+    });
+
+    // Update swirl center on scroll/resize just in case
+    window.addEventListener('scroll', () => {
+      if (swirlActive) {
+        const rect = contactTitle.getBoundingClientRect();
+        swirlCenter = {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2
+        };
+      }
+    });
   }
 
   // Update and draw particles
@@ -1324,56 +1380,106 @@ function initParticleField() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     particles.forEach(p => {
-      // Calculate distance from mouse
-      const dx = mouseX - p.x;
-      const dy = mouseY - p.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (swirlActive) {
+        // Swirl Logic - Elliptical Donut Pattern
 
-      // Apply mouse repulsion
-      if (dist < config.mouseRadius && dist > 0) {
-        const force = (config.mouseRadius - dist) / config.mouseRadius;
-        p.speedX -= (dx / dist) * force * config.mouseForce;
-        p.speedY -= (dy / dist) * force * config.mouseForce;
+        // Move towards the orbit path with elliptical shape
+        // Horizontal radius is wider than vertical (ellipse)
+        const targetX = swirlCenter.x + Math.cos(p.angle) * p.radius * config.swirlEllipseRatio;
+        const targetY = swirlCenter.y + Math.sin(p.angle) * p.radius;
+
+        // Easing towards that position
+        p.x += (targetX - p.x) * config.swirlForce;
+        p.y += (targetY - p.y) * config.swirlForce;
+
+        // Orbit rotation (10% of original speed)
+        p.angle += config.swirlSpeed;
+
+      } else {
+        // Normal Floating Logic
+
+        // Calculate distance from mouse
+        const dx = mouseX - p.x;
+        const dy = mouseY - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        // Apply mouse repulsion
+        if (dist < config.mouseRadius && dist > 0) {
+          const force = (config.mouseRadius - dist) / config.mouseRadius;
+          p.speedX -= (dx / dist) * force * config.mouseForce;
+          p.speedY -= (dy / dist) * force * config.mouseForce;
+        }
+
+        // Apply friction
+        p.speedX *= 0.98;
+        p.speedY *= 0.98;
+
+        // Add random drift
+        p.speedX += (Math.random() - 0.5) * 0.02;
+        p.speedY += (Math.random() - 0.5) * 0.02;
+
+        // Update position
+        p.x += p.speedX;
+        p.y += p.speedY;
+
+        // Wrap around edges
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
       }
 
-      // Apply friction
-      p.speedX *= 0.99;
-      p.speedY *= 0.99;
-
-      // Add random drift
-      p.speedX += (Math.random() - 0.5) * 0.02;
-      p.speedY += (Math.random() - 0.5) * 0.02;
-
-      // Update position
-      p.x += p.speedX;
-      p.y += p.speedY;
-
-      // Wrap around edges
-      if (p.x < 0) p.x = canvas.width;
-      if (p.x > canvas.width) p.x = 0;
-      if (p.y < 0) p.y = canvas.height;
-      if (p.y > canvas.height) p.y = 0;
+      // Update rotation (always active)
+      p.rotation += p.rotationSpeed;
 
       // Draw particle
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 1.5;
+
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = p.color;
-      ctx.fill();
+
+      if (p.shape === 'cross') {
+        // Plus sign
+        const s = p.size;
+        ctx.moveTo(-s, 0);
+        ctx.lineTo(s, 0);
+        ctx.moveTo(0, -s);
+        ctx.lineTo(0, s);
+      } else if (p.shape === 'x') {
+        // X shape
+        const s = p.size * 0.8;
+        ctx.moveTo(-s, -s);
+        ctx.lineTo(s, s);
+        ctx.moveTo(s, -s);
+        ctx.lineTo(-s, s);
+      } else {
+        // Square
+        const s = p.size;
+        ctx.strokeRect(-s / 2, -s / 2, s, s);
+      }
+
+      ctx.stroke();
+      ctx.restore();
     });
 
-    // Draw connections between nearby particles (reduced distance for global)
+    // Draw connections (Technical lines)
     particles.forEach((p1, i) => {
       particles.slice(i + 1).forEach(p2 => {
         const dx = p1.x - p2.x;
         const dy = p1.y - p2.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < 100) {
+        if (dist < 120) {
           ctx.beginPath();
           ctx.moveTo(p1.x, p1.y);
           ctx.lineTo(p2.x, p2.y);
-          ctx.strokeStyle = `rgba(255, 51, 51, ${0.1 * (1 - dist / 100)})`;
-          ctx.lineWidth = 1;
+          // Faint technical lines
+          const opacity = (1 - dist / 120) * 0.15;
+          ctx.strokeStyle = `rgba(100, 100, 100, ${opacity})`;
+          ctx.lineWidth = 0.5;
           ctx.stroke();
         }
       });
