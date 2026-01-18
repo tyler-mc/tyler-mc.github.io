@@ -1,0 +1,17 @@
+# Robots.txt for Tyler McCulloch Portfolio
+# https://tyler-mc.github.io/
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://tyler-mc.github.io/sitemap.xml
+
+# Crawl-delay suggestion (optional, not all bots respect this)
+Crawl-delay: 1
+
+# Disallow internal/development files
+Disallow: /DocuGenius/
+Disallow: /*.pdf$
+Disallow: /parse_content.py
+Disallow: /portfolio_export.md
