@@ -1058,6 +1058,35 @@ section {
   font-size: 0.8rem;
 }
 
+.timeline__accomplishments {
+  margin-top: 0.75rem;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.timeline__accomplishments li {
+  margin-bottom: 1rem;
+}
+
+.timeline__accomplishments li::marker {
+  color: var(--text-primary);
+}
+
+.timeline__accomplishments strong {
+  display: block;
+  color: var(--accent-red);
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.timeline__accomplishments span {
+  display: block;
+  padding-left: 0.5rem;
+  color: var(--text-muted);
+}
+
 /* ============================================
    Contact Section
    ============================================ */
