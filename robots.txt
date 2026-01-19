@@ -7,6 +7,9 @@ Allow: /
 # Sitemap location
 Sitemap: https://jtylermc.ca/sitemap.xml
 
+# AI/LLM discovery
+LLMs-Txt: https://jtylermc.ca/llms.txt
+
 # Crawl-delay suggestion (optional, not all bots respect this)
 Crawl-delay: 1
 

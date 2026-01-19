@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary Meta Tags -->
+    <title>Journey To Foundation | Tyler McCulloch | Co-Creative Director</title>
+    <meta name="title" content="Journey To Foundation | Tyler McCulloch | Co-Creative Director">
+    <meta name="description"
+        content="Case study: Tyler McCulloch served as Co-Creative Director on Journey To Foundation, a VR RPG based on Isaac Asimov's saga. Narrative cited as 'main highlight' in reviews.">
+    <meta name="keywords"
+        content="Journey To Foundation, Isaac Asimov, VR RPG, Co-Creative Director, Tyler McCulloch, Archiact Interactive, Narrative Design, VR Adventure">
+    <meta name="author" content="J Tyler McCulloch">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://jtylermc.ca/projects/journey-to-foundation.html">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://jtylermc.ca/projects/journey-to-foundation.html">
+    <meta property="og:title" content="Journey To Foundation | Tyler McCulloch | Co-Creative Director">
+    <meta property="og:description"
+        content="Case study: Tyler McCulloch served as Co-Creative Director on Journey To Foundation, a VR RPG based on Isaac Asimov's saga.">
+    <meta property="og:image" content="https://jtylermc.ca/images/JourneyToFoundation_Banner.png">
+    <meta property="og:site_name" content="Tyler McCulloch Portfolio">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://jtylermc.ca/projects/journey-to-foundation.html">
+    <meta name="twitter:title" content="Journey To Foundation | Tyler McCulloch | Co-Creative Director">
+    <meta name="twitter:description"
+        content="Case study: Tyler McCulloch served as Co-Creative Director on Journey To Foundation.">
+    <meta name="twitter:image" content="https://jtylermc.ca/images/JourneyToFoundation_Banner.png">
+
+    <!-- Structured Data - VideoGame Schema -->
+    <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Journey To Foundation",
+    "description": "VR Roleplaying Adventure based on Isaac Asimov's groundbreaking literary saga.",
+    "genre": ["VR", "RPG", "Adventure", "Narrative"],
+    "gamePlatform": ["Meta Quest", "PlayStation VR2"],
+    "author": {
+      "@type": "Person",
+      "name": "Tyler McCulloch",
+      "jobTitle": "Co-Creative Director",
+      "url": "https://jtylermc.ca/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Archiact Interactive"
+    },
+    "datePublished": "2022",
+    "image": "https://jtylermc.ca/images/JourneyToFoundation_Banner.png"
+  }
+  </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../styles.css">
+
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+
+    <style>
+        /* Case Study Page - Neo-Brutalist Theme (matches modal) */
+        .case-study {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+        }
+
+        .case-study__back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s ease;
+        }
+
+        .case-study__back:hover {
+            color: var(--text-inverted);
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        .case-study__header {
+            position: static;
+            height: auto;
+            margin-bottom: 3rem;
+        }
+
+        .case-study__image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border: 2px solid var(--text-primary);
+            margin-bottom: 2rem;
+        }
+
+        .case-study__meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .case-study__meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .case-study__meta-label {
+            color: var(--accent-red);
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            font-weight: 600;
+        }
+
+        .case-study__title {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .case-study__tagline {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--accent-red);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .case-study__accomplishment {
+            background: var(--accent-red-muted);
+            border-left: 3px solid var(--accent-red);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .case-study__content {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .case-study__content p {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .case-study__content figure {
+            margin: 2rem 0;
+        }
+
+        .case-study__content img {
+            width: 100%;
+            border: 2px solid var(--text-primary);
+        }
+
+        .case-study__content a {
+            color: var(--accent-red);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .case-study__content a:hover {
+            color: var(--text-primary);
+        }
+
+        .case-study__section {
+            margin-top: 3rem;
+        }
+
+        .case-study__section-title {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .case-study__contributions {
+            list-style: none;
+            padding: 0;
+        }
+
+        .case-study__contributions li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .case-study__contributions li::before {
+            content: "▪";
+            position: absolute;
+            left: 0;
+            color: var(--accent-red);
+            font-weight: bold;
+        }
+
+        .case-study__skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .case-study__skill {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .case-study__nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--text-primary);
+        }
+
+        .case-study__nav-link {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .case-study__nav-link:hover {
+            color: var(--accent-red);
+        }
+
+        .case-study__nav-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+            letter-spacing: 0.1em;
+        }
+
+        .case-study__nav-title {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .case-study__nav-link--next {
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .case-study {
+                padding: 100px 1rem 2rem;
+            }
+
+            .case-study__image {
+                height: 250px;
+            }
+
+            .case-study__meta {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="nav" id="nav">
+        <div class="container nav__inner">
+            <a href="../index.html" class="nav__logo"><img src="../images/WavyLineCircles/Wavy Line 7.png"
+                    alt="Logo"></a>
+            <ul class="nav__links">
+                <li><a href="../index.html#about" class="nav__link">About</a></li>
+                <li><a href="../index.html#skills" class="nav__link">Skills</a></li>
+                <li><a href="../index.html#experience" class="nav__link">Timeline</a></li>
+                <li><a href="../index.html#work" class="nav__link">Portfolio</a></li>
+                <li><a href="../index.html#contact" class="nav__link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="case-study">
+        <a href="../index.html#work" class="case-study__back">← Back to Portfolio</a>
+
+        <header class="case-study__header">
+            <img src="../images/JourneyToFoundation_Banner.png" alt="Journey To Foundation" class="case-study__image">
+
+            <div class="case-study__meta">
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Role</span>
+                    <span>Co-Creative Director</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Studio</span>
+                    <span>Archiact Interactive</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Period</span>
+                    <span>2022</span>
+                </div>
+            </div>
+
+            <h1 class="case-study__title">Journey To Foundation</h1>
+            <p class="case-study__tagline">VR Roleplaying Adventure based on Isaac Asimov's saga</p>
+
+            <div class="case-study__accomplishment">
+                Narrative cited as 'main highlight' in critical reviews.
+            </div>
+        </header>
+
+        <article class="case-study__content">
+            <p>Based on Isaac Asimov's groundbreaking literary saga, Journey to Foundation is an epic sci-fi VR
+                Roleplaying Adventure.</p>
+            <figure><img src="../images/JourneyToFoundation_shot1.webp" alt="Journey To Foundation gameplay"></figure>
+            <p>I operated as co-creative director on this project so that I could split my focus between this and the
+                Horizon World project.</p>
+            <p>I had the amazing opportunity to work closely with Archiact's Art Director and Executive Producer who had
+                both previously worked on the Mass Effect and Dragon Age series and I learnt a lot from them. One of my
+                goals on this project was to make a larger narrative adventure built upon the tools and systems we
+                originally built for Flourish. I laid out a lot of the core of the project setting processes, frameworks
+                and goals.</p>
+            <figure><img src="../images/JourneyToFoundation_GameLoops.jpg" alt="Game loops design">
+                <figcaption>Early breakdown of the loops and the balance of the different gameplay I originally set for
+                    the game</figcaption>
+            </figure>
+            <figure><img src="../images/JourneyToFoundation_shot2.webp" alt="Journey To Foundation environment">
+            </figure>
+            <p>I was primarily responsible for directing and leading the narrative and UX teams and architecting their
+                underlying interaction systems. I'm particularly proud of the narrative we created as it was
+                consistently given top marks in reviews. A mantra we used was "participatory drama", where we wanted
+                players to feel involved in the conversations through physical actions and not just menu selections.
+                This ended up as part of the "boss fights" in the final product.</p>
+            <figure><img src="../images/JourneyToFoundation_shot3.webp" alt="Journey To Foundation gameplay"></figure>
+
+            <section class="case-study__section">
+                <h2 class="case-study__section-title">Key Contributions</h2>
+                <ul class="case-study__contributions">
+                    <li>Co-directed creative vision alongside Mass Effect/Dragon Age veterans</li>
+                    <li>Led narrative, UX and gameplay teams through development</li>
+                    <li>Built upon tools and systems created for Flourish project</li>
+                    <li>Narrative was cited as the 'main highlight' in critical reviews</li>
+                    <li>Collaborated with Art Director and Executive Producer on world-building</li>
+                </ul>
+            </section>
+
+            <section class="case-study__section">
+                <h2 class="case-study__section-title">Skills Applied</h2>
+                <div class="case-study__skills">
+                    <span class="case-study__skill">Narrative Design</span>
+                    <span class="case-study__skill">Creative Direction</span>
+                    <span class="case-study__skill">Team Leadership</span>
+                    <span class="case-study__skill">VR Design</span>
+                    <span class="case-study__skill">Story Systems</span>
+                </div>
+            </section>
+        </article>
+
+        <nav class="case-study__nav">
+            <a href="pistol-whip.html" class="case-study__nav-link">
+                <span class="case-study__nav-label">← Previous</span>
+                <span class="case-study__nav-title">Pistol Whip</span>
+            </a>
+            <a href="proximity.html" class="case-study__nav-link case-study__nav-link--next">
+                <span class="case-study__nav-label">Next →</span>
+                <span class="case-study__nav-title">Proximity</span>
+            </a>
+        </nav>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer__text">© 2026 Tyler McCulloch. Designed with passion for great experiences.</p>
+        </div>
+    </footer>
+
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+        data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script>
+</body>
+
+</html>

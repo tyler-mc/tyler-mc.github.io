@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Grim | Tyler McCulloch | Lead Designer</title>
+    <meta name="description"
+        content="Case study: Tyler McCulloch as Lead Designer on Citizen Grim, a F2P social wave-based shooter. Improved retention and ratings through metrics-driven iteration.">
+    <meta name="keywords"
+        content="Citizen Grim, F2P Game, Wave Shooter, Lead Designer, Tyler McCulloch, Eruptive Games, Mobile Games, Retention">
+    <link rel="canonical" href="https://jtylermc.ca/projects/citizen-grim.html">
+    <meta property="og:title" content="Citizen Grim | Tyler McCulloch | Lead Designer">
+    <meta property="og:description" content="Improved retention through metrics-driven iteration.">
+    <meta property="og:image" content="https://jtylermc.ca/images/CitizenGrim_banner.jpeg">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Citizen Grim","description":"F2P social wave-based shooter","genre":["F2P","Shooter","Mobile"],"author":{"@type":"Person","name":"Tyler McCulloch","jobTitle":"Lead Designer","url":"https://jtylermc.ca/"},"publisher":{"@type":"Organization","name":"Eruptive Games"},"datePublished":"2013"}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <style>
+        /* Case Study Page - Neo-Brutalist Theme (matches modal) */
+        .case-study {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+        }
+
+        .case-study__back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s ease;
+        }
+
+        .case-study__back:hover {
+            color: var(--text-inverted);
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        .case-study__header {
+            position: static;
+            height: auto;
+            margin-bottom: 3rem;
+        }
+
+        .case-study__image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border: 2px solid var(--text-primary);
+            margin-bottom: 2rem;
+        }
+
+        .case-study__meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .case-study__meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .case-study__meta-label {
+            color: var(--accent-red);
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            font-weight: 600;
+        }
+
+        .case-study__title {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .case-study__tagline {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--accent-red);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .case-study__accomplishment {
+            background: var(--accent-red-muted);
+            border-left: 3px solid var(--accent-red);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .case-study__content {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .case-study__content p {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .case-study__content figure {
+            margin: 2rem 0;
+        }
+
+        .case-study__content img {
+            width: 100%;
+            border: 2px solid var(--text-primary);
+        }
+
+        .case-study__content a {
+            color: var(--accent-red);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .case-study__content a:hover {
+            color: var(--text-primary);
+        }
+
+        .case-study__section {
+            margin-top: 3rem;
+        }
+
+        .case-study__section-title {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .case-study__contributions {
+            list-style: none;
+            padding: 0;
+        }
+
+        .case-study__contributions li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .case-study__contributions li::before {
+            content: "▪";
+            position: absolute;
+            left: 0;
+            color: var(--accent-red);
+            font-weight: bold;
+        }
+
+        .case-study__skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .case-study__skill {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .case-study__nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--text-primary);
+        }
+
+        .case-study__nav-link {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .case-study__nav-link:hover {
+            color: var(--accent-red);
+        }
+
+        .case-study__nav-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+            letter-spacing: 0.1em;
+        }
+
+        .case-study__nav-title {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .case-study__nav-link--next {
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .case-study {
+                padding: 100px 1rem 2rem;
+            }
+
+            .case-study__image {
+                height: 250px;
+            }
+
+            .case-study__meta {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="nav" id="nav">
+        <div class="container nav__inner"><a href="../index.html" class="nav__logo"><img
+                    src="../images/WavyLineCircles/Wavy Line 7.png" alt="Logo"></a>
+            <ul class="nav__links">
+                <li><a href="../index.html#about" class="nav__link">About</a></li>
+                <li><a href="../index.html#skills" class="nav__link">Skills</a></li>
+                <li><a href="../index.html#experience" class="nav__link">Timeline</a></li>
+                <li><a href="../index.html#work" class="nav__link">Portfolio</a></li>
+                <li><a href="../index.html#contact" class="nav__link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="case-study">
+        <a href="../index.html#work" class="case-study__back">← Back to Portfolio</a>
+        <header class="case-study__header">
+            <img src="../images/CitizenGrim_banner.jpeg" alt="Citizen Grim" class="case-study__image">
+            <div class="case-study__meta">
+                <div class="case-study__meta-item"><span class="case-study__meta-label">Role</span><span>Lead
+                        Designer</span></div>
+                <div class="case-study__meta-item"><span class="case-study__meta-label">Studio</span><span>Eruptive
+                        Games</span></div>
+                <div class="case-study__meta-item"><span class="case-study__meta-label">Period</span><span>Feb
+                        2013</span></div>
+            </div>
+            <h1 class="case-study__title">Citizen Grim</h1>
+            <p class="case-study__tagline">F2P social wave-based shooter</p>
+            <div class="case-study__accomplishment">Improved retention and ratings through metrics-driven iteration.
+            </div>
+        </header>
+
+        <article class="case-study__content">
+            <p>Citizen Grim was a F2P social game that was basically a wave-based shooter. When I came on board the game
+                was already live and had a core user base.</p>
+            <figure><img src="../images/CitizenGrim_shot1.png" alt="Citizen Grim gameplay"></figure>
+            <p>My goal was to create an improved first-time user experience to allow players to immerse themselves into
+                the game and also allow for a small amount of narrative context into the game. Introducing the game's
+                first 'boss' early allowed for some narrative pay-off once the player encountered the enemy later on.
+            </p>
+            <figure><img src="../images/CitizenGrim_Shot2.png" alt="Boss encounter"></figure>
+            <p>The next thing was adding many different progression features. The game previously was just a never
+                ending wave shooter with progressively harder enemies. By adding progression to the waves, we could also
+                have unlocks tied to them and it gave users something to look forward to.</p>
+            <p>In addition, we could name certain waves and give them different themes. This added more work on the
+                design side to do a bit more hand-authoring but it also allowed the ability to create waves that were
+                designed with certain weapons or mercenaries (AI companions) in mind, which were of course featured in
+                the store to purchase.</p>
+            <figure><img src="../images/CitizenGrim_Shot3.png" alt="Base building"></figure>
+            <p>Another core component of the game was building buildings that produced your core resources. There were
+                only limited places these could be built on the map so once they were created, that whole section of the
+                game essentially came to a halt (enemies could still attack and destroy buildings however).</p>
+            <p>Another thing I introduced for this is multiple regions which means more places to build. These areas
+                could also be scaled for more advanced players as they continued to grow in power with XP and resource
+                collection.</p>
+
+            <section class="case-study__section">
+                <h2 class="case-study__section-title">Key Contributions</h2>
+                <ul class="case-study__contributions">
+                    <li>Created improved first-time user experience with narrative context</li>
+                    <li>Added wave progression system with unlocks and themed waves</li>
+                    <li>Introduced game's first boss encounter for narrative payoff</li>
+                    <li>Designed multiple regions for expanded building and scaling</li>
+                    <li>Created hand-authored waves featuring store weapons and mercenaries</li>
+                </ul>
+            </section>
+
+            <section class="case-study__section">
+                <h2 class="case-study__section-title">Skills Applied</h2>
+                <div class="case-study__skills">
+                    <span class="case-study__skill">F2P Design</span>
+                    <span class="case-study__skill">FTUE Design</span>
+                    <span class="case-study__skill">Progression Systems</span>
+                    <span class="case-study__skill">Live Ops</span>
+                    <span class="case-study__skill">Wave Design</span>
+                </div>
+            </section>
+        </article>
+
+        <nav class="case-study__nav">
+            <a href="petras-planet.html" class="case-study__nav-link"><span class="case-study__nav-label">←
+                    Previous</span><span class="case-study__nav-title">Petra's Planet</span></a>
+            <a href="whore-of-the-orient.html" class="case-study__nav-link case-study__nav-link--next"><span
+                    class="case-study__nav-label">Next →</span><span class="case-study__nav-title">Whore of the
+                    Orient</span></a>
+        </nav>
+    </main>
+    <footer class="footer">
+        <div class="container">
+            <p class="footer__text">© 2026 Tyler McCulloch. Designed with passion for great experiences.</p>
+        </div>
+    </footer>
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+        data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script>
+</body>
+
+</html>

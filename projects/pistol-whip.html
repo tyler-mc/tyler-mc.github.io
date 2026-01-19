@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary Meta Tags -->
+    <title>Pistol Whip | Tyler McCulloch | Game Director</title>
+    <meta name="title" content="Pistol Whip | Tyler McCulloch | Game Director">
+    <meta name="description"
+        content="Case study: Tyler McCulloch served as Game Director on Pistol Whip, the award-winning VR rhythm-shooter at Cloudhead Games. Created 'Pistol Mix' level editor with 500+ community remixes.">
+    <meta name="keywords"
+        content="Pistol Whip, VR Game, Rhythm Shooter, Game Director, Tyler McCulloch, Cloudhead Games, VR Design, Level Editor, Pistol Mix">
+    <meta name="author" content="J Tyler McCulloch">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://jtylermc.ca/projects/pistol-whip.html">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://jtylermc.ca/projects/pistol-whip.html">
+    <meta property="og:title" content="Pistol Whip | Tyler McCulloch | Game Director">
+    <meta property="og:description"
+        content="Case study: Tyler McCulloch served as Game Director on Pistol Whip, the award-winning VR rhythm-shooter. Created 'Pistol Mix' level editor with 500+ community remixes.">
+    <meta property="og:image" content="https://jtylermc.ca/images/pistol_whip_banner.jpg">
+    <meta property="og:site_name" content="Tyler McCulloch Portfolio">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://jtylermc.ca/projects/pistol-whip.html">
+    <meta name="twitter:title" content="Pistol Whip | Tyler McCulloch | Game Director">
+    <meta name="twitter:description"
+        content="Case study: Tyler McCulloch served as Game Director on Pistol Whip, the award-winning VR rhythm-shooter.">
+    <meta name="twitter:image" content="https://jtylermc.ca/images/pistol_whip_banner.jpg">
+
+    <!-- Structured Data - VideoGame Schema -->
+    <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Pistol Whip",
+    "description": "Award-winning VR rhythm-shooter where players blast their way through cinematic action scenes synced to the beat.",
+    "genre": ["VR", "Rhythm", "Shooter"],
+    "gamePlatform": ["Meta Quest", "PlayStation VR", "Steam VR"],
+    "author": {
+      "@type": "Person",
+      "name": "Tyler McCulloch",
+      "jobTitle": "Game Director",
+      "url": "https://jtylermc.ca/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Cloudhead Games"
+    },
+    "datePublished": "2019",
+    "image": "https://jtylermc.ca/images/pistol_whip_banner.jpg"
+  }
+  </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../styles.css">
+
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+
+    <style>
+        /* Case Study Page - Neo-Brutalist Theme (matches modal) */
+        .case-study {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+        }
+
+        .case-study__back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s ease;
+        }
+
+        .case-study__back:hover {
+            color: var(--text-inverted);
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        .case-study__header {
+            position: static;
+            height: auto;
+            margin-bottom: 3rem;
+        }
+
+        .case-study__image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border: 2px solid var(--text-primary);
+            margin-bottom: 2rem;
+        }
+
+        .case-study__meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .case-study__meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .case-study__meta-label {
+            color: var(--accent-red);
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            font-weight: 600;
+        }
+
+        .case-study__title {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .case-study__tagline {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--accent-red);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .case-study__accomplishment {
+            background: var(--accent-red-muted);
+            border-left: 3px solid var(--accent-red);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .case-study__content {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .case-study__content p {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .case-study__content figure {
+            margin: 2rem 0;
+        }
+
+        .case-study__content img {
+            width: 100%;
+            border: 2px solid var(--text-primary);
+        }
+
+        .case-study__content a {
+            color: var(--accent-red);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .case-study__content a:hover {
+            color: var(--text-primary);
+        }
+
+        .case-study__section {
+            margin-top: 3rem;
+        }
+
+        .case-study__section-title {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .case-study__contributions {
+            list-style: none;
+            padding: 0;
+        }
+
+        .case-study__contributions li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .case-study__contributions li::before {
+            content: "▪";
+            position: absolute;
+            left: 0;
+            color: var(--accent-red);
+            font-weight: bold;
+        }
+
+        .case-study__skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .case-study__skill {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .case-study__nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--text-primary);
+        }
+
+        .case-study__nav-link {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .case-study__nav-link:hover {
+            color: var(--accent-red);
+        }
+
+        .case-study__nav-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+            letter-spacing: 0.1em;
+        }
+
+        .case-study__nav-title {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .case-study__nav-link--next {
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .case-study {
+                padding: 100px 1rem 2rem;
+            }
+
+            .case-study__image {
+                height: 250px;
+            }
+
+            .case-study__meta {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="container nav__inner">
+            <a href="../index.html" class="nav__logo">
+                <img src="../images/WavyLineCircles/Wavy Line 7.png" alt="Logo">
+            </a>
+            <ul class="nav__links">
+                <li><a href="../index.html#about" class="nav__link">About</a></li>
+                <li><a href="../index.html#skills" class="nav__link">Skills</a></li>
+                <li><a href="../index.html#experience" class="nav__link">Timeline</a></li>
+                <li><a href="../index.html#work" class="nav__link">Portfolio</a></li>
+                <li><a href="../index.html#contact" class="nav__link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="case-study">
+        <a href="../index.html#work" class="case-study__back">← Back to Portfolio</a>
+
+        <header class="case-study__header">
+            <img src="../images/pistol_whip_banner.jpg" alt="Pistol Whip" class="case-study__image">
+
+            <div class="case-study__meta">
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Role</span>
+                    <span>Game Director</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Studio</span>
+                    <span>Cloudhead Games</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Period</span>
+                    <span>2019 – Present</span>
+                </div>
+            </div>
+
+            <h1 class="case-study__title">Pistol Whip</h1>
+            <p class="case-study__tagline">VR Rhythm-Shooter</p>
+
+            <div class="case-study__accomplishment">
+                Award-winning, critically acclaimed VR rhythm shooter. Community created 500+ remixes.
+            </div>
+        </header>
+
+        <article class="case-study__content">
+            <p>Pistol Whip is an ongoing VR rhythm-shooter which I acted as Game Director for.</p>
+            <figure><img src="../images/pistol_whip_content_1.jpg" alt="Pistol Whip gameplay"></figure>
+            <p>I was responsible for planning new content releases and improvements that got added to the game. After
+                its
+                release the goal was to continually support the game with additional content releases and keep them free
+                which
+                generated a lot of goodwill with our loyal community.</p>
+            <figure><img src="../images/pistolwhip_voidslayergif.gif" alt="Pistol Whip content"></figure>
+            <p>I also focused on how to expand both music taste as well as new ways to play the game while staying true
+                to
+                the raw simplicity of the base game.</p>
+            <p>One of our final updates included creating a pc-based level editor so players could create their own
+                levels. I
+                called this 'Pistol Mix' as a nod to song remixes as it allowed players to take preexisting content and
+                remix
+                the levels in new and creative ways.</p>
+            <figure><img src="../images/pistolwhip_pisstolmix.avif" alt="Pistol Mix level editor"></figure>
+            <p>It has been an incredible way to continue to keep the community engaged and they have released well over
+                500
+                remixes far surpassing our total releases over the years of 45 levels.</p>
+
+            <section class="case-study__section">
+                <h2 class="case-study__section-title">Key Contributions</h2>
+                <ul class="case-study__contributions">
+                    <li>Directed post-launch content strategy, planning free content releases that generated community
+                        goodwill
+                    </li>
+                    <li>Expanded the game's musical diversity while maintaining gameplay simplicity</li>
+                    <li>Created 'Pistol Mix' - a PC-based level editor allowing players to remix existing content</li>
+                    <li>Managed live service model with regular content drops and progression tuning</li>
+                    <li>Identified workflow improvements in the content creation pipeline</li>
+                </ul>
+            </section>
+
+            <section class="case-study__section">
+                <h2 class="case-study__section-title">Skills Applied</h2>
+                <div class="case-study__skills">
+                    <span class="case-study__skill">Live Service</span>
+                    <span class="case-study__skill">VR Design</span>
+                    <span class="case-study__skill">Team Leadership</span>
+                    <span class="case-study__skill">Content Strategy</span>
+                    <span class="case-study__skill">Level Editor Design</span>
+                </div>
+            </section>
+        </article>
+
+        <nav class="case-study__nav">
+            <a href="max-payne-2.html" class="case-study__nav-link">
+                <span class="case-study__nav-label">← Previous</span>
+                <span class="case-study__nav-title">Max Payne 2</span>
+            </a>
+            <a href="journey-to-foundation.html" class="case-study__nav-link case-study__nav-link--next">
+                <span class="case-study__nav-label">Next →</span>
+                <span class="case-study__nav-title">Journey To Foundation</span>
+            </a>
+        </nav>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer__text">© 2026 Tyler McCulloch. Designed with passion for great experiences.</p>
+        </div>
+    </footer>
+
+    <!-- Cloudflare Web Analytics -->
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+        data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script>
+</body>
+
+</html>

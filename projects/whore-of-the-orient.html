@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whore of the Orient | Tyler McCulloch | Senior Game Designer</title>
+    <meta name="description"
+        content="Case study: Tyler McCulloch as Senior Game Designer on Whore of the Orient at Team Bondi. Prototyped innovative Defendu combat and crowd cover systems.">
+    <meta name="keywords"
+        content="Whore of the Orient, Team Bondi, Open World, Senior Game Designer, Tyler McCulloch, 1920s Shanghai, Combat Design, Cancelled">
+    <link rel="canonical" href="https://jtylermc.ca/projects/whore-of-the-orient.html">
+    <meta property="og:title" content="Whore of the Orient | Tyler McCulloch | Senior Game Designer">
+    <meta property="og:description" content="Open-world game set in 1920s Shanghai. Prototyped Defendu combat.">
+    <meta property="og:image" content="https://jtylermc.ca/images/WhoreOftheOrient_banner.webp">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Whore of the Orient","description":"Open-world game set in 1920s Shanghai (cancelled)","genre":["Open World","Action","Adventure"],"author":{"@type":"Person","name":"Tyler McCulloch","jobTitle":"Senior Game Designer","url":"https://jtylermc.ca/"},"publisher":{"@type":"Organization","name":"Kennedy Miller Mitchell (Team Bondi)"}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <style>
+        /* Case Study Page - Neo-Brutalist Theme (matches modal) */
+        .case-study {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+        }
+
+        .case-study__back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s ease;
+        }
+
+        .case-study__back:hover {
+            color: var(--text-inverted);
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        .case-study__header {
+            position: static;
+            height: auto;
+            margin-bottom: 3rem;
+        }
+
+        .case-study__image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border: 2px solid var(--text-primary);
+            margin-bottom: 2rem;
+        }
+
+        .case-study__meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .case-study__meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .case-study__meta-label {
+            color: var(--accent-red);
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            font-weight: 600;
+        }
+
+        .case-study__title {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .case-study__tagline {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--accent-red);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .case-study__accomplishment {
+            background: var(--accent-red-muted);
+            border-left: 3px solid var(--accent-red);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .case-study__content {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .case-study__content p {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .case-study__content figure {
+            margin: 2rem 0;
+        }
+
+        .case-study__content img {
+            width: 100%;
+            border: 2px solid var(--text-primary);
+        }
+
+        .case-study__content a {
+            color: var(--accent-red);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .case-study__content a:hover {
+            color: var(--text-primary);
+        }
+
+        .case-study__section {
+            margin-top: 3rem;
+        }
+
+        .case-study__section-title {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .case-study__contributions {
+            list-style: none;
+            padding: 0;
+        }
+
+        .case-study__contributions li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .case-study__contributions li::before {
+            content: "▪";
+            position: absolute;
+            left: 0;
+            color: var(--accent-red);
+            font-weight: bold;
+        }
+
+        .case-study__skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .case-study__skill {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .case-study__nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--text-primary);
+        }
+
+        .case-study__nav-link {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .case-study__nav-link:hover {
+            color: var(--accent-red);
+        }
+
+        .case-study__nav-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+            letter-spacing: 0.1em;
+        }
+
+        .case-study__nav-title {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .case-study__nav-link--next {
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .case-study {
+                padding: 100px 1rem 2rem;
+            }
+
+            .case-study__image {
+                height: 250px;
+            }
+
+            .case-study__meta {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="nav" id="nav">
+        <div class="container nav__inner"><a href="../index.html" class="nav__logo"><img
+                    src="../images/WavyLineCircles/Wavy Line 7.png" alt="Logo"></a>
+            <ul class="nav__links">
+                <li><a href="../index.html#about" class="nav__link">About</a></li>
+                <li><a href="../index.html#skills" class="nav__link">Skills</a></li>
+                <li><a href="../index.html#experience" class="nav__link">Timeline</a></li>
+                <li><a href="../index.html#work" class="nav__link">Portfolio</a></li>
+                <li><a href="../index.html#contact" class="nav__link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="case-study">
+        <a href="../index.html#work" class="case-study__back">← Back to Portfolio</a>
+        <header class="case-study__header">
+            <img src="../images/WhoreOftheOrient_banner.webp" alt="Whore of the Orient" class="case-study__image">
+            <div class="case-study__meta">
+                <div class="case-study__meta-item"><span class="case-study__meta-label">Role</span><span>Senior Game
+                        Designer</span></div>
+                <div class="case-study__meta-item"><span class="case-study__meta-label">Studio</span><span>Kennedy
+                        Miller Mitchell (Team Bondi)</span></div>
+                <div class="case-study__meta-item"><span class="case-study__meta-label">Period</span><span>Sept 2012 –
+                        Jan 2013</span></div>
+            </div>
+            <h1 class="case-study__title">Whore of the Orient</h1>
+            <p class="case-study__tagline">Open-world game set in 1920s Shanghai (cancelled)</p>
+            <div class="case-study__accomplishment">Prototyped innovative Defendu combat and crowd cover systems.</div>
+        </header>
+
+        <article class="case-study__content">
+            <p>This was an open-world game set in Shanghai in the 1920s that was unfortunately cancelled during our
+                pre-production and prototyping phase.</p>
+            <figure><img src="../images/WhoreOftheOrient_shot1.jpeg" alt="Shanghai concept"></figure>
+            <p>My goal was primarily to design and build out the combat systems in the game.</p>
+            <p>1920s Shanghai was the birthplace of modern 'Close Quarters Combat' with the development of a martial art
+                called <a href="https://en.wikipedia.org/wiki/Defendu" target="_blank" rel="noopener">Defendu</a> by
+                William Fairbairn for the Shanghai Municipal Police.</p>
+            <p>The idea was to design a combat system based around this brand new and untested martial art at the time
+                and see it grow as your combat ability and skills also grow and unlock.</p>
+            <figure><img src="../images/WhoreOftheOrient_shot2.jpeg" alt="Prototype"></figure>
+            <p>The prototype we put together consisted of early combat and shooting mechanics as well as a chase scene
+                through crowded busy alleyways.</p>
+            <p>One thing we didn't have time for but I wanted to prototype next was the concept of a seamless cover
+                system where you could use crowds of pedestrians in a similar way to using walls to take cover or hide
+                behind.</p>
+
+            <section class="case-study__section">
+                <h2 class="case-study__section-title">Key Contributions</h2>
+                <ul class="case-study__contributions">
+                    <li>Designed combat system based on historical Defendu martial art</li>
+                    <li>Prototyped early combat, shooting mechanics and chase sequences</li>
+                    <li>Conceptualized crowd-based cover system using pedestrians</li>
+                    <li>Designed skill growth and unlock progression for combat</li>
+                    <li>Created alleyway chase scene prototype</li>
+                </ul>
+            </section>
+
+            <section class="case-study__section">
+                <h2 class="case-study__section-title">Skills Applied</h2>
+                <div class="case-study__skills">
+                    <span class="case-study__skill">Combat Design</span>
+                    <span class="case-study__skill">Historical Research</span>
+                    <span class="case-study__skill">Prototyping</span>
+                    <span class="case-study__skill">Systems Design</span>
+                    <span class="case-study__skill">Open World</span>
+                </div>
+            </section>
+        </article>
+
+        <nav class="case-study__nav">
+            <a href="citizen-grim.html" class="case-study__nav-link"><span class="case-study__nav-label">←
+                    Previous</span><span class="case-study__nav-title">Citizen Grim</span></a>
+            <a href="resident-evil-orc.html" class="case-study__nav-link case-study__nav-link--next"><span
+                    class="case-study__nav-label">Next →</span><span class="case-study__nav-title">Resident Evil:
+                    ORC</span></a>
+        </nav>
+    </main>
+    <footer class="footer">
+        <div class="container">
+            <p class="footer__text">© 2026 Tyler McCulloch. Designed with passion for great experiences.</p>
+        </div>
+    </footer>
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+        data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script>
+</body>
+
+</html>

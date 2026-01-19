@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon Worlds | Tyler McCulloch | Creative Director</title>
+    <meta name="description"
+        content="Case study: Tyler McCulloch as Creative Director for Horizon Worlds experiences at Archiact Interactive. Topped Meta's retention charts, contract extended from 6 months to 2+ years.">
+    <meta name="keywords"
+        content="Horizon Worlds, Meta, VR Social, Creative Director, Tyler McCulloch, Archiact Interactive, Social VR, Metaverse">
+    <link rel="canonical" href="https://jtylermc.ca/projects/horizon-worlds.html">
+    <meta property="og:title" content="Horizon Worlds | Tyler McCulloch | Creative Director">
+    <meta property="og:description"
+        content="Topped Meta's retention charts. Contract extended from 6 months to 2+ years.">
+    <meta property="og:image" content="https://jtylermc.ca/images/HorizonWorld_Banner.jpeg">
+    <meta property="og:url" content="https://jtylermc.ca/projects/horizon-worlds.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Horizon Worlds","description":"Meta's social VR platform experiences","genre":["VR","Social","Multiplayer"],"author":{"@type":"Person","name":"Tyler McCulloch","jobTitle":"Creative Director","url":"https://jtylermc.ca/"},"publisher":{"@type":"Organization","name":"Meta"},"datePublished":"2022"}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <style>
+        /* Case Study Page - Neo-Brutalist Theme (matches modal) */
+        .case-study {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+        }
+
+        .case-study__back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s ease;
+        }
+
+        .case-study__back:hover {
+            color: var(--text-inverted);
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        .case-study__header {
+            position: static;
+            height: auto;
+            margin-bottom: 3rem;
+        }
+
+        .case-study__image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border: 2px solid var(--text-primary);
+            margin-bottom: 2rem;
+        }
+
+        .case-study__meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .case-study__meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .case-study__meta-label {
+            color: var(--accent-red);
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            font-weight: 600;
+        }
+
+        .case-study__title {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .case-study__tagline {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--accent-red);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .case-study__accomplishment {
+            background: var(--accent-red-muted);
+            border-left: 3px solid var(--accent-red);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .case-study__content {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .case-study__content p {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .case-study__content figure {
+            margin: 2rem 0;
+        }
+
+        .case-study__content img {
+            width: 100%;
+            border: 2px solid var(--text-primary);
+        }
+
+        .case-study__content a {
+            color: var(--accent-red);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .case-study__content a:hover {
+            color: var(--text-primary);
+        }
+
+        .case-study__section {
+            margin-top: 3rem;
+        }
+
+        .case-study__section-title {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .case-study__contributions {
+            list-style: none;
+            padding: 0;
+        }
+
+        .case-study__contributions li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .case-study__contributions li::before {
+            content: "▪";
+            position: absolute;
+            left: 0;
+            color: var(--accent-red);
+            font-weight: bold;
+        }
+
+        .case-study__skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .case-study__skill {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .case-study__nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--text-primary);
+        }
+
+        .case-study__nav-link {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .case-study__nav-link:hover {
+            color: var(--accent-red);
+        }
+
+        .case-study__nav-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+            letter-spacing: 0.1em;
+        }
+
+        .case-study__nav-title {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .case-study__nav-link--next {
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .case-study {
+                padding: 100px 1rem 2rem;
+            }
+
+            .case-study__image {
+                height: 250px;
+            }
+
+            .case-study__meta {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="nav" id="nav">
+        <div class="container nav__inner"><a href="../index.html" class="nav__logo"><img
+                    src="../images/WavyLineCircles/Wavy Line 7.png" alt="Logo"></a>
+            <ul class="nav__links">
+                <li><a href="../index.html#about" class="nav__link">About</a></li>
+                <li><a href="../index.html#skills" class="nav__link">Skills</a></li>
+                <li><a href="../index.html#experience" class="nav__link">Timeline</a></li>
+                <li><a href="../index.html#work" class="nav__link">Portfolio</a></li>
+                <li><a href="../index.html#contact" class="nav__link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="case-study">
+        <a href="../index.html#work" class="case-study__back">← Back to Portfolio</a>
+        <header class="case-study__header">
+            <img src="../images/HorizonWorld_Banner.jpeg" alt="Horizon Worlds" class="case-study__image">
+            <div class="case-study__meta">
+                <div class="case-study__meta-item"><span class="case-study__meta-label">Role</span><span>Creative
+                        Director</span></div>
+                <div class="case-study__meta-item"><span class="case-study__meta-label">Studio</span><span>Archiact
+                        Interactive (Meta contract)</span></div>
+                <div class="case-study__meta-item"><span
+                        class="case-study__meta-label">Period</span><span>2020-2022</span></div>
+            </div>
+            <h1 class="case-study__title">Horizon Worlds</h1>
+            <p class="case-study__tagline">Meta's social VR platform experiences</p>
+            <div class="case-study__accomplishment">Topped Meta's internal retention charts. Contract extended from 6
+                months to 2+ years.</div>
+        </header>
+
+        <article class="case-study__content">
+            <p>Horizon Worlds is Meta's online social platform and creation tool.</p>
+            <p>While at Archiact Interactive, we were tasked with seeding game and mini-game content in Meta's social
+                platform. This was so the core platform team could focus on the platform itself as well as continue to
+                develop the content creation tools.</p>
+            <p>We successfully negotiated the contract after I had initially put together a high level proposal for a
+                number of VR-centric multiplayer games.</p>
+            <p>During production I led our team through a series of multiple overlapping short production cycles (3-6
+                months) that would then ultimately be pushed live, put on hold, or cancelled by Meta.</p>
+            <p>Because the development tools were in a state of always being improved our work was occasionally subject
+                to being deprecated or put on hold until key features were integrated into the platform.</p>
+            <p>Meta was extremely complimentary of our work and what was meant to be a 6 month contract extended out to
+                over 2 years. We were able to expand and hire up more on the team. I implemented and used hiring and
+                training procedures so we could have a healthy balance of experienced and those new to the industry.</p>
+
+            <section class="case-study__section">
+                <h2 class="case-study__section-title">Key Contributions</h2>
+                <ul class="case-study__contributions">
+                    <li>Put together initial high-level proposal that won the contract</li>
+                    <li>Led team through multiple overlapping 3-6 month production cycles</li>
+                    <li>Expanded team with healthy balance of experienced and new developers</li>
+                    <li>Implemented hiring and training procedures for team growth</li>
+                    <li>Extended 6-month contract to over 2 years through quality delivery</li>
+                </ul>
+            </section>
+
+            <section class="case-study__section">
+                <h2 class="case-study__section-title">Skills Applied</h2>
+                <div class="case-study__skills">
+                    <span class="case-study__skill">Social Design</span>
+                    <span class="case-study__skill">Retention Systems</span>
+                    <span class="case-study__skill">Team Building</span>
+                    <span class="case-study__skill">Client Relations</span>
+                    <span class="case-study__skill">Platform Development</span>
+                </div>
+            </section>
+        </article>
+
+        <nav class="case-study__nav">
+            <a href="proximity.html" class="case-study__nav-link"><span class="case-study__nav-label">←
+                    Previous</span><span class="case-study__nav-title">Proximity</span></a>
+            <a href="flourish.html" class="case-study__nav-link case-study__nav-link--next"><span
+                    class="case-study__nav-label">Next →</span><span class="case-study__nav-title">Flourish</span></a>
+        </nav>
+    </main>
+    <footer class="footer">
+        <div class="container">
+            <p class="footer__text">© 2026 Tyler McCulloch. Designed with passion for great experiences.</p>
+        </div>
+    </footer>
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+        data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script>
+</body>
+
+</html>
