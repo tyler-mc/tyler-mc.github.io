@@ -1,11 +1,11 @@
 # Robots.txt for Tyler McCulloch Portfolio
-# https://tyler-mc.github.io/
+# https://jtylermc.ca/
 
 User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://tyler-mc.github.io/sitemap.xml
+Sitemap: https://jtylermc.ca/sitemap.xml
 
 # Crawl-delay suggestion (optional, not all bots respect this)
 Crawl-delay: 1
