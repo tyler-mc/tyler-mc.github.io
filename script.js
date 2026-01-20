@@ -610,7 +610,14 @@ function triggerSectionReveal(section) {
     // Trigger reflow/timeout to ensure transition plays
     setTimeout(() => {
       block.style.opacity = '1';
-      block.style.transform = 'translateY(0)';
+      // Preserve CSS stagger: even children (2nd, 4th, 6th) get translateY(50%)
+      // nth-child is 1-indexed, so child indices 2, 4, 6 correspond to array indices 1, 3, 5
+      const childIndex = Array.from(block.parentElement.children).indexOf(block) + 1;
+      if (childIndex % 2 === 0) {
+        block.style.transform = 'translateY(50%)';
+      } else {
+        block.style.transform = 'translateY(0)';
+      }
     }, 50);
   });
 }

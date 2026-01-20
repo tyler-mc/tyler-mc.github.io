@@ -800,71 +800,151 @@ section {
 /* ============================================
    Skills Section
    ============================================ */
-.skill-card {
-  text-align: left;
-  padding: var(--space-lg);
+/* ============================================
+   Skills Section
+   ============================================ */
+/* Column layout for skills */
+.skills-column__header {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  margin-bottom: var(--space-lg);
+  border-bottom: 2px solid var(--text-primary);
+  padding-bottom: var(--space-xs);
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.skills-column__grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.skill-card,
+.skill-block {
+  background: var(--bg-secondary);
+  border: 2px solid var(--text-primary);
+  border-radius: 0;
+  padding: var(--space-sm);
   position: relative;
-  overflow: hidden;
+  transition: all var(--transition-fast);
+  box-shadow: 8px 8px 0 var(--text-primary);
+  aspect-ratio: 1/0.9;
+  /* Height is 90% of width */
+  /* Let content dictate height, or set specific if needed */
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  min-width: 0;
+  /* Critical for grid to shrink items */
+  /* overflow: hidden; Removed to allow growth if content overflows */
 }
 
-/* Hover effect for skill cards - clean without black shadow */
-.skill-card:hover {
-  background: var(--accent-red) !important;
-  border-color: var(--text-primary);
-  transform: translate(-4px, -4px);
+.skill-block:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 11px 11px 0 var(--text-primary);
+  background: var(--bg-primary);
 }
 
-.skill-card:hover .skill-card__title,
-.skill-card:hover .skill-card__desc {
+.skill-block__content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  text-align: left;
+}
+
+/* Staggered Header Group: Icon only explicitly */
+.skill-block__header-group {
+  display: flex;
+  justify-content: flex-end;
+  /* Icon to right */
+  align-items: flex-start;
+  margin-bottom: 0;
+  /* Space handled by title margin top */
+  border-bottom: none;
+  width: 100%;
+}
+
+.skill-block__title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 2.5vw, 3rem);
+  /* Reduced from 5rem to fit 4-col grid */
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
   color: var(--text-primary);
+  margin: 0;
+  margin-top: auto;
+  /* Push to bottom */
+  margin-bottom: var(--space-xs);
+  /* Space before description */
+  max-width: 100%;
+  /* Allow full width use */
+  word-break: break-word;
+  /* Ensure ARCHITECTURE wraps if needed */
+  overflow-wrap: break-word;
+  hyphens: auto;
+  text-align: left;
 }
 
-.skill-card:hover .skill-card__icon {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  transform: scale(1.1);
+.stagger-right {
+  display: block;
+  margin-left: 0;
 }
 
-.skill-card:hover .skill-card__icon img {
-  filter: invert(1);
-}
-
-.skill-card__icon {
-  width: 56px;
-  height: 56px;
-  margin-bottom: var(--space-md);
+/* Icon Box - larger, refined */
+.skill-block__icon {
+  width: 80px;
+  height: 80px;
+  margin-top: -4px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: 2px solid var(--text-primary);
-  font-size: 1.25rem;
-  transition: all var(--transition-fast);
-  overflow: hidden;
+  /* border: 2px solid var(--text-primary); Optional: remove border for cleaner look if icon is solid */
 }
 
-.skill-card__icon img {
+.skill-block__icon svg {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  padding: 6px;
-  filter: brightness(0);
-  /* Make icon black */
-  transition: filter var(--transition-fast);
+  stroke-width: 1.5px;
 }
 
-.skill-card__title {
-  margin-bottom: var(--space-xs);
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
-  transition: color var(--transition-fast);
+.skill-block__desc {
+  font-family: var(--font-mono);
+  font-size: clamp(0.65rem, 1.5vw, 0.85rem);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-top: 0;
+  /* Removed auto margin as title handles pushing down */
+  text-align: left;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
-.skill-card__desc {
-  font-size: 0.8rem;
-  line-height: 1.6;
-  transition: color var(--transition-fast);
+/* Remove old hover effects that inverted colors */
+.skill-card:hover .skill-card__title,
+.skill-card:hover .skill-card__desc,
+.skill-block:hover .skill-block__title,
+.skill-block:hover .skill-block__desc {
+  color: var(--text-primary);
 }
+
+.skill-card:hover .skill-card__icon,
+.skill-block:hover .skill-block__icon {
+  background: transparent;
+  transform: none;
+}
+
+.skill-card:hover .skill-card__icon img,
+.skill-block:hover .skill-block__icon svg {
+  filter: none;
+}
+
+
+
+/* Featured Project Cards use the same styles as regular cards */
 
 /* ============================================
    Project Cards
@@ -1804,211 +1884,159 @@ section {
   z-index: 2;
 }
 
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-}
-
-@media (max-width: 900px) {
-  .skills-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .skills-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.skill-block {
-  position: relative;
-  padding: var(--space-xl);
-  border: 1px solid var(--text-primary);
-  background: var(--bg-primary);
-  transition: all var(--transition-base);
-  overflow: hidden;
-}
-
-.skill-block--large {
-  grid-column: span 1;
-}
-
-@media (min-width: 901px) {
-  .skill-block--large:first-child {
-    grid-column: span 2;
-  }
-
-  .skill-block--large:last-child {
-    grid-column: span 2;
-  }
-}
-
-/* Skill block number */
-.skill-block__number {
-  position: absolute;
-  top: var(--space-sm);
-  right: var(--space-sm);
-  font-family: var(--font-heading);
-  font-size: 3rem;
-  color: var(--text-primary);
-  opacity: 0.08;
-  line-height: 1;
-  transition: all var(--transition-base);
-}
-
-/* Skill block wave icon - Larger and more distinct */
-.skill-block__wave {
-  width: 80px;
-  height: 80px;
-  margin-bottom: var(--space-md);
-  opacity: 0.8;
-  transition: all var(--transition-base);
-}
-
-.skill-block__wave img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  filter: brightness(0);
-  transition: transform var(--transition-base);
-}
-
-/* Micro-animation: pulse on hover */
-.skill-block:hover .skill-block__wave img {
-  animation: skillPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes skillPulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
-  }
-}
-
-/* Skill block title */
-.skill-block__title {
-  font-family: var(--font-heading);
-  font-size: 1.25rem;
-  margin-bottom: var(--space-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  transition: color var(--transition-base);
-}
-
-/* Skill block description */
-.skill-block__desc {
-  font-size: 0.85rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  transition: color var(--transition-base);
-}
-
-/* Skill block accent bar */
-.skill-block__accent {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 4px;
-  background: var(--accent-red);
-  transition: width var(--transition-base);
-}
-
-/* Skill block hover state */
-/* Skill block hover state - Subtle highlight only */
-.skill-block:hover {
-  /* Removed interactive-looking transforms and background changes */
-  background: var(--bg-primary);
-}
-
-.skill-block:hover .skill-block__number {
-  color: var(--accent-red);
-  opacity: 0.2;
-}
-
-.skill-block:hover .skill-block__wave {
-  opacity: 1;
-}
-
-/* Removed invert filter as background keeps light */
-.skill-block:hover .skill-block__wave img {
-  filter: brightness(0);
-}
-
-.skill-block:hover .skill-block__title {
-  color: var(--text-primary);
-}
-
-.skill-block:hover .skill-block__desc {
-  color: var(--text-secondary);
-}
-
-.skill-block:hover .skill-block__accent {
-  width: 100%;
-}
-
-/* Expandable skill details */
-.skill-block__details {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease, margin-top 0.4s ease;
-  margin-top: 0;
-}
-
-.skill-block.expanded .skill-block__details {
-  max-height: 200px;
-  margin-top: var(--space-md);
-}
-
-.skill-block__projects {
+/* Skills Two-Column Magazine Editorial Layout */
+.skills-columns {
   display: flex;
+  gap: var(--space-xl);
+  align-items: flex-start;
+  position: relative;
   flex-wrap: wrap;
-  gap: var(--space-xs);
+  /* Prevent overlap on intermediate screens */
 }
 
-.skill-block__project-link {
+/* Individual Column Styling */
+.skills-column {
+  flex: 1;
+  min-width: 0;
+  /* Prevent flex overflow */
+}
+
+/* Column Headers */
+.skills-column__header {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-lg);
+  padding-bottom: 0;
+  position: relative;
   display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  padding: 0.25rem 0.5rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all var(--transition-fast);
+  /* Wrap width to content */
+  z-index: 1;
+  /* Ensure text sits on top of underline */
 }
 
-.skill-block__project-link:hover {
-  background: var(--accent-red);
-  color: var(--text-inverted);
-  border-color: var(--accent-red);
+/* Thick Underline Base */
+.skills-column__header::after {
+  content: '';
+  position: absolute;
+  left: -5px;
+  /* Slight overhang */
+  right: -5px;
+  /* Slight overhang */
+  bottom: 2px;
+  /* Touch/overlap the bottom of text */
+  height: 14px;
+  /* Thick stroke */
+  z-index: -1;
+  opacity: 0.9;
 }
 
-.skill-block__expand-btn {
-  display: block;
-  margin-top: var(--space-sm);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
+/* Hard Skills Header - Red Underline */
+.skills-column--hard .skills-column__header {
+  color: var(--text-primary);
+  border-bottom: none;
+}
+
+.skills-column--hard .skills-column__header::after {
+  background-color: var(--accent-red);
+}
+
+/* Soft Skills Header - Cyan Underline */
+.skills-column--soft .skills-column__header {
+  color: var(--text-primary);
+  border-bottom: none;
+}
+
+.skills-column--soft .skills-column__header::after {
+  background-color: var(--accent-cyan);
+}
+
+/* Vertical Divider */
+.skills-divider {
+  width: 4px;
+  background: var(--text-muted);
+  align-self: stretch;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Decorative elements on divider */
+.skills-divider::before {
+  content: '※';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
   color: var(--accent-red);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: opacity var(--transition-fast);
+  background: var(--bg-secondary);
+  padding: var(--space-xs);
 }
 
-.skill-block__expand-btn:hover {
-  opacity: 0.7;
+/* Grid within each column - 2 columns for 4-col total layout */
+.skills-column__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: var(--space-lg);
+  row-gap: var(--space-lg);
+  align-items: start;
+  margin-bottom: 25%;
+  /* Compensate for stagger overflow */
 }
+
+/* Staggered card offsets using transform to prevent layout gaps */
+.skills-column__grid .skill-block:nth-child(even) {
+  transform: translateY(50%);
+}
+
+/* Maintain stagger on hover */
+.skills-column__grid .skill-block:nth-child(even):hover {
+  transform: translateY(50%) translate(-3px, -3px);
+}
+
+/* Reset whole-column padding */
+.skills-column--soft .skills-column__grid {
+  padding-top: 0;
+}
+
+/* Responsive: 2 columns on mobile too */
+@media (max-width: 900px) {
+  .skills-columns {
+    display: flex;
+    flex-direction: column;
+    /* Stack the main Hard vs Soft groups */
+    gap: var(--space-xl);
+  }
+
+  .skills-divider {
+    display: none;
+  }
+
+  .skills-column__header {
+    font-size: 1.5rem;
+  }
+
+  /* Keep 2 columns on mobile as requested */
+  .skills-column__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Remove whole column padding on mobile if any */
+  .skills-column--soft .skills-column__grid {
+    padding-top: 0;
+  }
+
+  /* Keep stagger on mobile to maintain style */
+  /* Keep stagger on mobile to maintain style */
+  /* Global transform rule handles this now */
+
+  .skill-block__title {
+    /* Adjust font size for the smaller cards in 4-col layout */
+    font-size: clamp(2rem, 6vw, 3.5rem);
+  }
+}
+
 
 /* ============================================
    Additional Wave Decoration Positions
@@ -2479,7 +2507,8 @@ section {
   right: var(--space-lg);
   top: 50%;
   transform: translateY(-50%);
-  z-index: 100;
+  z-index: 1000;
+  /* Ensure above all content */
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);

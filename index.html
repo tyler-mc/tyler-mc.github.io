@@ -319,143 +319,343 @@
       <div class="section-header">
         <span class="section-code">[02.SKILLS]</span>
         <span class="section-label">Expertise</span>
-        <h2 class="section-title" data-glitch="true">Skill highlights</h2>
+        <h2 class="section-title" data-glitch="true">Expertise</h2>
         <p class="section-subtitle">
           Core competencies honed over 22 years that apply across industries and mediums.
         </p>
       </div>
 
-      <!-- Skills Layout -->
-      <div class="skills-grid">
-        <div class="skill-block skill-block--large" data-skill="leadership">
-          <span class="skill-block__number">01</span>
-          <div class="skill-block__wave">
-            <img src="images/WavyLineCircles/Wavy Line 1.png" alt="">
-          </div>
-          <h3 class="skill-block__title">Studio & Project Leadership</h3>
-          <p class="skill-block__desc">Defining and upholding creative vision from concept through production across
-            multiple projects.</p>
-          <button class="skill-block__expand-btn">[+ See Projects]</button>
-          <div class="skill-block__details">
-            <div class="skill-block__projects">
-              <span class="skill-block__project-link" data-project="pistolwhip">Pistol Whip</span>
-              <span class="skill-block__project-link" data-project="foundation">Foundation</span>
-              <span class="skill-block__project-link" data-project="horizon">Horizon Worlds</span>
-              <span class="skill-block__project-link" data-project="flourish">Flourish</span>
+      <!-- Skills Layout - Two Column Magazine Editorial Style -->
+      <div class="skills-columns">
+        <!-- Left Column: Hard Skills -->
+        <div class="skills-column skills-column--hard">
+          <h3 class="skills-column__header">Hard Skills</h3>
+          <div class="skills-column__grid">
+
+            <!-- Hard Skill 1: Data-Driven Design -->
+            <div class="skill-block" data-skill="data-driven">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- Data Driven: Analytics dashboard with rising trend line -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1">
+                      <rect x="4" y="30" width="8" height="14" />
+                      <rect x="15" y="22" width="8" height="22" />
+                      <rect x="26" y="16" width="8" height="28" />
+                      <rect x="37" y="8" width="8" height="36" />
+                      <path d="M8 14 L19 10 L30 6 L41 3" stroke="#FF3333" stroke-width="1" />
+                      <circle cx="8" cy="14" r="2" fill="#FF3333" />
+                      <circle cx="19" cy="10" r="2" fill="#FF3333" />
+                      <circle cx="30" cy="6" r="2" fill="#FF3333" />
+                      <circle cx="41" cy="3" r="2" fill="#FF3333" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">DATA<br><span class="stagger-right">DRIVEN</span></h3>
+                <p class="skill-block__desc">Analyzing user data to inform and validate design decisions for maximum
+                  impact and measurable results.</p>
+              </div>
+            </div>
+
+            <!-- Hard Skill 2: UX Architecture -->
+            <div class="skill-block" data-skill="ux-architecture">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- UX Architecture: Wireframe/sitemap with user flow arrows -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1">
+                      <rect x="16" y="2" width="16" height="10" />
+                      <rect x="2" y="20" width="12" height="8" />
+                      <rect x="18" y="20" width="12" height="8" />
+                      <rect x="34" y="20" width="12" height="8" />
+                      <rect x="6" y="36" width="10" height="8" />
+                      <rect x="19" y="36" width="10" height="8" />
+                      <rect x="32" y="36" width="10" height="8" />
+                      <path d="M24 12 L24 20" stroke="#FF3333" stroke-width="1" />
+                      <path d="M8 28 L8 36" stroke="#FF3333" stroke-width="1" />
+                      <path d="M24 28 L24 36" stroke="#FF3333" stroke-width="1" />
+                      <path d="M40 28 L40 36" stroke="#FF3333" stroke-width="1" />
+                      <circle cx="24" cy="7" r="2" fill="#FF3333" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">UX<br><span class="stagger-right">ARCHITECTURE</span></h3>
+                <p class="skill-block__desc">Creating comprehensive information structures and user flow maps for
+                  intuitive navigation.</p>
+              </div>
+            </div>
+
+            <!-- Hard Skill 3: Technical Prototyping -->
+            <div class="skill-block" data-skill="prototyping">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- Tech Prototyping: Blueprint/schematic with iteration arrows -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1">
+                      <rect x="6" y="6" width="24" height="18" />
+                      <line x1="10" y1="11" x2="26" y2="11" />
+                      <line x1="10" y1="15" x2="22" y2="15" />
+                      <line x1="10" y1="19" x2="18" y2="19" />
+                      <path d="M34 12 C42 12 42 24 34 24" stroke="#FF3333" stroke-width="1" />
+                      <polygon points="32,22 34,26 36,22" fill="#FF3333" stroke="none" />
+                      <rect x="16" y="28" width="20" height="14" stroke-dasharray="3 2" />
+                      <circle cx="26" cy="35" r="3" fill="#FF3333" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">TECH<br><span class="stagger-right">PROTOTYPING</span></h3>
+                <p class="skill-block__desc">Developing interactive, high-fidelity prototypes using code and advanced
+                  tools to simulate final products.</p>
+              </div>
+            </div>
+
+            <!-- Hard Skill 4: Level Design -->
+            <div class="skill-block" data-skill="level-design">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- Level Design: 3D isometric map with path/goal marker -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1">
+                      <polygon points="24,4 44,16 44,36 24,44 4,36 4,16" />
+                      <line x1="24" y1="4" x2="24" y2="44" />
+                      <line x1="4" y1="16" x2="44" y2="16" />
+                      <path d="M10 22 L18 28 L24 24 L32 30 L38 26" stroke="#FF3333" stroke-width="1" />
+                      <circle cx="38" cy="26" r="3" fill="#FF3333" />
+                      <polygon points="10,20 10,24 14,22" fill="#FF3333" stroke="none" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">LEVEL<br><span class="stagger-right">DESIGN</span></h3>
+                <p class="skill-block__desc">Crafting engaging and challenging game environments with balanced pacing
+                  and rewarding progression.</p>
+              </div>
+            </div>
+
+            <!-- Hard Skill 5: Unity/Unreal Scripting -->
+            <div class="skill-block" data-skill="scripting">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- Game Scripting: Code brackets with node/flowchart elements -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1">
+                      <path d="M12 6 L4 24 L12 42" />
+                      <path d="M36 6 L44 24 L36 42" />
+                      <rect x="16" y="10" width="16" height="8" fill="none" />
+                      <rect x="16" y="30" width="16" height="8" fill="none" />
+                      <line x1="24" y1="18" x2="24" y2="30" stroke="#FF3333" stroke-width="1" />
+                      <circle cx="24" cy="24" r="2" fill="#FF3333" />
+                      <line x1="18" y1="14" x2="30" y2="14" stroke="#FF3333" stroke-width="1" />
+                      <line x1="18" y1="34" x2="26" y2="34" stroke="#FF3333" stroke-width="1" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">GAME<br><span class="stagger-right">SCRIPTING</span></h3>
+                <p class="skill-block__desc">Programming game logic and mechanics in C# (Unity) and Blueprints/C++
+                  (Unreal) for dynamic functionality.</p>
+              </div>
+            </div>
+
+            <!-- Hard Skill 6: System Design -->
+            <div class="skill-block" data-skill="system-design">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- System Design: Interconnected gears/nodes network -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1">
+                      <circle cx="24" cy="8" r="5" />
+                      <circle cx="8" cy="28" r="5" />
+                      <circle cx="40" cy="28" r="5" />
+                      <circle cx="16" cy="42" r="4" />
+                      <circle cx="32" cy="42" r="4" />
+                      <line x1="24" y1="13" x2="11" y2="24" stroke="#FF3333" stroke-width="1" />
+                      <line x1="24" y1="13" x2="37" y2="24" stroke="#FF3333" stroke-width="1" />
+                      <line x1="8" y1="33" x2="16" y2="38" stroke="#FF3333" stroke-width="1" />
+                      <line x1="40" y1="33" x2="32" y2="38" stroke="#FF3333" stroke-width="1" />
+                      <line x1="13" y1="28" x2="35" y2="28" stroke="#FF3333" stroke-width="1" />
+                      <circle cx="24" cy="8" r="2" fill="#FF3333" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">SYSTEM<br><span class="stagger-right">DESIGN</span></h3>
+                <p class="skill-block__desc">Designing complex, interconnected systems and mechanics for robustness,
+                  scalability, and emergent gameplay.</p>
+              </div>
             </div>
           </div>
-          <div class="skill-block__accent"></div>
         </div>
 
-        <div class="skill-block" data-skill="ux">
-          <span class="skill-block__number">02</span>
-          <div class="skill-block__wave">
-            <img src="images/WavyLineCircles/Wavy Line 5.png" alt="">
-          </div>
-          <h3 class="skill-block__title">UX and System Architecture</h3>
-          <p class="skill-block__desc">Deep expertise in core mechanics, progression systems, and user-centered
-            design.</p>
-          <button class="skill-block__expand-btn">[+ See Projects]</button>
-          <div class="skill-block__details">
-            <div class="skill-block__projects">
-              <span class="skill-block__project-link" data-project="form">FORM</span>
-              <span class="skill-block__project-link" data-project="petras">Petra's Planet</span>
-              <span class="skill-block__project-link" data-project="socom">SOCOM</span>
-              <span class="skill-block__project-link" data-project="residentevil">Resident Evil</span>
-              <span class="skill-block__project-link" data-project="bully">Bully</span>
+        <!-- Vertical Divider -->
+        <div class="skills-divider"></div>
+
+        <!-- Right Column: Soft Skills -->
+        <div class="skills-column skills-column--soft">
+          <h3 class="skills-column__header">Soft Skills</h3>
+          <div class="skills-column__grid">
+
+            <!-- Soft Skill 1: Creative Leadership -->
+            <div class="skill-block" data-skill="creative-leadership">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- Creative Leadership: Lightbulb with radiating vision lines -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1">
+                      <path
+                        d="M24 4 C14 4 8 12 8 20 C8 26 12 30 16 34 L16 40 L32 40 L32 34 C36 30 40 26 40 20 C40 12 34 4 24 4 Z" />
+                      <line x1="18" y1="44" x2="30" y2="44" />
+                      <line x1="24" y1="2" x2="24" y2="0" stroke="#00CED1" stroke-width="1" />
+                      <line x1="42" y1="20" x2="46" y2="20" stroke="#00CED1" stroke-width="1" />
+                      <line x1="2" y1="20" x2="6" y2="20" stroke="#00CED1" stroke-width="1" />
+                      <line x1="38" y1="8" x2="41" y2="5" stroke="#00CED1" stroke-width="1" />
+                      <line x1="10" y1="8" x2="7" y2="5" stroke="#00CED1" stroke-width="1" />
+                      <circle cx="24" cy="20" r="4" fill="#00CED1" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">CREATIVE<br><span class="stagger-right">LEADERSHIP</span></h3>
+                <p class="skill-block__desc">Guiding teams with a clear vision, fostering an environment of innovation
+                  and excellence.</p>
+              </div>
             </div>
-          </div>
-          <div class="skill-block__accent"></div>
-        </div>
 
-        <div class="skill-block" data-skill="pitching">
-          <span class="skill-block__number">03</span>
-          <div class="skill-block__wave">
-            <img src="images/WavyLineCircles/Wavy Line 9.png" alt="">
-          </div>
-          <h3 class="skill-block__title">Pitching & Creative Direction</h3>
-          <p class="skill-block__desc">Proven track record pitching concepts to stakeholders and driving projects to
-            greenlight.</p>
-          <button class="skill-block__expand-btn">[+ See Projects]</button>
-          <div class="skill-block__details">
-            <div class="skill-block__projects">
-              <span class="skill-block__project-link" data-project="pistolwhip">Pistol Whip</span>
-              <span class="skill-block__project-link" data-project="proximity">Proximity</span>
-              <span class="skill-block__project-link" data-project="flourish">Flourish</span>
-              <span class="skill-block__project-link" data-project="foundation">Foundation</span>
+            <!-- Soft Skill 2: Team Mentorship -->
+            <div class="skill-block" data-skill="mentorship">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- Team Mentorship: Person with upward growth arrow, guiding hand -->
+                    <!-- Team Mentorship: Two figures with rising growth arrow -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1.5">
+                      <!-- Left Figure -->
+                      <circle cx="15" cy="15" r="5" />
+                      <path d="M6 42 V 32 C 6 26 15 26 15 26 C 19 26 21.5 27.5 23 29" stroke-linecap="round" />
+
+                      <!-- Right Figure -->
+                      <circle cx="33" cy="15" r="5" />
+                      <path d="M26 31 C 27.5 28 29 26 33 26 C 42 26 42 32 42 32 V 42" stroke-linecap="round" />
+
+                      <!-- Growth Arrow -->
+                      <!-- Growth Arrow -->
+                      <path d="M6 42 L 20 34 L 28 36 L 44 26" stroke="#00CED1" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                      <polyline points="36 26 44 26 44 34" stroke="#00CED1" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">TEAM<br><span class="stagger-right">MENTORSHIP</span></h3>
+                <p class="skill-block__desc">Coaching and developing talent, sharing knowledge, and promoting
+                  professional growth.</p>
+              </div>
             </div>
-          </div>
-          <div class="skill-block__accent"></div>
-        </div>
 
-        <div class="skill-block" data-skill="motivation">
-          <span class="skill-block__number">04</span>
-          <div class="skill-block__wave">
-            <img src="images/WavyLineCircles/Wavy Line 15.png" alt="">
-          </div>
-          <h3 class="skill-block__title">User Motivation</h3>
-          <p class="skill-block__desc">Behavioral design rooted in psychology to drive engagement, retention, and
-            monetization.</p>
-          <button class="skill-block__expand-btn">[+ See Projects]</button>
-          <div class="skill-block__details">
-            <div class="skill-block__projects">
-              <span class="skill-block__project-link" data-project="petras">Petra's Planet</span>
-              <span class="skill-block__project-link" data-project="citizengrim">Citizen Grim</span>
-              <span class="skill-block__project-link" data-project="pistolwhip">Pistol Whip</span>
-              <span class="skill-block__project-link" data-project="flourish">Flourish</span>
+            <!-- Soft Skill 3: Stakeholder Pitching -->
+            <div class="skill-block" data-skill="pitching">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- Stakeholder Pitching: Presentation screen with ascending chart -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1">
+                      <rect x="4" y="4" width="40" height="28" />
+                      <line x1="24" y1="32" x2="24" y2="40" />
+                      <line x1="14" y1="40" x2="34" y2="40" />
+                      <path d="M10 26 L18 20 L26 22 L38 10" stroke="#00CED1" stroke-width="1" />
+                      <polygon points="38,8 40,12 36,12" fill="#00CED1" stroke="none" transform="rotate(-45 38 10)" />
+                      <circle cx="10" cy="26" r="2" fill="#00CED1" />
+                      <line x1="10" y1="14" x2="22" y2="14" stroke="#0A0A0A" stroke-width="1" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">STAKEHOLDER<br><span class="stagger-right">PITCHING</span></h3>
+                <p class="skill-block__desc">Communicating concepts persuasively to stakeholders, translating complex
+                  ideas into compelling value propositions.</p>
+              </div>
             </div>
-          </div>
-          <div class="skill-block__accent"></div>
-        </div>
 
-        <div class="skill-block" data-skill="narrative">
-          <span class="skill-block__number">05</span>
-          <div class="skill-block__wave">
-            <img src="images/WavyLineCircles/Wavy Line 22.png" alt="">
-          </div>
-          <h3 class="skill-block__title">Product Communication and Narrative</h3>
-          <p class="skill-block__desc">Crafting compelling stories and character experiences that drive emotional
-            engagement.</p>
-          <button class="skill-block__expand-btn">[+ See Projects]</button>
-          <div class="skill-block__details">
-            <div class="skill-block__projects">
-
-              <span class="skill-block__project-link" data-project="form">FORM</span>
-              <span class="skill-block__project-link" data-project="proximity">Proximity</span>
-              <span class="skill-block__project-link" data-project="marvel">Dimension of Heroes</span>
-              <span class="skill-block__project-link" data-project="bully">Bully</span>
+            <!-- Soft Skill 4: Cross-Functional Collaboration -->
+            <div class="skill-block" data-skill="collaboration">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- Cross Function: Four quadrants connected by central hub -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1">
+                      <rect x="4" y="4" width="14" height="14" />
+                      <rect x="30" y="4" width="14" height="14" />
+                      <rect x="4" y="30" width="14" height="14" />
+                      <rect x="30" y="30" width="14" height="14" />
+                      <line x1="18" y1="11" x2="30" y2="11" stroke="#00CED1" stroke-width="1" />
+                      <line x1="18" y1="37" x2="30" y2="37" stroke="#00CED1" stroke-width="1" />
+                      <line x1="11" y1="18" x2="11" y2="30" stroke="#00CED1" stroke-width="1" />
+                      <line x1="37" y1="18" x2="37" y2="30" stroke="#00CED1" stroke-width="1" />
+                      <circle cx="24" cy="24" r="5" fill="#00CED1" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">CROSS<br><span class="stagger-right">FUNCTION</span></h3>
+                <p class="skill-block__desc">Working seamlessly across disciplines, bridging gaps between design,
+                  engineering, and art.</p>
+              </div>
             </div>
+
+            <!-- Soft Skill 5: Vision Alignment -->
+            <div class="skill-block" data-skill="vision">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- Vision Alignment: Compass/target with aligned arrows -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1">
+                      <circle cx="24" cy="24" r="20" />
+                      <circle cx="24" cy="24" r="12" />
+                      <circle cx="24" cy="24" r="4" />
+                      <line x1="24" y1="4" x2="24" y2="12" stroke="#00CED1" stroke-width="1" />
+                      <line x1="24" y1="36" x2="24" y2="44" stroke="#00CED1" stroke-width="1" />
+                      <line x1="4" y1="24" x2="12" y2="24" stroke="#00CED1" stroke-width="1" />
+                      <line x1="36" y1="24" x2="44" y2="24" stroke="#00CED1" stroke-width="1" />
+                      <circle cx="24" cy="24" r="2" fill="#00CED1" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">VISION<br><span class="stagger-right">ALIGNMENT</span></h3>
+                <p class="skill-block__desc">Ensuring all project elements and team efforts are synchronized with the
+                  overarching creative vision.</p>
+              </div>
+            </div>
+
+            <!-- Soft Skill 6: Strategic Communication -->
+            <div class="skill-block" data-skill="communication">
+              <div class="skill-block__content">
+                <div class="skill-block__header-group">
+                  <div class="skill-block__icon">
+                    <!-- Strategic Comms: Speech bubbles with signal/broadcast waves -->
+                    <svg viewBox="0 0 48 48" fill="none" stroke="#0A0A0A" stroke-width="1">
+                      <path d="M4 4 L30 4 L30 18 L16 18 L10 24 L10 18 L4 18 Z" />
+                      <path d="M18 22 L44 22 L44 36 L30 36 L30 42 L24 36 L18 36 Z" />
+                      <line x1="8" y1="9" x2="26" y2="9" stroke="#0A0A0A" stroke-width="1" />
+                      <line x1="8" y1="13" x2="20" y2="13" stroke="#0A0A0A" stroke-width="1" />
+                      <line x1="22" y1="27" x2="40" y2="27" stroke="#00CED1" stroke-width="1" />
+                      <line x1="22" y1="31" x2="36" y2="31" stroke="#00CED1" stroke-width="1" />
+                      <circle cx="37" cy="6" r="3" fill="none" stroke="#00CED1" stroke-width="1" />
+                      <path d="M42 3 C46 6 46 10 42 13" stroke="#00CED1" stroke-width="1" fill="none" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 class="skill-block__title">STRATEGIC<br><span class="stagger-right">COMMS</span></h3>
+                <p class="skill-block__desc">Articulating project status and risks effectively to all levels of the
+                  organization for transparency.</p>
+              </div>
+            </div>
+
           </div>
-          <div class="skill-block__accent"></div>
         </div>
 
-        <div class="skill-block skill-block--large" data-skill="cross-discipline">
-          <span class="skill-block__number">06</span>
-          <div class="skill-block__wave">
-            <img src="images/WavyLineCircles/Wavy Line 30.png" alt="">
-          </div>
-          <h3 class="skill-block__title">Cross-Discipline Leadership</h3>
-          <p class="skill-block__desc">Leading and mentoring multidisciplinary teams while aligning production,
-            engineering, and art.</p>
-          <button class="skill-block__expand-btn">[+ See Projects]</button>
-          <div class="skill-block__details">
-            <div class="skill-block__projects">
-              <span class="skill-block__project-link" data-project="pistolwhip">Pistol Whip</span>
-              <span class="skill-block__project-link" data-project="foundation">Foundation</span>
-              <span class="skill-block__project-link" data-project="marvel">Marvel</span>
-              <span class="skill-block__project-link" data-project="horizon">Horizon Worlds</span>
-              <span class="skill-block__project-link" data-project="flourish">Flourish</span>
-            </div>
-          </div>
-          <div class="skill-block__accent"></div>
-        </div>
       </div>
+    </div>
+    </div>
     </div>
     <!-- Corner elements -->
     <div class="corner-bracket corner-bracket--bottom-left">└</div>
     <div class="corner-bracket corner-bracket--top-right">┐</div>
     <!-- Decorative circles -->
-    <div class="decorative-circles">○○○</div>
+
   </section>
 
   <!-- Experience Timeline -->
@@ -590,7 +790,6 @@
     </div>
   </section>
 
-  <!-- Portfolio -->
   <section id="work">
     <!-- Vector wave decorations -->
     <div class="wave-decoration wave-decoration--work-top wave-decoration--dark">
@@ -799,15 +998,22 @@
         <article class="project-card project-card--mystery" data-project="mystery">
           <img src="images/Mystery_banner.webp" alt="???" class="project-card__image" loading="lazy">
           <div class="project-card__overlay">
-            <h3 class="project-card__title">???</h3>
-            <span class="project-card__role">The Unreleased</span>
-            <p class="project-card__desc">Seeds planted but not bloomed...</p>
+            <h3 class="project-card__title">The Unreleased</h3>
+            <span class="project-card__role">Various Roles</span>
+            <p class="project-card__desc">Reflections on cancelled projects and the lessons they taught.</p>
           </div>
         </article>
 
       </div>
     </div>
+    <!-- Corner elements -->
+    <div class="corner-bracket corner-bracket--bottom-left">└</div>
+    <div class="corner-bracket corner-bracket--top-right">┐</div>
+    <!-- Decorative circles -->
+    <div class="decorative-circles">○○○</div>
   </section>
+
+
 
   <!-- Project Modal -->
   <div class="modal" id="projectModal">
