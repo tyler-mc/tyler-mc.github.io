@@ -1,18 +1,5 @@
 # Exclude personal documents and scripts
 parse_content.py
 portfolio_export.md
-Tyler McCulloch – Design Director Resume.docx.pdf
-Tyler McCulloch – ProductDesign Manager Resume-1.pdf
-TylerMcCulloch_EATechnicalDesignerCV.pdf
-TylerMcCulloch_FortisCoverLetter.pdf
-TylerMcCulloch_GardensCoverLetter.pdf
-TylerMcCulloch_RippleEffectCoverLetter.pdf
-TylerMcCulloch_SGICoverLetter.pdf
+
 .DS_Store
-DocuGenius/Tyler McCulloch – Design Director Resume.docx.md
-DocuGenius/Tyler McCulloch – ProductDesign Manager Resume-1.md
-DocuGenius/TylerMcCulloch_EATechnicalDesignerCV.md
-DocuGenius/TylerMcCulloch_FortisCoverLetter.md
-DocuGenius/TylerMcCulloch_GardensCoverLetter.md
-DocuGenius/TylerMcCulloch_RippleEffectCoverLetter.md
-DocuGenius/TylerMcCulloch_SGICoverLetter.md

@@ -1411,6 +1411,9 @@ section {
   margin: var(--space-lg) 0;
   border-radius: var(--radius-md);
   overflow: hidden;
+  position: relative;
+  z-index: 1;
+  /* Ensure images appear above wave decorations */
 }
 
 .case-study__image img {
@@ -1424,6 +1427,9 @@ section {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--space-md);
   margin: var(--space-lg) 0;
+  position: relative;
+  z-index: 1;
+  /* Ensure gallery appears above wave decorations */
 }
 
 .case-study__gallery .case-study__image {
@@ -1440,6 +1446,9 @@ section {
 .case-study__body figure {
   margin: var(--space-lg) 0;
   width: 100%;
+  position: relative;
+  z-index: 1;
+  /* Ensure images appear above wave decorations */
 }
 
 .case-study__body figure img {
@@ -1462,6 +1471,8 @@ section {
 /* Video Embed Styling */
 .case-study__body figure.video-embed {
   position: relative;
+  z-index: 1;
+  /* Ensure videos appear above wave decorations */
   padding-bottom: 56.25%;
   /* 16:9 aspect ratio */
   height: 0;
