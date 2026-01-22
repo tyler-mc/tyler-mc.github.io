@@ -13,6 +13,9 @@ LLMs-Txt: https://jtylermc.ca/llms.txt
 # Crawl-delay suggestion (optional, not all bots respect this)
 Crawl-delay: 1
 
+# Disallow Cloudflare internal paths (causes 404s)
+Disallow: /cdn-cgi/
+
 # Disallow internal/development files
 Disallow: /DocuGenius/
 Disallow: /*.pdf$
