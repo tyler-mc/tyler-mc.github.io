@@ -3,3 +3,11 @@ parse_content.py
 portfolio_export.md
 
 .DS_Store
+
+# Private working files (never publish)
+DocuGenius/
+.agent/
+.claude/
+
+# Unreferenced mood-board screenshots
+images/DesignStyle/
