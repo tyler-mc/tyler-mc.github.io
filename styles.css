@@ -3,7 +3,7 @@
    ============================================ */
 
 /* Typography Imports */
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap');
 
 /* CSS Custom Properties */
 :root {
@@ -19,7 +19,6 @@
   --accent-red: #FF3333;
   /* Darker red for small text: 4.7:1 on the cream background */
   --accent-red-text: #D62020;
-  --accent-cyan: #00CED1;
   --accent-red-muted: rgba(255, 51, 51, 0.15);
 
   /* Text Colors */
@@ -42,6 +41,8 @@
   --font-heading: 'Anton', 'Impact', sans-serif;
   --font-body: 'IBM Plex Mono', 'Consolas', monospace;
   --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+  /* Long-form reading text */
+  --font-prose: 'IBM Plex Sans', system-ui, sans-serif;
 
   /* Spacing */
   --space-xs: 0.5rem;
@@ -155,7 +156,7 @@ a {
 }
 
 a:hover {
-  color: var(--accent-red);
+  color: var(--accent-red-text);
 }
 
 /* Container */
@@ -193,7 +194,7 @@ section {
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--accent-red);
+  color: var(--accent-red-text);
   margin-bottom: var(--space-sm);
   padding: 0.25rem 0.75rem;
   border: 1px solid var(--accent-red);
@@ -300,7 +301,7 @@ section {
 
 .tag--accent {
   background: var(--accent-red-muted);
-  border-color: var(--accent-red);
+  border-color: var(--accent-red-text);
   color: var(--accent-red);
 }
 
@@ -522,12 +523,12 @@ section {
 
   20% {
     transform: translate(3px, -2px) scale(0.95);
-    filter: sepia(1) saturate(3) hue-rotate(130deg) brightness(1.3);
+    filter: brightness(0) invert(0.35);
   }
 
   30% {
     transform: translate(-2px, -1px) scale(1.02);
-    filter: invert(1) hue-rotate(90deg);
+    filter: sepia(1) saturate(6) hue-rotate(-25deg) brightness(1.1);
   }
 
   40% {
@@ -537,12 +538,12 @@ section {
 
   60% {
     transform: translate(-1px, 1px) scale(1.01);
-    filter: sepia(1) saturate(3) hue-rotate(130deg) brightness(1.2);
+    filter: brightness(0) invert(0.35);
   }
 
   80% {
     transform: translate(1px, -1px) scale(0.99);
-    filter: invert(0.8) hue-rotate(200deg);
+    filter: brightness(0);
   }
 }
 
@@ -694,8 +695,7 @@ section {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 1;
-  opacity: 0.4;
+  z-index: 0;
 }
 
 /* Ensure content is above particles */
@@ -719,27 +719,27 @@ section {
 /* Glitch burst - used by the logo easter egg message */
 @keyframes activeGlitch {
   0% {
-    text-shadow: -2px 0 var(--accent-red), 2px 0 var(--accent-cyan);
+    text-shadow: -2px 0 var(--accent-red), 2px 0 rgba(10, 10, 10, 0.55);
     transform: translate(0);
   }
 
   20% {
-    text-shadow: 2px 0 var(--accent-red), -2px 0 var(--accent-cyan);
+    text-shadow: 2px 0 var(--accent-red), -2px 0 rgba(10, 10, 10, 0.55);
     transform: translate(-1px, 1px);
   }
 
   40% {
-    text-shadow: -1px 0 var(--accent-red), 1px 0 var(--accent-cyan);
+    text-shadow: -1px 0 var(--accent-red), 1px 0 rgba(10, 10, 10, 0.55);
     transform: translate(1px, -1px);
   }
 
   60% {
-    text-shadow: 1px 0 var(--accent-red), -1px 0 var(--accent-cyan);
+    text-shadow: 1px 0 var(--accent-red), -1px 0 rgba(10, 10, 10, 0.55);
     transform: translate(0, 1px);
   }
 
   80% {
-    text-shadow: -1px 0 var(--accent-red), 1px 0 var(--accent-cyan);
+    text-shadow: -1px 0 var(--accent-red), 1px 0 rgba(10, 10, 10, 0.55);
     transform: translate(0, -1px);
   }
 
@@ -747,151 +747,6 @@ section {
     text-shadow: none;
     transform: translate(0);
   }
-}
-
-/* ============================================
-   Skills Section
-   ============================================ */
-/* ============================================
-   Skills Section
-   ============================================ */
-/* Column layout for skills */
-.skills-column__header {
-  font-family: var(--font-heading);
-  font-size: 2rem;
-  margin-bottom: var(--space-lg);
-  border-bottom: 2px solid var(--text-primary);
-  padding-bottom: var(--space-xs);
-  text-transform: uppercase;
-  display: inline-block;
-}
-
-.skills-column__grid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-
-.skill-card,
-.skill-block {
-  background: var(--bg-secondary);
-  border: 2px solid var(--text-primary);
-  border-radius: 0;
-  padding: var(--space-sm);
-  position: relative;
-  transition: all var(--transition-fast);
-  box-shadow: 8px 8px 0 var(--text-primary);
-  aspect-ratio: 1/0.9;
-  /* Height is 90% of width */
-  /* Let content dictate height, or set specific if needed */
-  display: flex;
-  flex-direction: column;
-  z-index: 2;
-  min-width: 0;
-  /* Critical for grid to shrink items */
-  /* overflow: hidden; Removed to allow growth if content overflows */
-}
-
-.skill-block:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 11px 11px 0 var(--text-primary);
-  background: var(--bg-primary);
-}
-
-.skill-block__content {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-  text-align: left;
-}
-
-/* Staggered Header Group: Icon only explicitly */
-.skill-block__header-group {
-  display: flex;
-  justify-content: flex-end;
-  /* Icon to right */
-  align-items: flex-start;
-  margin-bottom: 0;
-  /* Space handled by title margin top */
-  border-bottom: none;
-  width: 100%;
-}
-
-.skill-block__title {
-  font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 2.5vw, 3rem);
-  /* Reduced from 5rem to fit 4-col grid */
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  margin: 0;
-  margin-top: auto;
-  /* Push to bottom */
-  margin-bottom: var(--space-xs);
-  /* Space before description */
-  max-width: 100%;
-  /* Allow full width use */
-  word-break: break-word;
-  /* Ensure ARCHITECTURE wraps if needed */
-  overflow-wrap: break-word;
-  hyphens: auto;
-  text-align: left;
-}
-
-.stagger-right {
-  display: block;
-  margin-left: 0;
-}
-
-/* Icon Box - larger, refined */
-.skill-block__icon {
-  width: 80px;
-  height: 80px;
-  margin-top: -4px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  /* border: 2px solid var(--text-primary); Optional: remove border for cleaner look if icon is solid */
-}
-
-.skill-block__icon svg {
-  width: 100%;
-  height: 100%;
-  stroke-width: 1.5px;
-}
-
-.skill-block__desc {
-  font-family: var(--font-mono);
-  font-size: clamp(0.65rem, 1.5vw, 0.85rem);
-  line-height: 1.5;
-  color: var(--text-secondary);
-  margin-top: 0;
-  /* Removed auto margin as title handles pushing down */
-  text-align: left;
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
-
-/* Remove old hover effects that inverted colors */
-.skill-card:hover .skill-card__title,
-.skill-card:hover .skill-card__desc,
-.skill-block:hover .skill-block__title,
-.skill-block:hover .skill-block__desc {
-  color: var(--text-primary);
-}
-
-.skill-card:hover .skill-card__icon,
-.skill-block:hover .skill-block__icon {
-  background: transparent;
-  transform: none;
-}
-
-.skill-card:hover .skill-card__icon img,
-.skill-block:hover .skill-block__icon svg {
-  filter: none;
 }
 
 
@@ -1003,7 +858,7 @@ section {
 .project-card__role {
   font-family: var(--font-mono);
   font-size: 0.65rem;
-  color: var(--accent-red);
+  color: var(--accent-red-text);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: var(--space-xs);
@@ -1075,7 +930,7 @@ section {
 .timeline__year {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: var(--accent-red);
+  color: var(--accent-red-text);
   margin-bottom: var(--space-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1111,7 +966,7 @@ section {
 
 .timeline__accomplishments strong {
   display: block;
-  color: var(--accent-red);
+  color: var(--accent-red-text);
   font-weight: 600;
   margin-bottom: 0.2rem;
 }
@@ -1310,7 +1165,7 @@ section {
 .case-study__tagline {
   font-size: 1.25rem;
   font-style: italic;
-  color: var(--accent-red);
+  color: var(--accent-red-text);
   margin-bottom: var(--space-lg);
   padding-bottom: var(--space-lg);
   border-bottom: 1px solid var(--border-subtle);
@@ -1475,7 +1330,7 @@ section {
 }
 
 .glass-card.text-fading .about-keyword {
-  color: var(--accent-red);
+  color: var(--accent-red-text);
   transition: none;
 }
 
@@ -1487,7 +1342,7 @@ section {
 
 /* Show only keywords and make them jiggle for 500ms */
 .glass-card.keywords-activated .about-keyword {
-  color: var(--accent-red);
+  color: var(--accent-red-text);
   animation: jiggle 0.25s ease-in-out 2;
   /* Play twice for 500ms total */
 }
@@ -1511,7 +1366,7 @@ section {
 /* Create poem lines based on data-line attribute */
 .glass-card.keywords-poem .about-keyword {
   font-size: 1.1rem;
-  color: var(--accent-red);
+  color: var(--accent-red-text);
   font-weight: 700;
   animation: none;
   /* Stop jiggling */
@@ -1536,7 +1391,7 @@ section {
 
 .poem-line {
   font-size: 1.1rem;
-  color: var(--accent-red);
+  color: var(--accent-red-text);
   font-weight: 400;
   line-height: 1.6;
   opacity: 0;
@@ -1648,24 +1503,6 @@ section {
   opacity: 0.45;
 }
 
-.wave-decoration--skills-left {
-  top: 10%;
-  left: -80px;
-  width: 420px;
-  height: 280px;
-  transform: rotate(8deg);
-  opacity: 0.4;
-}
-
-.wave-decoration--skills-right {
-  bottom: 15%;
-  right: -60px;
-  width: 480px;
-  height: 320px;
-  transform: rotate(-12deg);
-  opacity: 0.38;
-}
-
 .wave-decoration--work-top {
   top: 0;
   left: 50%;
@@ -1700,10 +1537,6 @@ section {
 
 .wave-decoration--dark img {
   filter: brightness(0) opacity(0.4);
-}
-
-.wave-decoration--cyan img {
-  filter: sepia(1) saturate(3) hue-rotate(130deg) brightness(1.1);
 }
 
 /* Section positioning for waves */
@@ -1831,170 +1664,6 @@ section {
   pointer-events: none;
 }
 
-/* ============================================
-   Edgy Skills Grid Section
-   ============================================ */
-.skills-section {
-  background: var(--bg-secondary);
-  border-top: 2px solid var(--text-primary);
-  border-bottom: 2px solid var(--text-primary);
-  position: relative;
-  z-index: 2;
-}
-
-/* Skills Two-Column Magazine Editorial Layout */
-.skills-columns {
-  display: flex;
-  gap: var(--space-xl);
-  align-items: flex-start;
-  position: relative;
-  flex-wrap: wrap;
-  /* Prevent overlap on intermediate screens */
-}
-
-/* Individual Column Styling */
-.skills-column {
-  flex: 1;
-  min-width: 0;
-  /* Prevent flex overflow */
-}
-
-/* Column Headers */
-.skills-column__header {
-  font-family: var(--font-heading);
-  font-size: 1.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: var(--space-lg);
-  padding-bottom: 0;
-  position: relative;
-  display: inline-block;
-  /* Wrap width to content */
-  z-index: 1;
-  /* Ensure text sits on top of underline */
-}
-
-/* Thick Underline Base */
-.skills-column__header::after {
-  content: '';
-  position: absolute;
-  left: -5px;
-  /* Slight overhang */
-  right: -5px;
-  /* Slight overhang */
-  bottom: 2px;
-  /* Touch/overlap the bottom of text */
-  height: 14px;
-  /* Thick stroke */
-  z-index: -1;
-  opacity: 0.9;
-}
-
-/* Hard Skills Header - Red Underline */
-.skills-column--hard .skills-column__header {
-  color: var(--text-primary);
-  border-bottom: none;
-}
-
-.skills-column--hard .skills-column__header::after {
-  background-color: var(--accent-red);
-}
-
-/* Soft Skills Header - Cyan Underline */
-.skills-column--soft .skills-column__header {
-  color: var(--text-primary);
-  border-bottom: none;
-}
-
-.skills-column--soft .skills-column__header::after {
-  background-color: var(--accent-cyan);
-}
-
-/* Vertical Divider */
-.skills-divider {
-  width: 4px;
-  background: var(--text-muted);
-  align-self: stretch;
-  position: relative;
-  flex-shrink: 0;
-}
-
-/* Decorative elements on divider */
-.skills-divider::before {
-  content: '※';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.5rem;
-  color: var(--accent-red);
-  background: var(--bg-secondary);
-  padding: var(--space-xs);
-}
-
-/* Grid within each column - 2 columns for 4-col total layout */
-.skills-column__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: var(--space-lg);
-  row-gap: var(--space-lg);
-  align-items: start;
-  margin-bottom: 25%;
-  /* Compensate for stagger overflow */
-}
-
-/* Staggered card offsets using transform to prevent layout gaps */
-.skills-column__grid .skill-block:nth-child(even) {
-  transform: translateY(50%);
-}
-
-/* Maintain stagger on hover */
-.skills-column__grid .skill-block:nth-child(even):hover {
-  transform: translateY(50%) translate(-3px, -3px);
-}
-
-/* Reset whole-column padding */
-.skills-column--soft .skills-column__grid {
-  padding-top: 0;
-}
-
-/* Responsive: 2 columns on mobile too */
-@media (max-width: 900px) {
-  .skills-columns {
-    display: flex;
-    flex-direction: column;
-    /* Stack the main Hard vs Soft groups */
-    gap: var(--space-xl);
-  }
-
-  .skills-divider {
-    display: none;
-  }
-
-  .skills-column__header {
-    font-size: 1.5rem;
-  }
-
-  /* Keep 2 columns on mobile as requested */
-  .skills-column__grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  /* Remove whole column padding on mobile if any */
-  .skills-column--soft .skills-column__grid {
-    padding-top: 0;
-  }
-
-  /* Keep stagger on mobile to maintain style */
-  /* Keep stagger on mobile to maintain style */
-  /* Global transform rule handles this now */
-
-  .skill-block__title {
-    /* Adjust font size for the smaller cards in 4-col layout */
-    font-size: clamp(2rem, 6vw, 3.5rem);
-  }
-}
-
 
 /* ============================================
    Additional Wave Decoration Positions
@@ -2006,15 +1675,6 @@ section {
   height: 350px;
   transform: rotate(15deg);
   opacity: 0.35;
-}
-
-.wave-decoration--skills-center {
-  top: 50%;
-  left: 50%;
-  width: 550px;
-  height: 550px;
-  transform: translate(-50%, -50%);
-  opacity: 0.12;
 }
 
 .wave-decoration--work-side {
@@ -2164,21 +1824,11 @@ section {
   animation-delay: -4s;
 }
 
-.wave-decoration--skills-left {
-  --wave-rotation: 8deg;
-  animation-delay: -1s;
-}
-
-.wave-decoration--skills-right {
-  --wave-rotation: -12deg;
-  animation-delay: -3s;
-}
-
 /* ============================================
    Case Study Body Links (no blue)
    ============================================ */
 .case-study__body a {
-  color: var(--accent-red);
+  color: var(--accent-red-text);
   text-decoration: underline;
   text-decoration-color: var(--accent-red-muted);
   transition: all var(--transition-fast);
@@ -2729,7 +2379,7 @@ section {
   top: 10px;
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: var(--accent-red);
+  color: var(--accent-red-text);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   white-space: nowrap;
@@ -3372,4 +3022,170 @@ section {
 
 .burst-bit--cross::after {
   transform: rotate(90deg);
+}
+
+
+/* ============================================
+   Visual system: headers, prose, cards, marks
+   ============================================ */
+
+/* Section headers: left-aligned code, title, then a hand-drawn stroke */
+.section-header {
+  text-align: left;
+  margin-bottom: var(--space-xl);
+}
+
+.section-code {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 1;
+  letter-spacing: 0.14em;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  text-align: left;
+  margin-bottom: 0.35rem;
+}
+
+.section-stroke {
+  display: block;
+  width: 180px;
+  height: 18px;
+  overflow: visible;
+}
+
+.section-stroke path {
+  fill: none;
+  stroke: var(--accent-red);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 220;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.6, 0, 0.2, 1) 0.2s;
+}
+
+.section-stroke.will-reveal:not(.is-revealed) {
+  opacity: 1;
+  transform: none;
+}
+
+.section-stroke.will-reveal:not(.is-revealed) path {
+  stroke-dashoffset: 220;
+}
+
+.hero__label::before {
+  content: none;
+}
+
+.contact {
+  text-align: left;
+}
+
+.contact__links {
+  justify-content: flex-start;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    text-align: left;
+  }
+
+  .hero__content {
+    margin: 0;
+  }
+
+  .hero__cta {
+    justify-content: flex-start;
+  }
+}
+
+/* Long prose in Plex Sans; mono stays for labels, codes and buttons */
+.hero__subtitle,
+.glass-card,
+.featured-card__proof,
+.approach-row__proof p,
+.timeline__accomplishments span,
+.case-study__body p,
+.case-study__body li,
+.mystery-modal__text {
+  font-family: var(--font-prose);
+}
+
+.hero__subtitle,
+.glass-card p {
+  font-size: clamp(1rem, 1.3vw, 1.125rem);
+  line-height: 1.65;
+  max-width: 62ch;
+}
+
+/* Portfolio cards: no white wash; title and role sit on solid labels */
+.project-card__overlay {
+  background: none;
+}
+
+.project-card__title,
+.project-card__role {
+  background: var(--bg-primary);
+  padding: 0.2rem 0.45rem;
+}
+
+.project-card__title {
+  border: 2px solid var(--text-primary);
+  margin-bottom: 0;
+}
+
+.project-card__role {
+  border: 2px solid var(--text-primary);
+  border-top: 0;
+}
+
+.project-card:focus-visible .project-card__image,
+.project-card.is-centered .project-card__image {
+  filter: grayscale(0%) contrast(1);
+}
+
+/* One bracket per section, anchored to the content column */
+.container > .corner-bracket--top-left {
+  top: -2.25rem;
+  left: -1.75rem;
+}
+
+.container > .corner-bracket--top-right {
+  top: -2.25rem;
+  right: -1.75rem;
+}
+
+.hero__layout > .corner-bracket--bottom-right {
+  top: auto;
+  bottom: -3rem;
+  right: 0;
+}
+
+@media (max-width: 768px) {
+  .container > .corner-bracket--top-left {
+    left: -0.5rem;
+  }
+
+  .container > .corner-bracket--top-right {
+    right: -0.5rem;
+  }
+}
+
+/* Studio logos: one ink treatment, matched in size */
+.company-logo img,
+.company-logo--large img,
+.company-logo--small img {
+  filter: none;
+  max-height: 46px;
+  max-width: 72%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+.company-logo:hover img {
+  filter: none;
+  opacity: 1;
 }

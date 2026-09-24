@@ -487,8 +487,7 @@ function initReveal() {
     '.section-label',
     '.corner-bracket',
     '.decorative-asterisk',
-    '.decorative-circles',
-    '.skill-block'
+    '.section-stroke'
   ].join(', ');
   let pending = Array.from(document.querySelectorAll(`section:not(#hero) :is(${selector})`));
 
@@ -671,31 +670,16 @@ function initProjectModals() {
     }
 
 
-    // Random selection of wave images for variety
-    const vectorWaves = ['Wireframe 15.png', 'Wireframe 32.png', 'Wireframe 45.png', 'Wireframe 67.png', 'Wireframe 89.png'];
+    // One hand-drawn wave per case study, picked at random
     const wavyLines = ['Wavy Line 23.png', 'Wavy Line 42.png', 'Wavy Line 56.png', 'Wavy Line 74.png', 'Wavy Line 88.png'];
-
-    const randomVector1 = vectorWaves[Math.floor(Math.random() * vectorWaves.length)];
-    const randomVector2 = vectorWaves[Math.floor(Math.random() * vectorWaves.length)];
-    const randomWavy1 = wavyLines[Math.floor(Math.random() * wavyLines.length)];
-    const randomWavy2 = wavyLines[Math.floor(Math.random() * wavyLines.length)];
+    const randomWavy = wavyLines[Math.floor(Math.random() * wavyLines.length)];
 
     modalContent.innerHTML = `
       <div class="case-study">
-        <!-- Wave decorations for modal -->
-        <div class="wave-decoration wave-decoration--modal-top-left wave-decoration--red">
-          <img src="images/VectorWaves/${randomVector1}" alt="">
-        </div>
         <div class="wave-decoration wave-decoration--modal-top-right wave-decoration--dark">
-          <img src="images/WavyLineCircles/${randomWavy1}" alt="">
+          <img src="images/WavyLineCircles/${randomWavy}" alt="">
         </div>
-        <div class="wave-decoration wave-decoration--modal-mid-right wave-decoration--red">
-          <img src="images/VectorWaves/${randomVector2}" alt="">
-        </div>
-        <div class="wave-decoration wave-decoration--modal-bottom-left wave-decoration--dark">
-          <img src="images/WavyLineCircles/${randomWavy2}" alt="">
-        </div>
-        
+
         <div class="case-study__header" style="background-image: url('${project.image}')">
           <div class="case-study__header-overlay">
             <span class="case-study__role">${project.role}</span>
@@ -921,7 +905,7 @@ function initAboutHoverEffect() {
           position: absolute;
           left: ${from.left - cardRect.left}px;
           top: ${from.top - cardRect.top}px;
-          color: var(--accent-red);
+          color: var(--accent-red-text);
           font-size: 1.1rem;
           font-weight: 400;
           transition: left 0.5s ease, top 0.5s ease;
@@ -1182,8 +1166,8 @@ function initParticleField() {
 
   const ctx = canvas.getContext('2d');
   let particles = [];
-  let mouseX = 0;
-  let mouseY = 0;
+  let mouseX = -9999;
+  let mouseY = -9999;
   let animationId;
 
   // Swirl target state
@@ -1196,9 +1180,11 @@ function initParticleField() {
 
   // Particle configuration
   const config = {
-    particleCount: 70,
-    particleColor: '#FF3333', // Accent Red
-    particleColorAlt: '#333333', // Dark Grey for contrast
+    particleCount: window.innerWidth < 768 ? 20 : 40,
+    particleColor: '#FF3333', // Accent red, about 1 in 10
+    particleColorAlt: '#0A0A0A', // Ink
+    linkRadius: 170, // lines only appear this close to the cursor
+    linkDistance: 120,
     maxSize: 5,
     minSize: 2,
     speed: 0.4,
@@ -1228,7 +1214,8 @@ function initParticleField() {
         size: Math.random() * (config.maxSize - config.minSize) + config.minSize,
         speedX: (Math.random() - 0.5) * config.speed,
         speedY: (Math.random() - 0.5) * config.speed,
-        color: Math.random() > 0.85 ? config.particleColor : config.particleColorAlt,
+        color: Math.random() < 0.1 ? config.particleColor : config.particleColorAlt,
+        alpha: 0.22 + Math.random() * 0.14,
         shape: Math.random() > 0.6 ? 'cross' : (Math.random() > 0.5 ? 'square' : 'x'),
         rotation: Math.random() * Math.PI * 2,
         rotationSpeed: (Math.random() - 0.5) * 0.02,
@@ -1332,7 +1319,8 @@ function initParticleField() {
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rotation);
       ctx.strokeStyle = p.color;
-      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = p.color === config.particleColor ? 0.7 : p.alpha;
+      ctx.lineWidth = 1.4;
 
       ctx.beginPath();
 
@@ -1360,21 +1348,25 @@ function initParticleField() {
       ctx.restore();
     });
 
-    // Draw connections (Technical lines)
-    particles.forEach((p1, i) => {
-      particles.slice(i + 1).forEach(p2 => {
-        const dx = p1.x - p2.x;
-        const dy = p1.y - p2.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < 120) {
+    // Connecting lines only around the cursor, so the constellation is
+    // something the visitor draws rather than a permanent background
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 1;
+    const near = particles.filter(p => Math.hypot(p.x - mouseX, p.y - mouseY) < config.linkRadius);
+    near.forEach((a, i) => {
+      const closeness = 1 - Math.hypot(a.x - mouseX, a.y - mouseY) / config.linkRadius;
+      ctx.strokeStyle = `rgba(10, 10, 10, ${(0.3 * closeness).toFixed(3)})`;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(mouseX, mouseY);
+      ctx.stroke();
+      near.slice(i + 1).forEach(b => {
+        const dist = Math.hypot(a.x - b.x, a.y - b.y);
+        if (dist < config.linkDistance) {
+          ctx.strokeStyle = `rgba(255, 51, 51, ${(0.45 * (1 - dist / config.linkDistance) * closeness).toFixed(3)})`;
           ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
-          // Faint technical lines
-          const opacity = (1 - dist / 120) * 0.15;
-          ctx.strokeStyle = `rgba(100, 100, 100, ${opacity})`;
-          ctx.lineWidth = 0.5;
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
           ctx.stroke();
         }
       });
@@ -1981,7 +1973,7 @@ function initCelebrationParticles(canvas) {
   // Initialize particles
   function initParticles() {
     particles = [];
-    const colors = ['#FFFFFF', '#FFD700', '#00CED1', '#FF3333'];
+    const colors = ['#FFFFFF', '#F5F5F0', '#FF3333'];
 
     for (let i = 0; i < 150; i++) {
       particles.push({
