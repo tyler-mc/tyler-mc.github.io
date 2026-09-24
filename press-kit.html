@@ -9,148 +9,131 @@
     <link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
     <meta name="description"
-        content="Press kit for Tyler McCulloch, Game Designer with 22+ years experience. Bio, achievements, and contact information.">
+        content="Press kit for Tyler McCulloch, Game Designer & Director with 22+ years experience. Bio, achievements, and contact information.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://jtylermc.ca/press-kit.html">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <!-- Styles: same tokens and fonts as the portfolio -->
+    <link rel="stylesheet" href="styles.css">
     <style>
-        :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #111;
-            --text-primary: #f5f5f5;
-            --text-secondary: #888;
-            --accent: #e63946;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.7;
-            padding: 3rem 1.5rem;
-            max-width: 800px;
+        .press-kit {
+            max-width: 820px;
             margin: 0 auto;
+            padding: 4rem 1.5rem 5rem;
         }
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
+        .press-kit h1 {
+            font-size: clamp(2.75rem, 7vw, 5rem);
+            line-height: 0.9;
         }
 
-        h2 {
-            font-size: 1.25rem;
-            color: var(--accent);
-            margin-top: 3rem;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
+        .press-kit .subtitle {
+            margin: 0.75rem 0 2.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 600;
             letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent-red-text);
         }
 
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
+        .press-kit h2 {
+            margin: 3.5rem 0 1rem;
+            font-size: 1.75rem;
+        }
+
+        .press-kit h2::after {
+            content: '';
+            display: block;
+            width: 64px;
+            height: 3px;
+            margin-top: 0.4rem;
+            background: var(--accent-red);
         }
 
         .bio-section {
-            background: var(--bg-secondary);
+            margin-bottom: 1.25rem;
             padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--text-primary);
+            box-shadow: 4px 4px 0 var(--text-primary);
         }
 
         .bio-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
             margin-bottom: 0.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-red-text);
+        }
+
+        .bio-section p,
+        .press-kit ul li {
+            font-family: var(--font-prose);
+            line-height: 1.65;
+        }
+
+        .bio-section p + p {
+            margin-top: 1rem;
         }
 
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-            margin: 2rem 0;
+            gap: 1.25rem;
         }
 
         .stat {
-            text-align: center;
-            padding: 1.5rem;
-            background: var(--bg-secondary);
-            border-radius: 8px;
+            padding: 1.25rem;
+            border: 2px solid var(--text-primary);
         }
 
         .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--accent);
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            line-height: 1;
         }
 
         .stat-label {
-            font-size: 0.875rem;
+            margin-top: 0.4rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
             color: var(--text-secondary);
         }
 
-        ul {
+        .press-kit ul {
             list-style: none;
+            border-top: 2px solid var(--text-primary);
         }
 
-        ul li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #222;
-        }
-
-        ul li:last-child {
-            border-bottom: none;
+        .press-kit ul li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .highlight {
-            color: var(--accent);
             font-weight: 600;
+            color: var(--text-primary);
         }
 
-        a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
+        .press-kit a {
+            color: var(--accent-red-text);
         }
 
         .contact-links {
             display: flex;
-            gap: 2rem;
-            margin-top: 1rem;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            font-family: var(--font-mono);
         }
 
-        .back-link {
+        .press-kit .back-link {
             display: inline-block;
             margin-top: 3rem;
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        .back-link:hover {
-            background: var(--accent);
-            color: var(--bg-primary);
-            text-decoration: none;
         }
 
         @media (max-width: 600px) {
@@ -162,6 +145,7 @@
 </head>
 
 <body>
+    <main class="press-kit">
     <header>
         <h1>Tyler McCulloch</h1>
         <p class="subtitle">Game Designer & Director • Press Kit</p>
@@ -198,7 +182,8 @@
                 class="highlight">Bully</span>, and <span class="highlight">FORM</span>, Tyler brings an empathetic,
             player-first design philosophy grounded in psychology and data-driven iteration. He has led
             multidisciplinary teams at studios including Rockstar Games, Cloudhead Games, and Archiact Interactive,
-            consistently delivering critically acclaimed and commercially successful experiences.</p>
+            consistently delivering critically acclaimed and commercially successful experiences. He is currently
+            Studio Design Director at Keywords Studios (Smoking Gun Interactive).</p>
     </div>
 
     <div class="bio-section">
@@ -207,14 +192,12 @@
             entertainment. As Game Director at Cloudhead Games, he directed the content strategy for <span
                 class="highlight">Pistol Whip</span>, the award-winning VR rhythm-shooter that has inspired 500+
             community remixes.</p>
-        <br>
         <p>His career spans industry-defining studios: at <span class="highlight">Rockstar Games</span>, he contributed
             to the combat system for <span class="highlight">Bully</span>—a system that influenced future titles like
             Sleeping Dogs and Batman: Arkham Asylum. At <span class="highlight">Archiact Interactive</span>, he
             co-directed <span class="highlight">Journey to Foundation</span> alongside Mass Effect veterans and led
             creative on <span class="highlight">Horizon Worlds</span> experiences that topped Meta's retention charts.
         </p>
-        <br>
         <p>Tyler's design philosophy centers on emotional resonance and player agency. Whether directing studio-wide
             creative vision or hands-on scripting prototypes, he brings both strategic thinking and technical fluency to
             every project. He thrives on collaboration across art, engineering, and production, and is passionate about
@@ -224,7 +207,7 @@
     <h2>Notable Achievements</h2>
     <ul>
         <li><span class="highlight">Pistol Whip</span> — Game Director — Award-winning, 500+ community remixes</li>
-        <li><span class="highlight">FORM</span> — Lead Designer — Award-winning VR puzzle experience</li>
+        <li><span class="highlight">FORM</span> — Lead Game Designer — Cinequest Best VR Experience winner</li>
         <li><span class="highlight">Bully</span> — Game Designer — Rockstar's beloved open-world classic</li>
         <li><span class="highlight">SOCOM: Tactical Strike</span> — Game Designer — BAFTA-nominated</li>
         <li><span class="highlight">Journey to Foundation</span> — Co-Creative Director — Narrative praised as "main
@@ -234,6 +217,7 @@
 
     <h2>Studios</h2>
     <ul>
+        <li>Keywords Studios (Smoking Gun Interactive)</li>
         <li>Cloudhead Games</li>
         <li>National Film Board of Canada</li>
         <li>Archiact Interactive</li>
@@ -250,7 +234,8 @@
         <a href="https://jtylermc.ca">Portfolio</a>
     </div>
 
-    <a href="/" class="back-link">← Back to Portfolio</a>
+    <a href="/" class="back-link btn btn--outline">[ ← Back to Portfolio ]</a>
+    </main>
 </body>
 
 </html>

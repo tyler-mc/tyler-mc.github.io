@@ -9,7 +9,7 @@ const projectData = {
     role: "Game Director",
     studio: "Cloudhead Games",
     dates: "July 2022 – Nov 2025",
-    image: "images/pistol_whip_banner.jpg",
+    image: "images/featured/pistol-whip-1600.webp",
     tagline: "VR Rhythm-Shooter",
     accomplishment: "Award-winning, critically acclaimed VR rhythm shooter. Community created 500+ remixes.",
     bodyContent: '<p>Pistol Whip is an ongoing VR rhythm-shooter which I acted as Game Director for.</p><figure><img src="images/pistol_whip_content_1.jpg" alt=""></figure><p>I was responsible for planning new content releases and improvements that got added to the game. After it’s release the goal was to continually support the game with additional content releases and keep them free which generated a lot of goodwill with our loyal community.</p><figure><img src="images/pistolwhip_voidslayergif.gif" alt="Pistol Whip content"></figure><p>I also focused on how to expand both music taste as well as new ways to play the game while staying true to the raw simplicity of the base game.</p><p>One of our final updates included creating a pc-based level editor so players could create their own levels. I called this ‘Pistol Mix’ as a nod to song remixes as it allowed players to take preexisting content and remix the levels in new and creative ways.</p><figure><img src="images/pistolwhip_pisstolmix.avif" alt="Pistol Mix level editor"></figure>  It has been an incredible way to continue to keep the community engaged and they have released well over 500 remixes far surpassing our totaly relases over the years of 45 levels.',
@@ -27,7 +27,7 @@ const projectData = {
     role: "Co-Creative Director",
     studio: "Archiact Interactive",
     dates: "2022",
-    image: "images/JourneyToFoundation_Banner.png",
+    image: "images/featured/journey-to-foundation-800.webp",
     tagline: "VR Roleplaying Adventure based on Isaac Asimov's saga",
     accomplishment: "Narrative cited as 'main highlight' in critical reviews.",
     bodyContent: '<p>Overview</p><p>Based on Isaac Asimov’s groundbreaking literary saga, Journey to Foundation is an epic sci-fi VR Roleplaying Adventure.</p><figure><img src="images/JourneyToFoundation_shot1.webp" alt="Journey To Foundation gameplay"></figure><p>I operated as co-creative director on this project so that I could split my focus between this and the <a href="#" class="internal-project-link" data-project="horizon">Horizon World project</a></p><p>I had the amazing opportunity to work closely with Archiact’s Art Director and Executive Producer who had both previously worked on the Mass Effect and Dragon age series and I learnt a lot from them. One of my goals on this project was to make a larger narrative adventure built upon the tools and systems we originally built for <a href="#" class="internal-project-link" data-project="flourish">Flourish</a>. I laid out a lot of the core of the project setting processes, frameworks and goals. </p><figure><img src="images/JourneyToFoundation_GameLoops.jpg" alt="Game loops design"><figcaption>Early breakdown of the loops and the balance of the different gameplay I originally set for the game</figcaption></figure><p><figure><img src="images/JourneyToFoundation_shot2.webp" alt="Journey To Foundation environment"></figure><p>I was primarily responsible for directing and leading the narrative and UX teams and architeching their underlying interaction systems.  I’m particularly proud of the narrative we created as it was consistently given top marks in reviews. A mantra we used was "particpatory drama", where we wanted players to feel involved in the conversations through physical actions and not just menu selections. This ended up as part of the "boss fights" in the final product.</p><figure><img src="images/JourneyToFoundation_shot3.webp" alt="Journey To Foundation gameplay"></figure><figure><img src="images/JourneyToFoundation_MentalicsStoryboard.jpg" alt="Mentalics storyboard"><figcaption>Storyboard I created showing how to use mentalics in conversation via VR UX interactions</figcaption></figure>',
@@ -81,7 +81,7 @@ const projectData = {
     role: "Creative Director",
     studio: "Archiact Interactive",
     dates: "2021",
-    image: "images/Flourish_Banner.jpeg",
+    image: "images/featured/flourish-1600.webp",
     tagline: "VR Physiotherapy Game",
     accomplishment: "Pioneered innovative approach to making repetitive exercise engaging.",
     bodyContent: '<p>The company I was working for was approached by a biomedical tech company with a question.</p><p>\'Can you make a VR game that makes Physiotherapy fun?\'</p><p>I created a pitch where the repetitive exercises required in physio transformed into magical spells.</p><p>The concept was as users literally healed their bodies, this would transform into magical energy that would heal the broken land around you.</p><p>The core inspiration was walking through my local community garden trying to think of a concept. Thinking of how these gardens grow and transform the land into something beautiful.</p><figure><img src="images/Flourish_totoroexample.gif" alt=""><figcaption>Then I remembered this scene from \'My Neighbour Totoro\' performing movements that grew plants and that became the basis for game.</figcaption></figure><p>The client loved the proposal, so we set out to achieve what we hoped would be an experience that would encourage users to continue to return to physio to engage with this experience again.</p><p>I worked closely with our narrative director to establish a basic story structure, including characters that would help guide the user through the experience.</p><p>Each of these characters represented a common reason people either don\'t go to or stop doing physio. As the user progresses, they overcome their own thoughts and are encouraged to continue their own health journeys.</p><figure><img src="images/Floursh_VornConcept.jpg" alt=""><figcaption>Vorn here helps the player through the the first of 4 different biomes that users restore in their journey.</figcaption></figure><p>The art director and I established a look that we felt inviting and would run on the target proprietary hardware. It was important to me that it looked like a fun and whimsical place but did not look too childish as our target audience was not children for this product.</p><figure><img src="images/Flourish_StoryboardExample.jpg" alt=""><figcaption>storyboard from the end of the first biome rescuing Vorn</figcaption></figure><figure><img src="images/Flourish_SessionFlow.png" alt="Session Flow diagram"><figcaption>Architecting the flow of exercises and narrative</figcaption></figure><p>One thing that was really important is that the game has the ability to be customizable by physiotherapists both before the game starts and during a patient session. I designed a \'playlist\'-like system which allowed therapists to swap in different exercises as needed. This proved</p><p>to be quite a technical challenge for our engineers but not only was this accomplished, we created a tool that gave the ability to make new exercise in the future by recording the movements in VR.</p><figure><img src="images/Flourish_ExercisePlaylist.png" alt="Dynamic Exercise Playlist interface"><figcaption>The experience also needed an application for therapists to create realtime exercise plans</figcaption></figure><figure class="video-embed"><div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"><iframe src="https://drive.google.com/file/d/1A_x0TKv-81-LyM2go8KLKI7ViyT5EF2M/preview" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 2px solid var(--text-primary);" allow="autoplay" allowfullscreen></iframe></div><figcaption>A very early version of UX and UI. We went through many iterations to show users how to optimally position themselves for each exercise.</figcaption></figure>',
@@ -117,7 +117,7 @@ const projectData = {
     role: "Lead Game Designer",
     studio: "Charm Games",
     dates: "Jun 2015 – July 2017",
-    image: "images/FORM_banner.jpeg",
+    image: "images/featured/form-1600.webp",
     tagline: "Surreal VR narrative puzzle experience",
     accomplishment: "Award-winning narrative puzzle game.",
     bodyContent: '<p>FORM was created by the talented folks folks at Charm Games and was our first released foray into VR. There were only 3 of us to start which expanded into 5-6 people by the time we launched the game. As the only designer on the project, I was responsible for figuring out most things. I scripted the game almost entirely using Playmaker, a visual scripting tool for Unity.</p><p>The core of the game is interactions, simple puzzles and surreal spectacle. It was designed to take you on a journey that could only be presented in VR.</p><figure><img src="images/FORM_Shot1.png" alt=""></figure><p>Designing puzzles that were surreal and \'alien\' but also gave off UX cues in order for players to understand was a great design challenge. Many of the design conventions that I expected to work fell flat in VR and I had to relearn a lot of my expectations.</p><figure><img src="images/FORM_Shot2.jpg" alt=""></figure><p>What I am particular proud of us accomplishing is the mood and feel of the game. The sound design was as equally important as the lighting design to draw players into this strange experience.</p><figure class="video-embed"><iframe width="560" height="315" src="https://www.youtube.com/embed/7mnDrquiFOk" title="FORM Early Version Trailer" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe><figcaption>An early version of FORM, with completely different puzzles and interactions. Though we knew the tone we wanted, I made many, many different puzzle concepts and ideas.</figcaption></figure><figure class="video-embed"><iframe width="560" height="315" src="https://www.youtube.com/embed/H0VyldRP46I" title="FORM Launch Trailer" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe><figcaption>Launch trailer showing final interactions and puzzles</figcaption></figure>',
@@ -279,7 +279,7 @@ const projectData = {
     role: "Game Designer",
     studio: "Rockstar Games",
     dates: "Sept 2003 – June 2006",
-    image: "images/Bully_banner.jpeg",
+    image: "images/featured/bully-1600.webp",
     tagline: "Beloved open-world action-adventure",
     accomplishment: "Critically well received. Combat system influenced Sleeping Dogs and Arkham Asylum.",
     bodyContent: 'On Bully I worked on scripting mini-games and NPC navigation before moving on to bosses and combat.</p><figure><img src="images/Bully_shot1.png" alt=""></figure><p>Future Street Race 2165 was one of mini-games I created.</p><figure><img src="images/Bully_shot2.png" alt=""></figure><p>Multiple Enemies could surround you but they could only attack you based on a</p><p>token system we created inspired by classic kung fu movies where only one enemy would attack you at a time.</p><p>Originally we used all the face buttons for combat but we were given the challenge of retaining the</p><p>depth of combat while simplifying it to one button.</p><p>We successfully created a combat system which elements could be seen in later titles such as Sleeping Dogs and Arkham Asylum.</p>',
@@ -674,33 +674,42 @@ function initProjectModals() {
     const wavyLines = ['Wavy Line 23.png', 'Wavy Line 42.png', 'Wavy Line 56.png', 'Wavy Line 74.png', 'Wavy Line 88.png'];
     const randomWavy = wavyLines[Math.floor(Math.random() * wavyLines.length)];
 
+    // The full case-study page is wherever this project's card links to
+    const pageLink = document.querySelector(`a.project-card[data-project="${projectId}"]`);
+    const pageHref = pageLink ? pageLink.getAttribute('href') : null;
+
     modalContent.innerHTML = `
       <div class="case-study">
         <div class="wave-decoration wave-decoration--modal-top-right wave-decoration--dark">
           <img src="images/WavyLineCircles/${randomWavy}" alt="">
         </div>
 
-        <div class="case-study__header" style="background-image: url('${project.image}')">
-          <div class="case-study__header-overlay">
-            <span class="case-study__role">${project.role}</span>
-            <h2 class="case-study__title">${project.title}</h2>
-            <p class="case-study__meta">${project.studio} • ${project.dates}</p>
+        <figure class="case-study__art">
+          <img src="${project.image}" alt="">
+        </figure>
+        <div class="case-study__intro">
+          <div class="case-study__meta">
+            <div class="case-study__meta-item"><span class="case-study__meta-label">Role</span><span>${project.role}</span></div>
+            <div class="case-study__meta-item"><span class="case-study__meta-label">Studio</span><span>${project.studio}</span></div>
+            <div class="case-study__meta-item"><span class="case-study__meta-label">Period</span><span>${project.dates}</span></div>
           </div>
+          <h2 class="case-study__title" id="caseStudyTitle">${project.title}</h2>
+          <p class="case-study__tagline">${project.tagline}</p>
         </div>
         <div class="case-study__body">
-          <p class="case-study__tagline">${project.tagline}</p>
-          
           ${project.bodyContent || ''}
-          
+
           <h3>Key Contributions</h3>
           <ul class="case-study__contributions">
             ${project.contributions.map(c => `<li>${c}</li>`).join('')}
           </ul>
-          
+
           <h3>Skills Applied</h3>
           <div class="case-study__skills">
             ${project.skills.map(s => `<span class="tag tag--accent">${s}</span>`).join('')}
           </div>
+
+          ${pageHref ? `<a class="case-study__full" href="${pageHref}">[ Full case study → ]</a>` : ''}
         </div>
       </div>
     `;
