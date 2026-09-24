@@ -3533,3 +3533,11 @@ section {
     padding: var(--space-lg) var(--space-md) 0;
   }
 }
+
+/* Looping clips that replaced the old GIFs */
+.case-study figure video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 2px solid var(--text-primary);
+}
