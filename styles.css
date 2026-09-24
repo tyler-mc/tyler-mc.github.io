@@ -2776,15 +2776,25 @@ section {
     gap: 0;
   }
 
+  /* The circle tucks into the top-right corner, beside the code and tagline */
   .hero__seed {
-    order: -1;
-    justify-self: end;
+    position: absolute;
+    top: 0;
+    right: var(--space-md);
     align-items: flex-end;
-    margin-bottom: var(--space-sm);
   }
 
   .seed-circle {
     width: 26.4vw;
+  }
+
+  .hero__meta,
+  .hero__label {
+    max-width: calc(100% - 26.4vw - var(--space-md));
+  }
+
+  .hero__meta {
+    border-bottom: 0;
   }
 
   .seed-counter {
