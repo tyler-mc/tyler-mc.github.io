@@ -484,7 +484,6 @@ function initReveal() {
     '.glass-card',
     '.timeline__item',
     '.section-code',
-    '.section-label',
     '.corner-bracket',
     '.decorative-asterisk',
     '.section-stroke'
@@ -494,8 +493,13 @@ function initReveal() {
   pending.forEach(el => el.classList.add('will-reveal'));
 
   function reveal(el, order) {
-    el.style.transitionDelay = `${Math.min(order, 6) * 80}ms`;
+    const delay = Math.min(order, 6) * 80;
+    el.style.transitionDelay = `${delay}ms`;
     el.classList.add('is-revealed');
+    setTimeout(() => {
+      el.classList.remove('will-reveal', 'is-revealed');
+      el.style.transitionDelay = '';
+    }, delay + 1200);
 
     // Timeline entries decode their title and dates as they arrive
     if (el.classList.contains('timeline__item')) {
@@ -558,13 +562,15 @@ function initNavigation() {
   // Mobile menu toggle
   if (navToggle && navLinks) {
     navToggle.addEventListener('click', () => {
-      navLinks.classList.toggle('active');
+      const open = navLinks.classList.toggle('active');
+      navToggle.setAttribute('aria-expanded', String(open));
     });
 
     // Close menu when clicking a link
     navLinks.querySelectorAll('.nav__link').forEach(link => {
       link.addEventListener('click', () => {
         navLinks.classList.remove('active');
+        navToggle.setAttribute('aria-expanded', 'false');
       });
     });
   }
@@ -619,15 +625,6 @@ function initProjectModals() {
     });
   });
 
-  // Click handlers for project items in the expanded list
-  document.querySelectorAll('[data-project-item]').forEach(item => {
-    item.style.cursor = 'pointer';
-    item.addEventListener('click', () => {
-      const projectId = item.dataset.projectItem;
-      openProjectModal(projectId);
-    });
-  });
-
   // Close button
   if (closeBtn) {
     closeBtn.addEventListener('click', closeModal);
@@ -646,15 +643,6 @@ function initProjectModals() {
       closeModal();
     }
   });
-
-  // Helper function to render paragraphs from array or string
-  function renderParagraphs(content) {
-    if (!content) return '';
-    if (Array.isArray(content)) {
-      return content.map(p => `<p>${p}</p>`).join('');
-    }
-    return `<p>${content}</p>`;
-  }
 
   function openProjectModal(projectId) {
     const project = projectData[projectId];
@@ -693,7 +681,7 @@ function initProjectModals() {
             <div class="case-study__meta-item"><span class="case-study__meta-label">Studio</span><span>${project.studio}</span></div>
             <div class="case-study__meta-item"><span class="case-study__meta-label">Period</span><span>${project.dates}</span></div>
           </div>
-          <h2 class="case-study__title" id="caseStudyTitle">${project.title}</h2>
+          <h2 class="case-study__title" id="caseStudyTitle" tabindex="-1">${project.title}</h2>
           <p class="case-study__tagline">${project.tagline}</p>
         </div>
         <div class="case-study__body">
@@ -723,10 +711,17 @@ function initProjectModals() {
       });
     }
 
+    const wasOpen = modal.classList.contains('active');
+    modal.scrollTop = 0;
+    modalContent.scrollTop = 0;
     modal.dataset.project = projectId;
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     dialogFocus.open(modal);
+    if (wasOpen) {
+      const title = document.getElementById('caseStudyTitle');
+      if (title) title.focus({ preventScroll: true });
+    }
 
     // Handle internal project links within the modal
     setTimeout(() => {
@@ -778,6 +773,7 @@ function initAboutHoverEffect() {
   let mode = null; // 'hover' | 'toggle'
   let poemContainer = null;
   let clonedKeywords = [];
+  let distillRun = 0; // bumps on every reset so stale timers do nothing
 
   // Group keyword fragments into lines and join them into readable text:
   // fragments that touch in the source (empath|y) join without a space.
@@ -819,6 +815,7 @@ function initAboutHoverEffect() {
   }
 
   function resetDistill() {
+    distillRun++;
     clearTimeout(fadeTimer);
     clearTimeout(poemTimer);
     fadeTimer = poemTimer = null;
@@ -866,6 +863,7 @@ function initAboutHoverEffect() {
   }
 
   function animateToPoem() {
+    const run = distillRun;
     const lines = buildLines();
     const cardRect = glassCard.getBoundingClientRect();
 
@@ -940,11 +938,14 @@ function initAboutHoverEffect() {
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
+        if (run !== distillRun) return;
         clonedKeywords.forEach(clone => {
           clone.style.left = clone.dataset.left;
           clone.style.top = clone.dataset.top;
         });
-        setTimeout(() => glassCard.classList.add('keywords-poem'), 550);
+        setTimeout(() => {
+          if (run === distillRun) glassCard.classList.add('keywords-poem');
+        }, 550);
       });
     });
   }
@@ -1164,10 +1165,6 @@ function closeMysteryModal() {
   });
 }
 
-/**
- * Particle Field - Mouse-responsive background particles (Global)
- * Updated with Neo-Brutalist geometric shapes (crosses, squares)
- */
 /**
  * Particle Field - Mouse-responsive background particles (Global)
  * Updated with Neo-Brutalist geometric shapes (crosses, squares)
@@ -1489,7 +1486,11 @@ function initDotNavigation() {
       const sectionId = dot.dataset.section;
       const section = document.getElementById(sectionId);
       if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
+        const navHeight = document.getElementById('nav').offsetHeight;
+        window.scrollTo({
+          top: section.getBoundingClientRect().top + window.scrollY - navHeight,
+          behavior: REDUCED_MOTION ? 'auto' : 'smooth'
+        });
       }
     });
   });
@@ -1594,22 +1595,23 @@ function initMobileSwipe() {
   if (!modal) return;
 
   let touchStartX = 0;
-  let touchEndX = 0;
+  let touchStartY = 0;
   const minSwipeDistance = 50;
 
   // Swipe in modal for prev/next project
   modal.addEventListener('touchstart', (e) => {
     touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
   }, { passive: true });
 
   modal.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleModalSwipe();
+    const dx = touchStartX - e.changedTouches[0].screenX;
+    const dy = touchStartY - e.changedTouches[0].screenY;
+    // Vertical scrolling with a little sideways drift is not a swipe
+    if (Math.abs(dx) > Math.abs(dy)) handleModalSwipe(dx);
   }, { passive: true });
 
-  function handleModalSwipe() {
-    const diff = touchStartX - touchEndX;
-
+  function handleModalSwipe(diff) {
     if (Math.abs(diff) > minSwipeDistance) {
       if (diff > 0) {
         // Swipe left - next project
@@ -1892,18 +1894,19 @@ function openCelebrationModal() {
     });
   } else {
     setTimeout(() => {
-      typewriteCelebration(textContainer.querySelectorAll('p'), 0);
+      typewriteCelebration(textContainer.querySelectorAll('p'), 0, celebrationRun);
     }, 1000);
   }
 
   // Close button handler (only way to close)
   if (closeBtn) {
-    closeBtn.addEventListener('click', closeCelebrationModal);
+    closeBtn.addEventListener('click', closeCelebrationModal, { once: true });
   }
 }
 
 
 function closeCelebrationModal() {
+  celebrationRun++;
   const modal = document.getElementById('celebrationModal');
   const navLogo = document.getElementById('navLogo');
 
@@ -1929,8 +1932,10 @@ function closeCelebrationModal() {
 /**
  * Typewriter effect for celebration text
  */
-function typewriteCelebration(paragraphs, index) {
-  if (index >= paragraphs.length) return;
+let celebrationRun = 0; // bumps on close so a running typewriter stops
+
+function typewriteCelebration(paragraphs, index, run) {
+  if (index >= paragraphs.length || run !== celebrationRun) return;
 
   const p = paragraphs[index];
   const text = p.dataset.originalText;
@@ -1940,7 +1945,7 @@ function typewriteCelebration(paragraphs, index) {
     p.classList.add('complete');
     p.style.opacity = '1';
     setTimeout(() => {
-      typewriteCelebration(paragraphs, index + 1);
+      typewriteCelebration(paragraphs, index + 1, run);
     }, 200);
     return;
   }
@@ -1953,6 +1958,7 @@ function typewriteCelebration(paragraphs, index) {
   const speed = 30; // ms per character
 
   function typeChar() {
+    if (run !== celebrationRun) return;
     if (charIndex < text.length) {
       p.textContent += text[charIndex];
       charIndex++;
@@ -1964,7 +1970,7 @@ function typewriteCelebration(paragraphs, index) {
 
       // Start next paragraph after pause
       setTimeout(() => {
-        typewriteCelebration(paragraphs, index + 1);
+        typewriteCelebration(paragraphs, index + 1, run);
       }, 400);
     }
   }
@@ -2272,7 +2278,8 @@ function initSeedGarden() {
       bloom: Math.random() < BLOOM_CHANCE ? makeBloom(now) : null
     });
     planted++;
-    if (seeds.length > GARDEN_CAP) seeds[0].fadeStart = now;
+    const living = seeds.filter(seed => !seed.fadeStart);
+    if (living.length > GARDEN_CAP) living[0].fadeStart = now;
 
     // Next seed is a different texture; brief hit-stop and squash on the circle
     frame = (frame + 1) % FRAMES;
@@ -2377,7 +2384,7 @@ function initSeedGarden() {
     return busy;
   }
 
-  hero.addEventListener('pointerdown', (e) => {
+  hero.addEventListener('click', (e) => {
     if (e.button !== 0) return;
     if (e.target.closest('a, button, h1, p, .hero__label, .hero__meta')) return;
     const r = hero.getBoundingClientRect();
