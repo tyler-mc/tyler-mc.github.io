@@ -430,8 +430,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initParticleField();
   initRotatingTagline();
 
-  // Skills section
-  initSkillBlocks();
+  // Approach, signature seed toy and game feel
+  initApproach();
+  initSeedGarden();
+  initGameFeel();
+  initCardCentering();
 
   // Navigation & UX
   initDotNavigation();
@@ -572,7 +575,7 @@ function initNavigation() {
  * Smooth scrolling for anchor links
  */
 function initSmoothScroll() {
-  document.querySelectorAll('a[href^="#"]:not(.project-card)').forEach(anchor => {
+  document.querySelectorAll('a[href^="#"]:not([data-project])').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       const href = this.getAttribute('href');
       if (href === '#') return;
@@ -580,13 +583,16 @@ function initSmoothScroll() {
       if (!target) return;
 
       e.preventDefault();
-      const navHeight = document.getElementById('nav').offsetHeight;
-      const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight;
-
-      window.scrollTo({
-        top: targetPosition,
-        behavior: REDUCED_MOTION ? 'auto' : 'smooth'
-      });
+      const scroll = () => {
+        const navHeight = document.getElementById('nav').offsetHeight;
+        const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight;
+        window.scrollTo({
+          top: targetPosition,
+          behavior: REDUCED_MOTION ? 'auto' : 'smooth'
+        });
+      };
+      if (this.hasAttribute('data-recoil') && !REDUCED_MOTION) setTimeout(scroll, 180);
+      else scroll();
     });
   });
 }
@@ -601,13 +607,16 @@ function initProjectModals() {
 
   if (!modal || !modalContent) return;
 
-  // Click handlers for project cards
-  document.querySelectorAll('.project-card[data-project]').forEach(card => {
-    card.addEventListener('click', (e) => {
-      // Cmd/Ctrl/Shift/middle-click opens the full case-study page as usual
+  // Project links (portfolio cards, featured cards, Approach proofs) open the
+  // modal; Cmd/Ctrl/Shift/middle-click opens the full case-study page as usual
+  document.querySelectorAll('a[data-project]').forEach(link => {
+    link.addEventListener('click', (e) => {
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
       e.preventDefault();
-      openProjectModal(card.dataset.project);
+      const projectId = link.dataset.project;
+      // Pressable cards get a short hit-stop before the modal opens
+      const pressable = link.matches('.project-card, .featured-card') && !REDUCED_MOTION;
+      setTimeout(() => openProjectModal(projectId), pressable ? 110 : 0);
     });
   });
 
@@ -712,6 +721,7 @@ function initProjectModals() {
       </div>
     `;
 
+    modal.dataset.project = projectId;
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     dialogFocus.open(modal);
@@ -752,7 +762,7 @@ function initAboutHoverEffect() {
   const toggle = glassCard && glassCard.querySelector('.about-distill');
   if (!glassCard) return;
 
-  const DWELL_MS = 2000;
+  const DWELL_MS = 1000;
   const FADE_MS = 2000;
   const paragraphs = glassCard.querySelectorAll('p');
   const announcer = document.createElement('p');
@@ -1441,54 +1451,16 @@ function initRotatingTagline() {
 }
 
 /**
- * Skill Blocks - Expandable details with project links
+ * Approach ledger - each principle expands to its proof
  */
-function initSkillBlocks() {
-  const skillBlocks = document.querySelectorAll('.skill-block');
-
-  skillBlocks.forEach(block => {
-    const expandBtn = block.querySelector('.skill-block__expand-btn');
-    const projectLinks = block.querySelectorAll('.skill-block__project-link');
-
-    if (expandBtn) {
-      expandBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-
-        // Close other expanded blocks
-        skillBlocks.forEach(other => {
-          if (other !== block && other.classList.contains('expanded')) {
-            other.classList.remove('expanded');
-            const otherBtn = other.querySelector('.skill-block__expand-btn');
-            if (otherBtn) otherBtn.textContent = '[+ See Projects]';
-          }
-        });
-
-        // Toggle current block
-        const isExpanded = block.classList.toggle('expanded');
-        expandBtn.textContent = isExpanded ? '[− Hide Projects]' : '[+ See Projects]';
-      });
-    }
-
-    // Handle project link clicks - open project modal
-    projectLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const projectId = link.dataset.project;
-        if (projectId && typeof openProjectModal === 'function') {
-          // Get the modal open function from the projectModals scope
-          const modal = document.getElementById('projectModal');
-          const modalContent = document.getElementById('modalContent');
-          const project = projectData[projectId];
-
-          if (project && modal && modalContent) {
-            // Trigger project modal open (reuse existing modal logic)
-            const projectCard = document.querySelector(`[data-project="${projectId}"]`);
-            if (projectCard) {
-              projectCard.click();
-            }
-          }
-        }
-      });
+function initApproach() {
+  document.querySelectorAll('.approach-row__toggle').forEach(toggle => {
+    const panel = document.getElementById(toggle.getAttribute('aria-controls'));
+    if (!panel) return;
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(open));
+      panel.hidden = !open;
     });
   });
 }
@@ -1498,7 +1470,7 @@ function initSkillBlocks() {
  */
 function initDotNavigation() {
   const dots = document.querySelectorAll('.dot-nav__dot');
-  const sections = ['about', 'skills', 'experience', 'work', 'contact'];
+  const sections = ['featured', 'about', 'approach', 'experience', 'work', 'contact'];
 
   if (!dots.length) return;
 
@@ -1547,12 +1519,16 @@ function initDotNavigation() {
 /**
  * Modal Navigation - Prev/Next project browsing
  */
-let currentProjectIndex = 0;
 const projectOrder = [
-  'pistolwhip', 'foundation', 'proximity', 'horizon', 'flourish',
-  'marvel', 'form', 'petras', 'citizengrim', 'woto', 're',
-  'starwars', 'socom_fb3', 'socom_conf', 'socom_ts', 'bully', 'maxpayne2'
+  'pistolwhip', 'foundation', 'form', 'bully', 'flourish',
+  'proximity', 'horizon', 'marvel', 'petras', 'citizengrim', 'woto', 're',
+  'starwars', 'socom_fb3', 'socom_conf', 'socom_ts', 'maxpayne2'
 ];
+
+function currentProjectIndex() {
+  const modal = document.getElementById('projectModal');
+  return projectOrder.indexOf(modal ? modal.dataset.project : '');
+}
 
 function initModalNavigation() {
   const prevBtn = document.getElementById('modalPrev');
@@ -1584,50 +1560,20 @@ function navigateProject(direction) {
   const modal = document.getElementById('projectModal');
   if (!modal.classList.contains('active')) return;
 
-  // Find current project from modal content
-  const modalContent = document.getElementById('modalContent');
-  const currentTitle = modalContent.querySelector('.case-study__title');
-  if (!currentTitle) return;
-
-  // Find current index based on title match
-  for (let i = 0; i < projectOrder.length; i++) {
-    const project = projectData[projectOrder[i]];
-    if (project && project.title === currentTitle.textContent) {
-      currentProjectIndex = i;
-      break;
-    }
-  }
-
-  // Calculate new index
-  let newIndex = currentProjectIndex + direction;
-  if (newIndex < 0) newIndex = 0;
-  if (newIndex >= projectOrder.length) newIndex = projectOrder.length - 1;
-
-  if (newIndex !== currentProjectIndex) {
-    currentProjectIndex = newIndex;
-    const newProjectId = projectOrder[newIndex];
-
-    // Use the global openProjectModal function if available
-    if (typeof window.openProjectModal === 'function') {
-      window.openProjectModal(newProjectId);
-    } else {
-      // Fallback: click on the project card
-      const projectCard = document.querySelector(`[data-project="${newProjectId}"]`);
-      if (projectCard) {
-        projectCard.click();
-      }
-    }
-  }
-
+  const index = currentProjectIndex();
+  if (index === -1) return;
+  const newIndex = Math.min(projectOrder.length - 1, Math.max(0, index + direction));
+  if (newIndex !== index) window.openProjectModal(projectOrder[newIndex]);
   updateNavButtons();
 }
 
 function updateNavButtons() {
   const prevBtn = document.getElementById('modalPrev');
   const nextBtn = document.getElementById('modalNext');
+  const index = currentProjectIndex();
 
-  if (prevBtn) prevBtn.disabled = currentProjectIndex === 0;
-  if (nextBtn) nextBtn.disabled = currentProjectIndex >= projectOrder.length - 1;
+  if (prevBtn) prevBtn.disabled = index <= 0;
+  if (nextBtn) nextBtn.disabled = index === -1 || index >= projectOrder.length - 1;
 }
 
 /**
@@ -1734,9 +1680,12 @@ function initLogoCycling() {
   });
 
   function handleEasterEgg(count) {
-    // Show messages at milestones
+    // Show messages at milestones, with a jolt that grows each time
     if (messages[count]) {
       showMessage(messages[count]);
+      const power = { 3: 4, 15: 6, 35: 9, 65: 12 }[count] || 6;
+      shakeWorld(power);
+      burstFrom(navLogo, 10 + power * 2);
     }
 
     // Create progress bar at 50 clicks
@@ -2109,4 +2058,390 @@ function initCelebrationParticles(canvas) {
     }
   });
   observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+}
+
+/**
+ * Seed garden - the hero's signature toy. A hand-drawn circle flips through
+ * the 100 wavy-line textures as the pointer moves (or the page scrolls);
+ * clicking empty hero space plants the current texture as an ink stamp.
+ * Some seeds bloom. Most don't.
+ */
+function initSeedGarden() {
+  const hero = document.getElementById('hero');
+  const circle = document.getElementById('seedCircle');
+  const garden = document.getElementById('seedGarden');
+  const counter = document.getElementById('seedCounter');
+  if (!hero || !circle || !garden) return;
+
+  const INK = '#0A0A0A';
+  const RED = '#FF3333';
+  const FRAMES = 100;
+  const FRAME_PX = 320;
+  const COLS = 10;
+  const FLIP_PX = 16;          // pointer travel per page turn
+  const SEED_SIZE = 72;        // base planted size (CSS px)
+  const BLOOM_CHANCE = 0.2;    // "not all will bloom"
+  const RED_RATIO = 0.3;
+  const GARDEN_CAP = 36;
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  const circleCtx = circle.getContext('2d');
+  const gardenCtx = garden.getContext('2d');
+  const redFrames = new Map();
+  const seeds = [];
+  let sheet = null;
+  let frame = 6; // Wavy Line 7, the logo
+  let travel = 0;
+  let frozenUntil = 0;
+  let lastX = null;
+  let lastY = null;
+  let planted = 0;
+  let bloomed = 0;
+  let gardenRAF = 0;
+
+  // The sprite stores each texture as luminance; turn it into ink with alpha
+  const sprite = new Image();
+  sprite.src = 'images/seeds-sprite.webp';
+  sprite.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = sprite.width;
+    c.height = sprite.height;
+    const x = c.getContext('2d', { willReadFrequently: true });
+    x.drawImage(sprite, 0, 0);
+    const data = x.getImageData(0, 0, c.width, c.height);
+    const px = data.data;
+    for (let i = 0; i < px.length; i += 4) {
+      const a = px[i];
+      px[i] = px[i + 1] = px[i + 2] = 10;
+      px[i + 3] = a;
+    }
+    x.putImageData(data, 0, 0);
+    sheet = c;
+    drawCircle();
+  };
+
+  function redFrame(f) {
+    if (!redFrames.has(f)) {
+      const c = document.createElement('canvas');
+      c.width = c.height = FRAME_PX;
+      const x = c.getContext('2d');
+      x.drawImage(sheet, (f % COLS) * FRAME_PX, Math.floor(f / COLS) * FRAME_PX, FRAME_PX, FRAME_PX, 0, 0, FRAME_PX, FRAME_PX);
+      x.globalCompositeOperation = 'source-in';
+      x.fillStyle = RED;
+      x.fillRect(0, 0, FRAME_PX, FRAME_PX);
+      redFrames.set(f, c);
+    }
+    return redFrames.get(f);
+  }
+
+  function drawFrame(ctx, f, color, cx, cy, size) {
+    if (!sheet) return;
+    const h = size / 2;
+    if (color === RED) ctx.drawImage(redFrame(f), cx - h, cy - h, size, size);
+    else ctx.drawImage(sheet, (f % COLS) * FRAME_PX, Math.floor(f / COLS) * FRAME_PX, FRAME_PX, FRAME_PX, cx - h, cy - h, size, size);
+  }
+
+  function drawCircle() {
+    circleCtx.clearRect(0, 0, circle.width, circle.height);
+    drawFrame(circleCtx, frame, INK, circle.width / 2, circle.height / 2, circle.width * 0.98);
+  }
+
+  function turnPages(distance) {
+    if (REDUCED_MOTION || performance.now() < frozenUntil) return;
+    travel += distance;
+    if (travel < FLIP_PX) return;
+    const steps = Math.floor(travel / FLIP_PX);
+    travel -= steps * FLIP_PX;
+    frame = (frame + steps) % FRAMES;
+    drawCircle();
+  }
+
+  // The circle leans with the pointer's horizontal speed
+  let lean = 0;
+  let leanTarget = 0;
+  let leanRAF = 0;
+  function kickLean() {
+    if (leanRAF) return;
+    const step = () => {
+      lean += (leanTarget - lean) * 0.18;
+      leanTarget *= 0.86;
+      circle.style.transform = `rotate(${lean.toFixed(2)}deg)`;
+      if (Math.abs(lean) > 0.05 || Math.abs(leanTarget) > 0.05) {
+        leanRAF = requestAnimationFrame(step);
+      } else {
+        circle.style.transform = '';
+        lean = 0;
+        leanRAF = 0;
+      }
+    };
+    leanRAF = requestAnimationFrame(step);
+  }
+
+  hero.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
+    if (lastX !== null) {
+      const dx = e.clientX - lastX;
+      turnPages(Math.hypot(dx, e.clientY - lastY));
+      if (!REDUCED_MOTION) {
+        leanTarget = Math.max(-7, Math.min(7, dx * 0.35));
+        kickLean();
+      }
+    }
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
+  hero.addEventListener('pointerleave', () => { lastX = lastY = null; });
+
+  // Scrolling turns the pages too (the main way on touch screens)
+  let lastScrollY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const dy = window.scrollY - lastScrollY;
+    lastScrollY = window.scrollY;
+    if (hero.getBoundingClientRect().bottom > 0) turnPages(Math.abs(dy) * 0.6);
+  }, { passive: true });
+
+  function sizeCanvases() {
+    const c = circle.getBoundingClientRect();
+    circle.width = Math.round(c.width * DPR);
+    circle.height = Math.round(c.height * DPR);
+    drawCircle();
+    const h = hero.getBoundingClientRect();
+    garden.width = Math.round(h.width * DPR);
+    garden.height = Math.round(h.height * DPR);
+    renderGarden(performance.now());
+  }
+  window.addEventListener('resize', sizeCanvases);
+  sizeCanvases();
+
+  const easeOutBack = (t) => 1 + 3.2 * Math.pow(t - 1, 3) + 2.2 * Math.pow(t - 1, 2);
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  function makeBloom(now) {
+    const n = 11 + Math.floor(Math.random() * 6);
+    return {
+      at: now + rand(550, 1100),
+      petals: Array.from({ length: n }, (_, i) => ({
+        a: (i / n) * Math.PI * 2 + rand(-0.12, 0.12),
+        l: rand(0.28, 0.5),
+        w: rand(0.2, 0.5)
+      }))
+    };
+  }
+
+  function plant(x, y) {
+    const now = performance.now();
+    seeds.push({
+      x, y,
+      f: frame,
+      size: SEED_SIZE * rand(0.7, 1.3) * (window.innerWidth < 600 ? 0.6 : 1),
+      color: Math.random() < RED_RATIO ? RED : INK,
+      rot: rand(-0.45, 0.45),
+      t0: now,
+      splat: Array.from({ length: 3 + Math.floor(Math.random() * 4) }, () => ({
+        a: rand(0, Math.PI * 2), r: rand(0.55, 0.85), s: rand(0.8, 2)
+      })),
+      bloom: Math.random() < BLOOM_CHANCE ? makeBloom(now) : null
+    });
+    planted++;
+    if (seeds.length > GARDEN_CAP) seeds[0].fadeStart = now;
+
+    // Next seed is a different texture; brief hit-stop and squash on the circle
+    frame = (frame + 1) % FRAMES;
+    drawCircle();
+    frozenUntil = now + 80;
+    if (!REDUCED_MOTION) {
+      circle.animate([
+        { transform: 'scale(1)' },
+        { transform: 'scale(.9, .86)', offset: 0.25 },
+        { transform: 'scale(1.05)', offset: 0.6 },
+        { transform: 'scale(1)' }
+      ], { duration: 320, easing: 'ease-out' });
+    }
+    updateCounter();
+    if (!gardenRAF) gardenRAF = requestAnimationFrame(tick);
+  }
+
+  function updateCounter() {
+    if (!counter) return;
+    const pad = (n) => String(n).padStart(2, '0');
+    counter.innerHTML = `SEEDS ${pad(planted)} · BLOOMED <em>${pad(bloomed)}</em>`;
+    counter.classList.add('is-visible');
+  }
+
+  function tick(now) {
+    gardenRAF = 0;
+    if (renderGarden(now)) gardenRAF = requestAnimationFrame(tick);
+  }
+
+  function renderGarden(now) {
+    const ctx = gardenCtx;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, garden.width, garden.height);
+    let busy = false;
+
+    for (let i = seeds.length - 1; i >= 0; i--) {
+      if (seeds[i].fadeStart && now - seeds[i].fadeStart >= 400) seeds.splice(i, 1);
+    }
+
+    seeds.forEach(s => {
+      const t = REDUCED_MOTION ? 1 : Math.min(1, (now - s.t0) / 300);
+      if (t < 1) busy = true;
+      let bt = 0;
+      if (s.bloom) {
+        if (now < s.bloom.at) busy = true;
+        else {
+          bt = REDUCED_MOTION ? 1 : Math.min(1, (now - s.bloom.at) / 750);
+          if (bt < 1) busy = true;
+          if (!s.bloom.counted) {
+            s.bloom.counted = true;
+            bloomed++;
+            updateCounter();
+          }
+        }
+      }
+      if (s.fadeStart) busy = true;
+
+      const scale = t < 1 ? easeOutBack(t) : 1;
+      const grow = bt > 0 ? 1 + 0.28 * easeOutBack(bt) : 1;
+      const squash = t < 1 ? 1 + 0.12 * Math.sin(t * Math.PI) : 1;
+      const alpha = s.fadeStart ? 1 - Math.min(1, (now - s.fadeStart) / 400) : 1;
+
+      ctx.save();
+      ctx.globalAlpha = alpha * 0.92;
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.rot + bt * 0.25);
+      ctx.scale(scale * grow * squash, scale * grow / squash);
+
+      if (bt > 0) {
+        const e = easeOutBack(bt);
+        ctx.strokeStyle = RED;
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 1.5;
+        s.bloom.petals.forEach(p => {
+          const r0 = s.size * 0.5;
+          const r1 = r0 + s.size * p.l * e;
+          const ax = Math.cos(p.a);
+          const ay = Math.sin(p.a);
+          const bend = s.size * 0.06 * p.w;
+          ctx.beginPath();
+          ctx.moveTo(ax * r0, ay * r0);
+          ctx.quadraticCurveTo(ax * (r0 + r1) / 2 - ay * bend, ay * (r0 + r1) / 2 + ax * bend, ax * r1, ay * r1);
+          ctx.stroke();
+        });
+      }
+
+      const color = bt > 0.35 ? RED : s.color;
+      drawFrame(ctx, s.f, color, 0, 0, s.size);
+
+      // Ink splatter
+      if (t > 0.3) {
+        ctx.fillStyle = color;
+        s.splat.forEach(d => {
+          ctx.beginPath();
+          ctx.arc(Math.cos(d.a) * s.size * d.r * 0.9, Math.sin(d.a) * s.size * d.r * 0.9,
+            d.s * Math.min(1, (t - 0.3) * 3), 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+      ctx.restore();
+    });
+    return busy;
+  }
+
+  hero.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    if (e.target.closest('a, button, h1, p, .hero__label, .hero__meta')) return;
+    const r = hero.getBoundingClientRect();
+    plant(e.clientX - r.left, e.clientY - r.top);
+  });
+}
+
+/**
+ * Game feel - cards squash when pressed, hero buttons recoil, and the logo
+ * easter egg shakes the page at its milestones.
+ */
+function initGameFeel() {
+  if (REDUCED_MOTION) return;
+
+  document.querySelectorAll('.project-card, .featured-card').forEach(card => {
+    let press = null;
+    const release = () => {
+      if (!press) return;
+      press.cancel();
+      press = null;
+      card.animate([
+        { transform: 'translate(2px, 3px) scale(.965, .95)' },
+        { transform: 'scale(1.025, 1.035)', offset: 0.45 },
+        { transform: 'none' }
+      ], { duration: 260, easing: 'cubic-bezier(.2, .8, .3, 1)' });
+    };
+    card.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      press = card.animate([
+        { transform: 'none' },
+        { transform: 'translate(2px, 3px) scale(.965, .95)' }
+      ], { duration: 70, easing: 'ease-out', fill: 'forwards' });
+    });
+    card.addEventListener('pointerup', () => setTimeout(release, 70));
+    card.addEventListener('pointerleave', release);
+    card.addEventListener('pointercancel', release);
+  });
+
+  document.querySelectorAll('[data-recoil]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.animate([
+        { transform: 'none' },
+        { transform: 'translate(-7px, 3px) rotate(-2.5deg)', offset: 0.12 },
+        { transform: 'translate(2px, -1px) rotate(.6deg)', offset: 0.45 },
+        { transform: 'none' }
+      ], { duration: 300, easing: 'ease-out' });
+    });
+  });
+}
+
+/** Shake the page content; strength in px */
+function shakeWorld(power) {
+  const world = document.getElementById('main');
+  if (!world || REDUCED_MOTION) return;
+  const frames = [];
+  for (let i = 0; i <= 8; i++) {
+    const k = (1 - i / 8) * power;
+    frames.push({ transform: `translate(${(Math.random() * 2 - 1) * k}px, ${(Math.random() * 2 - 1) * k}px)` });
+  }
+  frames.push({ transform: 'none' });
+  world.animate(frames, { duration: 320, easing: 'linear' });
+}
+
+/** Burst small red squares and ink crosses out of an element */
+function burstFrom(el, count) {
+  if (!el || REDUCED_MOTION) return;
+  const r = el.getBoundingClientRect();
+  const cx = r.left + r.width / 2;
+  const cy = r.top + r.height / 2;
+  for (let i = 0; i < count; i++) {
+    const bit = document.createElement('span');
+    bit.className = 'burst-bit' + (Math.random() < 0.4 ? ' burst-bit--cross' : '');
+    bit.style.left = `${cx}px`;
+    bit.style.top = `${cy}px`;
+    document.body.appendChild(bit);
+    const a = Math.random() * Math.PI * 2;
+    const v = 50 + Math.random() * 90;
+    bit.animate([
+      { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+      { transform: `translate(${Math.cos(a) * v}px, ${Math.sin(a) * v + 30}px) rotate(${Math.random() * 360 - 180}deg) scale(.4)`, opacity: 0 }
+    ], { duration: 500 + Math.random() * 300, easing: 'cubic-bezier(.2, .7, .3, 1)' }).onfinish = () => bit.remove();
+  }
+}
+
+/**
+ * Touch screens have no hover, so card art turns to colour while the card
+ * sits in the middle of the screen instead.
+ */
+function initCardCentering() {
+  const touch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  if (!touch) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => entry.target.classList.toggle('is-centered', entry.isIntersecting));
+  }, { rootMargin: '-42% 0px -42% 0px' });
+  document.querySelectorAll('.featured-card, .project-card').forEach(card => observer.observe(card));
 }
