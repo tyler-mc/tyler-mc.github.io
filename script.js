@@ -2086,8 +2086,8 @@ function initSeedGarden() {
   const INK = '#0A0A0A';
   const RED = '#FF3333';
   const FRAMES = 100;
-  const FRAME_PX = 320;
   const COLS = 10;
+  let FRAME_PX = 320;
   const FLIP_PX = 16;          // pointer travel per page turn
   const SEED_SIZE = 72;        // base planted size (CSS px)
   const BLOOM_CHANCE = 0.2;    // "not all will bloom"
@@ -2109,10 +2109,30 @@ function initSeedGarden() {
   let bloomed = 0;
   let gardenRAF = 0;
 
-  // The sprite stores each texture as luminance; turn it into ink with alpha
+  // Until the sprite arrives, the circle shows the logo frame
+  const logoFrame = new Image();
+  logoFrame.src = 'images/WavyLineCircles/Wavy Line 7.png';
+  logoFrame.onload = () => {
+    if (sheet) return;
+    // The PNG is white line art; recolour it to ink
+    circleCtx.clearRect(0, 0, circle.width, circle.height);
+    circleCtx.drawImage(logoFrame, circle.width * 0.01, circle.height * 0.01, circle.width * 0.98, circle.height * 0.98);
+    circleCtx.globalCompositeOperation = 'source-in';
+    circleCtx.fillStyle = INK;
+    circleCtx.fillRect(0, 0, circle.width, circle.height);
+    circleCtx.globalCompositeOperation = 'source-over';
+  };
+
+  // The sprite stores each texture as luminance; turn it into ink with alpha.
+  // It loads after the page does (smaller sheet on small screens).
   const sprite = new Image();
-  sprite.src = 'images/seeds-sprite.webp';
+  const loadSprite = () => {
+    sprite.src = window.innerWidth < 860 ? 'images/seeds-sprite-sm.webp' : 'images/seeds-sprite.webp';
+  };
+  if (document.readyState === 'complete') loadSprite();
+  else window.addEventListener('load', loadSprite, { once: true });
   sprite.onload = () => {
+    FRAME_PX = sprite.width / COLS;
     const c = document.createElement('canvas');
     c.width = sprite.width;
     c.height = sprite.height;
