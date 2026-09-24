@@ -8,7 +8,7 @@ const projectData = {
     title: "Pistol Whip",
     role: "Game Director",
     studio: "Cloudhead Games",
-    dates: "2019 – Present",
+    dates: "July 2022 – Nov 2025",
     image: "images/pistol_whip_banner.jpg",
     tagline: "VR Rhythm-Shooter",
     accomplishment: "Award-winning, critically acclaimed VR rhythm shooter. Community created 500+ remixes.",
@@ -42,7 +42,7 @@ const projectData = {
   },
   proximity: {
     title: "Proximity",
-    role: "Creative Director / Co-founder",
+    role: "Creative Director / Co-Founder",
     studio: "Inscape Studios",
     dates: "2022",
     image: "images/Proximity_Banner.png",
@@ -134,7 +134,7 @@ const projectData = {
     title: "Petra's Planet",
     role: "Lead Game Designer",
     studio: "Dramaforum",
-    dates: "Feb 2014 – Nov 2014",
+    dates: "May – Nov 2014",
     image: "images/Petra_banner.png",
     tagline: "Online educational world for kids",
     accomplishment: "Transformed struggling platform into thriving social world. Significantly increased retention.",
@@ -152,7 +152,7 @@ const projectData = {
     title: "Citizen Grim",
     role: "Lead Designer",
     studio: "Eruptive Games",
-    dates: "Feb 2013",
+    dates: "Feb 2013 – May 2014",
     image: "images/CitizenGrim_banner.jpeg",
     tagline: "F2P social wave-based shooter",
     accomplishment: "Improved retention and ratings through metrics-driven iteration.",
@@ -294,7 +294,7 @@ const projectData = {
   },
   maxpayne2: {
     title: "Max Payne 2",
-    role: "Development Support",
+    role: "QA Support",
     studio: "Rockstar Games",
     dates: "2003",
     image: "images/MayPayne2_banner.jpeg",
@@ -322,93 +322,118 @@ const projectData = {
   }
 };
 
-// Analytics Tracker - Virtual Pageview System with Cloudflare Custom Events
-const AnalyticsTracker = {
-  resetDelay: 150,
+// Motion preferences and shared scramble helpers
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ█▓▒░';
 
-  // Check if Cloudflare Web Analytics is loaded
-  isCloudflareLoaded() {
-    return typeof __cfBeacon !== 'undefined';
-  },
+function randomScrambleChar() {
+  return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+}
 
-  track(category, action, label = '') {
-    const trackingPath = label
-      ? `/${category}/${action}/${this.sanitize(label)}`
-      : `/${category}/${action}`;
+/**
+ * Decode an element's text from random characters, left to right.
+ * The final text is restored exactly; spaces are never scrambled.
+ */
+function scrambleText(element, duration, onDone) {
+  if (REDUCED_MOTION || element.dataset.scrambling) {
+    if (onDone) onDone();
+    return;
+  }
+  const originalText = element.textContent.trim();
+  const frameRate = 40;
+  const frames = Math.max(1, Math.round(duration / frameRate));
+  let currentFrame = 0;
 
-    // Send custom event to Cloudflare Web Analytics
-    // This creates a virtual pageview that Cloudflare will track separately
-    if (this.isCloudflareLoaded()) {
-      try {
-        // Send as a virtual pageview using Cloudflare's SPA tracking
-        __cfBeacon.sendEvent('pageview', {
-          path: trackingPath,
-          title: `${category} - ${action}${label ? ' - ' + label : ''}`
-        });
-      } catch (e) {
-        console.warn('Cloudflare tracking failed:', e);
-      }
+  // Lock dimensions to prevent layout shift
+  const rect = element.getBoundingClientRect();
+  const originalDisplay = window.getComputedStyle(element).display;
+  element.dataset.scrambling = 'true';
+  element.style.width = `${rect.width}px`;
+  element.style.height = `${rect.height}px`;
+  if (originalDisplay === 'inline') element.style.display = 'inline-block';
+
+  const render = (revealIndex) => {
+    let out = '';
+    for (let i = 0; i < originalText.length; i++) {
+      out += i < revealIndex || originalText[i] === ' ' ? originalText[i] : randomScrambleChar();
     }
+    element.textContent = out;
+  };
+  render(0);
 
-    // Also update browser history for local debugging
-    const hashPath = '#' + trackingPath;
-    window.history.pushState(null, '', hashPath);
-
-    if (window.location.hostname === 'localhost') {
-      console.log('📊', category, '>', action, label);
-      console.log('   Virtual path:', trackingPath);
+  const interval = setInterval(() => {
+    currentFrame++;
+    render(Math.floor((currentFrame / frames) * originalText.length));
+    if (currentFrame >= frames) {
+      clearInterval(interval);
+      element.textContent = originalText;
+      element.style.width = '';
+      element.style.height = '';
+      if (originalDisplay === 'inline') element.style.display = '';
+      delete element.dataset.scrambling;
+      if (onDone) onDone();
     }
+  }, frameRate);
+}
 
-    setTimeout(() => {
-      window.history.replaceState(null, '', window.location.pathname);
-    }, this.resetDelay);
+/**
+ * Dialog focus handling - moves focus into an opened modal, keeps Tab inside
+ * it, and returns focus to whatever opened it on close.
+ */
+const dialogFocus = {
+  stack: [],
+  open(dialog) {
+    if (this.stack.some(entry => entry.dialog === dialog)) return;
+    this.stack.push({ dialog, returnTo: document.activeElement });
+    const first = dialog.querySelector('button, a[href]');
+    if (first) first.focus({ preventScroll: true });
   },
-
-  // Track section scroll into view
-  trackSection(sectionName) {
-    this.track('section', 'view', sectionName);
-  },
-
-  // Track project modal opens
-  trackProject(projectName) {
-    this.track('project', 'view', projectName);
-  },
-
-  // Track navigation clicks
-  trackNavigation(destination) {
-    this.track('navigation', 'click', destination);
-  },
-
-  sanitize(str) {
-    return str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  close(dialog) {
+    const index = this.stack.findIndex(entry => entry.dialog === dialog);
+    if (index === -1) return;
+    const [{ returnTo }] = this.stack.splice(index, 1);
+    if (returnTo && document.contains(returnTo)) returnTo.focus({ preventScroll: true });
   }
 };
 
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Tab' || !dialogFocus.stack.length) return;
+  const { dialog } = dialogFocus.stack[dialogFocus.stack.length - 1];
+  const focusable = Array.from(dialog.querySelectorAll('a[href], button:not([disabled])'))
+    .filter(el => el.getClientRects().length);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (!dialog.contains(document.activeElement)) {
+    e.preventDefault();
+    first.focus();
+  } else if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize all features
   initNavigation();
-  initScrollAnimations();
+  initReveal();
   initSmoothScroll();
   initProjectModals();
   initGlitchText();
-  setupSectionReveal();
   initAboutHoverEffect();
   initMysteryCard();
 
-  // Analytics tracking
-  initContactTracking();
-  initCTATracking();
-
-  // Phase 2: Hero enhancements
+  // Hero enhancements
   initParticleField();
   initRotatingTagline();
-  initAmbientGlitch();
 
-  // Phase 3: Skills section
+  // Skills section
   initSkillBlocks();
 
-  // Phase 4: Navigation & UX
+  // Navigation & UX
   initDotNavigation();
   initModalNavigation();
   initMobileSwipe();
@@ -416,104 +441,24 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Glitch Text Effect - Character scramble animation on scroll
- * Works on all elements with data-glitch="true" attribute
- * Triggers when the element scrolls into view
+ * Heading scramble - headings decode from random characters the first time
+ * they scroll into view. Screen readers and crawlers get the real text via
+ * aria-label, so the effect is visual only.
  */
 function initGlitchText() {
   const glitchElements = document.querySelectorAll('[data-glitch="true"]');
-  const chars = '!@#$%^&*()_+-=[]{}|;:<>?/\\~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-  function playGlitch(element, isInitial = false) {
-    if (element.classList.contains('glitch-animate')) return;
+  glitchElements.forEach(element => {
+    element.setAttribute('aria-label', element.textContent.trim());
+  });
 
-    // Temporarily remove ambient glitch to prevent transform conflicts
-    const hadAmbient = element.classList.contains('ambient-glitch');
-    if (hadAmbient) {
-      element.classList.remove('ambient-glitch');
-    }
+  if (REDUCED_MOTION) return;
 
-    const originalText = element.textContent.trim();
-    const duration = 840; // Total animation duration (speeded up by 30%)
-    const frameRate = 50; // ms between updates
-    const frames = duration / frameRate;
-    let currentFrame = 0;
-
-    // Trigger section reveal after 80% of duration (only on initial scroll)
-    if (isInitial) {
-      const section = element.closest('section');
-      if (section && section.id !== 'hero') {
-        setTimeout(() => {
-          triggerSectionReveal(section);
-        }, duration * 0.8);
-      }
-    }
-
-    // Lock dimensions to prevent layout shift
-    const rect = element.getBoundingClientRect();
-    element.style.width = `${rect.width}px`;
-    element.style.height = `${rect.height}px`;
-    // Ensure display is inline-block so width/height are respected if it was inline
-    const originalDisplay = window.getComputedStyle(element).display;
-    if (originalDisplay === 'inline') {
-      element.style.display = 'inline-block';
-    }
-
-    // Start with scrambled text
-    element.textContent = scrambleText(originalText, chars, 1);
-
-    // Add the CSS animation class
-    element.classList.add('glitch-animate');
-
-    const interval = setInterval(() => {
-      currentFrame++;
-      const progress = currentFrame / frames;
-
-      // Gradually reveal characters from left to right
-      const revealIndex = Math.floor(progress * originalText.length);
-      let newText = '';
-
-      for (let i = 0; i < originalText.length; i++) {
-        if (i < revealIndex) {
-          newText += originalText[i];
-        } else if (originalText[i] === ' ') {
-          newText += ' ';
-        } else {
-          newText += chars[Math.floor(Math.random() * chars.length)];
-        }
-      }
-
-      element.textContent = newText;
-
-      if (currentFrame >= frames) {
-        clearInterval(interval);
-        element.textContent = originalText;
-
-        // Remove animation class after it's done
-        setTimeout(() => {
-          element.classList.remove('glitch-animate');
-          // Unlock dimensions
-          element.style.width = '';
-          element.style.height = '';
-          if (originalDisplay === 'inline') {
-            element.style.display = '';
-          }
-
-          // Restore or add ambient glitch effect
-          element.classList.add('ambient-glitch');
-        }, 300);
-      }
-    }, frameRate);
-  }
-
-  // Create an IntersectionObserver to trigger glitch on scroll
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting && !entry.target.classList.contains('glitch-played')) {
-        // Mark as played so it doesn't repeat scroll trigger
-        entry.target.classList.add('glitch-played');
-        playGlitch(entry.target, true);
+      if (entry.isIntersecting) {
         observer.unobserve(entry.target);
+        scrambleText(entry.target, 840);
       }
     });
   }, {
@@ -521,105 +466,74 @@ function initGlitchText() {
     rootMargin: '0px 0px -100px 0px'
   });
 
-  // Setup elements
-  glitchElements.forEach(element => {
-    // Observe for scroll trigger
-    observer.observe(element);
-  });
-
-  function scrambleText(text, chars, scrambleRatio) {
-    return text.split('').map(char => {
-      if (char === ' ') return ' ';
-      return Math.random() < scrambleRatio
-        ? chars[Math.floor(Math.random() * chars.length)]
-        : char;
-    }).join('');
-  }
+  glitchElements.forEach(element => observer.observe(element));
 }
 
 /**
- * Section Reveal Animations - Setup and Trigger
+ * Reveal on scroll - content is visible by default and only animates in as
+ * an enhancement. Anything at or above the bottom of the viewport is revealed,
+ * so jumping past a section (anchors, End key, fast flings) never leaves holes.
  */
-function setupSectionReveal() {
-  const sections = document.querySelectorAll('section:not(#hero)');
+function initReveal() {
+  if (REDUCED_MOTION) return;
 
-  sections.forEach(section => {
-    // Hide all elements initially
-    const elementsToHide = [
-      section.querySelector('.section-label'),
-      section.querySelector('.section-code'),
-      section.querySelector('.decorative-circles'),
-      ...section.querySelectorAll('.decorative-asterisk'),
-      ...section.querySelectorAll('.corner-bracket'),
-      ...section.querySelectorAll('.skill-block')
-    ];
+  const selector = [
+    '.glass-card',
+    '.timeline__item',
+    '.section-code',
+    '.section-label',
+    '.corner-bracket',
+    '.decorative-asterisk',
+    '.decorative-circles',
+    '.skill-block'
+  ].join(', ');
+  let pending = Array.from(document.querySelectorAll(`section:not(#hero) :is(${selector})`));
 
-    elementsToHide.forEach(el => {
-      if (el) {
-        el.style.opacity = '0';
-        // Add transform if it's a skill block for the slide up effect
-        if (el.classList.contains('skill-block')) {
-          el.style.transform = 'translateY(30px)';
-        }
+  pending.forEach(el => el.classList.add('will-reveal'));
+
+  function reveal(el, order) {
+    el.style.transitionDelay = `${Math.min(order, 6) * 80}ms`;
+    el.classList.add('is-revealed');
+
+    // Timeline entries decode their title and dates as they arrive
+    if (el.classList.contains('timeline__item')) {
+      const title = el.querySelector('.timeline__title');
+      const year = el.querySelector('.timeline__year');
+      if (title) scrambleText(title, 360);
+      if (year) scrambleText(year, 240);
+    }
+  }
+
+  function sweep() {
+    const limit = window.innerHeight * 0.92;
+    let order = 0;
+    pending = pending.filter(el => {
+      if (el.getBoundingClientRect().top < limit) {
+        reveal(el, order++);
+        return false;
       }
+      return true;
     });
-  });
-}
-
-function triggerSectionReveal(section) {
-  if (!section || section.classList.contains('section-visible')) return;
-
-  section.classList.add('section-visible');
-
-  // Animate section label with expand effect
-  const label = section.querySelector('.section-label');
-  if (label) {
-    label.style.animation = 'expandFromCenter 0.5s ease forwards';
+    if (!pending.length) {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    }
   }
 
-  // Animate section code with fade-in
-  const sectionCode = section.querySelector('.section-code');
-  if (sectionCode) {
-    sectionCode.style.animation = 'fadeInUp 0.4s ease forwards';
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      sweep();
+    });
   }
 
-  // Animate decorative elements
-  const asterisks = section.querySelectorAll('.decorative-asterisk');
-  asterisks.forEach((asterisk, i) => {
-    asterisk.style.animation = `fadeInUp 0.5s ease ${0.2 + i * 0.1}s forwards`;
-  });
-
-  // Animate corner brackets
-  const brackets = section.querySelectorAll('.corner-bracket');
-  brackets.forEach((bracket, i) => {
-    bracket.style.animation = `fadeInUp 0.4s ease ${0.1 + i * 0.1}s forwards`;
-    bracket.style.setProperty('--final-opacity', '0.15');
-  });
-
-  // Animate decorative circles
-  const circles = section.querySelector('.decorative-circles');
-  if (circles) {
-    circles.style.animation = 'fadeInUp 0.6s ease 0.3s forwards';
-    circles.style.setProperty('--final-opacity', '0.2');
-  }
-
-  // Animate skill blocks with stagger
-  const skillBlocks = section.querySelectorAll('.skill-block');
-  skillBlocks.forEach((block, i) => {
-    block.style.transition = `opacity 0.5s ease ${i * 0.1}s, transform 0.5s ease ${i * 0.1}s`;
-    // Trigger reflow/timeout to ensure transition plays
-    setTimeout(() => {
-      block.style.opacity = '1';
-      // Preserve CSS stagger: even children (2nd, 4th, 6th) get translateY(50%)
-      // nth-child is 1-indexed, so child indices 2, 4, 6 correspond to array indices 1, 3, 5
-      const childIndex = Array.from(block.parentElement.children).indexOf(block) + 1;
-      if (childIndex % 2 === 0) {
-        block.style.transform = 'translateY(50%)';
-      } else {
-        block.style.transform = 'translateY(0)';
-      }
-    }, 50);
-  });
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  // Double rAF so the hidden state paints before the first reveal transitions
+  requestAnimationFrame(() => requestAnimationFrame(sweep));
 }
 
 /**
@@ -655,134 +569,24 @@ function initNavigation() {
 }
 
 /**
- * Scroll-triggered animations using Intersection Observer
- * Note: Project cards are excluded to ensure immediate loading
- */
-function initScrollAnimations() {
-  const animatedElements = document.querySelectorAll('.glass-card, .timeline__item');
-  const chars = '!@#$%^&*()_+-=[]{}|;:<>?/\\~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-
-        // Apply glitch effect to timeline items
-        if (entry.target.classList.contains('timeline__item')) {
-          applyTimelineGlitch(entry.target);
-        }
-
-        observer.unobserve(entry.target);
-      }
-    });
-  }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  });
-
-  animatedElements.forEach((el, index) => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
-    observer.observe(el);
-  });
-
-  // Apply glitch effect to timeline text elements
-  function applyTimelineGlitch(timelineItem) {
-    const titleEl = timelineItem.querySelector('.timeline__title');
-    const yearEl = timelineItem.querySelector('.timeline__year');
-
-    if (titleEl) {
-      glitchText(titleEl, 600); // Shorter duration for titles
-    }
-    if (yearEl) {
-      glitchText(yearEl, 400); // Even shorter for years
-    }
-  }
-
-  // Glitch text animation helper
-  function glitchText(element, duration) {
-    const originalText = element.textContent.trim();
-    const frameRate = 40;
-    const frames = duration / frameRate;
-    let currentFrame = 0;
-
-    // Lock dimensions to prevent layout shift
-    const rect = element.getBoundingClientRect();
-    element.style.width = `${rect.width}px`;
-    element.style.height = `${rect.height}px`;
-    // Ensure display is inline-block so width/height are respected if it was inline
-    const originalDisplay = window.getComputedStyle(element).display;
-    if (originalDisplay === 'inline') {
-      element.style.display = 'inline-block';
-    }
-
-    // Start with partially scrambled text
-    element.textContent = scrambleText(originalText, 0.7);
-
-    const interval = setInterval(() => {
-      currentFrame++;
-      const progress = currentFrame / frames;
-
-      // Gradually reveal characters
-      const revealIndex = Math.floor(progress * originalText.length);
-      let newText = '';
-
-      for (let i = 0; i < originalText.length; i++) {
-        if (i < revealIndex) {
-          newText += originalText[i];
-        } else if (originalText[i] === ' ') {
-          newText += ' ';
-        } else {
-          newText += chars[Math.floor(Math.random() * chars.length)];
-        }
-      }
-
-      element.textContent = newText;
-
-      if (currentFrame >= frames) {
-        clearInterval(interval);
-        element.textContent = originalText;
-
-        // Unlock dimensions
-        element.style.width = '';
-        element.style.height = '';
-        if (originalDisplay === 'inline') {
-          element.style.display = '';
-        }
-      }
-    }, frameRate);
-  }
-
-  function scrambleText(text, scrambleRatio) {
-    return text.split('').map(char => {
-      if (char === ' ') return ' ';
-      return Math.random() < scrambleRatio
-        ? chars[Math.floor(Math.random() * chars.length)]
-        : char;
-    }).join('');
-  }
-}
-
-/**
  * Smooth scrolling for anchor links
  */
 function initSmoothScroll() {
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  document.querySelectorAll('a[href^="#"]:not(.project-card)').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+      if (href === '#') return;
+      const target = document.querySelector(href);
+      if (!target) return;
+
       e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
+      const navHeight = document.getElementById('nav').offsetHeight;
+      const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight;
 
-      if (target) {
-        const navHeight = document.getElementById('nav').offsetHeight;
-        const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight;
-
-        window.scrollTo({
-          top: targetPosition,
-          behavior: 'smooth'
-        });
-      }
+      window.scrollTo({
+        top: targetPosition,
+        behavior: REDUCED_MOTION ? 'auto' : 'smooth'
+      });
     });
   });
 }
@@ -799,11 +603,11 @@ function initProjectModals() {
 
   // Click handlers for project cards
   document.querySelectorAll('.project-card[data-project]').forEach(card => {
-    card.addEventListener('click', () => {
-      const projectId = card.dataset.project;
-      const projectName = projectData[projectId]?.title || projectId;
-      AnalyticsTracker.trackProject(projectName);
-      openProjectModal(projectId);
+    card.addEventListener('click', (e) => {
+      // Cmd/Ctrl/Shift/middle-click opens the full case-study page as usual
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      openProjectModal(card.dataset.project);
     });
   });
 
@@ -850,9 +654,6 @@ function initProjectModals() {
       console.warn('Project not found:', projectId);
       return;
     }
-
-    // Track case study opens
-    AnalyticsTracker.track('case-study', 'open', project.title);
 
     // Handle mystery project specially
     if (project.isMystery) {
@@ -913,6 +714,7 @@ function initProjectModals() {
 
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
+    dialogFocus.open(modal);
 
     // Handle internal project links within the modal
     setTimeout(() => {
@@ -935,252 +737,203 @@ function initProjectModals() {
   function closeModal() {
     modal.classList.remove('active');
     document.body.style.overflow = '';
+    dialogFocus.close(modal);
   }
 }
 
 /**
- * Contact Link Tracking - Email and LinkedIn
- */
-function initContactTracking() {
-  // Track email clicks
-  document.querySelectorAll('a[href^="mailto:"]').forEach(link => {
-    link.addEventListener('click', () => {
-      AnalyticsTracker.track('contact', 'email');
-    });
-  });
-
-  // Track LinkedIn clicks
-  document.querySelectorAll('a[href*="linkedin.com"]').forEach(link => {
-    link.addEventListener('click', () => {
-      AnalyticsTracker.track('contact', 'linkedin');
-    });
-  });
-}
-
-/**
- * CTA Button Tracking - Hero section CTAs
- */
-function initCTATracking() {
-  document.querySelectorAll('.hero__cta .btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const type = btn.textContent.includes('View Work') ? 'view-work' : 'contact';
-      AnalyticsTracker.track('cta', 'hero-click', type);
-    });
-  });
-}
-
-/**
- * About Section 4-Second Hover Effect
- * Hides non-keyword text, jiggles keywords, then animates them into poem layout
+ * About distill - the two About paragraphs collapse into the one sentence
+ * hidden inside them (the red keyword fragments). Triggered by the ※ button
+ * (mouse, keyboard or touch), by tapping the card on touch screens, or by
+ * resting the mouse on the card for a few seconds.
  */
 function initAboutHoverEffect() {
   const glassCard = document.querySelector('#about .glass-card');
+  const toggle = glassCard && glassCard.querySelector('.about-distill');
   if (!glassCard) return;
+
+  const DWELL_MS = 2000;
+  const FADE_MS = 2000;
+  const paragraphs = glassCard.querySelectorAll('p');
+  const announcer = document.createElement('p');
+  announcer.className = 'sr-only';
+  announcer.setAttribute('aria-live', 'polite');
+  glassCard.appendChild(announcer);
 
   let fadeTimer = null;
   let poemTimer = null;
   let isActivated = false;
+  let mode = null; // 'hover' | 'toggle'
   let poemContainer = null;
   let clonedKeywords = [];
 
-  const paragraphs = glassCard.querySelectorAll('p');
+  // Group keyword fragments into lines and join them into readable text:
+  // fragments that touch in the source (empath|y) join without a space.
+  function buildLines() {
+    const lines = {};
+    glassCard.querySelectorAll('.about-keyword').forEach(kw => {
+      (lines[kw.dataset.line] = lines[kw.dataset.line] || []).push(kw);
+    });
+    return Object.keys(lines).sort().map(n => {
+      let text = '';
+      const pieces = lines[n].map(kw => {
+        let piece = kw.textContent.replace(/\s+/g, ' ');
+        if (!text || text.endsWith(' ')) piece = piece.replace(/^ /, '');
+        const start = text.length;
+        text += piece;
+        return { kw, piece, start };
+      });
+      return { text: text.trim(), pieces };
+    });
+  }
 
-  glassCard.addEventListener('mouseenter', () => {
-    if (isActivated) return;
+  function startDistill(nextMode) {
+    if (isActivated || fadeTimer || poemTimer) return;
+    mode = nextMode;
+    if (toggle) toggle.setAttribute('aria-pressed', 'true');
+    const fadeDelay = nextMode === 'hover' ? DWELL_MS : 0;
+    const fadeLength = REDUCED_MOTION ? 0 : (nextMode === 'hover' ? FADE_MS : 900);
 
-    // After 2 seconds, start fading out non-keyword text (fades over 2 seconds)
     fadeTimer = setTimeout(() => {
+      fadeTimer = null;
       glassCard.classList.add('text-fading');
-
-      // After fade completes (2 more seconds), animate to poem
       poemTimer = setTimeout(() => {
+        poemTimer = null;
         isActivated = true;
         glassCard.classList.add('keywords-activated');
         animateToPoem();
-      }, 2000);
-    }, 2000);
-  });
+      }, fadeLength);
+    }, fadeDelay);
+  }
 
-  glassCard.addEventListener('mouseleave', () => {
-    if (fadeTimer) {
-      clearTimeout(fadeTimer);
-      fadeTimer = null;
+  function resetDistill() {
+    clearTimeout(fadeTimer);
+    clearTimeout(poemTimer);
+    fadeTimer = poemTimer = null;
+    mode = null;
+    if (toggle) toggle.setAttribute('aria-pressed', 'false');
+    glassCard.classList.remove('text-fading', 'keywords-activated', 'keywords-poem');
+    glassCard.style.height = '';
+    glassCard.style.minHeight = '';
+    clonedKeywords.forEach(el => el.remove());
+    clonedKeywords = [];
+    if (poemContainer) {
+      poemContainer.remove();
+      poemContainer = null;
     }
-    if (poemTimer) {
-      clearTimeout(poemTimer);
-      poemTimer = null;
-    }
+    paragraphs.forEach(p => {
+      p.style.display = '';
+      p.style.visibility = '';
+    });
+    glassCard.querySelectorAll('.about-keyword').forEach(kw => kw.style.visibility = '');
+    announcer.textContent = '';
+    isActivated = false;
+  }
 
-    // Remove fading class
-    glassCard.classList.remove('text-fading');
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (finePointer) {
+    glassCard.addEventListener('mouseenter', () => startDistill('hover'));
+    glassCard.addEventListener('mouseleave', () => {
+      if (mode === 'hover') resetDistill();
+    });
+  } else {
+    glassCard.addEventListener('click', (e) => {
+      if (e.target.closest('.about-distill')) return;
+      if (mode) resetDistill();
+      else startDistill('toggle');
+    });
+  }
 
-    if (isActivated) {
-      glassCard.classList.remove('keywords-activated', 'keywords-poem');
-
-      // Reset glass card dimensions
-      glassCard.style.height = '';
-      glassCard.style.minHeight = '';
-
-      // Remove cloned keywords
-      clonedKeywords.forEach(el => el.remove());
-      clonedKeywords = [];
-
-      // Remove poem container
-      if (poemContainer) {
-        poemContainer.remove();
-        poemContainer = null;
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      if (mode === 'toggle') resetDistill();
+      else {
+        resetDistill();
+        startDistill('toggle');
       }
-
-      // Show paragraphs again
-      paragraphs.forEach(p => {
-        p.style.display = '';
-        p.style.visibility = '';
-      });
-
-      // Show original keywords
-      const keywords = glassCard.querySelectorAll('.about-keyword');
-      keywords.forEach(kw => kw.style.visibility = '');
-
-      isActivated = false;
-    }
-  });
+    });
+  }
 
   function animateToPoem() {
-    const keywords = glassCard.querySelectorAll('.about-keyword');
-    const glassCardRect = glassCard.getBoundingClientRect();
+    const lines = buildLines();
+    const cardRect = glassCard.getBoundingClientRect();
 
-    // Lock the glass card height to prevent size change
-    glassCard.style.height = glassCardRect.height + 'px';
-    glassCard.style.minHeight = glassCardRect.height + 'px';
+    // Lock the card height so the layout doesn't jump
+    glassCard.style.height = cardRect.height + 'px';
+    glassCard.style.minHeight = cardRect.height + 'px';
 
-    // 1. Record starting positions of all keywords (FLIP First)
-    const startPositions = [];
-    keywords.forEach(kw => {
-      const rect = kw.getBoundingClientRect();
-      startPositions.push({
-        el: kw,
-        left: rect.left - glassCardRect.left,
-        top: rect.top - glassCardRect.top,
-        text: kw.textContent,
-        line: kw.getAttribute('data-line')
-      });
-    });
-
-    // 2. Group keywords by line
-    const lines = {};
-    startPositions.forEach(pos => {
-      if (!lines[pos.line]) lines[pos.line] = [];
-      lines[pos.line].push(pos);
-    });
-
-    // 3. Create poem container
     poemContainer = document.createElement('div');
     poemContainer.className = 'poem-container';
-
-    // 4. Build poem lines
-    const poemLines = [
-      { num: '1', joiner: ' ' },   // lead with empath y
-      { num: '2', joiner: '' },    // and collaborate
-      { num: '3', joiner: ' ' },   // I thrive on upholding teams
-      { num: '4', joiner: ' ' },   // with design vision and
-      { num: '5', joiner: ' ' }    // technical fluency
-    ];
-
-    poemLines.forEach(lineInfo => {
-      if (lines[lineInfo.num]) {
-        const lineEl = document.createElement('div');
-        lineEl.className = 'poem-line';
-        lineEl.textContent = lines[lineInfo.num].map(p => p.text).join(lineInfo.joiner);
-        poemContainer.appendChild(lineEl);
-      }
+    poemContainer.setAttribute('aria-hidden', 'true');
+    lines.forEach(line => {
+      const lineEl = document.createElement('div');
+      lineEl.className = 'poem-line';
+      lineEl.textContent = line.text;
+      poemContainer.appendChild(lineEl);
     });
 
-    // 5. Hide paragraphs completely
-    paragraphs.forEach(p => p.style.visibility = 'hidden');
+    const sentence = lines.map(l => l.text).join(' ');
+    announcer.textContent = sentence.charAt(0).toUpperCase() + sentence.slice(1) + '.';
 
-    // 6. Add poem container (invisible initially to measure)
-    poemContainer.style.opacity = '0';
+    paragraphs.forEach(p => p.style.visibility = 'hidden');
     glassCard.appendChild(poemContainer);
 
-    // 7. Get final positions of poem lines
-    const poemLineEls = poemContainer.querySelectorAll('.poem-line');
-    const finalPositions = [];
-    poemLineEls.forEach((el, idx) => {
-      const rect = el.getBoundingClientRect();
-      finalPositions.push({
-        left: rect.left - glassCardRect.left,
-        top: rect.top - glassCardRect.top,
-        width: rect.width,
-        lineNum: poemLines[idx].num
-      });
-    });
+    if (REDUCED_MOTION) {
+      glassCard.classList.add('keywords-poem');
+      return;
+    }
 
-    // 8. Hide poem container, we'll animate clones instead
+    // Measure final line positions without the tween-in offset
+    const lineEls = Array.from(poemContainer.children);
+    lineEls.forEach(el => el.style.animation = 'none');
+    const lineRects = lineEls.map(el => el.getBoundingClientRect());
     poemContainer.style.display = 'none';
 
-    // 9. Create animated clones for each keyword
-    startPositions.forEach((pos, i) => {
-      const clone = document.createElement('span');
-      clone.className = 'keyword-clone';
-      // Preserve whitespace in the text
-      clone.textContent = pos.text;
-      clone.style.cssText = `
-        position: absolute;
-        left: ${pos.left}px;
-        top: ${pos.top}px;
-        color: var(--accent-red);
-        font-size: 1.1rem;
-        font-weight: 400;
-        transition: all 0.5s ease;
-        pointer-events: none;
-        white-space: pre;
-      `;
-      glassCard.appendChild(clone);
-      clonedKeywords.push(clone);
+    const measure = document.createElement('span');
+    measure.className = 'keyword-clone';
+    measure.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;font-size:1.1rem;';
+    glassCard.appendChild(measure);
+    const widthOf = (text) => {
+      measure.textContent = text;
+      return measure.getBoundingClientRect().width;
+    };
 
-      // Hide original keyword
-      pos.el.style.visibility = 'hidden';
+    lines.forEach((line, i) => {
+      const lineRect = lineRects[i];
+      const lineLeft = cardRect.left + (cardRect.width - widthOf(line.text)) / 2;
+      line.pieces.forEach(({ kw, piece, start }) => {
+        const from = kw.getBoundingClientRect();
+        const clone = document.createElement('span');
+        clone.className = 'keyword-clone';
+        clone.setAttribute('aria-hidden', 'true');
+        clone.textContent = piece;
+        clone.style.cssText = `
+          position: absolute;
+          left: ${from.left - cardRect.left}px;
+          top: ${from.top - cardRect.top}px;
+          color: var(--accent-red);
+          font-size: 1.1rem;
+          font-weight: 400;
+          transition: left 0.5s ease, top 0.5s ease;
+          pointer-events: none;
+          white-space: pre;
+        `;
+        clone.dataset.left = `${lineLeft - cardRect.left + widthOf(line.text.slice(0, start))}px`;
+        clone.dataset.top = `${lineRect.top - cardRect.top}px`;
+        glassCard.appendChild(clone);
+        clonedKeywords.push(clone);
+        kw.style.visibility = 'hidden';
+      });
     });
+    measure.remove();
 
-    // 10. After a frame, animate to final positions
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        // Calculate final positions for each clone based on which line they belong to
-        let lineOffsets = {};
-
-        poemLines.forEach((lineInfo, lineIdx) => {
-          if (lines[lineInfo.num]) {
-            const finalPos = finalPositions[lineIdx];
-            if (finalPos) {
-              let offsetX = 0;
-              lines[lineInfo.num].forEach((pos, wordIdx) => {
-                const cloneIdx = startPositions.indexOf(pos);
-                const clone = clonedKeywords[cloneIdx];
-                if (clone) {
-                  // Center the line
-                  const lineText = lines[lineInfo.num].map(p => p.text).join(lineInfo.joiner);
-                  const centerX = (glassCard.offsetWidth - finalPos.width) / 2;
-
-                  clone.style.left = `${centerX + offsetX}px`;
-                  clone.style.top = `${finalPos.top}px`;
-
-                  // Estimate width of this word (preserve whitespace)
-                  const tempSpan = document.createElement('span');
-                  tempSpan.style.cssText = 'position:absolute;visibility:hidden;font-size:1.1rem;white-space:pre;';
-                  tempSpan.textContent = pos.text + (wordIdx < lines[lineInfo.num].length - 1 ? lineInfo.joiner : '');
-                  document.body.appendChild(tempSpan);
-                  offsetX += tempSpan.offsetWidth;
-                  tempSpan.remove();
-                }
-              });
-            }
-          }
+        clonedKeywords.forEach(clone => {
+          clone.style.left = clone.dataset.left;
+          clone.style.top = clone.dataset.top;
         });
-
-        // 11. After animation completes, just mark as poem state (clones stay visible)
-        setTimeout(() => {
-          glassCard.classList.add('keywords-poem');
-        }, 550);
+        setTimeout(() => glassCard.classList.add('keywords-poem'), 550);
       });
     });
   }
@@ -1226,15 +979,6 @@ function initMysteryCard() {
       closeMysteryModal();
     }
   });
-
-  // Add touchstart for instant open on mobile
-  mysteryCard.addEventListener('touchstart', (e) => {
-    // If not already active, prevent default to avoid hover/click conflicts and open immediately
-    if (!mysteryModal.classList.contains('active')) {
-      e.preventDefault();
-      openMysteryModal();
-    }
-  }, { passive: false });
 }
 
 // Track timeouts to allow cancellation
@@ -1247,11 +991,9 @@ function openMysteryModal() {
   const mysteryModal = document.getElementById('mysteryModal');
   const paragraphs = mysteryModal.querySelectorAll('.mystery-modal__text p');
 
-  // Track mystery project opens
-  AnalyticsTracker.track('mystery', 'open');
-
   mysteryModal.classList.add('active');
   document.body.style.overflow = 'hidden';
+  dialogFocus.open(mysteryModal);
 
   // Clear any existing timeouts to prevent overlapping typewriters
   if (window.mysteryTimeouts) {
@@ -1269,6 +1011,16 @@ function openMysteryModal() {
     }
     p.innerHTML = '';
   });
+
+  // Reduced motion: show the whole text at once
+  if (REDUCED_MOTION) {
+    paragraphs.forEach(p => {
+      p.innerHTML = p.dataset.originalHtml;
+      p.classList.add('complete');
+      p.style.opacity = '1';
+    });
+    return;
+  }
 
   // Start typewriter effect after a short delay
   const startTimeout = setTimeout(() => {
@@ -1384,6 +1136,7 @@ function closeMysteryModal() {
   const mysteryModal = document.getElementById('mysteryModal');
   mysteryModal.classList.remove('active');
   document.body.style.overflow = '';
+  dialogFocus.close(mysteryModal);
 
   // Clear all typing timeouts
   if (window.mysteryTimeouts) {
@@ -1412,6 +1165,10 @@ function closeMysteryModal() {
 function initParticleField() {
   const canvas = document.getElementById('globalParticles');
   if (!canvas) return;
+  if (REDUCED_MOTION) {
+    canvas.style.display = 'none';
+    return;
+  }
 
   const ctx = canvas.getContext('2d');
   let particles = [];
@@ -1613,8 +1370,13 @@ function initParticleField() {
       });
     });
 
-    animationId = requestAnimationFrame(animate);
+    animationId = document.hidden ? null : requestAnimationFrame(animate);
   }
+
+  // Pause while the tab is hidden
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !animationId) animate();
+  });
 
   // Track mouse position
   document.addEventListener('mousemove', (e) => {
@@ -1646,9 +1408,19 @@ function initRotatingTagline() {
   ];
 
   let currentIndex = 0;
+  let paused = false;
   const interval = 5000; // 5 seconds between rotations
 
+  // Reduced motion: keep the first line still
+  if (REDUCED_MOTION) return;
+
+  // Hold the current line while someone is reading it
+  taglineEl.addEventListener('mouseenter', () => paused = true);
+  taglineEl.addEventListener('mouseleave', () => paused = false);
+
   function rotateTagline() {
+    if (paused || document.hidden) return;
+
     // Fade out
     taglineEl.classList.add('fade-out');
 
@@ -1666,14 +1438,6 @@ function initRotatingTagline() {
   setTimeout(() => {
     setInterval(rotateTagline, interval);
   }, interval);
-}
-
-/**
- * Ambient Glitch Effect - Logic now integrated into initGlitchText
- * Kept for reference or future specific needs
- */
-function initAmbientGlitch() {
-  // Logic moved to initGlitchText to apply to all sections
 }
 
 /**
@@ -1702,11 +1466,6 @@ function initSkillBlocks() {
         // Toggle current block
         const isExpanded = block.classList.toggle('expanded');
         expandBtn.textContent = isExpanded ? '[− Hide Projects]' : '[+ See Projects]';
-
-        // Track skill block expansions
-        if (isExpanded) {
-          AnalyticsTracker.track('skill', 'expand', block.dataset.skill);
-        }
       });
     }
 
@@ -1743,9 +1502,6 @@ function initDotNavigation() {
 
   if (!dots.length) return;
 
-  // Track which sections have been viewed
-  let lastTrackedSection = null;
-
   // Click handlers for dots
   dots.forEach(dot => {
     dot.addEventListener('click', () => {
@@ -1753,8 +1509,6 @@ function initDotNavigation() {
       const section = document.getElementById(sectionId);
       if (section) {
         section.scrollIntoView({ behavior: 'smooth' });
-        // Track navigation click
-        AnalyticsTracker.trackNavigation(sectionId);
       }
     });
   });
@@ -1774,12 +1528,6 @@ function initDotNavigation() {
     dots.forEach(dot => {
       dot.classList.toggle('active', dot.dataset.section === activeSectionId);
     });
-
-    // Track section view in Cloudflare (only once per section)
-    if (activeSectionId !== lastTrackedSection) {
-      AnalyticsTracker.trackSection(activeSectionId);
-      lastTrackedSection = activeSectionId;
-    }
   }
 
   // Initial update
@@ -1887,7 +1635,6 @@ function updateNavButtons() {
  */
 function initMobileSwipe() {
   const modal = document.getElementById('projectModal');
-  const projectsGrid = document.querySelector('.grid--3');
 
   if (!modal) return;
 
@@ -1919,35 +1666,6 @@ function initMobileSwipe() {
     }
   }
 
-  // Swipe on project cards to open them (mobile UX)
-  if (projectsGrid) {
-    let cardTouchStartX = 0;
-    let cardTouchStartY = 0;
-    let activeCard = null;
-
-    projectsGrid.addEventListener('touchstart', (e) => {
-      const card = e.target.closest('.project-card');
-      if (card) {
-        activeCard = card;
-        cardTouchStartX = e.changedTouches[0].screenX;
-        cardTouchStartY = e.changedTouches[0].screenY;
-      }
-    }, { passive: true });
-
-    projectsGrid.addEventListener('touchend', (e) => {
-      if (!activeCard) return;
-
-      const diffX = Math.abs(e.changedTouches[0].screenX - cardTouchStartX);
-      const diffY = Math.abs(e.changedTouches[0].screenY - cardTouchStartY);
-
-      // If it's a tap (minimal movement), open the card
-      if (diffX < 30 && diffY < 30) {
-        activeCard.click();
-      }
-
-      activeCard = null;
-    }, { passive: true });
-  }
 }
 
 /**
@@ -1997,11 +1715,6 @@ function initLogoCycling() {
 
     clickCount++;
 
-    // Track milestone clicks
-    if ([10, 25, 50, 75, 100].includes(clickCount)) {
-      AnalyticsTracker.track('easter-egg', 'milestone', `clicks-${clickCount}`);
-    }
-
     // Add glitch class
     navLogo.classList.add('glitching');
 
@@ -2050,61 +1763,16 @@ function initLogoCycling() {
       clearTimeout(messageTimeout);
     }
 
-    const chars = '!@#$%^&*()_+-=[]{}|;:<>?/\\~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const duration = 600;
-    const frameRate = 50;
-    const frames = duration / frameRate;
-    let currentFrame = 0;
-
-    // Start with scrambled text
-    logoMessage.textContent = scrambleText(text, chars, 1);
+    logoMessage.textContent = text;
     logoMessage.classList.add('visible', 'glitching');
-
-    // Scramble animation
-    const interval = setInterval(() => {
-      currentFrame++;
-      const progress = currentFrame / frames;
-
-      // Gradually reveal characters from left to right
-      const revealIndex = Math.floor(progress * text.length);
-      let newText = '';
-
-      for (let i = 0; i < text.length; i++) {
-        if (i < revealIndex) {
-          newText += text[i];
-        } else if (text[i] === ' ') {
-          newText += ' ';
-        } else {
-          newText += chars[Math.floor(Math.random() * chars.length)];
-        }
-      }
-
-      logoMessage.textContent = newText;
-
-      if (currentFrame >= frames) {
-        clearInterval(interval);
-        logoMessage.textContent = text;
-
-        // Remove glitching after scramble completes
-        setTimeout(() => {
-          logoMessage.classList.remove('glitching');
-        }, 100);
-      }
-    }, frameRate);
+    scrambleText(logoMessage, 600, () => {
+      setTimeout(() => logoMessage.classList.remove('glitching'), 100);
+    });
 
     // Fade out after 3 seconds
     messageTimeout = setTimeout(() => {
       logoMessage.classList.remove('visible');
     }, 3000);
-  }
-
-  function scrambleText(text, chars, scrambleRatio) {
-    return text.split('').map(char => {
-      if (char === ' ') return ' ';
-      return Math.random() < scrambleRatio
-        ? chars[Math.floor(Math.random() * chars.length)]
-        : char;
-    }).join('');
   }
 
   function createAchievementBar() {
@@ -2228,9 +1896,10 @@ function openCelebrationModal() {
   // Show modal
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
+  dialogFocus.open(modal);
 
   // Initialize particle animation
-  initCelebrationParticles(canvas);
+  if (!REDUCED_MOTION) initCelebrationParticles(canvas);
 
   // Prepare typewriter text
   const celebrationMessage = [
@@ -2257,10 +1926,17 @@ function openCelebrationModal() {
     textContainer.appendChild(p);
   });
 
-  // Start typewriter effect
-  setTimeout(() => {
-    typewriteCelebration(textContainer.querySelectorAll('p'), 0);
-  }, 1000);
+  // Start typewriter effect (reduced motion: show everything at once)
+  if (REDUCED_MOTION) {
+    textContainer.querySelectorAll('p').forEach(p => {
+      p.classList.add('complete');
+      p.style.opacity = '1';
+    });
+  } else {
+    setTimeout(() => {
+      typewriteCelebration(textContainer.querySelectorAll('p'), 0);
+    }, 1000);
+  }
 
   // Close button handler (only way to close)
   if (closeBtn) {
@@ -2275,6 +1951,7 @@ function closeCelebrationModal() {
 
   modal.classList.remove('active');
   document.body.style.overflow = '';
+  dialogFocus.close(modal);
 
   // Transform logo to asterisk
   if (navLogo) {
