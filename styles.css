@@ -3551,3 +3551,14 @@ section {
   height: auto;
   border: 2px solid var(--text-primary);
 }
+
+/* Current studio spans the top row of the logo grid */
+.company-logo--current {
+  grid-column: 1 / -1;
+  height: 110px;
+}
+
+.company-logo--current img {
+  max-height: 40px;
+  width: 180px;
+}
