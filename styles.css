@@ -3552,13 +3552,19 @@ section {
   border: 2px solid var(--text-primary);
 }
 
-/* Current studio spans the top row of the logo grid */
+/* Current studio takes a double-width cell in the logo grid */
 .company-logo--current {
-  grid-column: 1 / -1;
-  height: 110px;
+  grid-column: span 2;
 }
 
 .company-logo--current img {
-  max-height: 40px;
-  width: 180px;
+  max-height: 44px;
+  width: 170px;
+}
+
+/* About: keyword fragments light up the moment the pointer arrives */
+@media (hover: hover) {
+  .glass-card:hover .about-keyword {
+    color: var(--accent-red-text);
+  }
 }

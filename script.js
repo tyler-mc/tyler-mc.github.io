@@ -32,7 +32,7 @@ const projectData = {
     accomplishment: "Narrative cited as 'main highlight' in critical reviews.",
     bodyContent: '<p>Overview</p><p>Based on Isaac Asimov’s groundbreaking literary saga, Journey to Foundation is an epic sci-fi VR Roleplaying Adventure.</p><figure><img src="images/JourneyToFoundation_shot1.webp" alt="Journey To Foundation gameplay"></figure><p>I operated as co-creative director on this project so that I could split my focus between this and the <a href="#" class="internal-project-link" data-project="horizon">Horizon World project</a></p><p>I had the amazing opportunity to work closely with Archiact’s Art Director and Executive Producer who had both previously worked on the Mass Effect and Dragon age series and I learnt a lot from them. One of my goals on this project was to make a larger narrative adventure built upon the tools and systems we originally built for <a href="#" class="internal-project-link" data-project="flourish">Flourish</a>. I laid out a lot of the core of the project setting processes, frameworks and goals. </p><figure><img src="images/JourneyToFoundation_GameLoops.webp" alt="Game loops design"><figcaption>Early breakdown of the loops and the balance of the different gameplay I originally set for the game</figcaption></figure><p><figure><img src="images/JourneyToFoundation_shot2.webp" alt="Journey To Foundation environment"></figure><p>I was primarily responsible for directing and leading the narrative and UX teams and architeching their underlying interaction systems.  I’m particularly proud of the narrative we created as it was consistently given top marks in reviews. A mantra we used was "particpatory drama", where we wanted players to feel involved in the conversations through physical actions and not just menu selections. This ended up as part of the "boss fights" in the final product.</p><figure><img src="images/JourneyToFoundation_shot3.webp" alt="Journey To Foundation gameplay"></figure><figure><img src="images/JourneyToFoundation_MentalicsStoryboard.jpg" alt="Mentalics storyboard"><figcaption>Storyboard I created showing how to use mentalics in conversation via VR UX interactions</figcaption></figure>',
     contributions: [
-      "Co-directed creative vision alongside Mass Effect/Dragon Age veterans",
+      "Co-directed creative vision; worked closely with an Art Director and Executive Producer from Mass Effect/Dragon Age",
       "Led narrative, UX and gameplay teams through development",
       "Built upon tools and systems created for Flourish project",
       "Narrative was cited as the 'main highlight' in critical reviews",
@@ -764,8 +764,8 @@ function initAboutHoverEffect() {
   const toggle = glassCard && glassCard.querySelector('.about-distill');
   if (!glassCard) return;
 
-  const DWELL_MS = 1000;
-  const FADE_MS = 2000;
+  const DWELL_MS = 1000;   // fragments are red from the first moment (CSS :hover)
+  const FADE_MS = 1500;
   const paragraphs = glassCard.querySelectorAll('p');
   const announcer = document.createElement('p');
   announcer.className = 'sr-only';
@@ -842,19 +842,18 @@ function initAboutHoverEffect() {
     isActivated = false;
   }
 
-  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if (finePointer) {
-    glassCard.addEventListener('mouseenter', () => startDistill('hover'));
-    glassCard.addEventListener('mouseleave', () => {
-      if (mode === 'hover') resetDistill();
-    });
-  } else {
-    glassCard.addEventListener('click', (e) => {
-      if (e.target.closest('.about-distill')) return;
-      if (mode) resetDistill();
-      else startDistill('toggle');
-    });
-  }
+  // Mouse and pen: rest on the card. Touch: tap the card to toggle.
+  glassCard.addEventListener('pointerenter', (e) => {
+    if (e.pointerType !== 'touch') startDistill('hover');
+  });
+  glassCard.addEventListener('pointerleave', (e) => {
+    if (e.pointerType !== 'touch' && mode === 'hover') resetDistill();
+  });
+  glassCard.addEventListener('pointerup', (e) => {
+    if (e.pointerType !== 'touch' || e.target.closest('.about-distill')) return;
+    if (mode) resetDistill();
+    else startDistill('toggle');
+  });
 
   if (toggle) {
     toggle.addEventListener('click', () => {
