@@ -3568,3 +3568,102 @@ section {
     color: var(--accent-red-text);
   }
 }
+
+/* ============================================
+   Review pass: alignment, logos, contact, phone grid
+   ============================================ */
+
+/* Narrow sections share the wide sections' left edge */
+.container--narrow {
+  max-width: var(--container-max);
+}
+
+.container--narrow > * {
+  max-width: var(--container-narrow);
+}
+
+/* Stray hero asterisk */
+.hero::after {
+  content: none;
+}
+
+/* Logos sized by area so wide and tall marks feel equal */
+.company-logo img,
+.company-logo--large img,
+.company-logo--small img,
+.company-logo--current img {
+  height: var(--logo-h, 44px);
+  max-height: none;
+  width: auto;
+  max-width: 80%;
+}
+
+@media (max-width: 768px) {
+  .company-logo {
+    height: 96px;
+    padding: var(--space-xs);
+  }
+
+  .company-logo img,
+  .company-logo--current img {
+    height: calc(var(--logo-h, 44px) * 0.62);
+  }
+}
+
+.timeline__note {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* Contact: the email is the call to action */
+.contact__email {
+  display: inline-block;
+  margin-top: var(--space-md);
+  font-family: var(--font-heading);
+  font-size: clamp(1.9rem, 6vw, 4.5rem);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  background-image: linear-gradient(var(--accent-red), var(--accent-red));
+  background-size: 0% 4px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.3s ease;
+}
+
+.contact__email:hover,
+.contact__email:focus-visible {
+  color: var(--text-primary);
+  background-size: 100% 4px;
+}
+
+/* Phones: two portfolio cards per row */
+@media (max-width: 700px) {
+  #work .grid--3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-sm);
+  }
+
+  #work .project-card__overlay {
+    padding: 0.4rem;
+  }
+
+  #work .project-card__title {
+    font-size: 0.75rem;
+    padding: 0.1rem 0.3rem;
+  }
+
+  #work .project-card__role,
+  #work .project-card__overlay::before,
+  #work .project-card__overlay::after {
+    display: none;
+  }
+
+  /* waves stay out from behind the hero text */
+  .wave-decoration--hero-bottom {
+    display: none;
+  }
+}
