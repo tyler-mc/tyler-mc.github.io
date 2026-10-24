@@ -63,7 +63,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="../styles.css?v=f447d230">
+    <link rel="stylesheet" href="../styles.css?v=2134d198">
 
     <!-- Favicon -->
     <link rel="icon" href="../favicon.ico" sizes="any">
@@ -167,21 +167,34 @@
                 <p>New modifiers and weapons gave players new ways to play. Deflector let you hit bullets and reflect
                     them back at enemies, for added challenge. The Drum Gun, our music gun, changed the firing sound to
                     different drum kit sounds depending on how you held the gun, so you could play along with the music.</p>
-                <div class="pw-panel pw-mods">
-                    <p class="pw-panel__kicker">New ways to play</p>
-                    <h3 class="pw-panel__title">Deflector and the Drum Gun</h3>
-                    <div class="pw-mods__grid">
-                        <div class="pw-mod"><svg viewBox="0 0 300 170" role="img" aria-label="Diagram: an enemy fires a bullet at the player, the player swings at it, and the bullet goes back toward the enemy." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect y="118" width="300" height="52" fill="#1d0a3d"/><circle cx="252" cy="62" r="9" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><polygon points="241,73 263,73 268,112 236,112" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><circle cx="52" cy="118" r="11" fill="none" stroke="#4fe0d0" stroke-width="2"/><path d="M 92 78 A 30 30 0 0 1 92 130" fill="none" stroke="#4fe0d0" stroke-width="3"/><line x1="238" y1="84" x2="130.0" y2="91.7" stroke="#ff4d8d" stroke-width="2" stroke-dasharray="6 4"/><polygon points="126,92 133.8,87.5 134.4,95.3" fill="#ff4d8d"/><line x1="124" y1="100" x2="222.0" y2="86.5" stroke="#4fe0d0" stroke-width="2"/><polygon points="226,86 218.5,91.0 217.4,83.2" fill="#4fe0d0"/><circle cx="180" cy="70" r="9" fill="#14052a" stroke="#ff4d8d" stroke-width="1.5"/><text x="180" y="74" text-anchor="middle" font-size="11" fill="#ff4d8d">1</text><circle cx="80" cy="150" r="9" fill="#14052a" stroke="#4fe0d0" stroke-width="1.5"/><text x="80" y="154" text-anchor="middle" font-size="11" fill="#4fe0d0">2</text><circle cx="180" cy="118" r="9" fill="#14052a" stroke="#4fe0d0" stroke-width="1.5"/><text x="180" y="122" text-anchor="middle" font-size="11" fill="#4fe0d0">3</text></svg>
-                            <p class="pw-mod__cap"><b>Deflector</b>An enemy's bullet comes in, you take a swing, and it goes back at them.</p>
+                <div class="miro" role="group" aria-label="Diagrams of the Deflector modifier and the Drum Gun">
+                    <div class="miro__grid">
+                        <div class="miro-frame miro-frame--wide miro-frame--snug">
+                            <p class="miro-frame__title">Deflector</p>
+                            <ol class="miro-flow" role="list">
+                                <li class="miro-note miro-note--yellow">An enemy's bullet comes in</li>
+                                <li class="miro-note miro-note--blue miro-note--lg">You take a swing</li>
+                                <li class="miro-note miro-note--green">The bullet goes back at them</li>
+                            </ol>
                         </div>
-                        <div class="pw-mod"><svg viewBox="0 0 300 170" role="img" aria-label="Diagram: a shot, a hit and a reload each lead to a different sound." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect x="14" y="22" width="88" height="34" fill="none" stroke="#ff4d8d" stroke-width="1.5"/><text x="58" y="44" text-anchor="middle" font-size="12" fill="#f6f0ff">SHOT</text><line x1="104" y1="39" x2="164.8" y2="83.6" stroke="#4fe0d0" stroke-width="1.5"/><polygon points="168,86 159.2,84.4 163.8,78.0" fill="#4fe0d0"/><rect x="14" y="66" width="88" height="34" fill="none" stroke="#ff4d8d" stroke-width="1.5"/><text x="58" y="88" text-anchor="middle" font-size="12" fill="#f6f0ff">HIT</text><line x1="104" y1="83" x2="164.0" y2="85.8" stroke="#4fe0d0" stroke-width="1.5"/><polygon points="168,86 159.7,89.5 160.1,81.7" fill="#4fe0d0"/><rect x="14" y="110" width="88" height="34" fill="none" stroke="#ff4d8d" stroke-width="1.5"/><text x="58" y="132" text-anchor="middle" font-size="12" fill="#f6f0ff">RELOAD</text><line x1="104" y1="127" x2="164.6" y2="88.2" stroke="#4fe0d0" stroke-width="1.5"/><polygon points="168,86 163.3,93.7 159.1,87.1" fill="#4fe0d0"/><rect x="172" y="52" width="114" height="68" fill="none" stroke="#4fe0d0" stroke-width="2"/><text x="229" y="82" text-anchor="middle" font-size="12" fill="#4fe0d0">A DIFFERENT</text><text x="229" y="100" text-anchor="middle" font-size="12" fill="#4fe0d0">SOUND EACH</text></svg>
-                            <p class="pw-mod__cap"><b>Drum Gun</b>Each shot, hit or reload makes a different sound, and moving your hand changes the sound of your shots.</p>
-                        </div>
-                        <div class="pw-mod pw-mod--art"><img src="../images/pistolwhip_drumgun.webp" alt="Official Pistol Whip announcement art for the Drum Gun" width="720" height="720" loading="lazy">
-                            <p class="pw-mod__cap"><b>Official art</b>The Drum Gun announcement, Cloudhead Games.</p>
+                        <div class="miro-frame miro-frame--wide miro-frame--inset">
+                            <p class="miro-frame__title">Drum Gun</p>
+                            <div class="miro-merge">
+                                <ul class="miro-stack" role="list">
+                                    <li class="miro-note miro-note--blue">Shot</li>
+                                    <li class="miro-note miro-note--blue">Hit</li>
+                                    <li class="miro-note miro-note--blue">Reload</li>
+                                </ul>
+                                <svg class="miro-merge__lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 0H30C62 0 66 50 100 50"/><path d="M0 50H100"/><path d="M0 100H30C62 100 66 50 100 50"/></svg>
+                                <div class="miro-shape">A different sound each</div>
+                                <p class="miro-comment miro-note--pink">Moving your hand changes the sound of your shots.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <figure class="pw-art"><img src="../images/pistolwhip_drumgun.webp" alt="Official Pistol Whip announcement art for the Drum Gun" width="720" height="720" loading="lazy">
+                    <figcaption>The Drum Gun announcement art, Cloudhead Games</figcaption>
+                </figure>
 
                 <p>Through all of it I worked to stay true to the raw simplicity of the base game.</p>
 
