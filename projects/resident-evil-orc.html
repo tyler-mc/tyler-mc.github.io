@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
-    <link rel="stylesheet" href="../styles.css?v=f447d230">
+    <link rel="stylesheet" href="../styles.css?v=2134d198">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
@@ -39,75 +39,138 @@
         </div>
     </nav>
 
-    <main class="case-study case-study--page">
+    <main class="case-study case-study--page case-study--deep">
         <a href="../index.html#work" class="case-study__back">← Back to Work</a>
+
         <header class="case-study__header">
-            <img src="../images/ResidentEvil_banner.jpeg" alt="Resident Evil: Operation Raccoon City"
-                class="case-study__image">
+            <img src="../images/ResidentEvil_banner.jpeg" alt="Resident Evil: Operation Raccoon City key art: an Umbrella Security Service soldier raising a knife in front of a crowd of zombies"
+                class="case-study__image" style="object-position: 50% 62%">
+
             <div class="case-study__meta">
-                <div class="case-study__meta-item"><span class="case-study__meta-label">Role</span><span>Senior Game
-                        Designer</span></div>
-                <div class="case-study__meta-item"><span class="case-study__meta-label">Studio</span><span>Slant Six
-                        Games</span></div>
-                <div class="case-study__meta-item"><span class="case-study__meta-label">Period</span><span>Aug 2006 –
-                        April 2012</span></div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Role</span>
+                    <span>Senior Game Designer</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Studio</span>
+                    <span>Slant Six Games</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Period</span>
+                    <span>Aug 2006 – April 2012</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Released</span>
+                    <span>March 2012</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Platform</span>
+                    <span>PS3, Xbox 360</span>
+                </div>
             </div>
+
             <h1 class="case-study__title">Resident Evil: Op. Raccoon City</h1>
             <p class="case-study__tagline">Squad-based shooter in the Resident Evil universe</p>
-            <div class="case-study__accomplishment">Prototype level led to Capcom greenlight. Co-created proprietary
-                scripting tools.</div>
+
+            <div class="case-study__accomplishment">
+                I scripted the prototype level that secured the project's greenlight with Capcom, and designed the core
+                combat and cover system.
+            </div>
         </header>
 
-        <article class="case-study__content">
-            <p>This was a whirlwind of a project. We developed our tools, engine and the game all from the ground up all
-                within about a year.</p>
-            <p>I was part of the initial prototyping team which primarily consisted of myself, an artist and an
-                engineer. We put together a playable concept prototype that was presented to Capcom and allowed for the
-                official greenlight for production of the product. We had no design lead on the project, as well as went
-                through 2 different design directors. I created the base narrative and mission structure for the game as
-                well as being the point person for design and scripting tools.</p>
-            <figure><img src="../images/ResidentEvil_shot1.png" alt="RE:ORC gameplay"></figure>
-            <p>I designed the core combat and cover systems for the game. One of the design challenges I had is 'how do
-                we make an engaging 3rd person cover-based shooter that also allows for easy melee-based combat?'</p>
-            <p>The typical 'snap-to-cover' was not ideal. Games that had this system would fall apart if swarmed with
-                close quarter enemies because players would panic and wrestle with the controls feeling 'stuck' to
-                cover. So I decided to make cover automated and context sensitive whenever you were near valid objects.
-                The player's controls and movement remained exactly the same regardless of being in cover or not which
-                reduced the cognitive load.</p>
-            <figure><img src="../images/ResidentEvil_shot2.png" alt="Combat system"></figure>
-            <p>One fun feature of the combat system I worked on was the 'Quick draw'. By holding down a button and
-                rotating the analog stick, the player would quickly auto-aim in that direction without moving the
-                camera. This became very useful when engaging with cover-based shooting enemies in the distance and a
-                sudden swarm of zombies attacked in the middle.</p>
-            <p>Players could also bleed which spawned swarms of zombies but fortunately you could also make enemies
-                bleed which made for fun strategic advantages and mob management.</p>
-            <figure><img src="../images/ResidentEvil_shot3.webp" alt="Finisher moves"></figure>
-            <p>We also had a lot of finisher moves as well as the ability to take a nearby enemy as a shield. All of
-                these combat features were also available in the multiplayer mode which made for a unique take on
-                standard third-person shooter fare of the day.</p>
+        <div class="cs-layout">
+            <nav class="cs-rail" aria-label="On this page">
+                <p class="cs-rail__title">On this page</p>
+                <ol>
+                    <li><a href="#owned">What I owned</a></li>
+                    <li><a href="#prototype">The prototype</a></li>
+                    <li><a href="#cover">The cover system</a></li>
+                    <li><a href="#combat">Quick draw and bleeding</a></li>
+                    <li><a href="#tools">Scripting tools</a></li>
+                    <li><a href="#learned">What I learned</a></li>
+                    <li><a href="#skills">Skills applied</a></li>
+                </ol>
+            </nav>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Key Contributions</h2>
+            <article class="case-study__content">
+                <h2 class="cs-h2" id="owned"><span class="cs-h2__num">01</span>What I owned</h2>
                 <ul class="case-study__contributions">
-                    <li>Created prototype that secured Capcom greenlight</li>
-                    <li>Designed innovative automated context-sensitive cover system</li>
-                    <li>Created 'Quick draw' auto-aim feature for swarm management</li>
-                    <li>Designed bleeding mechanic for zombie mob management</li>
-                    <li>Created finisher moves and human shield mechanics</li>
+                    <li>Designed and scripted the prototype level that led to the greenlight of the project</li>
+                    <li>Created the base narrative and mission structure for the game</li>
+                    <li>Designed the core combat and cover systems, supporting both close-range and long-range combat</li>
+                    <li>Designed and scripted AI companion behaviors for squad-based co-op gameplay</li>
+                    <li>Was the point person for design and scripting tools</li>
+                    <li>Co-created a proprietary scripting language and toolset with the lead engineer</li>
                 </ul>
-            </section>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Skills Applied</h2>
-                <div class="case-study__skills">
-                    <span class="case-study__skill">Prototyping</span>
-                    <span class="case-study__skill">Combat Systems</span>
-                    <span class="case-study__skill">Cover Systems</span>
-                    <span class="case-study__skill">Tool Development</span>
-                    <span class="case-study__skill">AAA Production</span>
-                </div>
-            </section>
-        </article>
+                <h2 class="cs-h2" id="prototype"><span class="cs-h2__num">02</span>The prototype</h2>
+                <p>This was a whirlwind of a project. We developed our tools, engine and the game all from the ground up,
+                    all within about a year.</p>
+                <p>I was part of the initial prototyping team, which primarily consisted of myself, an artist and an
+                    engineer. We put together a playable concept prototype that was presented to Capcom and allowed for
+                    the official greenlight for production of the product.</p>
+                <p>We had no design lead on the project, and went through two different design directors. I created the
+                    base narrative and mission structure for the game, as well as being the point person for design and
+                    scripting tools.</p>
+                <p>The game released in March 2012 on PlayStation 3 and Xbox 360, while I was still at the studio. Capcom
+                    lists it among its Platinum Titles, at 2.80 million units sold as of June 30, 2026.
+                    <a href="https://www.capcom.co.jp/ir/english/business/million.html" target="_blank" rel="noopener">Source ↗</a></p>
+
+                <h2 class="cs-h2" id="cover"><span class="cs-h2__num">03</span>The cover system</h2>
+                <p>One of the design challenges I had was: how do we make an engaging third-person cover-based shooter
+                    that also allows for easy melee-based combat?</p>
+                <p>The typical 'snap-to-cover' was not ideal. Games that had this system would fall apart if swarmed with
+                    close-quarter enemies, because players would panic and wrestle with the controls, feeling 'stuck' to
+                    cover.</p>
+                <figure><img src="../images/ResidentEvil_shot1.png" alt="Illustration of a soldier running up to a wall and dropping into a crouch behind it, with no separate cover button" loading="lazy">
+                    <figcaption>Cover was automatic: moving next to a valid object put you in cover.</figcaption>
+                </figure>
+                <p>So I decided to make cover automated and context sensitive whenever you were near valid objects. The
+                    player's controls and movement remained exactly the same regardless of being in cover or not, which
+                    reduced the cognitive load.</p>
+
+                <h2 class="cs-h2" id="combat"><span class="cs-h2__num">04</span>Quick draw and bleeding</h2>
+                <p>One fun feature of the combat system I worked on was the 'Quick draw'. By holding down a button and
+                    rotating the analog stick, the player would quickly auto-aim in that direction without moving the
+                    camera.</p>
+                <figure><img src="../images/ResidentEvil_shot2.png" alt="Illustration of a soldier at the centre of a ring, snapping his aim between zombies and gunmen on every side" loading="lazy">
+                    <figcaption>Quick draw: hold a button and point the stick to snap your aim in that direction.</figcaption>
+                </figure>
+                <p>This became very useful when engaging with cover-based shooting enemies in the distance and a sudden
+                    swarm of zombies attacked in the middle.</p>
+                <p>Players could also bleed, which spawned swarms of zombies, but fortunately you could also make enemies
+                    bleed, which made for fun strategic advantages and mob management.</p>
+                <figure><img src="../images/ResidentEvil_shot3.webp" alt="A player character in a dark alley performing a close-range finisher on a zombie" loading="lazy">
+                    <figcaption>One of the finisher moves.</figcaption>
+                </figure>
+                <p>We also had a lot of finisher moves, as well as the ability to take a nearby enemy as a shield. All of
+                    these combat features were also available in the multiplayer mode, which made for a unique take on
+                    standard third-person shooter fare of the day.</p>
+
+                <h2 class="cs-h2" id="tools"><span class="cs-h2__num">05</span>Scripting tools</h2>
+                <p>At Slant Six, I co-created a proprietary scripting language and toolset with the lead engineer that
+                    was adopted studio-wide across the SOCOM franchise and RE: Operation Raccoon City. That wasn't just
+                    giving feedback on tools. I was deep in the design of how designers would author gameplay through
+                    that system.</p>
+
+                <h2 class="cs-h2" id="learned"><span class="cs-h2__num">06</span>What I learned</h2>
+                <p>These Slant Six projects taught me how to design systems that support different playstyles and create
+                    memorable moment-to-moment gameplay. Game engines change, but the fundamentals of building and
+                    optimizing maintainable architecture do not.</p>
+
+                <section class="case-study__section" id="skills">
+                    <h2 class="case-study__section-title">Skills Applied</h2>
+                    <div class="case-study__skills">
+                        <span class="case-study__skill">Prototyping</span>
+                        <span class="case-study__skill">Combat Systems</span>
+                        <span class="case-study__skill">Cover Systems</span>
+                        <span class="case-study__skill">AI Companions</span>
+                        <span class="case-study__skill">Scripting Tools</span>
+                        <span class="case-study__skill">Mission Structure</span>
+                    </div>
+                </section>
+            </article>
+        </div>
 
         <nav class="case-study__nav">
             <a href="whore-of-the-orient.html" class="case-study__nav-link"><span class="case-study__nav-label">←

@@ -38,7 +38,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
-    <link rel="stylesheet" href="../styles.css?v=f447d230">
+    <link rel="stylesheet" href="../styles.css?v=2134d198">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
@@ -59,10 +59,12 @@
         </div>
     </nav>
 
-    <main class="case-study case-study--page">
+    <main class="case-study case-study--page case-study--deep">
         <a href="../index.html#work" class="case-study__back">← Back to Work</a>
+
         <header class="case-study__header">
-            <img src="../images/TacticalStike_banner.jpg" alt="SOCOM: Tactical Strike" class="case-study__image">
+            <img src="../images/socom_tactical_strike_press_town.webp" alt="SOCOM: Tactical Strike: a SEAL crouched by a parked car in a sunlit town square, with the four-man team's status panel on the right" class="case-study__image" style="object-position: 50% 40%">
+
             <div class="case-study__meta">
                 <div class="case-study__meta-item">
                     <span class="case-study__meta-label">Role</span>
@@ -76,52 +78,95 @@
                     <span class="case-study__meta-label">Period</span>
                     <span>Aug 2006 – April 2012</span>
                 </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Released</span>
+                    <span>Nov 2007</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Platform</span>
+                    <span>PSP</span>
+                </div>
             </div>
+
             <h1 class="case-study__title">SOCOM: Tactical Strike</h1>
             <p class="case-study__tagline">Real-time tactical strategy shooter game</p>
+
             <div class="case-study__accomplishment">
-                BAFTA nominated.
+                I scripted semi-linear missions with multiple strategies, and designed the different enemy types.
             </div>
         </header>
 
-        <article class="case-study__content">
-            <figure><img src="../images/TacticalStrike_shot1.png" alt="Tactical Strike gameplay"></figure>
-            <p>Tactical Strike was a real-time tactics game where you controlled a team of 4 navy seals through
-                various levels.</p>
-            <figure><img src="../images/TacticalStrike_shot2.webp" alt="Attack options"></figure>
-            <p>Pictured here shows one of the levels I worked on displayed some of the attack options which you could
-                either execute immediately or cue up to have all your Seals perform orders all at once.</p>
-            <p>The design of levels required multiple assault and stealth ways to navigate through them allowing
-                players to discover their own preferred ways to play. I was responsible for multiple level scenarios
-                and discovering creative ways to use different tactics.</p>
-            <figure><img src="../images/TacticalStrike_shot1.png" alt="Tactical gameplay"></figure>
-            <p>In addition I was responsible for designing different enemy types to keep players on their toes. Some
-                enemies would charge, some would hide and melee, some would move into a preferred range moving only
-                from cover point to cover point while others would look to always flank the player.</p>
-            <p>I believe other enemy types were variations of these base types.</p>
+        <div class="cs-layout">
+            <nav class="cs-rail" aria-label="On this page">
+                <p class="cs-rail__title">On this page</p>
+                <ol>
+                    <li><a href="#owned">What I owned</a></li>
+                    <li><a href="#game">How it played</a></li>
+                    <li><a href="#levels">Level scenarios</a></li>
+                    <li><a href="#enemies">Enemy types</a></li>
+                    <li><a href="#learned">What I learned</a></li>
+                    <li><a href="#skills">Skills applied</a></li>
+                </ol>
+            </nav>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Key Contributions</h2>
+            <article class="case-study__content">
+                <h2 class="cs-h2" id="owned"><span class="cs-h2__num">01</span>What I owned</h2>
                 <ul class="case-study__contributions">
-                    <li>Designed multiple level scenarios with assault and stealth options</li>
-                    <li>Created diverse enemy AI types with unique behaviors</li>
-                    <li>Designed charging, flanking, and cover-using enemy patterns</li>
-                    <li>Balanced tactical options allowing player choice</li>
-                    <li>Implemented attack queuing and simultaneous order systems</li>
+                    <li>Multiple level scenarios, each with assault and stealth ways through</li>
+                    <li>Scripted semi-linear missions with multiple strategies</li>
+                    <li>Designed strategic scenarios to be implemented in game</li>
+                    <li>Designed different enemy types to keep players on their toes</li>
                 </ul>
-            </section>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Skills Applied</h2>
-                <div class="case-study__skills">
-                    <span class="case-study__skill">RTS Design</span>
-                    <span class="case-study__skill">Enemy AI Design</span>
-                    <span class="case-study__skill">Level Design</span>
-                    <span class="case-study__skill">Tactical Systems</span>
-                    <span class="case-study__skill">PSP Development</span>
-                </div>
-            </section>
-        </article>
+                <h2 class="cs-h2" id="game"><span class="cs-h2__num">02</span>How it played</h2>
+                <p>Tactical Strike was a real-time tactics game where you controlled a team of 4 Navy SEALs through
+                    various levels.</p>
+                <figure><img src="../images/TacticalStrike_shot1.png" alt="Two SEALs at the corner of a dusty town with the Attack menu open, listing Attack Target, Field of Fire, Suppression Fire, Stealth Kill, Fire at Will and Hold Fire" loading="lazy">
+                    <figcaption>The Attack menu.</figcaption>
+                </figure>
+                <p>Pictured here is one of the levels I worked on, showing some of the attack options, which you could
+                    either execute immediately or queue up to have all your SEALs perform orders all at once.</p>
+                <p>Sony released the game for PSP on November 6, 2007, with nine main non-linear missions and 18 instant
+                    action missions.
+                    <a href="https://sony.mediaroom.com/2007-11-06-SOCOM-U.S.-Navy-SEALs-Tactical-Strike-for-PSP-PlayStation-Portable-Releases-on-November-6-to-Stores-Nationwide" target="_blank" rel="noopener">Source ↗</a>
+                    The game was nominated in the Strategy category of the 2009 British Academy Video Games Awards.
+                    <a href="https://mcvuk.com/business-news/publishing/whos-up-for-a-bafta/" target="_blank" rel="noopener">Source ↗</a></p>
+
+                <h2 class="cs-h2" id="levels"><span class="cs-h2__num">03</span>Level scenarios</h2>
+                <p>The design of levels required multiple assault and stealth ways to navigate through them, allowing
+                    players to discover their own preferred ways to play. I was responsible for multiple level scenarios
+                    and discovering creative ways to use different tactics.</p>
+                <figure><img src="../images/socom_tactical_strike_press_nightvision.webp" alt="Night-vision view of the four SEALs stacked at a doorway inside a building, with a waypoint marker labelled Charlie" loading="lazy">
+                    <figcaption>A night-vision approach inside a building. This image and the header: Sony Computer
+                        Entertainment press kit, Games Convention 2007 (<a href="https://discmaster.textfiles.com/browse/18837/Sony%20Computer%20Entertainment%20-%20Games%20Convention%202007%20-%20Software%20Press%20Kit%20(Germany).iso/SOCOM%20Tactical%20Strike/Screenshots" target="_blank" rel="noopener">archived copy ↗</a>).</figcaption>
+                </figure>
+
+                <h2 class="cs-h2" id="enemies"><span class="cs-h2__num">04</span>Enemy types</h2>
+                <p>In addition I was responsible for designing different enemy types to keep players on their toes. Some
+                    enemies would charge, some would hide and melee, some would move into a preferred range moving only
+                    from cover point to cover point, while others would look to always flank the player.</p>
+                <figure><img src="../images/TacticalStrike_shot2.webp" alt="Two SEALs behind a low stone wall in a jungle, targeting two enemies 22.8 metres away with the Attack Target prompt" loading="lazy">
+                    <figcaption>Targeting enemies from cover in a jungle level.</figcaption>
+                </figure>
+                <p>I believe other enemy types were variations of these base types.</p>
+
+                <h2 class="cs-h2" id="learned"><span class="cs-h2__num">05</span>What I learned</h2>
+                <p>Across my years on SOCOM, a big part of my work was using level design tools to build out encounter spaces that supported
+                    multiple approaches, giving players genuine agency rather than forcing a single solution. On the
+                    SOCOM series, I designed core combat mechanics and AI that pushed players to vary their strategies.</p>
+
+                <section class="case-study__section" id="skills">
+                    <h2 class="case-study__section-title">Skills Applied</h2>
+                    <div class="case-study__skills">
+                        <span class="case-study__skill">Real-Time Tactics</span>
+                        <span class="case-study__skill">Enemy AI Design</span>
+                        <span class="case-study__skill">Level Design</span>
+                        <span class="case-study__skill">Mission Scripting</span>
+                        <span class="case-study__skill">PSP Development</span>
+                    </div>
+                </section>
+            </article>
+        </div>
 
         <nav class="case-study__nav">
             <a href="socom-confrontation.html" class="case-study__nav-link">

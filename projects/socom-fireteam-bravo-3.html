@@ -38,7 +38,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
-    <link rel="stylesheet" href="../styles.css?v=f447d230">
+    <link rel="stylesheet" href="../styles.css?v=2134d198">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
@@ -59,10 +59,12 @@
         </div>
     </nav>
 
-    <main class="case-study case-study--page">
+    <main class="case-study case-study--page case-study--deep">
         <a href="../index.html#work" class="case-study__back">← Back to Work</a>
+
         <header class="case-study__header">
-            <img src="../images/FireteamBravo_banner.png" alt="SOCOM: Fireteam Bravo 3" class="case-study__image">
+            <img src="../images/FireteamBravo_shot3.webp" alt="SOCOM: Fireteam Bravo 3: four SEALs, named Sandman, Raven and Toro on screen, stacked up in a concrete corridor" class="case-study__image" style="object-position: 50% 45%">
+
             <div class="case-study__meta">
                 <div class="case-study__meta-item">
                     <span class="case-study__meta-label">Role</span>
@@ -76,59 +78,108 @@
                     <span class="case-study__meta-label">Period</span>
                     <span>Aug 2006 – April 2012</span>
                 </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Released</span>
+                    <span>Feb 2010</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Platform</span>
+                    <span>PSP</span>
+                </div>
             </div>
+
             <h1 class="case-study__title">SOCOM: Fireteam Bravo 3</h1>
             <p class="case-study__tagline">Squad-based 3rd person shooter with tactical elements</p>
+
             <div class="case-study__accomplishment">
-                Proposed 'gone wrong' narrative concept that became basis for entire game.
+                I proposed the 'gone wrong' narrative concept that became the basis for the game, and directed the level
+                design and story of the single-player campaign.
             </div>
         </header>
 
-        <article class="case-study__content">
-            <p>One of my goals with Fireteam Bravo 3 was to bring a new narrative perspective to the successful
-                fireteam bravo series.</p>
-            <p>Previously the series had been about getting clear orders, going in, executing the orders and getting
-                out all while being guided by a mission operator that knew everything that was going on.</p>
-            <figure><img src="../images/FireteamBravo_shot1.webp" alt="Fireteam Bravo 3 gameplay"></figure>
-            <p>I proposed the idea, 'what if something went wrong and the Seals had to figure out things on their own?'
-                which eventually became the basis for the game.</p>
-            <figure><img src="../images/FireteamBravo_shot2.webp" alt="Notebook UI"></figure>
-            <p>In the first two games, the front end and in-game UI were all high-tech. I pushed for this notebook
-                design to help reinforce this on-the-ground offline feel.</p>
-            <figure><img src="../images/FireteamBravo_shot3.webp" alt="Mission structure"></figure>
-            <p>I was responsible for laying out the core mission structure, as well as implementing multiple level
-                scenarios.</p>
-            <p>We also brought over tactical command elements that we had created in Tactical Strike where players
-                could give commands to teammates, each level was also fully playable with online co-op where these
-                commands would change to verbal orders.</p>
-            <p>I was also responsible for the AI design of teammates and enemies. Teammates were a particular design
-                challenge because they needed to be always out of the way of the player shooting but always visible and
-                looking effective.</p>
-            <p>I also designed a system where teammates would head towards where the player needed to go if no enemies
-                threats were detected to naturally drive the player forward.</p>
+        <div class="cs-layout">
+            <nav class="cs-rail" aria-label="On this page">
+                <p class="cs-rail__title">On this page</p>
+                <ol>
+                    <li><a href="#owned">What I owned</a></li>
+                    <li><a href="#concept">The concept</a></li>
+                    <li><a href="#notebook">The notebook UI</a></li>
+                    <li><a href="#missions">Missions and commands</a></li>
+                    <li><a href="#ai">Teammate AI</a></li>
+                    <li><a href="#learned">What I learned</a></li>
+                    <li><a href="#skills">Skills applied</a></li>
+                </ol>
+            </nav>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Key Contributions</h2>
+            <article class="case-study__content">
+                <h2 class="cs-h2" id="owned"><span class="cs-h2__num">01</span>What I owned</h2>
                 <ul class="case-study__contributions">
-                    <li>Proposed 'gone wrong' narrative concept that became basis for the game</li>
-                    <li>Designed notebook UI to reinforce on-the-ground feel</li>
-                    <li>Created core mission structure and multiple level scenarios</li>
-                    <li>Designed teammate AI that supports without obstructing player</li>
-                    <li>Created system where teammates head toward objectives when no threats detected</li>
+                    <li>Proposed the 'something went wrong' idea that became the basis for the game</li>
+                    <li>Directed the level design and story of the single-player campaign</li>
+                    <li>Laid out the core mission structure and implemented multiple level scenarios</li>
+                    <li>Pushed for the notebook design of the front end and in-game UI</li>
+                    <li>The AI design of teammates and enemies</li>
+                    <li>Scripted combat AI and gameplay systems supporting multiple playstyles</li>
                 </ul>
-            </section>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Skills Applied</h2>
-                <div class="case-study__skills">
-                    <span class="case-study__skill">Narrative Design</span>
-                    <span class="case-study__skill">AI Design</span>
-                    <span class="case-study__skill">Level Design</span>
-                    <span class="case-study__skill">UI Concept</span>
-                    <span class="case-study__skill">Tactical Shooters</span>
-                </div>
-            </section>
-        </article>
+                <h2 class="cs-h2" id="concept"><span class="cs-h2__num">02</span>The concept</h2>
+                <p>One of my goals with Fireteam Bravo 3 was to bring a new narrative perspective to the successful
+                    Fireteam Bravo series.</p>
+                <p>Previously the series had been about getting clear orders, going in, executing the orders and getting
+                    out, all while being guided by a mission operator that knew everything that was going on.</p>
+                <p>I proposed the idea, 'what if something went wrong and the Seals had to figure out things on their
+                    own?' which eventually became the basis for the game.</p>
+                <p>Sony's launch announcement in February 2010 described a heightened emphasis on the story and on the
+                    characters of the SEALs, with the relationship between squadmates used to move the story forward.
+                    <a href="https://sony.mediaroom.com/2010-02-16-The-SOCOM-Military-Franchise-Heads-Back-Into-Action-With-SOCOM-U.S.-Navy-SEALs-Fireteam-Bravo-3-for-PSP-PlayStation-Portable" target="_blank" rel="noopener">Source ↗</a></p>
+
+                <h2 class="cs-h2" id="notebook"><span class="cs-h2__num">03</span>The notebook UI</h2>
+                <p>In the first two games, the front end and in-game UI were all high-tech. I pushed for this notebook
+                    design to help reinforce this on-the-ground, offline feel.</p>
+                <figure><img src="../images/FireteamBravo_shot1.webp" alt="The Operations Map screen drawn as a spiral-bound notebook, with a paper-clipped photo of the Urban Assault mission, hand-written location and time, and a target circled in red on a paper map" loading="lazy">
+                    <figcaption>The Operations Map, drawn as a field notebook instead of a high-tech display.</figcaption>
+                </figure>
+
+                <h2 class="cs-h2" id="missions"><span class="cs-h2__num">04</span>Missions and commands</h2>
+                <p>I was responsible for laying out the core mission structure, as well as implementing multiple level
+                    scenarios.</p>
+                <p>We also brought over tactical command elements that we had created in Tactical Strike, where players
+                    could give commands to teammates. Each level was also fully playable with online co-op, where these
+                    commands would change to verbal orders.</p>
+                <figure><img src="../images/FireteamBravo_shot2.webp" alt="The squad command menu: Move To and Cover Target at top and bottom, Movement options Follow and Hold Position on the left, and Engagement options Hold Fire, Fire at Will and Stealth on the right" loading="lazy">
+                    <figcaption>The command menu for giving orders to teammates.</figcaption>
+                </figure>
+                <p>Sony's launch announcement lists co-op for two to four players through the single-player campaign,
+                    over both ad hoc and infrastructure.
+                    <a href="https://sony.mediaroom.com/2010-02-16-The-SOCOM-Military-Franchise-Heads-Back-Into-Action-With-SOCOM-U.S.-Navy-SEALs-Fireteam-Bravo-3-for-PSP-PlayStation-Portable" target="_blank" rel="noopener">Source ↗</a></p>
+
+                <h2 class="cs-h2" id="ai"><span class="cs-h2__num">05</span>Teammate AI</h2>
+                <p>I was also responsible for the AI design of teammates and enemies.</p>
+                <p>Teammates were a particular design challenge because they needed to be always out of the way of the
+                    player shooting, but always visible and looking effective.</p>
+                <figure><img src="../images/FireteamBravo_shot3.webp" alt="The player's view down a corridor, with three AI teammates spread to the sides and ahead, clear of the centre crosshair" loading="lazy">
+                    <figcaption>Three teammates in view, off to the sides of the player's crosshair.</figcaption>
+                </figure>
+                <p>I also designed a system where teammates would head towards where the player needed to go if no enemy
+                    threats were detected, to naturally drive the player forward.</p>
+
+                <h2 class="cs-h2" id="learned"><span class="cs-h2__num">06</span>What I learned</h2>
+                <p>My combat work at Slant Six meant working closely with animators and engineers to get behaviors
+                    feeling right. That foundation shaped how I think about pacing, player agency, and tuning.</p>
+
+                <section class="case-study__section" id="skills">
+                    <h2 class="case-study__section-title">Skills Applied</h2>
+                    <div class="case-study__skills">
+                        <span class="case-study__skill">Narrative Design</span>
+                        <span class="case-study__skill">Mission Structure</span>
+                        <span class="case-study__skill">AI Design</span>
+                        <span class="case-study__skill">Level Design</span>
+                        <span class="case-study__skill">UI Concept</span>
+                        <span class="case-study__skill">Tactical Shooters</span>
+                    </div>
+                </section>
+            </article>
+        </div>
 
         <nav class="case-study__nav">
             <a href="star-wars-battlefront.html" class="case-study__nav-link">
