@@ -31,8 +31,6 @@
 
   /* Shadows */
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
-  --shadow-brutal: 4px 4px 0 var(--bg-dark);
-  --shadow-brutal-sm: 2px 2px 0 var(--bg-dark);
 
   /* Typography */
   --font-heading: 'Anton', 'Impact', sans-serif;
@@ -251,8 +249,7 @@ section {
   background: var(--accent-red);
   border-color: var(--accent-red);
   color: var(--text-primary);
-  box-shadow: 4px 4px 0 var(--bg-dark);
-  transform: translate(-3px, -3px) scale(1.02);
+  transform: scale(1.02);
 }
 
 .btn--outline {
@@ -263,8 +260,7 @@ section {
 .btn--outline:hover {
   background: var(--text-primary);
   color: var(--text-inverted);
-  box-shadow: 4px 4px 0 var(--accent-red);
-  transform: translate(-3px, -3px) scale(1.02);
+  transform: scale(1.02);
 }
 
 /* Badge/Tag */
@@ -670,9 +666,8 @@ section {
   margin-top: var(--space-lg);
 }
 
-/* Hero Particle Canvas */
-/* Global Particle Canvas */
-.global-particles {
+/* Cursor trail canvas */
+.cursor-trail {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -681,7 +676,7 @@ section {
   z-index: 0;
 }
 
-/* Ensure content is above particles */
+/* Ensure content is above the trail */
 .hero__content {
   z-index: 1;
 }
@@ -1398,62 +1393,20 @@ section {
 }
 
 /* Wave positions for different sections */
-.wave-decoration--hero-top {
-  top: 80px;
-  right: -50px;
-  width: 450px;
-  height: 300px;
-  transform: rotate(-15deg);
-}
 
-.wave-decoration--hero-bottom {
-  bottom: 50px;
-  left: -30px;
-  width: 400px;
-  height: 250px;
-  transform: rotate(10deg);
-}
 
-.wave-decoration--about-right {
-  top: 20%;
-  right: -100px;
-  width: 500px;
-  height: 350px;
-  transform: rotate(-5deg);
-  opacity: 0.45;
-}
 
-.wave-decoration--work-top {
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 180px;
-  opacity: 0.3;
-}
 
-.wave-decoration--experience-left {
-  top: 30%;
-  left: -100px;
-  width: 450px;
-  height: 300px;
-  transform: rotate(5deg);
-  opacity: 0.42;
-}
 
-.wave-decoration--contact-bottom {
-  bottom: -30px;
-  right: 10%;
-  width: 500px;
-  height: 250px;
-  transform: rotate(-8deg);
-  opacity: 0.4;
-}
+
+
+
+
+
+
 
 /* Apply brand colors to wave decorations */
-.wave-decoration--red img {
-  filter: sepia(1) saturate(5) hue-rotate(-30deg) brightness(0.9);
-}
+
 
 .wave-decoration--dark img {
   filter: brightness(0) opacity(0.4);
@@ -1506,13 +1459,7 @@ section {
 }
 
 /* Additional hero wave */
-.wave-decoration--hero-mid {
-  top: 50%;
-  left: -100px;
-  width: 200px;
-  height: 200px;
-  transform: translateY(-50%) rotate(20deg);
-}
+
 
 /* ============================================
    Decorative Elements
@@ -1535,42 +1482,18 @@ section {
   font-size: 1.5rem;
 }
 
-.decorative-asterisk--timeline {
-  top: var(--space-2xl);
-  right: var(--space-xl);
-  font-size: 2.5rem;
-}
+
 
 /* Corner brackets */
-.corner-bracket {
-  position: absolute;
-  font-family: var(--font-mono);
-  font-size: 2.5rem;
-  color: var(--text-primary);
-  opacity: 0.15;
-  pointer-events: none;
-  z-index: 0;
-}
 
-.corner-bracket--top-left {
-  top: var(--space-lg);
-  left: var(--space-lg);
-}
 
-.corner-bracket--top-right {
-  top: var(--space-lg);
-  right: var(--space-lg);
-}
 
-.corner-bracket--bottom-left {
-  bottom: var(--space-lg);
-  left: var(--space-lg);
-}
 
-.corner-bracket--bottom-right {
-  bottom: var(--space-lg);
-  right: var(--space-lg);
-}
+
+
+
+
+
 
 /* Decorative circles */
 .decorative-circles {
@@ -1597,69 +1520,20 @@ section {
   opacity: 0.35;
 }
 
-.wave-decoration--work-side {
-  top: 20%;
-  right: -80px;
-  width: 400px;
-  height: 400px;
-  transform: rotate(-20deg);
-  opacity: 0.38;
-}
 
-.wave-decoration--experience-right {
-  bottom: 20%;
-  right: -90px;
-  width: 380px;
-  height: 300px;
-  transform: rotate(10deg);
-  opacity: 0.4;
-}
 
-.wave-decoration--contact-top {
-  top: -20px;
-  left: 10%;
-  width: 450px;
-  height: 250px;
-  transform: rotate(5deg);
-  opacity: 0.35;
-}
 
-.wave-decoration--hero-mid {
-  top: 45%;
-  right: 15%;
-  width: 280px;
-  height: 280px;
-  transform: rotate(25deg);
-  opacity: 0.25;
-}
+
+
+
+
 
 /* Additional section decorations for more variety */
-.wave-decoration--about-bottom {
-  bottom: 15%;
-  right: 5%;
-  width: 320px;
-  height: 280px;
-  transform: rotate(-25deg);
-  opacity: 0.25;
-}
 
-.wave-decoration--work-bottom {
-  bottom: 10%;
-  left: 5%;
-  width: 380px;
-  height: 300px;
-  transform: rotate(15deg);
-  opacity: 0.32;
-}
 
-.wave-decoration--experience-bottom {
-  bottom: 5%;
-  left: 50%;
-  transform: translateX(-50%) rotate(-10deg);
-  width: 400px;
-  height: 250px;
-  opacity: 0.28;
-}
+
+
+
 
 /* ============================================
    Animation for decorative elements
@@ -1693,19 +1567,11 @@ section {
   animation: floatWave 8s infinite ease-in-out;
 }
 
-.wave-decoration--hero-top {
-  --wave-rotation: -15deg;
-}
 
-.wave-decoration--hero-bottom {
-  --wave-rotation: 10deg;
-  animation-delay: -2s;
-}
 
-.wave-decoration--about-right {
-  --wave-rotation: -5deg;
-  animation-delay: -4s;
-}
+
+
+
 
 /* ============================================
    Case Study Body Links (no blue)
@@ -1993,48 +1859,18 @@ section {
 /* ============================================
    Dot Navigation - Brutalist Style
    ============================================ */
-.dot-nav {
-  position: fixed;
-  right: var(--space-lg);
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1000;
-  /* Ensure above all content */
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
 
-.dot-nav__dot {
-  width: 12px;
-  height: 12px;
-  padding: 0;
-  border: 2px solid var(--text-primary);
-  background: transparent;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
 
-.dot-nav__dot:hover {
-  background: var(--text-primary);
-  transform: scale(1.2);
-}
 
-.dot-nav__dot.active {
-  background: var(--accent-red);
-  border-color: var(--accent-red);
-}
 
-.dot-nav__dot.active:hover {
-  background: var(--accent-red);
-}
+
+
+
+
+
 
 /* Hide on mobile */
-@media (max-width: 768px) {
-  .dot-nav {
-    display: none;
-  }
-}
+
 
 /* ============================================
    Companies Section - Who I've Worked With
@@ -2163,7 +1999,6 @@ section {
   background: var(--bg-primary);
   padding: var(--space-xs) var(--space-sm);
   border: 1px solid var(--text-primary);
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
 .logo-message.visible {
@@ -2256,7 +2091,6 @@ section {
 .achievement-bar.complete:hover {
   background: var(--accent-red);
   transform: translate(-2px, -2px);
-  box-shadow: 2px 2px 0 var(--text-primary);
 }
 
 #celebrationClose {
@@ -2511,28 +2345,13 @@ section {
   margin-bottom: 0;
 }
 
-.hero__rings {
-  display: inline-flex;
-  gap: 5px;
-}
 
-.hero__rings i {
-  display: block;
-  width: 10px;
-  height: 10px;
-  border: 1.5px solid var(--text-primary);
-  border-radius: 50%;
-  opacity: 0.5;
-}
 
-.hero__rings i:first-child {
-  animation: ringPulse 3s ease-in-out infinite;
-}
 
-@keyframes ringPulse {
-  0%, 100% { background: transparent; }
-  50% { background: var(--accent-red); border-color: var(--accent-red); opacity: 1; }
-}
+
+
+
+
 
 .hero__role {
   font-family: var(--font-mono);
@@ -2660,17 +2479,16 @@ section {
   color: var(--text-primary);
   text-decoration: none;
   background: var(--bg-primary);
-  border: 2px solid var(--text-primary);
-  box-shadow: 4px 4px 0 var(--text-primary);
+  border: 1px solid var(--text-primary);
   transform-origin: 50% 60%;
-  transition: box-shadow 0.15s ease;
+  transition: border-color 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .featured-card:hover,
 .featured-card:focus-visible {
   color: var(--text-primary);
-  box-shadow: 6px 6px 0 var(--accent-red);
+  border-color: var(--accent-red);
 }
 
 .featured-card__art {
@@ -2975,31 +2793,13 @@ section {
 }
 
 /* One bracket per section, anchored to the content column */
-.container > .corner-bracket--top-left {
-  top: -2.25rem;
-  left: -1.75rem;
-}
 
-.container > .corner-bracket--top-right {
-  top: -2.25rem;
-  right: -1.75rem;
-}
 
-.hero__layout > .corner-bracket--bottom-right {
-  top: auto;
-  bottom: -3rem;
-  right: 0;
-}
 
-@media (max-width: 768px) {
-  .container > .corner-bracket--top-left {
-    left: -0.5rem;
-  }
 
-  .container > .corner-bracket--top-right {
-    right: -0.5rem;
-  }
-}
+
+
+
 
 /* Studio logos: one ink treatment, matched in size */
 .company-logo img,
@@ -3338,25 +3138,6 @@ section {
   margin-bottom: 0;
 }
 
-.case-study__full {
-  display: inline-block;
-  margin-top: var(--space-lg);
-  padding: 0.6rem 1rem;
-  border: 2px solid var(--text-primary);
-  box-shadow: 3px 3px 0 var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text-primary);
-  text-decoration: none;
-}
-
-.case-study__full:hover {
-  color: var(--text-primary);
-  box-shadow: 5px 5px 0 var(--accent-red);
-}
-
 @media (max-width: 768px) {
   .case-study__intro {
     padding: var(--space-lg) var(--space-md) 0;
@@ -3482,9 +3263,7 @@ section {
   }
 
   /* waves stay out from behind the hero text */
-  .wave-decoration--hero-bottom {
-    display: none;
-  }
+  
 }
 
 /* Case-study pages have no menu button: on phones their nav links stay

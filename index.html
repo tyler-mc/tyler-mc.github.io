@@ -142,7 +142,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=3852982d">
+  <link rel="stylesheet" href="styles.css?v=73fefc43">
 
   <!-- Favicon -->
   <link rel="icon" href="favicon.ico" sizes="any">
@@ -152,8 +152,6 @@
 </head>
 
 <body>
-  <canvas id="globalParticles" class="global-particles"></canvas>
-
   <!-- Navigation -->
   <nav class="nav" id="nav">
     <div class="container nav__inner">
@@ -184,18 +182,10 @@
   <section class="hero" id="hero">
     <!-- Planted seeds (hero toy) -->
     <canvas class="seed-garden" id="seedGarden" aria-hidden="true"></canvas>
-    <!-- Decorative vector waves -->
-    <div class="wave-decoration wave-decoration--hero-top wave-decoration--red">
-      <img src="images/VectorWaves/Wireframe 05.png" alt="" loading="lazy">
-    </div>
-    <div class="wave-decoration wave-decoration--hero-bottom wave-decoration--dark">
-      <img src="images/VectorWaves/Wireframe 08.png" alt="" loading="lazy">
-    </div>
     <div class="container hero__layout">
       <div class="hero__content">
         <div class="hero__meta">
           <span class="section-code">[00.INTRO]</span>
-          <span class="hero__rings" aria-hidden="true"><i></i><i></i><i></i></span>
         </div>
         <span class="hero__label animate-fade-up" id="heroTagline">→ I plant seeds knowing not all will bloom</span>
         <h1 class="hero__title animate-fade-up animate-delay-1" id="heroTitle" data-glitch="true" data-legible>
@@ -211,7 +201,6 @@
           <a href="#contact" class="btn btn--outline" data-recoil>[ Contact ]</a>
         </div>
       </div>
-      <div class="corner-bracket corner-bracket--bottom-right" aria-hidden="true">┘</div>
       <div class="hero__seed">
         <canvas class="seed-circle" id="seedCircle" aria-hidden="true"></canvas>
         <p class="seed-counter" id="seedCounter" aria-live="polite"></p>
@@ -224,7 +213,7 @@
     <div class="container">
       <div class="section-header">
         <span class="section-code">[01.WORK]</span>
-        <h2 class="section-title" data-glitch="true">Featured Work</h2>
+        <h2 class="section-title">Featured Work</h2>
         <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.2 C 14 2.8, 22 3.2, 31 8.1 S 49 17.0, 60 10.0 S 78 2.5, 89 6.9 S 107 16.1, 118 8.4 S 136 1.2, 147 9.4 S 165 17.6, 178 7.5" /></svg>
       </div>
       <div class="featured__grid">
@@ -293,18 +282,13 @@
 
   <!-- About Section -->
   <section id="about">
-    <!-- Vector wave decorations -->
-    <div class="wave-decoration wave-decoration--about-right wave-decoration--red">
-      <img src="images/VectorWaves/Wireframe 03.png" alt="" loading="lazy">
-    </div>
     <div class="wave-decoration wave-decoration--about-left wave-decoration--dark">
       <img src="images/WavyLineCircles/Wavy Line 48.png" alt="" loading="lazy">
     </div>
     <div class="container container--narrow">
-      <div class="corner-bracket corner-bracket--top-left" aria-hidden="true">┌</div>
       <div class="section-header">
         <span class="section-code">[02.ABOUT]</span>
-        <h2 class="section-title" data-glitch="true">Crafting Experiences That Resonate</h2>
+        <h2 class="section-title">Crafting Experiences That Resonate</h2>
         <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.1 C 14 4.0, 22 4.5, 31 8.3 S 49 16.9, 60 9.7 S 78 2.5, 89 6.8 S 107 14.5, 118 8.6 S 136 2.8, 147 7.2 S 165 16.0, 178 8.4" /></svg>
       </div>
       <div class="glass-card">
@@ -385,10 +369,9 @@
   <section id="approach" class="approach">
     <span id="skills" class="anchor-alias" aria-hidden="true"></span>
     <div class="container container--narrow">
-      <div class="corner-bracket corner-bracket--top-right" aria-hidden="true">┐</div>
       <div class="section-header">
         <span class="section-code">[03.APPROACH]</span>
-        <h2 class="section-title" data-glitch="true">How I Work</h2>
+        <h2 class="section-title">How I Work</h2>
         <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.7 C 14 4.1, 22 2.0, 31 10.6 S 49 15.0, 60 9.5 S 78 0.7, 89 8.8 S 107 14.9, 118 9.7 S 136 2.7, 147 8.9 S 165 15.8, 178 10.2" /></svg>
       </div>
       <ol class="approach__list">
@@ -446,21 +429,12 @@
 
   <!-- Experience Timeline -->
   <section id="experience" style="background: var(--bg-secondary); position: relative; z-index: 2;">
-    <!-- Vector wave decorations -->
-    <div class="wave-decoration wave-decoration--experience-left wave-decoration--red">
-      <img src="images/VectorWaves/Wireframe 25.png" alt="" loading="lazy">
-    </div>
-    <div class="wave-decoration wave-decoration--experience-right wave-decoration--dark">
-      <img src="images/WavyLineCircles/Wavy Line 82.png" alt="" loading="lazy">
-    </div>
     <div class="container container--narrow">
       <div class="section-header">
         <span class="section-code">[04.CAREER]</span>
-        <h2 class="section-title" data-glitch="true">Experience Timeline</h2>
+        <h2 class="section-title">Experience Timeline</h2>
         <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 8.4 C 14 1.8, 22 2.7, 31 9.6 S 49 14.8, 60 7.8 S 78 1.1, 89 8.8 S 107 14.9, 118 9.8 S 136 2.5, 147 6.8 S 165 16.1, 178 8.8" /></svg>
       </div>
-      <!-- Decorative asterisk -->
-      <div class="decorative-asterisk decorative-asterisk--timeline" aria-hidden="true">※</div>
 
       <div class="timeline">
         <div class="timeline__item">
@@ -581,15 +555,10 @@
   </section>
 
   <section id="work">
-    <!-- Vector wave decorations -->
-    <div class="wave-decoration wave-decoration--work-side wave-decoration--red">
-      <img src="images/WavyLineCircles/Wavy Line 65.png" alt="" loading="lazy">
-    </div>
     <div class="container">
-      <div class="corner-bracket corner-bracket--top-right" aria-hidden="true">┐</div>
       <div class="section-header">
         <span class="section-code">[05.PORTFOLIO]</span>
-        <h2 class="section-title" data-glitch="true">Portfolio</h2>
+        <h2 class="section-title">Portfolio</h2>
         <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.4 C 14 2.8, 22 3.7, 31 7.6 S 49 16.6, 60 8.6 S 78 2.3, 89 6.9 S 107 15.5, 118 8.3 S 136 1.5, 147 8.7 S 165 15.9, 178 10.5" /></svg>
       </div>
 
@@ -836,14 +805,10 @@
 
   <!-- Contact Section -->
   <section class="contact" id="contact">
-    <!-- Vector wave decoration -->
-    <div class="wave-decoration wave-decoration--contact-top wave-decoration--red">
-      <img src="images/WavyLineCircles/Wavy Line 95.png" alt="" loading="lazy">
-    </div>
     <div class="container container--narrow">
       <div class="section-header">
         <span class="section-code">[06.CONNECT]</span>
-        <h2 class="section-title" data-glitch="true">Let's Work Together</h2>
+        <h2 class="section-title">Let's Work Together</h2>
         <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 9.3 C 14 3.0, 22 1.7, 31 8.5 S 49 14.6, 60 7.4 S 78 1.3, 89 6.8 S 107 15.4, 118 9.8 S 136 0.5, 147 8.4 S 165 14.8, 178 9.9" /></svg>
       </div>
       <a href="mailto:jtylermc@gmail.com" class="contact__email">jtylermc@gmail.com</a>
@@ -862,16 +827,6 @@
   </section>
   </main>
 
-  <!-- Dot Navigation -->
-  <nav class="dot-nav" id="dotNav" aria-label="Section navigation">
-    <button class="dot-nav__dot" data-section="featured" aria-label="Featured work"></button>
-    <button class="dot-nav__dot" data-section="about" aria-label="About"></button>
-    <button class="dot-nav__dot" data-section="approach" aria-label="Approach"></button>
-    <button class="dot-nav__dot" data-section="experience" aria-label="Timeline"></button>
-    <button class="dot-nav__dot" data-section="work" aria-label="Portfolio"></button>
-    <button class="dot-nav__dot" data-section="contact" aria-label="Contact"></button>
-  </nav>
-
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
@@ -889,7 +844,7 @@
   </div>
 
   <!-- JavaScript -->
-  <script src="script.js?v=c62ae7c2"></script>
+  <script src="script.js?v=7f29ce14"></script>
   <!-- Cloudflare Web Analytics -->
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
     data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script><!-- End Cloudflare Web Analytics -->

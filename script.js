@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initMysteryCard();
 
   // Hero enhancements
-  initParticleField();
+  initCursorTrail();
   initRotatingTagline();
 
   // Approach, signature seed toy and game feel
@@ -121,13 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initCardCentering();
 
   // Navigation & UX
-  initDotNavigation();
   initLogoCycling();
 });
 
 /**
- * Heading scramble - headings decode from random characters the first time
- * they scroll into view. Screen readers and crawlers get the real text via
+ * Heading scramble - the hero name decodes from random characters on load. Screen readers and crawlers get the real text via
  * aria-label, so the effect is visual only.
  */
 function initGlitchText() {
@@ -166,7 +164,6 @@ function initReveal() {
     '.glass-card',
     '.timeline__item',
     '.section-code',
-    '.corner-bracket',
     '.decorative-asterisk',
     '.section-stroke'
   ].join(', ');
@@ -725,247 +722,96 @@ function closeMysteryModal() {
 }
 
 /**
- * Particle Field - Mouse-responsive background particles (Global)
- * Updated with Neo-Brutalist geometric shapes (crosses, squares)
- * & Swirl effect on Contact text hover
+ * Cursor trail - small ink marks (crosses, ticks, squares) are left where the
+ * pointer moves and fade within about a second. Nearby marks link up, so the
+ * visitor draws a short-lived constellation. Nothing moves on its own.
  */
-function initParticleField() {
-  const canvas = document.getElementById('globalParticles');
-  if (!canvas) return;
-  if (REDUCED_MOTION) {
-    canvas.style.display = 'none';
-    return;
-  }
+function initCursorTrail() {
+  if (REDUCED_MOTION || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
+  const canvas = document.createElement('canvas');
+  canvas.className = 'cursor-trail';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.prepend(canvas);
   const ctx = canvas.getContext('2d');
-  let particles = [];
-  let mouseX = -9999;
-  let mouseY = -9999;
-  let animationId;
 
-  // Swirl target state
-  let swirlActive = false;
-  let swirlCenter = {
-    x: 0,
-    y: 0
-  };
-  const contactTitle = document.querySelector('#contact .section-title');
+  const LIFE = 1400; // ms a mark lasts
+  const STEP = 26;   // px of pointer travel between marks
+  const LINK = 110;  // px within which marks connect
+  const MAX = 60;
+  let marks = [];
+  let lastX = null;
+  let lastY = null;
+  let frame = null;
 
-  // Particle configuration
-  const config = {
-    particleCount: window.innerWidth < 768 ? 20 : 40,
-    particleColor: '#FF3333', // Accent red, about 1 in 10
-    particleColorAlt: '#0A0A0A', // Ink
-    linkRadius: 170, // lines only appear this close to the cursor
-    linkDistance: 120,
-    maxSize: 5,
-    minSize: 2,
-    speed: 0.4,
-    mouseRadius: 200,
-    mouseForce: 0.08,
-    swirlForce: 0.0025, // Speed of attraction to swirl center (50% slower: 0.05 -> 0.025)
-    swirlSpeed: 0.0020, // Rotation speed (50% slower: 0.005 -> 0.0025)
-    swirlRadiusMin: 120, // Minimum orbit radius (creates empty center)
-    swirlRadiusMax: 250, // Maximum orbit radius
-    swirlEllipseRatio: 1.5 // Ellipse ratio (width/height)
-  };
-
-  // Resize canvas
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    initParticles();
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
+  resize();
+  window.addEventListener('resize', resize);
 
-  // Initialize particles
-  function initParticles() {
-    particles = [];
-    for (let i = 0; i < config.particleCount; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * (config.maxSize - config.minSize) + config.minSize,
-        speedX: (Math.random() - 0.5) * config.speed,
-        speedY: (Math.random() - 0.5) * config.speed,
-        color: Math.random() < 0.1 ? config.particleColor : config.particleColorAlt,
-        alpha: 0.22 + Math.random() * 0.14,
-        shape: Math.random() > 0.6 ? 'cross' : (Math.random() > 0.5 ? 'square' : 'x'),
-        rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.02,
-        angle: Math.random() * Math.PI * 2, // For swirl orbit
-        radius: Math.random() * (config.swirlRadiusMax - config.swirlRadiusMin) + config.swirlRadiusMin // Donut range
-      });
+  document.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    if (lastX !== null && Math.hypot(e.clientX - lastX, e.clientY - lastY) < STEP) return;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    marks.push({
+      x: e.clientX,
+      y: e.clientY,
+      born: performance.now(),
+      shape: Math.floor(Math.random() * 3),
+      size: 2 + Math.random() * 3,
+      angle: Math.random() * Math.PI,
+      red: Math.random() < 0.12
+    });
+    if (marks.length > MAX) marks.shift();
+    if (!frame) frame = requestAnimationFrame(draw);
+  }, { passive: true });
+
+  function draw(now) {
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    marks = marks.filter(m => now - m.born < LIFE);
+    const life = m => 1 - (now - m.born) / LIFE;
+
+    ctx.lineWidth = 1;
+    for (let i = 0; i < marks.length; i++) {
+      for (let j = i + 1; j < marks.length; j++) {
+        const dist = Math.hypot(marks[i].x - marks[j].x, marks[i].y - marks[j].y);
+        if (dist >= LINK) continue;
+        const alpha = 0.45 * (1 - dist / LINK) * Math.min(life(marks[i]), life(marks[j]));
+        ctx.strokeStyle = `rgba(255, 51, 51, ${alpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.moveTo(marks[i].x, marks[i].y);
+        ctx.lineTo(marks[j].x, marks[j].y);
+        ctx.stroke();
+      }
     }
-  }
 
-  // Bind hover events for swirl effect
-  if (contactTitle) {
-    contactTitle.addEventListener('mouseenter', () => {
-      swirlActive = true;
-      const rect = contactTitle.getBoundingClientRect();
-      swirlCenter = {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2
-      };
-    });
-
-    contactTitle.addEventListener('mouseleave', () => {
-      swirlActive = false;
-      // Give particles a little random push to disperse them naturally
-      particles.forEach(p => {
-        p.speedX = (Math.random() - 0.5) * 2;
-        p.speedY = (Math.random() - 0.5) * 2;
-      });
-    });
-
-    // Update swirl center on scroll/resize just in case
-    window.addEventListener('scroll', () => {
-      if (swirlActive) {
-        const rect = contactTitle.getBoundingClientRect();
-        swirlCenter = {
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2
-        };
-      }
-    });
-  }
-
-  // Update and draw particles
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    particles.forEach(p => {
-      if (swirlActive) {
-        // Swirl Logic - Elliptical Donut Pattern
-
-        // Move towards the orbit path with elliptical shape
-        // Horizontal radius is wider than vertical (ellipse)
-        const targetX = swirlCenter.x + Math.cos(p.angle) * p.radius * config.swirlEllipseRatio;
-        const targetY = swirlCenter.y + Math.sin(p.angle) * p.radius;
-
-        // Easing towards that position
-        p.x += (targetX - p.x) * config.swirlForce;
-        p.y += (targetY - p.y) * config.swirlForce;
-
-        // Orbit rotation (10% of original speed)
-        p.angle += config.swirlSpeed;
-
-      } else {
-        // Normal Floating Logic
-
-        // Calculate distance from mouse
-        const dx = mouseX - p.x;
-        const dy = mouseY - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        // Apply mouse repulsion
-        if (dist < config.mouseRadius && dist > 0) {
-          const force = (config.mouseRadius - dist) / config.mouseRadius;
-          p.speedX -= (dx / dist) * force * config.mouseForce;
-          p.speedY -= (dy / dist) * force * config.mouseForce;
-        }
-
-        // Apply friction
-        p.speedX *= 0.98;
-        p.speedY *= 0.98;
-
-        // Add random drift
-        p.speedX += (Math.random() - 0.5) * 0.02;
-        p.speedY += (Math.random() - 0.5) * 0.02;
-
-        // Update position
-        p.x += p.speedX;
-        p.y += p.speedY;
-
-        // Wrap around edges
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-      }
-
-      // Update rotation (always active)
-      p.rotation += p.rotationSpeed;
-
-      // Draw particle
+    marks.forEach(m => {
       ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rotation);
-      ctx.strokeStyle = p.color;
-      ctx.globalAlpha = p.color === config.particleColor ? 0.7 : p.alpha;
-      ctx.lineWidth = 1.4;
-
+      ctx.translate(m.x, m.y);
+      ctx.rotate(m.angle);
+      ctx.globalAlpha = (m.red ? 0.8 : 0.55) * life(m);
+      ctx.strokeStyle = m.red ? '#FF3333' : '#0A0A0A';
       ctx.beginPath();
-
-      if (p.shape === 'cross') {
-        // Plus sign
-        const s = p.size;
-        ctx.moveTo(-s, 0);
-        ctx.lineTo(s, 0);
-        ctx.moveTo(0, -s);
-        ctx.lineTo(0, s);
-      } else if (p.shape === 'x') {
-        // X shape
-        const s = p.size * 0.8;
-        ctx.moveTo(-s, -s);
-        ctx.lineTo(s, s);
-        ctx.moveTo(s, -s);
-        ctx.lineTo(-s, s);
+      if (m.shape === 0) {
+        ctx.moveTo(-m.size, 0); ctx.lineTo(m.size, 0);
+        ctx.moveTo(0, -m.size); ctx.lineTo(0, m.size);
+      } else if (m.shape === 1) {
+        ctx.moveTo(-m.size, -m.size); ctx.lineTo(m.size, m.size);
+        ctx.moveTo(m.size, -m.size); ctx.lineTo(-m.size, m.size);
       } else {
-        // Square
-        const s = p.size;
-        ctx.strokeRect(-s / 2, -s / 2, s, s);
+        ctx.rect(-m.size / 2, -m.size / 2, m.size, m.size);
       }
-
       ctx.stroke();
       ctx.restore();
     });
 
-    // Connecting lines only around the cursor, so the constellation is
-    // something the visitor draws rather than a permanent background
-    ctx.globalAlpha = 1;
-    ctx.lineWidth = 1;
-    const near = particles.filter(p => Math.hypot(p.x - mouseX, p.y - mouseY) < config.linkRadius);
-    near.forEach((a, i) => {
-      const closeness = 1 - Math.hypot(a.x - mouseX, a.y - mouseY) / config.linkRadius;
-      ctx.strokeStyle = `rgba(10, 10, 10, ${(0.3 * closeness).toFixed(3)})`;
-      ctx.beginPath();
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(mouseX, mouseY);
-      ctx.stroke();
-      near.slice(i + 1).forEach(b => {
-        const dist = Math.hypot(a.x - b.x, a.y - b.y);
-        if (dist < config.linkDistance) {
-          ctx.strokeStyle = `rgba(255, 51, 51, ${(0.45 * (1 - dist / config.linkDistance) * closeness).toFixed(3)})`;
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
-          ctx.stroke();
-        }
-      });
-    });
-
-    animationId = document.hidden ? null : requestAnimationFrame(animate);
+    frame = marks.length && !document.hidden ? requestAnimationFrame(draw) : null;
   }
-
-  // Pause while the tab is hidden
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && !animationId) animate();
-  });
-
-  // Track mouse position
-  document.addEventListener('mousemove', (e) => {
-    // Canvas is fixed, so client coordinates are sufficient
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-
-  // Handle resize
-  window.addEventListener('resize', resizeCanvas);
-
-  // Initialize
-  resizeCanvas();
-  animate();
 }
 
 /**
@@ -1027,61 +873,6 @@ function initApproach() {
       toggle.setAttribute('aria-expanded', String(open));
       panel.hidden = !open;
     });
-  });
-}
-
-/**
- * Dot Navigation - Section progress indicator with scroll tracking
- */
-function initDotNavigation() {
-  const dots = document.querySelectorAll('.dot-nav__dot');
-  const sections = ['featured', 'about', 'approach', 'experience', 'work', 'contact'];
-
-  if (!dots.length) return;
-
-  // Click handlers for dots
-  dots.forEach(dot => {
-    dot.addEventListener('click', () => {
-      const sectionId = dot.dataset.section;
-      const section = document.getElementById(sectionId);
-      if (section) {
-        const navHeight = document.getElementById('nav').offsetHeight;
-        window.scrollTo({
-          top: section.getBoundingClientRect().top + window.scrollY - navHeight,
-          behavior: REDUCED_MOTION ? 'auto' : 'smooth'
-        });
-      }
-    });
-  });
-
-  // Update active dot based on scroll position
-  function updateActiveDot() {
-    const scrollPos = window.scrollY + window.innerHeight / 3;
-
-    let activeSectionId = 'hero';
-    sections.forEach(sectionId => {
-      const section = document.getElementById(sectionId);
-      if (section && section.offsetTop <= scrollPos) {
-        activeSectionId = sectionId;
-      }
-    });
-
-    dots.forEach(dot => {
-      dot.classList.toggle('active', dot.dataset.section === activeSectionId);
-    });
-  }
-
-  // Initial update
-  updateActiveDot();
-
-  // Update on scroll with throttle
-  let scrollTimeout;
-  window.addEventListener('scroll', () => {
-    if (scrollTimeout) return;
-    scrollTimeout = setTimeout(() => {
-      updateActiveDot();
-      scrollTimeout = null;
-    }, 50);
   });
 }
 
