@@ -32,10 +32,14 @@ function scrambleText(element, duration, onDone) {
   element.style.height = `${rect.height}px`;
   if (originalDisplay === 'inline') element.style.display = 'inline-block';
 
+  // Legible mode: part of the unrevealed letters stay correct, so a name
+  // still reads at every frame
+  const legible = element.hasAttribute('data-legible');
   const render = (revealIndex) => {
     let out = '';
     for (let i = 0; i < originalText.length; i++) {
-      out += i < revealIndex || originalText[i] === ' ' ? originalText[i] : randomScrambleChar();
+      const keep = i < revealIndex || originalText[i] === ' ' || (legible && Math.random() < 0.75);
+      out += keep ? originalText[i] : randomScrambleChar();
     }
     element.textContent = out;
   };
