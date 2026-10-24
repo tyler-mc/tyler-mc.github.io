@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
-    <link rel="stylesheet" href="../styles.css?v=f447d230">
+    <link rel="stylesheet" href="../styles.css?v=68117a9b">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
@@ -41,67 +41,123 @@
         </div>
     </nav>
 
-    <main class="case-study case-study--page">
+    <main class="case-study case-study--page case-study--deep">
         <a href="../index.html#work" class="case-study__back">← Back to Work</a>
+
         <header class="case-study__header">
-            <img src="../images/Proximity_Banner.webp" alt="Proximity" class="case-study__image">
+            <img src="../images/Proximity_Banner.webp" alt="Proximity title card: the word Proximity in glowing letters over a starfield" class="case-study__image">
+
             <div class="case-study__meta">
-                <div class="case-study__meta-item"><span class="case-study__meta-label">Role</span><span>Creative Director / Co-Founder</span></div>
-                <div class="case-study__meta-item"><span class="case-study__meta-label">Studio</span><span>Inscape
-                        Studios</span></div>
-                <div class="case-study__meta-item"><span class="case-study__meta-label">Period</span><span>2022</span>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Role</span>
+                    <span>Creative Director / Co-Founder</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Studio</span>
+                    <span>Inscape Studios</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Period</span>
+                    <span>Jan 2019 – Oct 2022</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Team</span>
+                    <span>Around 5 people</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Platform</span>
+                    <span>Quest 2</span>
                 </div>
             </div>
+
             <h1 class="case-study__title">Proximity</h1>
-            <p class="case-study__tagline">VR Narrative Adventure with AI-driven conversation</p>
-            <div class="case-study__accomplishment">Successfully pitched and raised funds. Grew from sole developer to
-                team of 5.</div>
+            <p class="case-study__tagline">Prototype VR narrative adventure with AI-driven conversation</p>
+
+            <div class="case-study__accomplishment">
+                I was the sole developer, which grew into a core team of 5 that I managed to complete the fully playable
+                experience.
+            </div>
+
+            <ul class="cs-stats" aria-label="Proximity in numbers">
+                <li><span class="cs-stat__num">1</span><span class="cs-stat__label">Developer at the start: me</span></li>
+                <li><span class="cs-stat__num">5</span><span class="cs-stat__label">Core team by the end</span></li>
+            </ul>
         </header>
 
-        <article class="case-study__content">
-            <p>Proximity is a prototype of a narrative adventure for Quest 2, featuring conversation-driven gameplay
-                with an eccentric robot named Lou. Players can talk with Lou, whose voice is generated in real-time,
-                allowing Lou to respond in potentially new and original ways each play session.</p>
-            <figure><img src="../images/Proximity_Shot1.jpg" alt="Proximity gameplay"></figure>
-            <p>This was a passion project created with a team of around 5 people started by myself and my co-founder
-                Matt. With my experience in games and design and Matt's experience in writing and narrative we set out
-                to create this interactive VR experience. We successfully pitched and funded the concept as well as
-                hired a team to help create it.</p>
-            <p>I started with the thought "What if you could go on a narratively-driven adventure but you had a
-                companion that you could turn to talk to at any point throughout it?"</p>
-            <figure><img src="../images/Proximity_Shot2.webp" alt="Lou the robot"></figure>
-            <p>The goal was to create an interactive AI character that you could develop a relationship and bond with
-                through conversation and working through challenging circumstances together.</p>
-            <figure><iframe src="https://www.youtube.com/embed/vO_IZWPN50s" title="Proximity VR Gameplay"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen></iframe></figure>
-            <p>Apart from the creative vision, my role was creating and implementing all the player interactions, puzzle
-                elements, as well as mission and story progression. I also created and set up all of Lou's interactions
-                and animations with a combo of myself in a mocap suit, hand animating and FinalIK implementation.</p>
+        <div class="cs-layout">
+            <nav class="cs-rail" aria-label="On this page">
+                <p class="cs-rail__title">On this page</p>
+                <ol>
+                    <li><a href="#owned">What I owned</a></li>
+                    <li><a href="#idea">The idea</a></li>
+                    <li><a href="#lou">Building Lou</a></li>
+                    <li><a href="#team">Pitch and team</a></li>
+                    <li><a href="#learned">What I learned</a></li>
+                    <li><a href="#skills">Skills applied</a></li>
+                </ol>
+            </nav>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Key Contributions</h2>
+            <article class="case-study__content">
+                <h2 class="cs-h2" id="owned"><span class="cs-h2__num">01</span>What I owned</h2>
+                <p>Proximity is a prototype, a passion project I started with my co-founder Matt. Apart from the creative
+                    vision, I owned:</p>
                 <ul class="case-study__contributions">
-                    <li>Created and implemented all player interactions and puzzle elements</li>
-                    <li>Designed mission and story progression systems</li>
-                    <li>Created Lou's interactions and animations using motion capture and FinalIK</li>
-                    <li>Successfully pitched and funded the concept</li>
-                    <li>Built and managed a fully remote team of 5 developers</li>
+                    <li>Creating and implementing all the player interactions and puzzle elements</li>
+                    <li>Mission and story progression</li>
+                    <li>All of Lou's interactions and animations, using a mocap suit, hand animation and FinalIK</li>
+                    <li>Pitching and funding the concept</li>
+                    <li>Hiring and managing a fully remote team of around 5</li>
                 </ul>
-            </section>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Skills Applied</h2>
-                <div class="case-study__skills">
-                    <span class="case-study__skill">AI/LLM Integration</span>
-                    <span class="case-study__skill">Conversational AI</span>
-                    <span class="case-study__skill">Remote Team Leadership</span>
-                    <span class="case-study__skill">Unity</span>
-                    <span class="case-study__skill">Motion Capture</span>
-                </div>
-            </section>
-        </article>
+                <h2 class="cs-h2" id="idea"><span class="cs-h2__num">02</span>The idea</h2>
+                <p>Proximity is a prototype of a narrative adventure for Quest 2, featuring conversation-driven gameplay
+                    with an eccentric robot named Lou. Players can talk with Lou, whose voice is generated in real-time,
+                    allowing Lou to respond in potentially new and original ways each play session.</p>
+                <p>I started with the thought "What if you could go on a narratively-driven adventure but you had a
+                    companion that you could turn to talk to at any point throughout it?"</p>
+                <figure><img src="../images/Proximity_Shot1.jpg" alt="In-headset view of a dim sci-fi outpost with a glowing ceiling light; a display on the player's wrist shows a typed exchange with Lou" loading="lazy">
+                    <figcaption>The player's wrist display keeps a running log of the conversation with Lou.</figcaption>
+                </figure>
+                <p>The goal was to create an interactive AI character that you could develop a relationship and bond with
+                    through conversation and working through challenging circumstances together.</p>
+                <p>I secured closed beta access to GPT-3 and started working directly with OpenAI to
+                    understand what these models could actually do in an interactive context.</p>
+
+                <h2 class="cs-h2" id="lou"><span class="cs-h2__num">03</span>Building Lou</h2>
+                <p>I created and set up all of Lou's interactions and animations with a combo of myself in a mocap suit,
+                    hand animating and FinalIK implementation.</p>
+                <figure><img src="../images/Proximity_Shot2.webp" alt="Lou, a lanky robot with a yellow boxy head, stands in a cramped outpost room; the wrist display reads Lou: How about a high five?" loading="lazy">
+                    <figcaption>Lou in the outpost. The wrist display shows Lou offering a high five.</figcaption>
+                </figure>
+                <figure>
+                    <div class="cs-embed"><iframe src="https://www.youtube-nocookie.com/embed/vO_IZWPN50s" title="Proximity VR gameplay" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+                    <figcaption>Proximity gameplay</figcaption>
+                </figure>
+
+                <h2 class="cs-h2" id="team"><span class="cs-h2__num">04</span>Pitch and team</h2>
+                <p>This was a passion project created with a team of around 5 people started by myself and my co-founder
+                    Matt. With my experience in games and design and Matt's experience in writing and narrative we set out
+                    to create this interactive VR experience.</p>
+                <p>I started as the sole developer. We successfully pitched and raised funds for the concept as well as
+                    hired a team to help create it, and that core team of 5 completed the fully playable experience.</p>
+
+                <h2 class="cs-h2" id="learned"><span class="cs-h2__num">05</span>What I learned</h2>
+                <p>Proximity and FORM both taught me a lot about how quickly you can get to the truth of whether something
+                    is actually fun when you're working fast and hands-on.</p>
+
+                <section class="case-study__section" id="skills">
+                    <h2 class="case-study__section-title">Skills Applied</h2>
+                    <div class="case-study__skills">
+                        <span class="case-study__skill">Conversational AI</span>
+                        <span class="case-study__skill">Narrative Design</span>
+                        <span class="case-study__skill">Interaction Design</span>
+                        <span class="case-study__skill">Unity</span>
+                        <span class="case-study__skill">Motion Capture</span>
+                        <span class="case-study__skill">Remote Team Leadership</span>
+                    </div>
+                </section>
+            </article>
+        </div>
 
         <nav class="case-study__nav">
             <a href="journey-to-foundation.html" class="case-study__nav-link"><span class="case-study__nav-label">←
