@@ -3654,3 +3654,223 @@ section {
   background-size: 100% 2px;
 }
 
+
+/* ============================================
+   Pistol Whip branded pieces
+   Palette from the game's art: night violet, magenta and cyan. Magenta is for
+   rules and borders only (it fails contrast as text on the dark panel).
+   ============================================ */
+.pw-panel {
+  --pw-night: #14052a;
+  --pw-night-2: #2a0e58;
+  --pw-magenta: #d50c4d;
+  --pw-pink: #ff4d8d;
+  --pw-cyan: #4fe0d0;
+  --pw-cream: #f6f0ff;
+  --pw-soft: #c9b8e8;
+  --pw-line: rgba(201, 184, 232, 0.35);
+  position: relative;
+  margin: 2.75rem 0;
+  padding: 2rem 1.75rem 1.75rem;
+  color: var(--pw-cream);
+  background: linear-gradient(135deg, var(--pw-night) 0%, var(--pw-night-2) 100%);
+  border-top: 4px solid var(--pw-magenta);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+}
+
+.pw-panel__kicker {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--pw-pink);
+}
+
+.pw-panel__title {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--pw-cream);
+}
+
+.case-study--page .case-study__content .pw-panel a {
+  color: var(--pw-cyan);
+  text-decoration: none;
+}
+
+.pw-options,
+.pw-frames,
+.pw-releases {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pw-options,
+.pw-frames {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 800px) {
+  .pw-options,
+  .pw-frames {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pw-option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  border: 1px solid var(--pw-line);
+  background: rgba(20, 5, 42, 0.55);
+}
+
+.pw-option h4 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--pw-cream);
+}
+
+.case-study--page .case-study__content .pw-option p,
+.case-study--page .case-study__content .pw-release p,
+.case-study--page .case-study__content .pw-frame__cap {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--pw-soft);
+}
+
+.pw-verdict {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 0.25rem 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pw-option--start .pw-verdict {
+  border: 1px solid var(--pw-soft);
+  color: var(--pw-soft);
+}
+
+.pw-option--passed {
+  border: 1px dashed var(--pw-magenta);
+}
+
+.pw-option--passed .pw-verdict {
+  border: 1px solid var(--pw-pink);
+  color: var(--pw-pink);
+}
+
+.pw-option--chosen {
+  border: 2px solid var(--pw-cyan);
+}
+
+.pw-option--chosen .pw-verdict {
+  background: var(--pw-cyan);
+  color: var(--pw-night);
+  font-weight: 600;
+}
+
+.pw-frame svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--pw-line);
+}
+
+.case-study--page .case-study__content .pw-frame__cap {
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.pw-frame__cap b {
+  margin-right: 0.4rem;
+  color: var(--pw-pink);
+  font-weight: 600;
+}
+
+.pw-release {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  gap: 0.25rem 1.25rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--pw-line);
+}
+
+.pw-release:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+@media (max-width: 640px) {
+  .pw-release {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pw-release__date {
+  padding-top: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pw-pink);
+}
+
+.pw-release h4 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--pw-cream);
+}
+
+.pw-release__src {
+  display: inline-block;
+  margin: 0.5rem 1rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid currentColor;
+}
+
+/* Short sourced quotes in case studies */
+.case-study--page .case-study__content .cs-quote {
+  margin: 1.25rem 0;
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  border-left: 3px solid var(--accent-red);
+}
+
+.case-study--page .case-study__content .cs-quote p {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+.cs-quote cite {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
