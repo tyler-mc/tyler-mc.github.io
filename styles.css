@@ -3620,3 +3620,30 @@ section {
     display: none;
   }
 }
+
+/* Hero: the seed circle is the signature, so it takes the right half */
+.hero__layout {
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+}
+
+.seed-circle {
+  width: clamp(220px, 32vw, 460px);
+}
+
+.hero__seed {
+  justify-self: end;
+}
+
+@media (max-width: 860px) {
+  .hero__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .seed-circle {
+    width: 26.4vw;
+  }
+
+  .hero__seed {
+    justify-self: auto;
+  }
+}
