@@ -4719,6 +4719,10 @@ section {
   height: auto;
 }
 
+.cs-doc--narrow {
+  max-width: 420px;
+}
+
 .cs-pair {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
