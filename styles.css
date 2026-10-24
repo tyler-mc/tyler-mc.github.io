@@ -4701,3 +4701,27 @@ section {
 .pw-art {
   max-width: 24rem;
 }
+
+/* Real design documents on case-study pages: shown flat and full width, open full size on click */
+.cs-doc {
+  margin: 1.75rem 0;
+}
+
+.cs-doc a {
+  display: block;
+  border: 1px solid var(--border-subtle);
+  background: #fff;
+}
+
+.cs-doc img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cs-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0 1.5rem;
+  align-items: start;
+}
