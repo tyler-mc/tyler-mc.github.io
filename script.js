@@ -4,7 +4,8 @@
 
 // Motion preferences and shared scramble helpers
 const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ█▓▒░';
+const SCRAMBLE_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const SCRAMBLE_CHARS = SCRAMBLE_LETTERS + '█▓▒░';
 
 function randomScrambleChar() {
   return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
@@ -44,7 +45,8 @@ function scrambleText(element, duration, onDone) {
     let out = '';
     for (let i = 0; i < originalText.length; i++) {
       const keep = i < revealIndex || originalText[i] === ' ' || (legible && Math.random() < 0.75);
-      out += keep ? originalText[i] : randomScrambleChar();
+      // Plain letters only in legible mode: the block glyphs are wide and hide neighbouring letters
+      out += keep ? originalText[i] : (legible ? SCRAMBLE_LETTERS[Math.floor(Math.random() * SCRAMBLE_LETTERS.length)] : randomScrambleChar());
     }
     element.textContent = out;
   };
@@ -735,10 +737,10 @@ function closeMysteryModal() {
 function initCursorTrail() {
   if (REDUCED_MOTION || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
+  // The canvas only exists while marks are fading, so an idle page carries no extra layer
   const canvas = document.createElement('canvas');
   canvas.className = 'cursor-trail';
   canvas.setAttribute('aria-hidden', 'true');
-  document.body.prepend(canvas);
   const ctx = canvas.getContext('2d');
 
   const LIFE = 1400; // ms a mark lasts
@@ -756,8 +758,23 @@ function initCursorTrail() {
     canvas.height = window.innerHeight * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
-  resize();
-  window.addEventListener('resize', resize);
+  function attach() {
+    if (canvas.isConnected) return;
+    resize();
+    document.body.prepend(canvas);
+  }
+
+  function detach() {
+    canvas.remove();
+    canvas.width = canvas.height = 0;
+  }
+
+  window.addEventListener('resize', () => { if (canvas.isConnected) resize(); });
+
+  // Marks stop animating while the tab is hidden; pick them up again on return
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && marks.length && !frame) frame = requestAnimationFrame(draw);
+  });
 
   document.addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse') return;
@@ -774,12 +791,18 @@ function initCursorTrail() {
       red: Math.random() < 0.12
     });
     if (marks.length > MAX) marks.shift();
+    attach();
     if (!frame) frame = requestAnimationFrame(draw);
   }, { passive: true });
 
   function draw(now) {
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     marks = marks.filter(m => now - m.born < LIFE);
+    if (!marks.length) {
+      detach();
+      frame = null;
+      return;
+    }
     const life = m => 1 - (now - m.born) / LIFE;
 
     ctx.lineWidth = 1;
@@ -868,6 +891,19 @@ function initRotatingTagline() {
 }
 
 /**
+ * Disclosure - a button that shows or hides the panel it controls. `onChange`
+ * lets a caller update its own label.
+ */
+function bindDisclosure(toggle, panel, onChange) {
+  toggle.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') !== 'true';
+    toggle.setAttribute('aria-expanded', String(open));
+    panel.hidden = !open;
+    if (onChange) onChange(open);
+  });
+}
+
+/**
  * Experience - earlier roles expand under the three most recent
  */
 function initTimelineMore() {
@@ -875,10 +911,7 @@ function initTimelineMore() {
   const more = document.getElementById('timelineMore');
   if (!toggle || !more) return;
   const label = toggle.querySelector('.timeline__toggle-label');
-  toggle.addEventListener('click', () => {
-    const open = toggle.getAttribute('aria-expanded') !== 'true';
-    toggle.setAttribute('aria-expanded', String(open));
-    more.hidden = !open;
+  bindDisclosure(toggle, more, (open) => {
     label.textContent = open ? 'Hide earlier roles' : 'Earlier roles';
   });
 }
@@ -889,12 +922,7 @@ function initTimelineMore() {
 function initApproach() {
   document.querySelectorAll('.approach-row__toggle').forEach(toggle => {
     const panel = document.getElementById(toggle.getAttribute('aria-controls'));
-    if (!panel) return;
-    toggle.addEventListener('click', () => {
-      const open = toggle.getAttribute('aria-expanded') !== 'true';
-      toggle.setAttribute('aria-expanded', String(open));
-      panel.hidden = !open;
-    });
+    if (panel) bindDisclosure(toggle, panel);
   });
 }
 

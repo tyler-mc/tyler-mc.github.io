@@ -10,7 +10,8 @@
     fromHome = ref.origin === location.origin && /\/(index\.html)?$/.test(ref.pathname);
   } catch (e) { /* no referrer */ }
 
-  if (back && fromHome) {
+  // A page opened in a new tab has nothing to go back to, so the link stays a normal link
+  if (back && fromHome && history.length > 1) {
     back.addEventListener('click', (e) => {
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
       e.preventDefault();

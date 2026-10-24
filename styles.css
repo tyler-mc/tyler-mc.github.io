@@ -189,10 +189,6 @@ section {
   text-align: center;
 }
 
-/* Glitch effect for section titles - triggered on scroll */
-.section-title[data-glitch="true"] {
-  animation: none;
-}
 
 /* Glitch animation class - applied via JS on scroll */
 .section-title.glitch-animate {
@@ -666,14 +662,14 @@ section {
   margin-top: var(--space-lg);
 }
 
-/* Cursor trail canvas */
+/* Cursor trail canvas: above the sections so the marks show on all of them, below the nav and overlays */
 .cursor-trail {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 0;
+  z-index: 50;
 }
 
 /* Ensure content is above the trail */
@@ -2330,7 +2326,7 @@ section {
 
 .hero__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
   align-items: center;
   gap: var(--space-xl);
   width: 100%;
@@ -2367,14 +2363,14 @@ section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-self: center;
+  justify-self: end;
   position: relative;
   z-index: 1;
 }
 
 .seed-circle {
   display: block;
-  width: min(20.4vw, 240px);
+  width: clamp(220px, 32vw, 460px);
   aspect-ratio: 1;
   will-change: transform;
 }
@@ -3313,6 +3309,28 @@ section {
    ============================================ */
 .case-study--deep {
   max-width: 1120px;
+  padding-top: 100px;
+  /* the sticky rail needs an ancestor that does not clip */
+  overflow: visible;
+}
+
+.case-study--deep [id] {
+  scroll-margin-top: 110px;
+}
+
+.case-study--deep .case-study__back {
+  margin-bottom: 1.1rem;
+}
+
+.case-study--page.case-study--deep .case-study__image {
+  height: 220px;
+  margin-bottom: 1.25rem;
+  object-position: 50% 28%;
+}
+
+.case-study--deep .case-study__tagline {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
 }
 
 .case-study--deep .case-study__header {
@@ -3342,7 +3360,7 @@ section {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1.5rem 2.5rem;
-  margin: 0 0 3rem;
+  margin: 0 0 1.75rem;
   padding: 0;
   list-style: none;
 }
@@ -3460,20 +3478,6 @@ section {
   color: var(--text-secondary);
 }
 
-/* Tighter top so the fact strip and outcome land on the first screen */
-.case-study--deep {
-  padding-top: 100px;
-}
-
-.case-study--deep .case-study__back {
-  margin-bottom: 1.1rem;
-}
-
-.case-study--page.case-study--deep .case-study__image {
-  height: 280px;
-  margin-bottom: 1.25rem;
-}
-
 @media (max-width: 768px) {
   .case-study--deep {
     padding-top: 84px;
@@ -3482,28 +3486,6 @@ section {
   .case-study--page.case-study--deep .case-study__image {
     height: 200px;
   }
-}
-
-.case-study--deep .case-study__header .cs-stats {
-  margin: 0 0 1.75rem;
-}
-
-.case-study--deep .case-study__tagline {
-  margin-bottom: 1.25rem;
-  padding-bottom: 1.25rem;
-}
-
-.case-study--page.case-study--deep .case-study__image {
-  height: 220px;
-}
-
-.case-study--page.case-study--deep .case-study__image {
-  object-position: 50% 28%;
-}
-
-/* Sticky rail needs a non-clipping ancestor */
-.case-study--deep {
-  overflow: visible;
 }
 
 @media (max-width: 600px) {
@@ -3563,10 +3545,6 @@ section {
 }
 
 /* Experience: the three most recent roles show, earlier ones expand */
-.timeline__more[hidden] {
-  display: none;
-}
-
 .timeline__toggle {
   display: inline-flex;
   align-items: center;
@@ -3603,7 +3581,7 @@ section {
   display: none;
 }
 
-/* Five across leaves little room: small tiles drop the role and corner marks, as on phones */
+/* Five across leaves little room: titles only, with the role revealed on hover */
 @media (min-width: 1101px) {
   #work .work__grid .project-card__overlay {
     padding: 0.4rem;
@@ -3614,36 +3592,65 @@ section {
     padding: 0.1rem 0.3rem;
   }
 
-  #work .work__grid .project-card__role,
   #work .work__grid .project-card__overlay::before,
   #work .work__grid .project-card__overlay::after {
     display: none;
   }
-}
 
-/* Hero: the seed circle is the signature, so it takes the right half */
-.hero__layout {
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-}
-
-.seed-circle {
-  width: clamp(220px, 32vw, 460px);
-}
-
-.hero__seed {
-  justify-self: end;
-}
-
-@media (max-width: 860px) {
-  .hero__layout {
-    grid-template-columns: 1fr;
+  #work .work__grid .project-card__role {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.35rem;
+    opacity: 0;
+    transition: opacity 0.15s ease;
   }
 
-  .seed-circle {
-    width: 26.4vw;
-  }
-
-  .hero__seed {
-    justify-self: auto;
+  #work .work__grid .project-card:hover .project-card__role,
+  #work .work__grid .project-card:focus-visible .project-card__role,
+  #work .work__grid .project-card.is-centered .project-card__role {
+    opacity: 1;
   }
 }
+
+/* Colour marks the deep dives: the three lead cards keep their art in colour while the short-form tiles stay ink and wake on hover */
+.work__lead .featured-card__art img {
+  filter: none;
+}
+
+/* Hero credits: recognisable titles on the first screen */
+.hero__credits {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 1.1rem;
+  max-width: 36rem;
+  margin: var(--space-lg) 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.9;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.hero__credits-label {
+  margin-right: -0.2rem;
+  color: var(--accent-red-text);
+  font-weight: 600;
+}
+
+.hero__credits a {
+  color: var(--text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  background-image: linear-gradient(var(--accent-red), var(--accent-red));
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.2s ease;
+}
+
+.hero__credits a:hover,
+.hero__credits a:focus-visible {
+  background-size: 100% 2px;
+}
+
