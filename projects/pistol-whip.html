@@ -63,7 +63,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="../styles.css?v=73fefc43">
+    <link rel="stylesheet" href="../styles.css?v=aeb1f684">
 
     <!-- Favicon -->
     <link rel="icon" href="../favicon.ico" sizes="any">
@@ -90,7 +90,7 @@
         </div>
     </nav>
 
-    <main class="case-study case-study--page">
+    <main class="case-study case-study--page case-study--deep">
         <a href="../index.html#work" class="case-study__back">← Back to Portfolio</a>
 
         <header class="case-study__header">
@@ -109,62 +109,98 @@
                     <span class="case-study__meta-label">Period</span>
                     <span>July 2022 – Nov 2025</span>
                 </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Team</span>
+                    <span>About 20 people</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Platform</span>
+                    <span>VR</span>
+                </div>
             </div>
 
             <h1 class="case-study__title">Pistol Whip</h1>
             <p class="case-study__tagline">VR Rhythm-Shooter</p>
 
             <div class="case-study__accomplishment">
-                Award-winning, critically acclaimed VR rhythm shooter. Community created 500+ remixes.
+                I was Game Director for the whole game, with a particular focus on the four-to-five-person design team.
             </div>
+
+            <ul class="cs-stats" aria-label="Pistol Whip in numbers">
+                <li><span class="cs-stat__num">20</span><span class="cs-stat__label">About 20 people on the team I was responsible for</span></li>
+                <li><span class="cs-stat__num">500+</span><span class="cs-stat__label">Levels remixed by the community</span></li>
+                <li><span class="cs-stat__num">45</span><span class="cs-stat__label">Levels released by the studio over the years</span></li>
+            </ul>
         </header>
 
-        <article class="case-study__content">
-            <p>Pistol Whip is an ongoing VR rhythm-shooter which I acted as Game Director for.</p>
-            <figure><img src="../images/pistol_whip_content_1.jpg" alt="Pistol Whip gameplay"></figure>
-            <p>I was responsible for planning new content releases and improvements that got added to the game. After
-                its
-                release the goal was to continually support the game with additional content releases and keep them free
-                which
-                generated a lot of goodwill with our loyal community.</p>
-            <figure><video src="../images/pistolwhip_voidslayergif.mp4" poster="../images/pistolwhip_voidslayergif_poster.jpg" autoplay muted loop playsinline aria-label="Pistol Whip content"></video></figure>
-            <p>I also focused on how to expand both music taste as well as new ways to play the game while staying true
-                to
-                the raw simplicity of the base game.</p>
-            <p>One of our final updates included creating a pc-based level editor so players could create their own
-                levels. I
-                called this 'Pistol Mix' as a nod to song remixes as it allowed players to take preexisting content and
-                remix
-                the levels in new and creative ways.</p>
-            <figure><img src="../images/pistolwhip_pisstolmix.avif" alt="Pistol Mix level editor"></figure>
-            <p>It has been an incredible way to continue to keep the community engaged and they have released well over
-                500
-                remixes far surpassing our total releases over the years of 45 levels.</p>
+        <div class="cs-layout">
+            <nav class="cs-rail" aria-label="On this page">
+                <p class="cs-rail__title">On this page</p>
+                <ol>
+                    <li><a href="#owned">What I owned</a></li>
+                    <li><a href="#grow">Growing the game</a></li>
+                    <li><a href="#remix">Pistol Mix</a></li>
+                    <li><a href="#skills">Skills applied</a></li>
+                </ol>
+            </nav>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Key Contributions</h2>
+            <article class="case-study__content">
+                <h2 class="cs-h2" id="owned"><span class="cs-h2__num">01</span>What I owned</h2>
+                <p>Pistol Whip is an ongoing VR rhythm-shooter, and I was its Game Director. I was responsible for
+                    everything overall, with a focus on the smaller design team of four to five.</p>
                 <ul class="case-study__contributions">
-                    <li>Directed post-launch content strategy, planning free content releases that generated community
-                        goodwill
-                    </li>
-                    <li>Expanded the game's musical diversity while maintaining gameplay simplicity</li>
-                    <li>Created 'Pistol Mix' - a PC-based level editor allowing players to remix existing content</li>
-                    <li>Managed live service model with regular content drops and progression tuning</li>
-                    <li>Identified workflow improvements in the content creation pipeline</li>
+                    <li>New gameplay mechanics and modifiers</li>
+                    <li>New onboarding and tutorialization, and a UX refresh</li>
+                    <li>New music genres and visuals, including finding and contacting artists directly for the contracts</li>
+                    <li>Reward and progression design across seasonal content updates</li>
+                    <li>The community level tools, Pistol Mix</li>
+                    <li>How we approached marketing and communication</li>
+                    <li>Supporting the team and pushing them in their contributions</li>
                 </ul>
-            </section>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Skills Applied</h2>
-                <div class="case-study__skills">
-                    <span class="case-study__skill">Live Service</span>
-                    <span class="case-study__skill">VR Design</span>
-                    <span class="case-study__skill">Team Leadership</span>
-                    <span class="case-study__skill">Content Strategy</span>
-                    <span class="case-study__skill">Level Editor Design</span>
-                </div>
-            </section>
-        </article>
+                <h2 class="cs-h2" id="grow"><span class="cs-h2__num">02</span>Growing the game</h2>
+                <p>I was responsible for planning the new content releases and improvements that were added to the game.
+                    After its release the goal was to keep supporting the game with additional content and to keep those
+                    releases free, which generated a lot of goodwill with our loyal community.</p>
+                <figure><img src="../images/pistol_whip_content_1.jpg" alt="Pistol Whip gameplay"></figure>
+                <p>Alongside the steady stream of new levels, I pushed the music into genres Pistol Whip had never had
+                    before. I hunted down those artists and reached out to them directly for the contracts.</p>
+                <figure><video src="../images/pistolwhip_voidslayergif.mp4" poster="../images/pistolwhip_voidslayergif_poster.jpg" autoplay muted loop playsinline aria-label="Pistol Whip content"></video></figure>
+                <p>New modifiers gave players new ways to play. One let you hit bullets and reflect them back at
+                    enemies, for added challenge. Another, the music gun, changed the firing sound to different drum kit
+                    sounds depending on how you held the gun, so you could play along with the music.</p>
+                <p>Through all of it I worked to stay true to the raw simplicity of the base game.</p>
+
+                <h2 class="cs-h2" id="remix"><span class="cs-h2__num">03</span>Pistol Mix</h2>
+                <p>Our level pipeline was heavy and slow for the quality and standards we held ourselves to, so we
+                    couldn't keep up with what our fans wanted. The most dedicated players were already reverse
+                    engineering the game to mod their own levels. There was an enthusiastic community, and we wanted to
+                    celebrate it.</p>
+                <p>One early idea of mine was to "play to create": you would run through blank levels and shoot where you
+                    wanted enemies or props to appear. We had to pass on it. Most of our players were on Quest 2, where it
+                    risked not running within our target metrics, and we also wanted to keep parity across every version
+                    of the game.</p>
+                <p>An open-source PC tool felt like the strongest option after that, because the most passionate level
+                    modders were PC players. I called it Pistol Mix, as a nod to song remixes: it lets players take
+                    existing content and remix the levels in new and creative ways.</p>
+                <figure><img src="../images/pistolwhip_pisstolmix.avif" alt="Pistol Mix level editor"></figure>
+                <p>The community liked and received the tool well. They have released well over 500 remixes, far more
+                    than the 45 levels we released over the years.</p>
+
+                <section class="case-study__section" id="skills">
+                    <h2 class="case-study__section-title">Skills Applied</h2>
+                    <div class="case-study__skills">
+                        <span class="case-study__skill">Live Service</span>
+                        <span class="case-study__skill">VR Design</span>
+                        <span class="case-study__skill">Team Leadership</span>
+                        <span class="case-study__skill">Content Strategy</span>
+                        <span class="case-study__skill">Community Tools</span>
+                        <span class="case-study__skill">Onboarding Design</span>
+                        <span class="case-study__skill">Level Editor Design</span>
+                    </div>
+                </section>
+            </article>
+        </div>
 
         <nav class="case-study__nav">
             <a href="max-payne-2.html" class="case-study__nav-link">
@@ -188,7 +224,7 @@
     <!-- Cloudflare Web Analytics -->
     <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
         data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script>
-    <script src="../page.js" defer></script>
+    <script src="../page.js?v=a3234d8f" defer></script>
 </body>
 
 </html>
