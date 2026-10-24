@@ -26,6 +26,11 @@ function scrambleText(element, duration, onDone) {
 
   // Lock dimensions to prevent layout shift
   const rect = element.getBoundingClientRect();
+  // Hidden elements have no box to lock; leave the text alone
+  if (rect.width === 0) {
+    if (onDone) onDone();
+    return;
+  }
   const originalDisplay = window.getComputedStyle(element).display;
   element.dataset.scrambling = 'true';
   element.style.width = `${rect.width}px`;
@@ -116,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Approach, signature seed toy and game feel
   initApproach();
+  initTimelineMore();
   initSeedGarden();
   initGameFeel();
   initCardCentering();
@@ -859,6 +865,22 @@ function initRotatingTagline() {
   setTimeout(() => {
     setInterval(rotateTagline, interval);
   }, interval);
+}
+
+/**
+ * Experience - earlier roles expand under the three most recent
+ */
+function initTimelineMore() {
+  const toggle = document.getElementById('timelineToggle');
+  const more = document.getElementById('timelineMore');
+  if (!toggle || !more) return;
+  const label = toggle.querySelector('.timeline__toggle-label');
+  toggle.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') !== 'true';
+    toggle.setAttribute('aria-expanded', String(open));
+    more.hidden = !open;
+    label.textContent = open ? 'Hide earlier roles' : 'Earlier roles';
+  });
 }
 
 /**

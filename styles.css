@@ -34,7 +34,7 @@
 
   /* Typography */
   --font-heading: 'Anton', 'Impact', sans-serif;
-  --font-body: 'IBM Plex Mono', 'Consolas', monospace;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
   /* Long-form reading text */
   --font-prose: 'IBM Plex Sans', system-ui, sans-serif;
@@ -3514,5 +3514,109 @@ section {
 
   .case-study--deep .case-study__meta-item:nth-child(n+3) {
     border-top: 1px solid var(--border-subtle);
+  }
+}
+
+/* ============================================
+   Work: the deep-dive projects lead as large cards; everything else follows
+   as small tiles (15 = 3 rows of 5, 5 rows of 3)
+   ============================================ */
+#work .work__lead {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: var(--space-2xl);
+}
+
+#work .work__lead .featured-card {
+  grid-column: auto;
+}
+
+#work .work__grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+@media (max-width: 1100px) {
+  #work .work__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  #work .work__lead {
+    grid-template-columns: 1fr;
+  }
+
+  #work .work__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-sm);
+  }
+}
+
+/* How I work now sits inside About */
+#about .approach {
+  position: relative;
+  margin-top: var(--space-2xl);
+}
+
+#about .approach .companies__title {
+  margin-bottom: var(--space-md);
+}
+
+/* Experience: the three most recent roles show, earlier ones expand */
+.timeline__more[hidden] {
+  display: none;
+}
+
+.timeline__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: var(--space-lg);
+  padding: 0.7rem 1.1rem;
+  background: transparent;
+  border: 1px solid var(--text-primary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.timeline__toggle:hover,
+.timeline__toggle:focus-visible {
+  background: var(--text-primary);
+  color: var(--text-inverted);
+}
+
+.timeline__toggle-count {
+  color: var(--accent-red-text);
+}
+
+.timeline__toggle:hover .timeline__toggle-count,
+.timeline__toggle:focus-visible .timeline__toggle-count {
+  color: inherit;
+}
+
+.timeline__toggle[aria-expanded="true"] .timeline__toggle-count {
+  display: none;
+}
+
+/* Five across leaves little room: small tiles drop the role and corner marks, as on phones */
+@media (min-width: 1101px) {
+  #work .work__grid .project-card__overlay {
+    padding: 0.4rem;
+  }
+
+  #work .work__grid .project-card__title {
+    font-size: 0.75rem;
+    padding: 0.1rem 0.3rem;
+  }
+
+  #work .work__grid .project-card__role,
+  #work .work__grid .project-card__overlay::before,
+  #work .work__grid .project-card__overlay::after {
+    display: none;
   }
 }

@@ -142,7 +142,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=aeb1f684">
+  <link rel="stylesheet" href="styles.css?v=0a6e26ab">
 
   <!-- Favicon -->
   <link rel="icon" href="favicon.ico" sizes="any">
@@ -159,11 +159,9 @@
         <img src="images/WavyLineCircles/Wavy Line 7.png" alt="J Tyler McCulloch" id="logoImage">
       </a>
       <ul class="nav__links" id="navLinks">
-        <li><a href="#featured" class="nav__link">Work</a></li>
+        <li><a href="#work" class="nav__link">Work</a></li>
         <li><a href="#about" class="nav__link">About</a></li>
-        <li><a href="#approach" class="nav__link">Approach</a></li>
-        <li><a href="#experience" class="nav__link">Timeline</a></li>
-        <li><a href="#work" class="nav__link">Portfolio</a></li>
+        <li><a href="#experience" class="nav__link">Experience</a></li>
         <li><a href="#contact" class="nav__link">Contact</a></li>
       </ul>
       <button class="nav__toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks">
@@ -197,7 +195,7 @@
           I design and lead emotionally resonant interactive experiences, from concept to controller.
         </p>
         <div class="hero__cta animate-fade-up animate-delay-3">
-          <a href="#featured" class="btn btn--primary" data-recoil>[ View Work ]</a>
+          <a href="#work" class="btn btn--primary" data-recoil>[ View Work ]</a>
           <a href="#contact" class="btn btn--outline" data-recoil>[ Contact ]</a>
         </div>
       </div>
@@ -208,15 +206,16 @@
     </div>
   </section>
 
-  <!-- Featured Work -->
-  <section id="featured" class="featured">
+  <section id="work">
+    <span id="featured" class="anchor-alias" aria-hidden="true"></span>
     <div class="container">
       <div class="section-header">
         <span class="section-code">[01.WORK]</span>
-        <h2 class="section-title">Featured Work</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.2 C 14 2.8, 22 3.2, 31 8.1 S 49 17.0, 60 10.0 S 78 2.5, 89 6.9 S 107 16.1, 118 8.4 S 136 1.2, 147 9.4 S 165 17.6, 178 7.5" /></svg>
+        <h2 class="section-title">Work</h2>
+        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.4 C 14 2.8, 22 3.7, 31 7.6 S 49 16.6, 60 8.6 S 78 2.3, 89 6.9 S 107 15.5, 118 8.3 S 136 1.5, 147 8.7 S 165 15.9, 178 10.5" /></svg>
       </div>
-      <div class="featured__grid">
+
+      <div class="featured__grid work__lead">
         <a href="projects/pistol-whip.html" class="featured-card">
           <div class="featured-card__art">
             <img src="images/featured/pistol-whip-800.webp"
@@ -240,30 +239,6 @@
             <p class="featured-card__proof">Narrative cited as the “main highlight” in reviews.</p>
           </div>
         </a>
-        <a href="projects/form.html" class="featured-card">
-          <div class="featured-card__art">
-            <img src="images/featured/form-800.webp"
-              srcset="images/featured/form-800.webp 800w, images/featured/form-1600.webp 1600w"
-              sizes="(max-width: 700px) 100vw, 20vw" alt="FORM screenshot" width="800" height="450">
-          </div>
-          <div class="featured-card__body">
-            <h3 class="featured-card__title">FORM</h3>
-            <p class="featured-card__role">Lead Game Designer</p>
-            <p class="featured-card__proof">Cinequest Best VR Experience winner.</p>
-          </div>
-        </a>
-        <a href="projects/bully.html" class="featured-card">
-          <div class="featured-card__art">
-            <img src="images/featured/bully-800.webp"
-              srcset="images/featured/bully-800.webp 800w, images/featured/bully-1600.webp 1600w"
-              sizes="(max-width: 700px) 100vw, 20vw" alt="Bully key art" width="800" height="450" loading="lazy">
-          </div>
-          <div class="featured-card__body">
-            <h3 class="featured-card__title">Bully</h3>
-            <p class="featured-card__role">Game Designer · Rockstar</p>
-            <p class="featured-card__proof">Combat system later echoed by Sleeping Dogs and Arkham.</p>
-          </div>
-        </a>
         <a href="projects/flourish.html" class="featured-card">
           <div class="featured-card__art">
             <img src="images/featured/flourish-800.webp"
@@ -277,315 +252,11 @@
           </div>
         </a>
       </div>
-    </div>
-  </section>
 
-  <!-- About Section -->
-  <section id="about">
-    <div class="wave-decoration wave-decoration--about-left wave-decoration--dark">
-      <img src="images/WavyLineCircles/Wavy Line 48.png" alt="" loading="lazy">
-    </div>
-    <div class="container container--narrow">
-      <div class="section-header">
-        <span class="section-code">[02.ABOUT]</span>
-        <h2 class="section-title">Crafting Experiences That Resonate</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.1 C 14 4.0, 22 4.5, 31 8.3 S 49 16.9, 60 9.7 S 78 2.5, 89 6.8 S 107 14.5, 118 8.6 S 136 2.8, 147 7.2 S 165 16.0, 178 8.4" /></svg>
-      </div>
-      <div class="glass-card">
-        <button type="button" class="decorative-asterisk about-distill" aria-pressed="false"
-          aria-label="Distill this into one sentence">※</button>
-        <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem;">
-          Design is not what we add.<br> It is what remains when we remove everything unnecessary.<br>
-          I'm a veteran creative <span class="about-keyword" data-line="1">lead</span>er<span class="about-keyword"
-            data-line="1"> with </span>an <span class="about-keyword" data-line="1">empath</span>etic, pla<span
-            class="about-keyword" data-line="1">y</span>er-first
-          design philosophy
-          grounded in psychology, data-driven
-          iteration,<span class="about-keyword" data-line="2"> and collaborat</span>ion. From dir<span
-            class="about-keyword" data-line="2">e</span>cting
-          Pistol Whip's studio-wide creative design strategy to
-          shaping
-          Journey To Foundation's narrative vision, I've delivered
-          15 shipped titles across AAA, VR, mobile, and live service platforms.
-        </p>
-        <p style="font-size: 1.1rem; line-height: 1.8;">
-          <span class="about-keyword" data-line="3">I thrive on</span> defining,
-          <span class="about-keyword" data-line="3"> upholding</span>, and executing creative vision from concept
-          through production —
-          leading and mentoring multidisciplinary<span class="about-keyword" data-line="3"> teams </span>while driving
-          cross-team
-          collaboration<span class="about-keyword" data-line="4"> with </span>production, engineering,
-          art, marketing, and leadership. Whether I'm hands-on scripting prototypes or managing<span
-            class="about-keyword" data-line="4"> design</span>ers,
-          I bring both strategic<span class="about-keyword" data-line="4"> vision and</span>
-          <span class="about-keyword" data-line="5">technical fluency </span>to every project.
-        </p>
-      </div>
+      <!-- Everything else, most recent first -->
+      <div class="grid grid--3 work__grid">
 
-      <!-- Who I've Worked With -->
-      <div class="companies-section">
-        <h3 class="companies__title">[WHO I'VE WORKED WITH]</h3>
-        <div class="companies__grid">
-          <div class="company-logo company-logo--current" title="Keywords Studios">
-            <img src="images/logos/mono/keywords-studios-logo.svg" style="--logo-h: 52px" alt="Keywords Studios" width="108" height="38" loading="lazy">
-          </div>
-          <div class="company-logo" title="National Film Board of Canada">
-            <img src="images/logos/mono/nfb-onf-logo.svg" style="--logo-h: 56px" alt="National Film Board of Canada" width="300" height="146" loading="lazy">
-          </div>
-          <div class="company-logo" title="Rockstar Games">
-            <img src="images/logos/mono/rockstar-games-logo.webp" style="--logo-h: 58px" alt="Rockstar Games" loading="lazy">
-          </div>
-          <div class="company-logo" title="Meta">
-            <img src="images/logos/mono/Meta-Logo.webp" style="--logo-h: 38px" alt="Meta" loading="lazy">
-          </div>
-          <div class="company-logo" title="Sony Computer Entertainment">
-            <img src="images/logos/mono/Sony-Computer-Entertainment-Logo.webp" style="--logo-h: 76px" alt="Sony Computer Entertainment"
-              loading="lazy">
-          </div>
-          <div class="company-logo" title="Capcom">
-            <img src="images/logos/mono/Capcom-Logo.webp" style="--logo-h: 35px" alt="Capcom" loading="lazy">
-          </div>
-          <div class="company-logo company-logo--large" title="Disney">
-            <img src="images/logos/mono/disney-logo.webp" style="--logo-h: 65px" alt="Disney" loading="lazy">
-          </div>
-          <div class="company-logo" title="LucasArts">
-            <img src="images/logos/mono/lucasarts_logo.webp" style="--logo-h: 63px" alt="LucasArts" loading="lazy">
-          </div>
-          <div class="company-logo" title="Marvel">
-            <img src="images/logos/mono/Marvel-Logo.webp" style="--logo-h: 51px" alt="Marvel" loading="lazy">
-          </div>
-          <div class="company-logo company-logo--small" title="Skydance">
-            <img src="images/logos/mono/Skydance_logo.webp" style="--logo-h: 33px" alt="Skydance" loading="lazy">
-          </div>
-          <div class="company-logo company-logo--small" title="Penumbra">
-            <img src="images/logos/mono/Penumbra_logo.webp" style="--logo-h: 36px" alt="Penumbra" loading="lazy">
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Approach -->
-  <section id="approach" class="approach">
-    <span id="skills" class="anchor-alias" aria-hidden="true"></span>
-    <div class="container container--narrow">
-      <div class="section-header">
-        <span class="section-code">[03.APPROACH]</span>
-        <h2 class="section-title">How I Work</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.7 C 14 4.1, 22 2.0, 31 10.6 S 49 15.0, 60 9.5 S 78 0.7, 89 8.8 S 107 14.9, 118 9.7 S 136 2.7, 147 8.9 S 165 15.8, 178 10.2" /></svg>
-      </div>
-      <ol class="approach__list">
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-1">
-            <span class="approach-row__num">[01]</span>
-            <span class="approach-row__title">Player agency over spectacle</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-1" hidden>
-            <p><strong>Journey to Foundation</strong> — our mantra was “participatory drama”: players take part in
-              conversations through physical actions, not menu choices. It became the game's boss fights.</p>
-            <a href="projects/journey-to-foundation.html" class="approach-row__link">[ Journey to Foundation → ]</a>
-          </div>
-        </li>
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-2">
-            <span class="approach-row__num">[02]</span>
-            <span class="approach-row__title">Systems that teach through play</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-2" hidden>
-            <p><strong>Flourish</strong> — repetitive physio exercises became magic spells: as players heal their
-              bodies, the energy heals the broken land around them.</p>
-            <a href="projects/flourish.html" class="approach-row__link">[ Flourish → ]</a>
-          </div>
-        </li>
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-3">
-            <span class="approach-row__num">[03]</span>
-            <span class="approach-row__title">Vision held across disciplines</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-3" hidden>
-            <p><strong>Horizon Worlds</strong> — led the team through overlapping 3–6 month production cycles while
-              Meta's tools kept changing; a 6-month contract grew to 2+ years.</p>
-            <a href="projects/horizon-worlds.html" class="approach-row__link">[ Horizon Worlds → ]</a>
-          </div>
-        </li>
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-4">
-            <span class="approach-row__num">[04]</span>
-            <span class="approach-row__title">Ship under constraint</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-4" hidden>
-            <p><strong>Marvel: Dimension of Heroes</strong> — united a fractured, over-scoped team → delivered on a
-              tight timeline.</p>
-            <a href="projects/marvel-dimension-of-heroes.html" class="approach-row__link">[ Marvel: Dimension of Heroes → ]</a>
-          </div>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- Experience Timeline -->
-  <section id="experience" style="background: var(--bg-secondary); position: relative; z-index: 2;">
-    <div class="container container--narrow">
-      <div class="section-header">
-        <span class="section-code">[04.CAREER]</span>
-        <h2 class="section-title">Experience Timeline</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 8.4 C 14 1.8, 22 2.7, 31 9.6 S 49 14.8, 60 7.8 S 78 1.1, 89 8.8 S 107 14.9, 118 9.8 S 136 2.5, 147 6.8 S 165 16.1, 178 8.8" /></svg>
-      </div>
-
-      <div class="timeline">
-        <div class="timeline__item">
-          <span class="timeline__year">May 2026 – Present</span>
-          <h4 class="timeline__title">Studio Design Director</h4>
-          <p class="timeline__company">Keywords Studios (Smoking Gun Interactive)</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Studio design leadership</strong><span>Leads design direction and the design team across
-                studio projects</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">July 2022 – Nov 2025</span>
-          <h4 class="timeline__title">Game Director</h4>
-          <p class="timeline__company">Cloudhead Games</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Pistol Whip</strong><span>Award-winning, critically acclaimed, 500+ community remixes</span>
-            </li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">April – Nov 2023</span>
-          <h4 class="timeline__title">Art Director (part-time)</h4>
-          <p class="timeline__company">National Film Board of Canada</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Sunalimit</strong><span>Remotely managed team of indigenous artists on experimental
-                project</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Jan 2019 – July 2022</span>
-          <h4 class="timeline__title">Creative Director</h4>
-          <p class="timeline__company">Archiact Interactive</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Journey to Foundation</strong><span>Co-directed and led the narrative and UX teams; the narrative
-                was cited as the "main highlight" in reviews</span></li>
-            <li><strong>Horizon Worlds</strong><span>Topped Meta's retention charts, top-performing, contract extended
-                6mo → 2+ years</span></li>
-            <li><strong>Flourish</strong><span>Conceptualized creative vision; pioneered approach transforming
-                repetitive physio into engaging gameplay</span></li>
-            <li><strong>Marvel: Dimension of Heroes</strong><span>United and focused a fractured, over-scoped team to
-                deliver within tight timelines</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Feb 2018 – July 2023</span>
-          <h4 class="timeline__title">Co-Founder / Director</h4>
-          <p class="timeline__company">Inscape Studios</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Proximity</strong><span>Sole developer to team lead; pitched, raised funds, and shipped
-                experimental AI narrative game</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Jun 2015 – July 2017</span>
-          <h4 class="timeline__title">Lead Game Designer</h4>
-          <p class="timeline__company">Charm Games</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>FORM</strong><span>Award-winning, noted for quality and critical reception</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">May – Nov 2014</span>
-          <h4 class="timeline__title">Lead Game Designer</h4>
-          <p class="timeline__company">Dramaforum</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Petra's Planet</strong><span>Transformed struggling platform (near-zero D2 retention) into
-                thriving world; designed economy and reward loops</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Feb 2013 – May 2014</span>
-          <h4 class="timeline__title">Lead Designer</h4>
-          <p class="timeline__company">Eruptive Games</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Citizen Grim</strong><span>Designed and tuned mechanics using metrics analysis; improved
-                retention and ratings</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Sept 2012 – Jan 2013</span>
-          <h4 class="timeline__title">Senior Game Designer</h4>
-          <p class="timeline__company">Kennedy Miller Mitchell (Team Bondi)</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Whore of the Orient <em class="timeline__note">(cancelled)</em></strong><span>Prototyped innovative Defendu combat and crowd
-                cover mechanics</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Aug 2006 – April 2012</span>
-          <h4 class="timeline__title">Senior Game Designer</h4>
-          <p class="timeline__company">Slant Six Games</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Resident Evil: ORC</strong><span>Prototyped the level that led to Capcom greenlight, co-created
-                proprietary scripting language</span></li>
-            <li><strong>Star Wars: Battlefront Online <em class="timeline__note">(cancelled)</em></strong><span>Contributed to vehicle physics
-                system</span></li>
-            <li><strong>SOCOM: Fireteam Bravo 3</strong><span>Proposed narrative concept that became basis for entire
-                game; drove single-player campaign</span></li>
-            <li><strong>SOCOM: Confrontation</strong><span>Responsible for Kasbah (regularly voted best map), launch of
-                game so popular it brought down Sony's servers</span></li>
-            <li><strong>SOCOM: Tactical Strike</strong><span>Helped reimagine SOCOM as strategy game; received a BAFTA
-                nomination (Strategy/Simulation)</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Sept 2003 – June 2006</span>
-          <h4 class="timeline__title">Game Designer</h4>
-          <p class="timeline__company">Rockstar Games</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Bully</strong><span>Critically well received, worked on combat system that influenced Sleeping
-                Dogs and Arkham Asylum</span></li>
-            <li><strong>Max Payne 2</strong><span>QA support on award-winning title</span></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="work">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-code">[05.PORTFOLIO]</span>
-        <h2 class="section-title">Portfolio</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.4 C 14 2.8, 22 3.7, 31 7.6 S 49 16.6, 60 8.6 S 78 2.3, 89 6.9 S 107 15.5, 118 8.3 S 136 1.5, 147 8.7 S 165 15.9, 178 10.5" /></svg>
-      </div>
-
-      <!-- Projects Grid - Chronological Order (Most Recent First) -->
-      <div class="grid grid--3">
-
-        <!-- 2022-2025: Pistol Whip -->
-        <a href="projects/pistol-whip.html" class="project-card">
-          <img src="images/pistol_whip_banner.jpg" alt="Pistol Whip" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Pistol Whip</h3>
-            <span class="project-card__role">Game Director</span>
-            <p class="project-card__desc">Directed content strategy and created the 'Pistol Mix' level editor for this
-              VR rhythm-shooter.</p>
-          </div>
-        </a>
-
-        <!-- 2022: Journey To Foundation -->
-        <a href="projects/journey-to-foundation.html" class="project-card">
-          <img src="images/JourneyToFoundation_Banner.webp" alt="Journey To Foundation" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Journey To Foundation</h3>
-            <span class="project-card__role">Co-Creative Director</span>
-            <p class="project-card__desc">VR Roleplaying Adventure based on Isaac Asimov's saga.</p>
-          </div>
-        </a>
 
         <!-- 2022: Proximity -->
         <a href="projects/proximity.html" class="project-card">
@@ -607,15 +278,6 @@
           </div>
         </a>
 
-        <!-- 2021: Flourish -->
-        <a href="projects/flourish.html" class="project-card">
-          <img src="images/Flourish_Banner.webp" alt="Flourish" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Flourish</h3>
-            <span class="project-card__role">Creative Director</span>
-            <p class="project-card__desc">VR Physiotherapy Game transforming exercises into magical spells.</p>
-          </div>
-        </a>
 
         <!-- 2019: Marvel: Dimension of Heroes -->
         <a href="projects/marvel-dimension-of-heroes.html" class="project-card">
@@ -759,6 +421,279 @@
     </div>
   </section>
 
+  <!-- About Section -->
+  <section id="about">
+    <div class="wave-decoration wave-decoration--about-left wave-decoration--dark">
+      <img src="images/WavyLineCircles/Wavy Line 48.png" alt="" loading="lazy">
+    </div>
+    <div class="container container--narrow">
+      <div class="section-header">
+        <span class="section-code">[02.ABOUT]</span>
+        <h2 class="section-title">Crafting Experiences That Resonate</h2>
+        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.1 C 14 4.0, 22 4.5, 31 8.3 S 49 16.9, 60 9.7 S 78 2.5, 89 6.8 S 107 14.5, 118 8.6 S 136 2.8, 147 7.2 S 165 16.0, 178 8.4" /></svg>
+      </div>
+      <div class="glass-card">
+        <button type="button" class="decorative-asterisk about-distill" aria-pressed="false"
+          aria-label="Distill this into one sentence">※</button>
+        <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+          Design is not what we add.<br> It is what remains when we remove everything unnecessary.<br>
+          I'm a veteran creative <span class="about-keyword" data-line="1">lead</span>er<span class="about-keyword"
+            data-line="1"> with </span>an <span class="about-keyword" data-line="1">empath</span>etic, pla<span
+            class="about-keyword" data-line="1">y</span>er-first
+          design philosophy
+          grounded in psychology, data-driven
+          iteration,<span class="about-keyword" data-line="2"> and collaborat</span>ion. From dir<span
+            class="about-keyword" data-line="2">e</span>cting
+          Pistol Whip's studio-wide creative design strategy to
+          shaping
+          Journey To Foundation's narrative vision, I've delivered
+          15 shipped titles across AAA, VR, mobile, and live service platforms.
+        </p>
+        <p style="font-size: 1.1rem; line-height: 1.8;">
+          <span class="about-keyword" data-line="3">I thrive on</span> defining,
+          <span class="about-keyword" data-line="3"> upholding</span>, and executing creative vision from concept
+          through production —
+          leading and mentoring multidisciplinary<span class="about-keyword" data-line="3"> teams </span>while driving
+          cross-team
+          collaboration<span class="about-keyword" data-line="4"> with </span>production, engineering,
+          art, marketing, and leadership. Whether I'm hands-on scripting prototypes or managing<span
+            class="about-keyword" data-line="4"> design</span>ers,
+          I bring both strategic<span class="about-keyword" data-line="4"> vision and</span>
+          <span class="about-keyword" data-line="5">technical fluency </span>to every project.
+        </p>
+      </div>
+
+      <!-- How I work -->
+      <div class="approach" id="approach">
+        <span id="skills" class="anchor-alias" aria-hidden="true"></span>
+        <h3 class="companies__title">[HOW I WORK]</h3>
+      <ol class="approach__list">
+        <li class="approach-row">
+          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-1">
+            <span class="approach-row__num">[01]</span>
+            <span class="approach-row__title">Player agency over spectacle</span>
+            <span class="approach-row__icon" aria-hidden="true"></span>
+          </button>
+          <div class="approach-row__proof" id="approach-1" hidden>
+            <p><strong>Journey to Foundation</strong> — our mantra was “participatory drama”: players take part in
+              conversations through physical actions, not menu choices. It became the game's boss fights.</p>
+            <a href="projects/journey-to-foundation.html" class="approach-row__link">[ Journey to Foundation → ]</a>
+          </div>
+        </li>
+        <li class="approach-row">
+          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-2">
+            <span class="approach-row__num">[02]</span>
+            <span class="approach-row__title">Systems that teach through play</span>
+            <span class="approach-row__icon" aria-hidden="true"></span>
+          </button>
+          <div class="approach-row__proof" id="approach-2" hidden>
+            <p><strong>Flourish</strong> — repetitive physio exercises became magic spells: as players heal their
+              bodies, the energy heals the broken land around them.</p>
+            <a href="projects/flourish.html" class="approach-row__link">[ Flourish → ]</a>
+          </div>
+        </li>
+        <li class="approach-row">
+          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-3">
+            <span class="approach-row__num">[03]</span>
+            <span class="approach-row__title">Vision held across disciplines</span>
+            <span class="approach-row__icon" aria-hidden="true"></span>
+          </button>
+          <div class="approach-row__proof" id="approach-3" hidden>
+            <p><strong>Horizon Worlds</strong> — led the team through overlapping 3–6 month production cycles while
+              Meta's tools kept changing; a 6-month contract grew to 2+ years.</p>
+            <a href="projects/horizon-worlds.html" class="approach-row__link">[ Horizon Worlds → ]</a>
+          </div>
+        </li>
+        <li class="approach-row">
+          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-4">
+            <span class="approach-row__num">[04]</span>
+            <span class="approach-row__title">Ship under constraint</span>
+            <span class="approach-row__icon" aria-hidden="true"></span>
+          </button>
+          <div class="approach-row__proof" id="approach-4" hidden>
+            <p><strong>Marvel: Dimension of Heroes</strong> — united a fractured, over-scoped team → delivered on a
+              tight timeline.</p>
+            <a href="projects/marvel-dimension-of-heroes.html" class="approach-row__link">[ Marvel: Dimension of Heroes → ]</a>
+          </div>
+        </li>
+      </ol>
+      </div>
+
+      <!-- Who I've Worked With -->
+      <div class="companies-section">
+        <h3 class="companies__title">[WHO I'VE WORKED WITH]</h3>
+        <div class="companies__grid">
+          <div class="company-logo company-logo--current" title="Keywords Studios">
+            <img src="images/logos/mono/keywords-studios-logo.svg" style="--logo-h: 52px" alt="Keywords Studios" width="108" height="38" loading="lazy">
+          </div>
+          <div class="company-logo" title="National Film Board of Canada">
+            <img src="images/logos/mono/nfb-onf-logo.svg" style="--logo-h: 56px" alt="National Film Board of Canada" width="300" height="146" loading="lazy">
+          </div>
+          <div class="company-logo" title="Rockstar Games">
+            <img src="images/logos/mono/rockstar-games-logo.webp" style="--logo-h: 58px" alt="Rockstar Games" loading="lazy">
+          </div>
+          <div class="company-logo" title="Meta">
+            <img src="images/logos/mono/Meta-Logo.webp" style="--logo-h: 38px" alt="Meta" loading="lazy">
+          </div>
+          <div class="company-logo" title="Sony Computer Entertainment">
+            <img src="images/logos/mono/Sony-Computer-Entertainment-Logo.webp" style="--logo-h: 76px" alt="Sony Computer Entertainment"
+              loading="lazy">
+          </div>
+          <div class="company-logo" title="Capcom">
+            <img src="images/logos/mono/Capcom-Logo.webp" style="--logo-h: 35px" alt="Capcom" loading="lazy">
+          </div>
+          <div class="company-logo company-logo--large" title="Disney">
+            <img src="images/logos/mono/disney-logo.webp" style="--logo-h: 65px" alt="Disney" loading="lazy">
+          </div>
+          <div class="company-logo" title="LucasArts">
+            <img src="images/logos/mono/lucasarts_logo.webp" style="--logo-h: 63px" alt="LucasArts" loading="lazy">
+          </div>
+          <div class="company-logo" title="Marvel">
+            <img src="images/logos/mono/Marvel-Logo.webp" style="--logo-h: 51px" alt="Marvel" loading="lazy">
+          </div>
+          <div class="company-logo company-logo--small" title="Skydance">
+            <img src="images/logos/mono/Skydance_logo.webp" style="--logo-h: 33px" alt="Skydance" loading="lazy">
+          </div>
+          <div class="company-logo company-logo--small" title="Penumbra">
+            <img src="images/logos/mono/Penumbra_logo.webp" style="--logo-h: 36px" alt="Penumbra" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section id="experience" style="background: var(--bg-secondary); position: relative; z-index: 2;">
+    <div class="container container--narrow">
+      <div class="section-header">
+        <span class="section-code">[03.CAREER]</span>
+        <h2 class="section-title">Experience</h2>
+        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 8.4 C 14 1.8, 22 2.7, 31 9.6 S 49 14.8, 60 7.8 S 78 1.1, 89 8.8 S 107 14.9, 118 9.8 S 136 2.5, 147 6.8 S 165 16.1, 178 8.8" /></svg>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline__item">
+          <span class="timeline__year">May 2026 – Present</span>
+          <h4 class="timeline__title">Studio Design Director</h4>
+          <p class="timeline__company">Keywords Studios (Smoking Gun Interactive)</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>Studio design leadership</strong><span>Leads design direction and the design team across
+                studio projects</span></li>
+          </ul>
+        </div>
+        <div class="timeline__item">
+          <span class="timeline__year">July 2022 – Nov 2025</span>
+          <h4 class="timeline__title">Game Director</h4>
+          <p class="timeline__company">Cloudhead Games</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>Pistol Whip</strong><span>Award-winning, critically acclaimed, 500+ community remixes</span>
+            </li>
+          </ul>
+        </div>
+        <div class="timeline__item">
+          <span class="timeline__year">April – Nov 2023</span>
+          <h4 class="timeline__title">Art Director (part-time)</h4>
+          <p class="timeline__company">National Film Board of Canada</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>Sunalimit</strong><span>Remotely managed team of indigenous artists on experimental
+                project</span></li>
+          </ul>
+        </div>
+        <div class="timeline__more" id="timelineMore" hidden>
+        <div class="timeline__item">
+          <span class="timeline__year">Jan 2019 – July 2022</span>
+          <h4 class="timeline__title">Creative Director</h4>
+          <p class="timeline__company">Archiact Interactive</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>Journey to Foundation</strong><span>Co-directed and led the narrative and UX teams; the narrative
+                was cited as the "main highlight" in reviews</span></li>
+            <li><strong>Horizon Worlds</strong><span>Topped Meta's retention charts, top-performing, contract extended
+                6mo → 2+ years</span></li>
+            <li><strong>Flourish</strong><span>Conceptualized creative vision; pioneered approach transforming
+                repetitive physio into engaging gameplay</span></li>
+            <li><strong>Marvel: Dimension of Heroes</strong><span>United and focused a fractured, over-scoped team to
+                deliver within tight timelines</span></li>
+          </ul>
+        </div>
+        <div class="timeline__item">
+          <span class="timeline__year">Feb 2018 – July 2023</span>
+          <h4 class="timeline__title">Co-Founder / Director</h4>
+          <p class="timeline__company">Inscape Studios</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>Proximity</strong><span>Sole developer to team lead; pitched, raised funds, and shipped
+                experimental AI narrative game</span></li>
+          </ul>
+        </div>
+        <div class="timeline__item">
+          <span class="timeline__year">Jun 2015 – July 2017</span>
+          <h4 class="timeline__title">Lead Game Designer</h4>
+          <p class="timeline__company">Charm Games</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>FORM</strong><span>Award-winning, noted for quality and critical reception</span></li>
+          </ul>
+        </div>
+        <div class="timeline__item">
+          <span class="timeline__year">May – Nov 2014</span>
+          <h4 class="timeline__title">Lead Game Designer</h4>
+          <p class="timeline__company">Dramaforum</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>Petra's Planet</strong><span>Transformed struggling platform (near-zero D2 retention) into
+                thriving world; designed economy and reward loops</span></li>
+          </ul>
+        </div>
+        <div class="timeline__item">
+          <span class="timeline__year">Feb 2013 – May 2014</span>
+          <h4 class="timeline__title">Lead Designer</h4>
+          <p class="timeline__company">Eruptive Games</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>Citizen Grim</strong><span>Designed and tuned mechanics using metrics analysis; improved
+                retention and ratings</span></li>
+          </ul>
+        </div>
+        <div class="timeline__item">
+          <span class="timeline__year">Sept 2012 – Jan 2013</span>
+          <h4 class="timeline__title">Senior Game Designer</h4>
+          <p class="timeline__company">Kennedy Miller Mitchell (Team Bondi)</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>Whore of the Orient <em class="timeline__note">(cancelled)</em></strong><span>Prototyped innovative Defendu combat and crowd
+                cover mechanics</span></li>
+          </ul>
+        </div>
+        <div class="timeline__item">
+          <span class="timeline__year">Aug 2006 – April 2012</span>
+          <h4 class="timeline__title">Senior Game Designer</h4>
+          <p class="timeline__company">Slant Six Games</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>Resident Evil: ORC</strong><span>Prototyped the level that led to Capcom greenlight, co-created
+                proprietary scripting language</span></li>
+            <li><strong>Star Wars: Battlefront Online <em class="timeline__note">(cancelled)</em></strong><span>Contributed to vehicle physics
+                system</span></li>
+            <li><strong>SOCOM: Fireteam Bravo 3</strong><span>Proposed narrative concept that became basis for entire
+                game; drove single-player campaign</span></li>
+            <li><strong>SOCOM: Confrontation</strong><span>Responsible for Kasbah (regularly voted best map), launch of
+                game so popular it brought down Sony's servers</span></li>
+            <li><strong>SOCOM: Tactical Strike</strong><span>Helped reimagine SOCOM as strategy game; received a BAFTA
+                nomination (Strategy/Simulation)</span></li>
+          </ul>
+        </div>
+        <div class="timeline__item">
+          <span class="timeline__year">Sept 2003 – June 2006</span>
+          <h4 class="timeline__title">Game Designer</h4>
+          <p class="timeline__company">Rockstar Games</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>Bully</strong><span>Critically well received, worked on combat system that influenced Sleeping
+                Dogs and Arkham Asylum</span></li>
+            <li><strong>Max Payne 2</strong><span>QA support on award-winning title</span></li>
+          </ul>
+        </div>
+        </div>
+      </div>
+      <button type="button" class="timeline__toggle" id="timelineToggle" aria-expanded="false" aria-controls="timelineMore">
+        <span class="timeline__toggle-label">Earlier roles</span><span class="timeline__toggle-count">8</span>
+      </button>
+    </div>
+  </section>
+
 
 
   <!-- Mystery Modal - The Unreleased -->
@@ -807,7 +742,7 @@
   <section class="contact" id="contact">
     <div class="container container--narrow">
       <div class="section-header">
-        <span class="section-code">[06.CONNECT]</span>
+        <span class="section-code">[04.CONNECT]</span>
         <h2 class="section-title">Let's Work Together</h2>
         <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 9.3 C 14 3.0, 22 1.7, 31 8.5 S 49 14.6, 60 7.4 S 78 1.3, 89 6.8 S 107 15.4, 118 9.8 S 136 0.5, 147 8.4 S 165 14.8, 178 9.9" /></svg>
       </div>
@@ -844,7 +779,7 @@
   </div>
 
   <!-- JavaScript -->
-  <script src="script.js?v=7f29ce14"></script>
+  <script src="script.js?v=07807a4f"></script>
   <!-- Cloudflare Web Analytics -->
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
     data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script><!-- End Cloudflare Web Analytics -->
