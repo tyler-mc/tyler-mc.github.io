@@ -743,7 +743,7 @@ function initCursorTrail() {
   canvas.setAttribute('aria-hidden', 'true');
   const ctx = canvas.getContext('2d');
 
-  const LIFE = 1400; // ms a mark lasts
+  const LIFE = 700;  // ms a mark lasts
   const STEP = 26;   // px of pointer travel between marks
   const LINK = 110;  // px within which marks connect
   const MAX = 60;
@@ -1394,7 +1394,7 @@ function initSeedGarden() {
   const FRAMES = 100;
   const COLS = 10;
   let FRAME_PX = 320;
-  const FLIP_PX = 16;          // pointer travel per page turn
+  const FLIP_PX = 80;          // pointer travel per page turn
   const SEED_SIZE = 72;        // base planted size (CSS px)
   const BLOOM_CHANCE = 0.2;    // "not all will bloom"
   const RED_RATIO = 0.3;
@@ -1519,7 +1519,7 @@ function initSeedGarden() {
       const dx = e.clientX - lastX;
       turnPages(Math.hypot(dx, e.clientY - lastY));
       if (!REDUCED_MOTION) {
-        leanTarget = Math.max(-7, Math.min(7, dx * 0.35));
+        leanTarget = Math.max(-3, Math.min(3, dx * 0.15));
         kickLean();
       }
     }

@@ -14,8 +14,8 @@
 
   /* Accent Colors */
   --accent-red: #FF3333;
-  /* Darker red for small text: 4.7:1 on the cream background */
-  --accent-red-text: #D62020;
+  /* Darker red for small text: 5.7:1 on the cream background, 5.1:1 on the gray sections */
+  --accent-red-text: #BF1B1B;
   --accent-red-muted: rgba(255, 51, 51, 0.15);
 
   /* Text Colors */
@@ -914,6 +914,7 @@ section {
   font-family: var(--font-heading);
   margin-bottom: 0.25rem;
   font-size: 1.1rem;
+  letter-spacing: 0.1em;
 }
 
 .timeline__company {
@@ -3904,4 +3905,168 @@ section {
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+/* Two-column comparison diagram for case studies */
+.cs-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+
+@media (max-width: 700px) {
+  .cs-compare {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cs-compare__col {
+  padding: 1.25rem;
+  border: 1px solid var(--text-primary);
+  background: var(--bg-primary);
+}
+
+.cs-compare__col--after {
+  border: 2px solid var(--accent-red);
+}
+
+.cs-compare__label {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-red-text);
+}
+
+.case-study--page .case-study__content .cs-compare__title {
+  margin: 0 0 1rem;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.cs-compare ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cs-compare li {
+  position: relative;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-secondary);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+.cs-compare li + li {
+  margin-top: 1.15rem;
+}
+
+.cs-compare li + li::before {
+  content: '↓';
+  position: absolute;
+  top: -1.15rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.15rem;
+  color: var(--accent-red-text);
+}
+
+.case-study--page .case-study__content .cs-compare__note {
+  margin: 1rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+/* Pistol Whip: mechanics diagrams */
+.pw-mods__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 1.25rem 1.5rem;
+}
+
+.pw-mod--art {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+@media (max-width: 800px) {
+  .pw-mods__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pw-mod--art {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+.pw-mod svg,
+.case-study--page .case-study__content .pw-mod img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--pw-line);
+}
+
+.pw-mod svg text {
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+.case-study--page .case-study__content .pw-mod__cap {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--pw-soft);
+}
+
+.pw-mod__cap b {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pw-pink);
+}
+
+/* Contact sits on its own ground, so it does not run into the Experience section above it */
+#contact {
+  background: var(--bg-primary);
+  border-top: 2px solid var(--text-primary);
+}
+
+/* 404 */
+.not-found {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  padding: 8rem 0 4rem;
+}
+
+.not-found__title {
+  margin: 0.5rem 0 1rem;
+  font-size: clamp(2.6rem, 8vw, 6rem);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.not-found__text {
+  margin: 0 0 2rem;
+  max-width: 32rem;
+  color: var(--text-secondary);
 }

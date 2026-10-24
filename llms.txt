@@ -1,6 +1,6 @@
 # Tyler McCulloch — AI-Readable Portfolio Summary
 # https://jtylermc.ca
-# Last updated: 2026-09-23
+# Last updated: 2026-10-24
 
 ## Identity
 Name: J Tyler McCulloch
@@ -16,8 +16,8 @@ Portfolio: https://jtylermc.ca
 Game Designer and Director with 22+ years of experience across AAA, VR, mobile, and live service platforms. 12+ years in design leadership. 15 shipped titles. Specializes in creative direction, player-first design philosophy, and leading multidisciplinary teams from concept to ship.
 
 ## Notable Shipped Titles
-- Pistol Whip (2019-2025) — Game Director at Cloudhead Games — Award-winning VR rhythm-shooter
-- Journey to Foundation (2022) — Co-Creative Director at Archiact Interactive — VR RPG based on Isaac Asimov's saga
+- Pistol Whip (Game Director, July 2022 – Nov 2025) — Cloudhead Games — Award-winning VR rhythm-shooter; led post-launch content and the Pistol Mix community level tool
+- Journey to Foundation (released 2023) — Co-Creative Director at Archiact Interactive — VR roleplaying adventure based on Isaac Asimov's saga; led the narrative and UX teams
 - Horizon Worlds (2020-2022) — Creative Director at Archiact Interactive — Top-performing experiences for Meta's social VR platform
 - FORM (2017) — Lead Game Designer at Charm Games — Award-winning surreal VR puzzle game
 - Bully (2006) — Game Designer at Rockstar Games — Critically acclaimed open-world action-adventure
