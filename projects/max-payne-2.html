@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
-    <link rel="stylesheet" href="../styles.css?v=f447d230">
+    <link rel="stylesheet" href="../styles.css?v=2134d198">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
@@ -38,56 +38,90 @@
         </div>
     </nav>
 
-    <main class="case-study case-study--page">
+    <main class="case-study case-study--page case-study--deep">
         <a href="../index.html#work" class="case-study__back">← Back to Work</a>
+
         <header class="case-study__header">
-            <img src="../images/MayPayne2_banner.jpeg" alt="Max Payne 2" class="case-study__image">
+            <img src="../images/MayPayne2_banner.jpeg" alt="Max Payne 2: The Fall of Max Payne logo beside black-and-white art of Max and Mona holding pistols" class="case-study__image" style="object-position: 50% 62%">
+
             <div class="case-study__meta">
-                <div class="case-study__meta-item"><span class="case-study__meta-label">Role</span><span>QA Support</span></div>
-                <div class="case-study__meta-item"><span class="case-study__meta-label">Studio</span><span>Rockstar
-                        Games</span></div>
-                <div class="case-study__meta-item"><span class="case-study__meta-label">Period</span><span>Sept
-                        2003</span></div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Role</span>
+                    <span>QA Support</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Studio</span>
+                    <span>Rockstar Games</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Period</span>
+                    <span>Sept 2003</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Platform</span>
+                    <span>PC, Xbox, PlayStation 2</span>
+                </div>
             </div>
+
             <h1 class="case-study__title">Max Payne 2</h1>
-            <p class="case-study__tagline">Third-person shooter from Rockstar</p>
-            <div class="case-study__accomplishment">First role at Rockstar. Led to game design career on Bully.</div>
+            <p class="case-study__tagline">Third-person shooter. My first role at Rockstar.</p>
+
+            <div class="case-study__accomplishment">
+                I worked as development support during the finalization of Max Payne 2, hunting down and writing up bug
+                reports.
+            </div>
         </header>
 
-        <article class="case-study__content">
-            <p>Max Payne 2 was my introduction to Rockstar Games. Coming from film and animation, I wanted to get into
-                the games industry and QA was my way in.</p>
-            <p>This was a brief but formative role where I learned the fundamentals of game testing and bug reporting.
-                It gave me insight into how AAA games are polished and shipped. More importantly, it was the start of my
-                journey at Rockstar, leading directly to becoming a game designer on Bully.</p>
-            <p>Working on Max Payne 2's console versions taught me the importance of attention to detail and thorough
-                testing—skills that would serve me throughout my design career.</p>
-            <p>We had to run through all different versions of the game in multiple languages. The PS2 version was
-                particularly rough and many compromises had to be made to get it running on that platform.</p>
-            <figure><img src="../images/MaxPayne2_PlatformComparison.webp" alt="Platform comparison">
-                <figcaption>Comparison of the difference between platforms</figcaption>
-            </figure>
+        <div class="cs-layout">
+            <nav class="cs-rail" aria-label="On this page">
+                <p class="cs-rail__title">On this page</p>
+                <ol>
+                    <li><a href="#owned">What I owned</a></li>
+                    <li><a href="#console">The console versions</a></li>
+                    <li><a href="#learned">What I learned</a></li>
+                    <li><a href="#skills">Skills applied</a></li>
+                </ol>
+            </nav>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Key Contributions</h2>
+            <article class="case-study__content">
+                <h2 class="cs-h2" id="owned"><span class="cs-h2__num">01</span>What I owned</h2>
+                <p>Max Payne 2 was my introduction to Rockstar Games. Coming from film and animation, I wanted to get into
+                    the games industry and QA was my way in.</p>
                 <ul class="case-study__contributions">
-                    <li>Performed quality assurance testing for console versions</li>
+                    <li>Hunted down and wrote up bug reports during the finalization of the game</li>
+                    <li>Tested the console versions, running through each version in multiple languages</li>
                     <li>Filed and tracked bugs through the development process</li>
-                    <li>Gained foundational knowledge of AAA game development</li>
-                    <li>Transitioned from QA to game design role on Bully</li>
                 </ul>
-            </section>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Skills Applied</h2>
-                <div class="case-study__skills">
-                    <span class="case-study__skill">QA Testing</span>
-                    <span class="case-study__skill">Bug Reporting</span>
-                    <span class="case-study__skill">Console Development</span>
-                    <span class="case-study__skill">Attention to Detail</span>
-                </div>
-            </section>
-        </article>
+                <h2 class="cs-h2" id="console"><span class="cs-h2__num">02</span>The console versions</h2>
+                <p>We had to run through all different versions of the game in multiple languages. The PS2 version was
+                    particularly rough and many compromises had to be made to get it running on that platform.</p>
+                <figure><img src="../images/MaxPayne2_PlatformComparison.webp" alt="The same hospital corridor shot of Max side by side on PS2 and Xbox at 640x480, Xbox 360 at 1280x720 and Windows at 1920x1080" loading="lazy">
+                    <figcaption>A later side-by-side comparison of the same scene on PS2, Xbox, Xbox 360 and Windows.</figcaption>
+                </figure>
+                <p>Metacritic lists the PC version at 86, the Xbox version at 84 and the PlayStation 2 version at 73.
+                    <a href="https://www.metacritic.com/game/max-payne-2-the-fall-of-max-payne/" target="_blank" rel="noopener">Source ↗</a></p>
+
+                <h2 class="cs-h2" id="learned"><span class="cs-h2__num">03</span>What I learned</h2>
+                <p>This was a brief but formative role where I learned the fundamentals of game testing and bug reporting.
+                    It gave me insight into how AAA games are polished and shipped. Working on Max Payne 2's console
+                    versions taught me the importance of attention to detail and thorough testing, skills that would serve
+                    me throughout my design career.</p>
+                <p>More importantly, it was the start of my journey at Rockstar, leading directly to becoming a game
+                    designer on <a href="bully.html">Bully</a>.</p>
+
+                <section class="case-study__section" id="skills">
+                    <h2 class="case-study__section-title">Skills Applied</h2>
+                    <div class="case-study__skills">
+                        <span class="case-study__skill">QA Testing</span>
+                        <span class="case-study__skill">Bug Reporting</span>
+                        <span class="case-study__skill">Console Development</span>
+                        <span class="case-study__skill">Localization Testing</span>
+                        <span class="case-study__skill">Attention to Detail</span>
+                    </div>
+                </section>
+            </article>
+        </div>
 
         <nav class="case-study__nav">
             <a href="bully.html" class="case-study__nav-link"><span class="case-study__nav-label">← Previous</span><span
