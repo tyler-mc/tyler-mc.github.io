@@ -1017,56 +1017,6 @@ section {
 }
 
 /* ============================================
-   Modal
-   ============================================ */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-lg);
-  background: rgba(245, 245, 240, 0.95);
-}
-
-.modal.active {
-  display: flex;
-}
-
-.modal__content {
-  max-width: 1000px;
-  max-height: 90vh;
-  overflow-y: auto;
-  background: var(--bg-primary);
-  border: 2px solid var(--text-primary);
-  box-shadow: 8px 8px 0 var(--text-primary);
-}
-
-.modal__close {
-  position: absolute;
-  top: var(--space-lg);
-  right: var(--space-lg);
-  background: var(--bg-primary);
-  border: 2px solid var(--text-primary);
-  width: 48px;
-  height: 48px;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 1.5rem;
-  font-weight: bold;
-  transition: all var(--transition-fast);
-  z-index: 210;
-  /* Ensure above modal content and nav */
-}
-
-.modal__close:hover {
-  background: var(--text-primary);
-  color: var(--text-inverted);
-  border-color: var(--text-primary);
-}
-
-/* ============================================
    Responsive Utilities
    ============================================ */
 @media (max-width: 1024px) {
@@ -1686,43 +1636,6 @@ section {
   opacity: 0.25;
 }
 
-/* Case Study Modal Wave Decorations */
-.wave-decoration--modal-top-left {
-  top: 5%;
-  left: -80px;
-  width: 350px;
-  height: 300px;
-  transform: rotate(15deg);
-  opacity: 0.3;
-}
-
-.wave-decoration--modal-top-right {
-  top: 8%;
-  right: -60px;
-  width: 280px;
-  height: 280px;
-  transform: rotate(-20deg);
-  opacity: 0.35;
-}
-
-.wave-decoration--modal-mid-right {
-  top: 40%;
-  right: -100px;
-  width: 420px;
-  height: 350px;
-  transform: rotate(12deg);
-  opacity: 0.28;
-}
-
-.wave-decoration--modal-bottom-left {
-  bottom: 10%;
-  left: -70px;
-  width: 380px;
-  height: 320px;
-  transform: rotate(-18deg);
-  opacity: 0.32;
-}
-
 /* Additional section decorations for more variety */
 .wave-decoration--about-bottom {
   bottom: 15%;
@@ -2123,70 +2036,6 @@ section {
 @media (max-width: 768px) {
   .dot-nav {
     display: none;
-  }
-}
-
-/* ============================================
-   Modal Navigation - Prev/Next
-   ============================================ */
-.modal__nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  gap: var(--space-sm);
-  z-index: 10;
-}
-
-.modal__nav--prev {
-  left: var(--space-lg);
-}
-
-.modal__nav--next {
-  right: calc(var(--space-lg) + 60px);
-}
-
-.modal__nav-btn {
-  width: 48px;
-  height: 48px;
-  background: var(--bg-primary);
-  border: 2px solid var(--text-primary);
-  color: var(--text-primary);
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal__nav-btn:hover {
-  background: var(--text-primary);
-  color: var(--text-inverted);
-}
-
-.modal__nav-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-/* Responsive nav buttons */
-@media (max-width: 768px) {
-
-  .modal__nav--prev,
-  .modal__nav--next {
-    position: fixed;
-    top: auto;
-    bottom: var(--space-lg);
-    transform: none;
-  }
-
-  .modal__nav--prev {
-    left: var(--space-md);
-  }
-
-  .modal__nav--next {
-    right: var(--space-md);
   }
 }
 
@@ -3407,7 +3256,7 @@ section {
 }
 
 /* ============================================
-   Case-study template shared by modal and page
+   Case-study page template
    ============================================ */
 .case-study__meta {
   display: flex;
@@ -3660,4 +3509,23 @@ section {
     font-size: 0.65rem;
     white-space: nowrap;
   }
+}
+
+/* ============================================
+   Page transitions - real page loads cross-fade instead of flashing; the
+   header stays put. Browsers without support just load the page normally.
+   ============================================ */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+.nav {
+  view-transition-name: site-nav;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
 }
