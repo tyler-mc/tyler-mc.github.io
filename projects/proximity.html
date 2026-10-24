@@ -94,6 +94,8 @@
                 <ol>
                     <li><a href="#owned">What I owned</a></li>
                     <li><a href="#idea">The idea</a></li>
+                    <li><a href="#proto">Prototyping the story</a></li>
+                    <li><a href="#surgery">Conversation as gameplay</a></li>
                     <li><a href="#lou">Building Lou</a></li>
                     <li><a href="#team">Pitch and team</a></li>
                     <li><a href="#learned">What I learned</a></li>
@@ -127,7 +129,25 @@
                 <p>I secured closed beta access to GPT-3 and started working directly with OpenAI to
                     understand what these models could actually do in an interactive context.</p>
 
-                <h2 class="cs-h2" id="lou"><span class="cs-h2__num">03</span>Building Lou</h2>
+                <h2 class="cs-h2" id="proto"><span class="cs-h2__num">03</span>Prototyping the story</h2>
+                <p>An early blockout prototype of the story beats in VR. Each beat is written into the scene, and the player grabs to move on to the next one.</p>
+                <figure><video src="../images/proximity_beat_boot.mp4" poster="../images/proximity_beat_boot_poster.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Early blockout prototype: a blue robot with its hands on its head in a grey room, with the story beat written in yellow text and a Grab to continue block"></video>
+                    <figcaption>The robot boots up and the player can talk to him.</figcaption>
+                </figure>
+                <figure><video src="../images/proximity_beat_puzzle.mp4" poster="../images/proximity_beat_puzzle_poster.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Early blockout prototype: the blue robot in a desert with yellow text describing the player plugging a memory shard into it"></video>
+                    <figcaption>The player plugs a memory shard into the robot.</figcaption>
+                </figure>
+
+                <h2 class="cs-h2" id="surgery"><span class="cs-h2__num">04</span>Conversation as gameplay</h2>
+                <p>The surgery sequence is built around talking with Lou. The player searches for the malware, describes it to Lou out loud, and if the description is right Lou creates an antibody and unlocks the heart. The player then guides the heart to the antibody and on to the malware, and repeats the sequence until every area of the body is clear.</p>
+                <figure class="cs-doc"><a href="../images/proximity_surgery_flow.webp" target="_blank" rel="noopener"><img src="../images/proximity_surgery_flow.webp" alt="Flowchart of the surgery sequence: search for malware, describe it to Lou, guide the heart to the antibody, then guide the powered heart to the malware, looping until all areas are cleared" width="1500" height="918" loading="lazy"></a>
+                    <figcaption>The surgery flow, with the failure and timeout loops.</figcaption>
+                </figure>
+                <figure class="cs-doc"><a href="../images/proximity_surgery_flow_simple.webp" target="_blank" rel="noopener"><img src="../images/proximity_surgery_flow_simple.webp" alt="A simpler flowchart of the surgery sequence ending with Lou dying and being revived by mirror energy" width="1286" height="520" loading="lazy"></a>
+                    <figcaption>A simpler version of the same flow.</figcaption>
+                </figure>
+
+                <h2 class="cs-h2" id="lou"><span class="cs-h2__num">05</span>Building Lou</h2>
                 <p>I created and set up all of Lou's interactions and animations with a combo of myself in a mocap suit,
                     hand animating and FinalIK implementation.</p>
                 <figure><img src="../images/Proximity_Shot2.webp" alt="Lou, a lanky robot with a yellow boxy head, stands in a cramped outpost room; the wrist display reads Lou: How about a high five?" loading="lazy">
@@ -138,7 +158,7 @@
                     <figcaption>Proximity gameplay</figcaption>
                 </figure>
 
-                <h2 class="cs-h2" id="team"><span class="cs-h2__num">04</span>Pitch and team</h2>
+                <h2 class="cs-h2" id="team"><span class="cs-h2__num">06</span>Pitch and team</h2>
                 <p>This was a passion project created with a team of around 5 people started by myself and my co-founder
                     Matt. With my experience in games and design and Matt's experience in writing and narrative we set out
                     to create this interactive VR experience.</p>
@@ -146,7 +166,7 @@
                     hired a team to help create it, and that core team of 5 completed the fully playable experience.</p>
                 <p>We built the base framework for Proximity together with Playabl Studios. The game had a limited private release.</p>
 
-                <h2 class="cs-h2" id="learned"><span class="cs-h2__num">05</span>What I learned</h2>
+                <h2 class="cs-h2" id="learned"><span class="cs-h2__num">07</span>What I learned</h2>
                 <p>Proximity and FORM both taught me a lot about how quickly you can get to the truth of whether something
                     is actually fun when you're working fast and hands-on.</p>
 
