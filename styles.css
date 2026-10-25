@@ -4107,6 +4107,12 @@ section {
   }
 }
 
+/* a board with one frame sits in the middle instead of leaving the left half empty */
+.miro__grid > .miro-frame--inset:only-child {
+  justify-self: center;
+  margin-right: 0;
+}
+
 .miro-frame--snug {
   --w: 40rem;
   justify-self: start;
