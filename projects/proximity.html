@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
-    <link rel="stylesheet" href="../styles.css?v=94a1d4ae">
+    <link rel="stylesheet" href="../styles.css?v=2f400ba3">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
@@ -130,7 +130,7 @@
                     understand what these models could actually do in an interactive context.</p>
 
                 <h2 class="cs-h2" id="proto"><span class="cs-h2__num">03</span>Prototyping the story</h2>
-                <p>An early blockout prototype of the story beats in VR. Each beat is written into the scene, and the player grabs to move on to the next one.</p>
+                <p>I created a 'VR storyboard' where I blocked out and posed all the major beats to show the flow and narrative structure. I did this before art was requested and before I created and hooked up all the animations.</p>
                 <figure><video src="../images/proximity_beat_boot.mp4" poster="../images/proximity_beat_boot_poster.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Early blockout prototype: a blue robot with its hands on its head in a grey room, with the story beat written in yellow text and a Grab to continue block"></video>
                     <figcaption>The robot boots up and the player can talk to him.</figcaption>
                 </figure>
@@ -150,21 +150,58 @@
                 <h2 class="cs-h2" id="lou"><span class="cs-h2__num">05</span>Building Lou</h2>
                 <p>I created and set up all of Lou's interactions and animations with a combo of myself in a mocap suit,
                     hand animating and FinalIK implementation.</p>
-                <div class="miro" role="group" aria-label="Diagram of a mocap suit, hand animating and FinalIK combining into Lou's interactions and animations">
-                    <div class="miro-frame miro-frame--inset">
-                        <p class="miro-frame__title">Building Lou</p>
-                        <div class="miro-merge">
-                            <ul class="miro-stack" role="list">
-                                <li class="miro-note miro-note--blue">Mocap suit</li>
-                                <li class="miro-note miro-note--yellow">Hand animating</li>
-                                <li class="miro-note miro-note--green">FinalIK</li>
-                            </ul>
-                            <svg class="miro-merge__lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 0H30C62 0 66 50 100 50"/><path d="M0 50H100"/><path d="M0 100H30C62 100 66 50 100 50"/></svg>
-                            <div class="miro-shape">Lou's interactions and animations</div>
-                            <p class="miro-comment miro-note--orange">A combo of all three, with me in the mocap suit.</p>
-                        </div>
+                <figure class="dg" role="group" aria-label="Diagram of a mocap suit, hand animating and FinalIK combining into Lou's interactions and animations">
+                    <div class="dg__frame">
+                        <svg class="dg__wide" viewBox="0 0 720 256" role="img" aria-label="Three inputs, mocap suit, hand animating and FinalIK, merge into one output: Lou's interactions and animations">
+                            <defs><marker id="px-w-ah" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path class="ink-fill" d="M0 1L12 6L0 11Z"/></marker></defs>
+                            <text class="t-s t-caps t-muted" x="16" y="14">Inputs</text>
+                            <text class="t-s t-caps t-muted" x="528" y="82">Output</text>
+                            <rect class="paper" x="16" y="24" width="220" height="56"/><path class="ink-thin" d="M72 24V80"/>
+                            <rect class="paper" x="16" y="104" width="220" height="56"/><path class="ink-thin" d="M72 104V160"/>
+                            <rect class="paper" x="16" y="184" width="220" height="56"/><path class="ink-thin" d="M72 184V240"/>
+                            <g><circle class="ink" cx="44" cy="37" r="5"/><path class="ink" d="M44 42V58M33 47H55M44 58L37 70M44 58L51 70"/><circle class="red-fill" cx="33" cy="47" r="2.4"/><circle class="red-fill" cx="55" cy="47" r="2.4"/><circle class="red-fill" cx="44" cy="58" r="2.4"/><circle class="red-fill" cx="37" cy="70" r="2.4"/><circle class="red-fill" cx="51" cy="70" r="2.4"/></g>
+                            <g><path class="ink-thin" d="M24 142C32 142 36 120 44 120S56 140 64 140"/><path class="ink-fill" d="M24 137.5L28.5 142L24 146.5L19.5 142ZM44 115.5L48.5 120L44 124.5L39.5 120ZM64 135.5L68.5 140L64 144.5L59.5 140Z"/></g>
+                            <g><path class="ink" d="M24 226L36 202L56 214"/><circle class="paper" cx="24" cy="226" r="3.5"/><circle class="paper" cx="36" cy="202" r="3.5"/><circle class="red" style="stroke-width:1.5" cx="56" cy="214" r="7"/><path class="red" style="stroke-width:1.5" d="M56 203V225M45 214H67"/></g>
+                            <text class="t-b" x="88" y="50">Mocap suit</text><text class="t-muted" x="88" y="68">with me in it</text>
+                            <text class="t-b" x="88" y="137">Hand animating</text>
+                            <text class="t-b" x="88" y="217">FinalIK</text>
+                            <path class="ink" d="M236 52C282 52 278 132 314 132M236 132H314M236 212C282 212 278 132 314 132"/>
+                            <circle class="paper" style="stroke:var(--accent-red);stroke-width:2.5" cx="330" cy="132" r="16"/>
+                            <path class="red" d="M330 124V140M322 132H338"/>
+                            <path class="ink" d="M346 132H526" marker-end="url(#px-w-ah)"/>
+                            <text class="t-red" x="436" y="122" text-anchor="middle">combo of all three</text>
+                            <rect class="paper" x="528" y="92" width="184" height="80"/>
+                            <rect class="ink-thin" x="533" y="97" width="174" height="70"/>
+                            <text class="t-b" x="620" y="128" text-anchor="middle">Lou's interactions</text>
+                            <text class="t-b" x="620" y="146" text-anchor="middle">and animations</text>
+                        </svg>
+                        <svg class="dg__narrow" viewBox="0 0 330 326" role="img" aria-label="Three inputs, mocap suit, hand animating and FinalIK, merge into one output: Lou's interactions and animations">
+                            <defs><marker id="px-n-ah" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path class="ink-fill" d="M0 1L12 6L0 11Z"/></marker></defs>
+                            <text class="t-caps t-muted" x="6" y="14">Inputs</text>
+                            <rect class="paper" x="6" y="22" width="100" height="100"/>
+                            <rect class="paper" x="115" y="22" width="100" height="100"/>
+                            <rect class="paper" x="224" y="22" width="100" height="100"/>
+                            <g transform="translate(12 0)"><g><circle class="ink" cx="44" cy="37" r="5"/><path class="ink" d="M44 42V58M33 47H55M44 58L37 70M44 58L51 70"/><circle class="red-fill" cx="33" cy="47" r="2.4"/><circle class="red-fill" cx="55" cy="47" r="2.4"/><circle class="red-fill" cx="44" cy="58" r="2.4"/><circle class="red-fill" cx="37" cy="70" r="2.4"/><circle class="red-fill" cx="51" cy="70" r="2.4"/></g></g>
+                            <g transform="translate(121 -80)"><g><path class="ink-thin" d="M24 142C32 142 36 120 44 120S56 140 64 140"/><path class="ink-fill" d="M24 137.5L28.5 142L24 146.5L19.5 142ZM44 115.5L48.5 120L44 124.5L39.5 120ZM64 135.5L68.5 140L64 144.5L59.5 140Z"/></g></g>
+                            <g transform="translate(230 -160)"><g><path class="ink" d="M24 226L36 202L56 214"/><circle class="paper" cx="24" cy="226" r="3.5"/><circle class="paper" cx="36" cy="202" r="3.5"/><circle class="red" style="stroke-width:1.5" cx="56" cy="214" r="7"/><path class="red" style="stroke-width:1.5" d="M56 203V225M45 214H67"/></g></g>
+                            <text class="t-b" x="56" y="94" text-anchor="middle">Mocap suit</text><text class="t-muted" x="56" y="111" text-anchor="middle">me in it</text>
+                            <text class="t-b" x="165" y="94" text-anchor="middle">Hand</text>
+                            <text class="t-b" x="165" y="111" text-anchor="middle">animating</text>
+                            <text class="t-b" x="274" y="100" text-anchor="middle">FinalIK</text>
+                            <path class="ink" d="M56 122C56 152 165 138 165 164M165 122V164M274 122C274 152 165 138 165 164"/>
+                            <circle class="paper" style="stroke:var(--accent-red);stroke-width:2.5" cx="165" cy="180" r="16"/>
+                            <path class="red" d="M165 172V188M157 180H173"/>
+                            <path class="ink" d="M165 196V256" marker-end="url(#px-n-ah)"/>
+                            <text class="t-red" x="177" y="222">combo of</text>
+                            <text class="t-red" x="177" y="238">all three</text>
+                            <text class="t-caps t-muted" x="40" y="250">Output</text>
+                            <rect class="paper" x="40" y="258" width="250" height="62"/>
+                            <rect class="ink-thin" x="45" y="263" width="240" height="52"/>
+                            <text class="t-b" x="165" y="286" text-anchor="middle">Lou's interactions</text>
+                            <text class="t-b" x="165" y="303" text-anchor="middle">and animations</text>
+                        </svg>
                     </div>
-                </div>
+                </figure>
                 <figure><img src="../images/Proximity_Shot2.webp" alt="Lou, a lanky robot with a yellow boxy head, stands in a cramped outpost room; the wrist display reads Lou: How about a high five?" loading="lazy">
                     <figcaption>Lou in the outpost. The wrist display shows Lou offering a high five.</figcaption>
                 </figure>

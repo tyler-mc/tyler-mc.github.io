@@ -63,7 +63,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="../styles.css?v=94a1d4ae">
+    <link rel="stylesheet" href="../styles.css?v=2f400ba3">
 
     <!-- Favicon -->
     <link rel="icon" href="../favicon.ico" sizes="any">
@@ -186,28 +186,96 @@
                 <p>By using the body as a controller, our intent was to make those moments engaging and active. NPCs see
                     you and what you are doing, not just respond to the choice you select. We wanted to put people in
                     situations and lower the need for menu selections.</p>
-                <div class="miro" role="group" aria-label="Diagram comparing waiting and menus with participatory drama">
-                    <div class="miro__grid miro__grid--linked">
-                        <div class="miro-frame">
-                            <p class="miro-frame__title">The problem: standing around</p>
-                            <ol class="miro-flow miro-flow--col" role="list">
-                                <li class="miro-note miro-note--gray">An NPC talks</li>
-                                <li class="miro-note miro-note--gray miro-note--lg">You stand and wait</li>
-                                <li class="miro-note miro-note--gray">You pick from a menu</li>
-                            </ol>
-                            <p class="miro-comment miro-note--orange">In VR, doing nothing while waiting for people to finish talking.</p>
-                        </div>
-                        <div class="miro-frame">
-                            <p class="miro-frame__title">The intent: participatory drama</p>
-                            <ol class="miro-flow miro-flow--col" role="list">
-                                <li class="miro-note miro-note--green">An NPC sees you and what you are doing</li>
-                                <li class="miro-note miro-note--green miro-note--lg">You respond with your body</li>
-                                <li class="miro-note miro-note--green">The moment stays engaging and active</li>
-                            </ol>
-                            <p class="miro-comment miro-note--blue">The body is the controller, with less need for menu selections.</p>
-                        </div>
+                <figure class="dg" role="group" aria-label="Diagram comparing waiting and menus with participatory drama">
+                    <div class="dg__frame">
+                        <svg class="dg__wide" viewBox="0 0 720 376" role="img" aria-label="Two sequence charts between an NPC and you. The problem: an NPC talks, you stand and wait, then you pick from a menu. The intent, participatory drama: an NPC sees you and what you are doing, you respond with your body, and the moment stays engaging and active.">
+                            <defs><marker id="jf-w-a" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path class="ink-fill" d="M0 1L12 6L0 11Z"/></marker><marker id="jf-w-t" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path class="ink-fill" d="M0 1L12 6L0 11Z"/></marker><marker id="jf-w-r" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="13" markerHeight="13" markerUnits="userSpaceOnUse" orient="auto"><path class="red-fill" d="M0 1L12 6L0 11Z"/></marker></defs>
+                            <text class="t-b" x="8" y="20">The problem: standing around</text>
+                            <rect class="paper" x="20" y="34" width="72" height="28"/><text x="56" y="53" text-anchor="middle">NPC</text>
+                            <path class="ink-dash" d="M56 62V322"/>
+                            <rect class="paper" x="180" y="34" width="72" height="28"/><text x="216" y="53" text-anchor="middle">You</text>
+                            <path class="ink-dash" d="M216 62V322"/>
+                            <rect class="paper" x="50" y="84" width="12" height="160"/>
+                            <rect class="tint" x="210" y="84" width="12" height="160"/><rect class="ink-thin" x="210" y="84" width="12" height="160"/>
+                            <path class="ink-thin" d="M62 110H208" marker-end="url(#jf-w-t)"/>
+                            <path class="ink-thin" d="M62 150H208" marker-end="url(#jf-w-t)"/>
+                            <path class="ink-thin" d="M62 190H208" marker-end="url(#jf-w-t)"/>
+                            <path class="ink-thin" d="M62 230H208" marker-end="url(#jf-w-t)"/>
+                            <text x="136" y="102" text-anchor="middle">An NPC talks</text>
+                            <path class="ink-thin" d="M230 84H238V244H230"/>
+                            <text class="t-b" x="246" y="160">You stand</text><text class="t-b" x="246" y="178">and wait</text>
+                            <rect class="paper" x="230" y="262" width="44" height="40"/><path class="ink-thin" d="M238 273H266M238 282H266M238 291H266"/>
+                            <text x="136" y="272" text-anchor="middle">You pick</text><text x="136" y="289" text-anchor="middle">from a menu</text>
+                            <path class="ink" d="M216 300H58" marker-end="url(#jf-w-a)"/>
+                            <text class="t-muted" x="8" y="350">In VR, doing nothing while waiting</text>
+                            <text class="t-muted" x="8" y="367">for people to finish talking.</text>
+                            <path class="ink-thin" d="M362 8V368"/>
+                            <text class="t-b" x="384" y="20">The intent: participatory drama</text>
+                            <rect class="paper" x="396" y="34" width="72" height="28"/><text x="432" y="53" text-anchor="middle">NPC</text>
+                            <path class="ink-dash" d="M432 62V322"/>
+                            <rect class="paper" x="556" y="34" width="72" height="28"/><text x="592" y="53" text-anchor="middle">You</text>
+                            <path class="ink-dash" d="M592 62V322"/>
+                            <rect class="paper" x="426" y="84" width="12" height="216"/>
+                            <rect class="red-fill" x="586" y="84" width="12" height="216"/>
+                            <text x="512" y="102" text-anchor="middle">An NPC sees</text><text x="512" y="119" text-anchor="middle">you and what</text><text x="512" y="136" text-anchor="middle">you are doing</text>
+                            <path class="ink-dash" d="M438 150H584" marker-end="url(#jf-w-a)"/>
+                            <text class="t-red t-b" x="512" y="196" text-anchor="middle">You respond</text><text class="t-red t-b" x="512" y="212" text-anchor="middle">with your body</text>
+                            <path class="red" d="M586 226H441" marker-end="url(#jf-w-r)"/>
+                            <path class="ink-thin" d="M606 84H614V300H606"/>
+                            <text class="t-b" x="622" y="170">The moment</text>
+                            <text class="t-b" x="622" y="188">stays</text>
+                            <text class="t-b" x="622" y="206">engaging</text>
+                            <text class="t-b" x="622" y="224">and active</text>
+                            <text class="t-muted" x="384" y="350">The body is the controller, with</text>
+                            <text class="t-muted" x="384" y="367">less need for menu selections.</text>
+                        </svg>
+                        <svg class="dg__narrow" viewBox="0 0 330 786" role="img" aria-label="Two sequence charts between an NPC and you. The problem: an NPC talks, you stand and wait, then you pick from a menu. The intent, participatory drama: an NPC sees you and what you are doing, you respond with your body, and the moment stays engaging and active.">
+                            <defs><marker id="jf-n-a" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path class="ink-fill" d="M0 1L12 6L0 11Z"/></marker><marker id="jf-n-t" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path class="ink-fill" d="M0 1L12 6L0 11Z"/></marker><marker id="jf-n-r" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="13" markerHeight="13" markerUnits="userSpaceOnUse" orient="auto"><path class="red-fill" d="M0 1L12 6L0 11Z"/></marker></defs>
+                            <text class="t-b" x="8" y="20">The problem: standing around</text>
+                            <rect class="paper" x="14" y="34" width="72" height="28"/><text x="50" y="53" text-anchor="middle">NPC</text>
+                            <path class="ink-dash" d="M50 62V322"/>
+                            <rect class="paper" x="164" y="34" width="72" height="28"/><text x="200" y="53" text-anchor="middle">You</text>
+                            <path class="ink-dash" d="M200 62V322"/>
+                            <rect class="paper" x="44" y="84" width="12" height="160"/>
+                            <rect class="tint" x="194" y="84" width="12" height="160"/><rect class="ink-thin" x="194" y="84" width="12" height="160"/>
+                            <path class="ink-thin" d="M56 110H192" marker-end="url(#jf-n-t)"/>
+                            <path class="ink-thin" d="M56 150H192" marker-end="url(#jf-n-t)"/>
+                            <path class="ink-thin" d="M56 190H192" marker-end="url(#jf-n-t)"/>
+                            <path class="ink-thin" d="M56 230H192" marker-end="url(#jf-n-t)"/>
+                            <text x="125" y="102" text-anchor="middle">An NPC talks</text>
+                            <path class="ink-thin" d="M214 84H222V244H214"/>
+                            <text class="t-b" x="230" y="160">You stand</text><text class="t-b" x="230" y="178">and wait</text>
+                            <rect class="paper" x="214" y="262" width="44" height="40"/><path class="ink-thin" d="M222 273H250M222 282H250M222 291H250"/>
+                            <text x="125" y="272" text-anchor="middle">You pick</text><text x="125" y="289" text-anchor="middle">from a menu</text>
+                            <path class="ink" d="M200 300H52" marker-end="url(#jf-n-a)"/>
+                            <text class="t-muted" x="8" y="350">In VR, doing nothing while</text>
+                            <text class="t-muted" x="8" y="367">waiting for people to</text>
+                            <text class="t-muted" x="8" y="384">finish talking.</text>
+                            <path class="ink-thin" d="M0 404H330"/>
+                            <text class="t-b" x="8" y="442">The intent: participatory drama</text>
+                            <rect class="paper" x="14" y="456" width="72" height="28"/><text x="50" y="475" text-anchor="middle">NPC</text>
+                            <path class="ink-dash" d="M50 484V744"/>
+                            <rect class="paper" x="164" y="456" width="72" height="28"/><text x="200" y="475" text-anchor="middle">You</text>
+                            <path class="ink-dash" d="M200 484V744"/>
+                            <rect class="paper" x="44" y="506" width="12" height="216"/>
+                            <rect class="red-fill" x="194" y="506" width="12" height="216"/>
+                            <text x="125" y="524" text-anchor="middle">An NPC sees</text>
+                            <text x="125" y="541" text-anchor="middle">you and what</text>
+                            <text x="125" y="558" text-anchor="middle">you are doing</text>
+                            <path class="ink-dash" d="M56 572H192" marker-end="url(#jf-n-a)"/>
+                            <text class="t-red t-b" x="125" y="626" text-anchor="middle">You respond</text><text class="t-red t-b" x="125" y="643" text-anchor="middle">with your body</text>
+                            <path class="red" d="M194 658H59" marker-end="url(#jf-n-r)"/>
+                            <path class="ink-thin" d="M214 506H222V722H214"/>
+                            <text class="t-b" x="230" y="592">The moment</text>
+                            <text class="t-b" x="230" y="610">stays</text>
+                            <text class="t-b" x="230" y="628">engaging</text>
+                            <text class="t-b" x="230" y="646">and active</text>
+                            <text class="t-muted" x="8" y="772">The body is the controller,</text>
+                            <text class="t-muted" x="8" y="789">with less need for menu</text>
+                            <text class="t-muted" x="8" y="806">selections.</text>
+                        </svg>
                     </div>
-                </div>
+                </figure>
                 <p>I was primarily responsible for directing and leading the narrative and UX teams and architecting their
                     underlying interaction systems. I'm particularly proud of the narrative we created. A mantra we used
                     was "participatory drama", where we wanted players to feel involved in the conversations through
@@ -221,12 +289,6 @@
 
                 <h2 class="cs-h2" id="docs"><span class="cs-h2__num">04</span>Design documentation</h2>
                 <p>Working documents from the project, shown as they were. Select an image to open it full size.</p>
-                <figure class="cs-doc"><a href="../images/jtf_mission1_beat_map.webp" target="_blank" rel="noopener"><img src="../images/jtf_mission1_beat_map.webp" alt="Map of the first mission as colour-coded beats: linear traversal, non-linear investigation, combat, conversation and disguise, with mechanic introductions and objective updates marked along the path" width="2400" height="1845" loading="lazy"></a>
-                    <figcaption>Colour marks the kind of beat: linear traversal, non-linear exploration, combat, conversation and disguise. Mechanic introductions and objective updates are marked along the path.</figcaption>
-                </figure>
-                <figure class="cs-doc"><a href="../images/jtf_design_process_flow.webp" target="_blank" rel="noopener"><img src="../images/jtf_design_process_flow.webp" alt="Flowchart of the design process from identifying a task to final sign-off" width="1800" height="922" loading="lazy"></a>
-                    <figcaption>A task is written up and sent to its owner, who makes a one-pager. It goes through review, stakeholder feedback and prototyping before a tests-for-completion doc, testing and final sign-off.</figcaption>
-                </figure>
                 <figure class="cs-doc"><a href="../images/jtf_first_playable_flow.webp" target="_blank" rel="noopener"><img src="../images/jtf_first_playable_flow.webp" alt="Flowchart of the first playable across six columns: ship, spaceport, cantina and back to the ship" width="1800" height="1628" loading="lazy"></a>
                     <figcaption>An early version of our first mission, made to structure pacing and action beats. The objective is to speak to the Chancellor in the spaceport and ask for ship clearance into the next sector, moving from the ship through exploring, infiltrating, a debate in the cantina and a combat finish.</figcaption>
                 </figure>

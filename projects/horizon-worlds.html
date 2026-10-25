@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
-    <link rel="stylesheet" href="../styles.css?v=94a1d4ae">
+    <link rel="stylesheet" href="../styles.css?v=2f400ba3">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
@@ -141,29 +141,103 @@
                     months) that would then ultimately be pushed live, put on hold, or cancelled by Meta.</p>
                 <p>Because the development tools were in a state of always being improved our work was occasionally subject
                     to being deprecated or put on hold until key features were integrated into the platform.</p>
-                <div class="miro" role="group" aria-label="Diagram of the short production cycles: each one pushed live, put on hold, or cancelled by Meta, and why some work went on hold">
-                    <div class="miro__grid">
-                        <div class="miro-frame">
-                            <p class="miro-frame__title">Short production cycles</p>
-                            <div class="miro-merge miro-merge--out">
-                                <div class="miro-shape">Each 3–6 month cycle</div>
-                                <svg class="miro-merge__lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 50H30C62 50 66 0 100 0"/><path d="M0 50H100"/><path d="M0 50H30C62 50 66 100 100 100"/></svg>
-                                <ul class="miro-stack" role="list">
-                                    <li class="miro-note miro-note--green">Pushed live</li>
-                                    <li class="miro-note miro-note--yellow">Put on hold</li>
-                                    <li class="miro-note miro-note--pink">Cancelled</li>
-                                </ul>
-                            </div>
-                            <p class="miro-comment miro-note--blue">Multiple cycles overlapped.</p>
-                        </div>
-                        <div class="miro-frame">
-                            <p class="miro-frame__title">Why work went on hold</p>
-                            <ol class="miro-flow miro-flow--col" role="list">
-                                <li class="miro-note miro-note--gray">The development tools were always being improved</li>
-                                <li class="miro-note miro-note--yellow">Some work was deprecated or put on hold</li>
-                            </ol>
-                            <p class="miro-comment miro-note--orange">Until key features were integrated into the platform.</p>
-                        </div>
+                <figure class="dg" role="group" aria-label="Diagram of the short production cycles: overlapping cycles, each pushed live, put on hold, or cancelled by Meta">
+                    <div class="dg__frame">
+                        <svg class="dg__wide" viewBox="0 0 720 300" role="img" aria-label="Overlapping production cycles of 3 to 6 months on a timeline. Each cycle ends at a decision by Meta: pushed live, put on hold, or cancelled.">
+                            <defs><marker id="hw-w-ah" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path class="ink-fill" d="M0 1L12 6L0 11Z"/></marker></defs>
+                            <text class="t-s t-caps t-muted" x="40" y="20">Short production cycles</text>
+                            <path class="red-fill" d="M572 10L578 16L572 22L566 16Z"/><text x="584" y="20">decided by Meta</text>
+                            <rect class="tint" x="170" y="78" width="130" height="78"/>
+                            <rect class="tint" x="330" y="128" width="110" height="78"/>
+                            <rect class="tint" x="480" y="178" width="110" height="78"/>
+                            <text class="t-muted" x="235" y="172" text-anchor="middle">overlap</text>
+                            <path class="ink-thin" d="M40 62H300M40 56V68M300 56V68"/>
+                            <text x="170" y="52" text-anchor="middle">3–6 months</text>
+                            <rect class="paper" x="40" y="78" width="260" height="28"/>
+                            <rect class="paper" x="170" y="128" width="270" height="28"/>
+                            <rect class="paper" x="330" y="178" width="260" height="28"/>
+                            <path class="ink-dash" d="M712 228H480V256H712"/>
+                            <path class="ink" d="M307 92H338" marker-end="url(#hw-w-ah)"/>
+                            <text class="t-b" x="348" y="97">Pushed live</text>
+                            <path class="ink" style="stroke-dasharray:2 4" d="M447 142H474"/>
+                            <path class="ink-fill" d="M480 135h3.5v14H480zM487 135h3.5v14H487z"/>
+                            <text class="t-b" x="502" y="147">Put on hold</text>
+                            <path class="ink" d="M601 186L613 198M613 186L601 198"/>
+                            <text class="t-b" x="622" y="197">Cancelled</text>
+                            <path class="red-fill" d="M300 85L307 92L300 99L293 92Z"/>
+                            <path class="red-fill" d="M440 135L447 142L440 149L433 142Z"/>
+                            <path class="red-fill" d="M590 185L597 192L590 199L583 192Z"/>
+                            <path class="ink" d="M40 282H704" marker-end="url(#hw-w-ah)"/>
+                            <text class="t-muted" x="704" y="274" text-anchor="end">time</text>
+                        </svg>
+                        <svg class="dg__narrow" viewBox="0 0 330 330" role="img" aria-label="Overlapping production cycles of 3 to 6 months on a timeline. Each cycle ends at a decision by Meta: pushed live, put on hold, or cancelled.">
+                            <defs><marker id="hw-n-ah" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path class="ink-fill" d="M0 1L12 6L0 11Z"/></marker></defs>
+                            <text class="t-caps t-muted" x="8" y="16">Short production cycles</text>
+                            <path class="red-fill" d="M14 30L20 36L14 42L8 36Z"/><text x="26" y="41">decided by Meta</text>
+                            <rect class="tint" x="88" y="80" width="80" height="82"/>
+                            <rect class="tint" x="168" y="144" width="80" height="82"/>
+                            <rect class="tint" x="248" y="208" width="68" height="82"/>
+                            <path class="ink-thin" d="M8 72H168M8 66V78M168 66V78"/>
+                            <text x="88" y="62" text-anchor="middle">3–6 months</text>
+                            <rect class="paper" x="8" y="80" width="160" height="24"/>
+                            <rect class="paper" x="88" y="144" width="160" height="24"/>
+                            <rect class="paper" x="168" y="208" width="148" height="24"/>
+                            <path class="ink-dash" d="M330 272H248V296H330"/>
+                            <path class="red-fill" d="M168 86L174 92L168 98L162 92Z"/>
+                            <path class="red-fill" d="M248 150L254 156L248 162L242 156Z"/>
+                            <path class="red-fill" d="M316 214L322 220L316 226L310 220Z"/>
+                            <path class="ink" d="M56 125H76" marker-end="url(#hw-n-ah)"/>
+                            <text class="t-b" x="168" y="130" text-anchor="end">Pushed live</text>
+                            <path class="ink" style="stroke-dasharray:2 4" d="M122 189H138"/>
+                            <path class="ink-fill" d="M141 182h3.5v14H141zM148 182h3.5v14H148z"/>
+                            <text class="t-b" x="248" y="194" text-anchor="end">Put on hold</text>
+                            <path class="ink" d="M226 247L238 259M238 247L226 259"/>
+                            <text class="t-b" x="316" y="258" text-anchor="end">Cancelled</text>
+                            <path class="ink" d="M8 314H324" marker-end="url(#hw-n-ah)"/>
+                            <text class="t-muted" x="8" y="306">time</text>
+                        </svg>
+                    </div>
+                    <figcaption>Multiple cycles overlapped.</figcaption>
+                </figure>
+                <div class="miro" role="group" aria-label="Diagram of why some work went on hold: the development tools were always being improved, so some work was deprecated or put on hold until key features were integrated into the platform">
+                    <div class="miro-frame">
+                        <p class="miro-frame__title">Why work went on hold</p>
+                        <svg class="miro-svg miro-svg--wide" viewBox="0 0 660 200" role="img" aria-label="The development tools were always being improved, so occasionally some work was deprecated or put on hold, until key features were integrated into the platform">
+                            <defs><filter id="hw-mw-sh" x="-10%" y="-10%" width="130%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000" flood-opacity="0.18"/></filter><marker id="hw-mw-ah" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 1L12 6L0 11Z" fill="#1a1a1a"/></marker></defs>
+                            <g font-size="14" fill="#1a1a1a" text-anchor="middle">
+                                <rect x="16" y="36" width="140" height="140" fill="#e6e6e6" filter="url(#hw-mw-sh)"/>
+                                <text x="86" y="84">The development</text><text x="86" y="102">tools were</text><text x="86" y="120">always being</text><text x="86" y="138">improved</text>
+                                <path d="M156 106H248" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+                                <circle cx="248" cy="106" r="4.5" fill="#1a1a1a"/>
+                                <text x="202" y="96" font-size="13" fill="#6b6f80">occasionally</text>
+                                <path d="M248 106H266Q274 106 274 98V64Q274 56 282 56H300" fill="none" stroke="#1a1a1a" stroke-width="2" marker-end="url(#hw-mw-ah)"/><path d="M248 106H266Q274 106 274 114V148Q274 156 282 156H300" fill="none" stroke="#1a1a1a" stroke-width="2" marker-end="url(#hw-mw-ah)"/>
+                                <rect x="302" y="30" width="150" height="52" rx="10" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+                                <text x="377" y="61">Put on hold</text>
+                                <rect x="302" y="130" width="150" height="52" rx="10" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+                                <text x="377" y="161">Deprecated</text>
+                                <path d="M452 56H506" fill="none" stroke="#1a1a1a" stroke-width="2" marker-end="url(#hw-mw-ah)"/>
+                                <rect x="510" y="0" width="126" height="126" fill="#ffd8a8" filter="url(#hw-mw-sh)"/>
+                                <g font-size="13"><text x="573" y="38">Until key</text><text x="573" y="56">features were</text><text x="573" y="74">integrated into</text><text x="573" y="92">the platform.</text></g>
+                            </g>
+                        </svg>
+                        <svg class="miro-svg miro-svg--narrow" viewBox="0 0 290 432" role="img" aria-label="The development tools were always being improved, so occasionally some work was deprecated or put on hold, until key features were integrated into the platform">
+                            <defs><filter id="hw-mn-sh" x="-10%" y="-10%" width="130%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000" flood-opacity="0.18"/></filter><marker id="hw-mn-ah" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 1L12 6L0 11Z" fill="#1a1a1a"/></marker></defs>
+                            <g font-size="14" fill="#1a1a1a" text-anchor="middle">
+                                <rect x="80" y="6" width="130" height="130" fill="#e6e6e6" filter="url(#hw-mn-sh)"/>
+                                <text x="145" y="48">The development</text><text x="145" y="66">tools were</text><text x="145" y="84">always being</text><text x="145" y="102">improved</text>
+                                <path d="M145 136V180" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+                                <circle cx="145" cy="180" r="4.5" fill="#1a1a1a"/>
+                                <text x="154" y="164" font-size="13" fill="#6b6f80" text-anchor="start">occasionally</text>
+                                <path d="M145 180V188Q145 196 137 196H83Q75 196 75 204V212" fill="none" stroke="#1a1a1a" stroke-width="2" marker-end="url(#hw-mn-ah)"/><path d="M145 180V188Q145 196 153 196H207Q215 196 215 204V212" fill="none" stroke="#1a1a1a" stroke-width="2" marker-end="url(#hw-mn-ah)"/>
+                                <rect x="10" y="214" width="130" height="50" rx="10" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+                                <text x="75" y="244">Put on hold</text>
+                                <rect x="150" y="214" width="130" height="50" rx="10" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+                                <text x="215" y="244">Deprecated</text>
+                                <path d="M75 264V294" fill="none" stroke="#1a1a1a" stroke-width="2" marker-end="url(#hw-mn-ah)"/>
+                                <rect x="12" y="296" width="126" height="126" fill="#ffd8a8" filter="url(#hw-mn-sh)"/>
+                                <g font-size="13"><text x="75" y="334">Until key</text><text x="75" y="352">features were</text><text x="75" y="370">integrated into</text><text x="75" y="388">the platform.</text></g>
+                            </g>
+                        </svg>
                     </div>
                 </div>
 
