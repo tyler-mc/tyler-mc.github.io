@@ -4747,6 +4747,14 @@ section {
   max-width: 24rem;
 }
 
+.pw-art--regions {
+  max-width: 36rem;
+}
+
+.case-study--page .case-study__content .pw-art--regions img {
+  border: 0;
+}
+
 /* Real design documents on case-study pages: shown flat and full width, open full size on click */
 .cs-doc {
   margin: 1.75rem 0;
