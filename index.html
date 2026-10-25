@@ -22,7 +22,7 @@
   <meta property="og:title" content="Tyler McCulloch | Game Designer &amp; Director">
   <meta property="og:description"
     content="Game Designer and Director with 22+ years experience. From Pistol Whip to Bully, delivering exceptional player experiences through design excellence, team leadership, and technical fluency.">
-  <meta property="og:image" content="https://jtylermc.ca/images/theme_banner_05.jpeg">
+  <meta property="og:image" content="https://jtylermc.ca/images/og-cover.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="Tyler McCulloch Portfolio">
@@ -34,7 +34,7 @@
   <meta name="twitter:title" content="Tyler McCulloch | Game Designer &amp; Director">
   <meta name="twitter:description"
     content="Game Designer and Director with 22+ years experience. From Pistol Whip to Bully, delivering exceptional player experiences through design excellence.">
-  <meta name="twitter:image" content="https://jtylermc.ca/images/theme_banner_05.jpeg">
+  <meta name="twitter:image" content="https://jtylermc.ca/images/og-cover.jpg">
 
   <!-- Additional SEO -->
   <meta name="theme-color" content="#0a0a0a">
@@ -113,9 +113,9 @@
         "position": 2,
         "item": {
           "@type": "VideoGame",
-          "name": "FORM",
-          "description": "Award-winning surreal VR narrative puzzle game",
-          "genre": ["VR", "Puzzle", "Narrative"]
+          "name": "Journey to Foundation",
+          "description": "VR roleplaying adventure based on Isaac Asimov's Foundation saga",
+          "genre": ["VR", "Adventure", "Narrative"]
         }
       },
       {
@@ -123,13 +123,9 @@
         "position": 3,
         "item": {
           "@type": "VideoGame",
-          "name": "Bully",
-          "description": "Rockstar's beloved open-world action-adventure",
-          "genre": ["Action", "Adventure", "Open World"],
-          "publisher": {
-            "@type": "Organization",
-            "name": "Rockstar Games"
-          }
+          "name": "Flourish",
+          "description": "VR physiotherapy game that turns exercises into magical spells",
+          "genre": ["VR", "Health", "Fantasy"]
         }
       }
     ]
@@ -139,19 +135,19 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=2d903dd0">
+  <link rel="stylesheet" href="styles.css?v=886f7a89">
 
   <!-- Favicon -->
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/projects/*"},"eagerness":"moderate"}]}</script>
 </head>
 
 <body>
-  <canvas id="globalParticles" class="global-particles"></canvas>
-
   <!-- Navigation -->
   <nav class="nav" id="nav">
     <div class="container nav__inner">
@@ -159,11 +155,9 @@
         <img src="images/WavyLineCircles/Wavy Line 7.png" alt="J Tyler McCulloch" id="logoImage">
       </a>
       <ul class="nav__links" id="navLinks">
-        <li><a href="#featured" class="nav__link">Work</a></li>
+        <li><a href="#work" class="nav__link">Work</a></li>
         <li><a href="#about" class="nav__link">About</a></li>
-        <li><a href="#approach" class="nav__link">Approach</a></li>
-        <li><a href="#experience" class="nav__link">Timeline</a></li>
-        <li><a href="#work" class="nav__link">Portfolio</a></li>
+        <li><a href="#experience" class="nav__link">Experience</a></li>
         <li><a href="#contact" class="nav__link">Contact</a></li>
       </ul>
       <button class="nav__toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks">
@@ -182,21 +176,13 @@
   <section class="hero" id="hero">
     <!-- Planted seeds (hero toy) -->
     <canvas class="seed-garden" id="seedGarden" aria-hidden="true"></canvas>
-    <!-- Decorative vector waves -->
-    <div class="wave-decoration wave-decoration--hero-top wave-decoration--red">
-      <img src="images/VectorWaves/Wireframe 05.png" alt="" loading="lazy">
-    </div>
-    <div class="wave-decoration wave-decoration--hero-bottom wave-decoration--dark">
-      <img src="images/VectorWaves/Wireframe 08.png" alt="" loading="lazy">
-    </div>
     <div class="container hero__layout">
       <div class="hero__content">
         <div class="hero__meta">
           <span class="section-code">[00.INTRO]</span>
-          <span class="hero__rings" aria-hidden="true"><i></i><i></i><i></i></span>
         </div>
         <span class="hero__label animate-fade-up" id="heroTagline">→ I plant seeds knowing not all will bloom</span>
-        <h1 class="hero__title animate-fade-up animate-delay-1" id="heroTitle" data-glitch="true">
+        <h1 class="hero__title animate-fade-up animate-delay-1" id="heroTitle" data-glitch="true" data-legible>
           J Tyler McCulloch
         </h1>
         <p class="hero__role animate-fade-up animate-delay-2">Game Designer &amp; Director</p>
@@ -205,28 +191,31 @@
           I design and lead emotionally resonant interactive experiences, from concept to controller.
         </p>
         <div class="hero__cta animate-fade-up animate-delay-3">
-          <a href="#featured" class="btn btn--primary" data-recoil>[ View Work ]</a>
+          <a href="#work" class="btn btn--primary" data-recoil>[ View Work ]</a>
           <a href="#contact" class="btn btn--outline" data-recoil>[ Contact ]</a>
         </div>
+        <p class="hero__credits animate-fade-up animate-delay-3">
+          <span class="hero__credits-label">Shipped</span><a href="projects/pistol-whip.html">Pistol Whip</a><a href="projects/bully.html">Bully</a><a href="projects/resident-evil-orc.html">Resident Evil: Operation Raccoon City</a><a href="projects/socom-confrontation.html">SOCOM</a><a href="projects/marvel-dimension-of-heroes.html">Marvel: Dimension of Heroes</a><a href="projects/journey-to-foundation.html">Journey to Foundation</a>
+        </p>
       </div>
-      <div class="corner-bracket corner-bracket--bottom-right" aria-hidden="true">┘</div>
       <div class="hero__seed">
-        <canvas class="seed-circle" id="seedCircle" aria-hidden="true"></canvas>
+        <canvas class="seed-circle" id="seedCircle" role="button" tabindex="0" aria-label="Change the circle"></canvas>
         <p class="seed-counter" id="seedCounter" aria-live="polite"></p>
       </div>
     </div>
   </section>
 
-  <!-- Featured Work -->
-  <section id="featured" class="featured">
+  <section id="work">
+    <span id="featured" class="anchor-alias" aria-hidden="true"></span>
     <div class="container">
       <div class="section-header">
         <span class="section-code">[01.WORK]</span>
-        <h2 class="section-title" data-glitch="true">Featured Work</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.2 C 14 2.8, 22 3.2, 31 8.1 S 49 17.0, 60 10.0 S 78 2.5, 89 6.9 S 107 16.1, 118 8.4 S 136 1.2, 147 9.4 S 165 17.6, 178 7.5" /></svg>
+        <h2 class="section-title">Work</h2>
+        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.4 C 14 2.8, 22 3.7, 31 7.6 S 49 16.6, 60 8.6 S 78 2.3, 89 6.9 S 107 15.5, 118 8.3 S 136 1.5, 147 8.7 S 165 15.9, 178 10.5" /></svg>
       </div>
-      <div class="featured__grid">
-        <a href="projects/pistol-whip.html" class="featured-card" data-project="pistolwhip">
+
+      <div class="featured__grid work__lead">
+        <a href="projects/pistol-whip.html" class="featured-card">
           <div class="featured-card__art">
             <img src="images/featured/pistol-whip-800.webp"
               srcset="images/featured/pistol-whip-800.webp 800w, images/featured/pistol-whip-1600.webp 1600w"
@@ -235,10 +224,10 @@
           <div class="featured-card__body">
             <h3 class="featured-card__title">Pistol Whip</h3>
             <p class="featured-card__role">Game Director</p>
-            <p class="featured-card__proof">Built Pistol Mix, a level editor → 500+ community remixes.</p>
+            <p class="featured-card__proof">Directed content strategy and created the 'Pistol Mix' level editor for this VR rhythm-shooter.</p>
           </div>
         </a>
-        <a href="projects/journey-to-foundation.html" class="featured-card" data-project="foundation">
+        <a href="projects/journey-to-foundation.html" class="featured-card">
           <div class="featured-card__art">
             <img src="images/featured/journey-to-foundation-800.webp" sizes="(max-width: 700px) 100vw, 20vw"
               alt="Journey to Foundation key art" width="800" height="450">
@@ -246,34 +235,10 @@
           <div class="featured-card__body">
             <h3 class="featured-card__title">Journey to Foundation</h3>
             <p class="featured-card__role">Co-Creative Director</p>
-            <p class="featured-card__proof">Narrative cited as the “main highlight” in reviews.</p>
+            <p class="featured-card__proof">VR Roleplaying Adventure based on Isaac Asimov's saga.</p>
           </div>
         </a>
-        <a href="projects/form.html" class="featured-card" data-project="form">
-          <div class="featured-card__art">
-            <img src="images/featured/form-800.webp"
-              srcset="images/featured/form-800.webp 800w, images/featured/form-1600.webp 1600w"
-              sizes="(max-width: 700px) 100vw, 20vw" alt="FORM screenshot" width="800" height="450">
-          </div>
-          <div class="featured-card__body">
-            <h3 class="featured-card__title">FORM</h3>
-            <p class="featured-card__role">Lead Game Designer</p>
-            <p class="featured-card__proof">Cinequest Best VR Experience winner.</p>
-          </div>
-        </a>
-        <a href="projects/bully.html" class="featured-card" data-project="bully">
-          <div class="featured-card__art">
-            <img src="images/featured/bully-800.webp"
-              srcset="images/featured/bully-800.webp 800w, images/featured/bully-1600.webp 1600w"
-              sizes="(max-width: 700px) 100vw, 20vw" alt="Bully key art" width="800" height="450" loading="lazy">
-          </div>
-          <div class="featured-card__body">
-            <h3 class="featured-card__title">Bully</h3>
-            <p class="featured-card__role">Game Designer · Rockstar</p>
-            <p class="featured-card__proof">Combat system later echoed by Sleeping Dogs and Arkham.</p>
-          </div>
-        </a>
-        <a href="projects/flourish.html" class="featured-card" data-project="flourish">
+        <a href="projects/flourish.html" class="featured-card">
           <div class="featured-card__art">
             <img src="images/featured/flourish-800.webp"
               srcset="images/featured/flourish-800.webp 800w, images/featured/flourish-1600.webp 1600w"
@@ -282,27 +247,187 @@
           <div class="featured-card__body">
             <h3 class="featured-card__title">Flourish</h3>
             <p class="featured-card__role">Creative Director</p>
-            <p class="featured-card__proof">Turned repetitive physio into spellcasting gameplay.</p>
+            <p class="featured-card__proof">VR Physiotherapy Game transforming exercises into magical spells.</p>
           </div>
         </a>
+      </div>
+
+      <!-- Everything else, most recent first -->
+      <div class="grid grid--3 work__grid">
+
+
+
+        <!-- 2022: Proximity -->
+        <a href="projects/proximity.html" class="project-card">
+          <img src="images/Proximity_Banner.webp" alt="Proximity" class="project-card__image" loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">Proximity</h3>
+            <span class="project-card__role">Creative Director / Co-Founder</span>
+            <p class="project-card__desc">Pioneering AI-driven narrative adventure. Early GPT-3 beta collaborator.</p>
+          </div>
+        </a>
+
+        <!-- 2022: Horizon Worlds -->
+        <a href="projects/horizon-worlds.html" class="project-card">
+          <img src="images/HorizonWorld_Banner.webp" alt="Horizon Worlds" class="project-card__image" loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">Horizon Worlds</h3>
+            <span class="project-card__role">Creative Director</span>
+            <p class="project-card__desc">Creative direction for Meta's social VR platform experiences.</p>
+          </div>
+        </a>
+
+
+        <!-- 2019: Marvel: Dimension of Heroes -->
+        <a href="projects/marvel-dimension-of-heroes.html" class="project-card">
+          <img src="images/Marvel_Banner.jpeg" alt="Marvel: Dimension of Heroes" class="project-card__image"
+            loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">Marvel: Dimension of Heroes</h3>
+            <span class="project-card__role">Design Lead</span>
+            <p class="project-card__desc">Design leadership for this AR Marvel gaming experience.</p>
+          </div>
+        </a>
+
+        <!-- 2015-2017: FORM -->
+        <a href="projects/form.html" class="project-card">
+          <img src="images/FORM_banner.jpeg" alt="FORM" class="project-card__image" loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">FORM</h3>
+            <span class="project-card__role">Lead Game Designer</span>
+            <p class="project-card__desc">Designed and scripted all puzzles for this surreal VR narrative experience.</p>
+          </div>
+        </a>
+
+        <!-- 2014: Petra's Planet -->
+        <a href="projects/petras-planet.html" class="project-card">
+          <img src="images/Petra_Shot1.webp" alt="Petra's Planet" class="project-card__image" loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">Petra's Planet</h3>
+            <span class="project-card__role">Lead Game Designer</span>
+            <p class="project-card__desc">Kids Educational MMO with social and retention features.</p>
+          </div>
+        </a>
+
+        <!-- 2013: Citizen Grim -->
+        <a href="projects/citizen-grim.html" class="project-card">
+          <img src="images/CitizenGrim_banner.jpeg" alt="Citizen Grim" class="project-card__image" loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">Citizen Grim</h3>
+            <span class="project-card__role">Lead Designer</span>
+            <p class="project-card__desc">F2P Wave Shooter with progression and retention systems.</p>
+          </div>
+        </a>
+
+        <!-- 2012-2013: Whore of the Orient -->
+        <a href="projects/whore-of-the-orient.html" class="project-card">
+          <img src="images/WhoreOftheOrient_banner.webp" alt="Whore of the Orient" class="project-card__image"
+            loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">Whore of the Orient</h3>
+            <span class="project-card__role">Senior Game Designer</span>
+            <p class="project-card__desc">Open-World game set in 1920s Shanghai (cancelled).</p>
+          </div>
+        </a>
+
+        <!-- 2012: Resident Evil: Operation Raccoon City -->
+        <a href="projects/resident-evil-orc.html" class="project-card">
+          <img src="images/ResidentEvil_banner.jpeg" alt="Resident Evil: Operation Raccoon City"
+            class="project-card__image" loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">Resident Evil: Op. Raccoon City</h3>
+            <span class="project-card__role">Senior Game Designer</span>
+            <p class="project-card__desc">Senior design on this squad-based shooter set in the RE universe.</p>
+          </div>
+        </a>
+
+        <!-- 2010: Star Wars: Battlefront Online -->
+        <a href="projects/star-wars-battlefront.html" class="project-card">
+          <img src="images/StarWars_banner.jpeg" alt="Star Wars: Battlefront Online" class="project-card__image"
+            loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">Star Wars: Battlefront Online</h3>
+            <span class="project-card__role">Game Designer</span>
+            <p class="project-card__desc">Multiplayer shooter (cancelled).</p>
+          </div>
+        </a>
+
+        <!-- 2010: SOCOM: Fireteam Bravo 3 -->
+        <a href="projects/socom-fireteam-bravo-3.html" class="project-card">
+          <img src="images/FireteamBravo_banner.png" alt="SOCOM: Fireteam Bravo 3" class="project-card__image"
+            loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">SOCOM: Fireteam Bravo 3</h3>
+            <span class="project-card__role">Senior Game Designer</span>
+            <p class="project-card__desc">Tactical Shooter for PSP.</p>
+          </div>
+        </a>
+
+        <!-- 2008: SOCOM: Confrontation -->
+        <a href="projects/socom-confrontation.html" class="project-card">
+          <img src="images/Confrontation_banner.jpg" alt="SOCOM: Confrontation" class="project-card__image"
+            loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">SOCOM: Confrontation</h3>
+            <span class="project-card__role">Game Designer</span>
+            <p class="project-card__desc">Multiplayer shooter for PS3.</p>
+          </div>
+        </a>
+
+        <!-- 2007: SOCOM: Tactical Strike -->
+        <a href="projects/socom-tactical-strike.html" class="project-card">
+          <img src="images/TacticalStike_banner.jpg" alt="SOCOM: Tactical Strike" class="project-card__image"
+            loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">SOCOM: Tactical Strike</h3>
+            <span class="project-card__role">Game Designer</span>
+            <p class="project-card__desc">Real-time Tactics for PSP.</p>
+          </div>
+        </a>
+
+        <!-- 2006: Bully -->
+        <a href="projects/bully.html" class="project-card">
+          <img src="images/Bully_banner.jpeg" alt="Bully" class="project-card__image" loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">Bully</h3>
+            <span class="project-card__role">Game Designer</span>
+            <p class="project-card__desc">Game design on Rockstar's beloved open-world action-adventure.</p>
+          </div>
+        </a>
+
+        <!-- 2003: Max Payne 2 -->
+        <a href="projects/max-payne-2.html" class="project-card">
+          <img src="images/MayPayne2_banner.jpeg" alt="Max Payne 2" class="project-card__image" loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">Max Payne 2</h3>
+            <span class="project-card__role">QA Support</span>
+            <p class="project-card__desc">QA support on the award-winning third-person shooter.</p>
+          </div>
+        </a>
+
+        <!-- Mystery: The Unreleased -->
+        <a href="#work" class="project-card project-card--mystery" role="button">
+          <img src="images/Mystery_banner.webp" alt="???" class="project-card__image" loading="lazy">
+          <div class="project-card__overlay">
+            <h3 class="project-card__title">The Unreleased</h3>
+            <span class="project-card__role">Various Roles</span>
+            <p class="project-card__desc">Reflections on cancelled projects and the lessons they taught.</p>
+          </div>
+        </a>
+
       </div>
     </div>
   </section>
 
   <!-- About Section -->
   <section id="about">
-    <!-- Vector wave decorations -->
-    <div class="wave-decoration wave-decoration--about-right wave-decoration--red">
-      <img src="images/VectorWaves/Wireframe 03.png" alt="" loading="lazy">
-    </div>
     <div class="wave-decoration wave-decoration--about-left wave-decoration--dark">
       <img src="images/WavyLineCircles/Wavy Line 48.png" alt="" loading="lazy">
     </div>
     <div class="container container--narrow">
-      <div class="corner-bracket corner-bracket--top-left" aria-hidden="true">┌</div>
       <div class="section-header">
         <span class="section-code">[02.ABOUT]</span>
-        <h2 class="section-title" data-glitch="true">Crafting Experiences That Resonate</h2>
+        <h2 class="section-title">Crafting Experiences That Resonate</h2>
         <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.1 C 14 4.0, 22 4.5, 31 8.3 S 49 16.9, 60 9.7 S 78 2.5, 89 6.8 S 107 14.5, 118 8.6 S 136 2.8, 147 7.2 S 165 16.0, 178 8.4" /></svg>
       </div>
       <div class="glass-card">
@@ -334,6 +459,62 @@
           I bring both strategic<span class="about-keyword" data-line="4"> vision and</span>
           <span class="about-keyword" data-line="5">technical fluency </span>to every project.
         </p>
+      </div>
+
+      <!-- How I work -->
+      <div class="approach" id="approach">
+        <span id="skills" class="anchor-alias" aria-hidden="true"></span>
+        <h3 class="companies__title">[HOW I WORK]</h3>
+      <ol class="approach__list">
+        <li class="approach-row">
+          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-1">
+            <span class="approach-row__num">[01]</span>
+            <span class="approach-row__title">Player agency over spectacle</span>
+            <span class="approach-row__icon" aria-hidden="true"></span>
+          </button>
+          <div class="approach-row__proof" id="approach-1" hidden>
+            <p><strong>Journey to Foundation</strong> — our mantra was “participatory drama”: players take part in
+              conversations through physical actions, not menu choices. It became the game's boss fights.</p>
+            <a href="projects/journey-to-foundation.html" class="approach-row__link">[ Journey to Foundation → ]</a>
+          </div>
+        </li>
+        <li class="approach-row">
+          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-2">
+            <span class="approach-row__num">[02]</span>
+            <span class="approach-row__title">Systems that teach through play</span>
+            <span class="approach-row__icon" aria-hidden="true"></span>
+          </button>
+          <div class="approach-row__proof" id="approach-2" hidden>
+            <p><strong>Flourish</strong> — repetitive physio exercises became magic spells: as players heal their
+              bodies, the energy heals the broken land around them.</p>
+            <a href="projects/flourish.html" class="approach-row__link">[ Flourish → ]</a>
+          </div>
+        </li>
+        <li class="approach-row">
+          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-3">
+            <span class="approach-row__num">[03]</span>
+            <span class="approach-row__title">Vision held across disciplines</span>
+            <span class="approach-row__icon" aria-hidden="true"></span>
+          </button>
+          <div class="approach-row__proof" id="approach-3" hidden>
+            <p><strong>Horizon Worlds</strong> — led the team through overlapping 3–6 month production cycles while
+              Meta's tools kept changing; a 6-month contract grew to 2+ years.</p>
+            <a href="projects/horizon-worlds.html" class="approach-row__link">[ Horizon Worlds → ]</a>
+          </div>
+        </li>
+        <li class="approach-row">
+          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-4">
+            <span class="approach-row__num">[04]</span>
+            <span class="approach-row__title">Ship under constraint</span>
+            <span class="approach-row__icon" aria-hidden="true"></span>
+          </button>
+          <div class="approach-row__proof" id="approach-4" hidden>
+            <p><strong>Marvel: Dimension of Heroes</strong> — united a fractured, over-scoped team → delivered on a
+              tight timeline.</p>
+            <a href="projects/marvel-dimension-of-heroes.html" class="approach-row__link">[ Marvel: Dimension of Heroes → ]</a>
+          </div>
+        </li>
+      </ol>
       </div>
 
       <!-- Who I've Worked With -->
@@ -379,109 +560,60 @@
     </div>
   </section>
 
-  <!-- Approach -->
-  <section id="approach" class="approach">
-    <span id="skills" class="anchor-alias" aria-hidden="true"></span>
-    <div class="container container--narrow">
-      <div class="corner-bracket corner-bracket--top-right" aria-hidden="true">┐</div>
-      <div class="section-header">
-        <span class="section-code">[03.APPROACH]</span>
-        <h2 class="section-title" data-glitch="true">How I Work</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.7 C 14 4.1, 22 2.0, 31 10.6 S 49 15.0, 60 9.5 S 78 0.7, 89 8.8 S 107 14.9, 118 9.7 S 136 2.7, 147 8.9 S 165 15.8, 178 10.2" /></svg>
-      </div>
-      <ol class="approach__list">
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-1">
-            <span class="approach-row__num">[01]</span>
-            <span class="approach-row__title">Player agency over spectacle</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-1" hidden>
-            <p><strong>Journey to Foundation</strong> — our mantra was “participatory drama”: players take part in
-              conversations through physical actions, not menu choices. It became the game's boss fights.</p>
-            <a href="projects/journey-to-foundation.html" class="approach-row__link" data-project="foundation">[ Journey to Foundation → ]</a>
-          </div>
-        </li>
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-2">
-            <span class="approach-row__num">[02]</span>
-            <span class="approach-row__title">Systems that teach through play</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-2" hidden>
-            <p><strong>Flourish</strong> — repetitive physio exercises became magic spells: as players heal their
-              bodies, the energy heals the broken land around them.</p>
-            <a href="projects/flourish.html" class="approach-row__link" data-project="flourish">[ Flourish → ]</a>
-          </div>
-        </li>
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-3">
-            <span class="approach-row__num">[03]</span>
-            <span class="approach-row__title">Vision held across disciplines</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-3" hidden>
-            <p><strong>Horizon Worlds</strong> — led the team through overlapping 3–6 month production cycles while
-              Meta's tools kept changing; a 6-month contract grew to 2+ years.</p>
-            <a href="projects/horizon-worlds.html" class="approach-row__link" data-project="horizon">[ Horizon Worlds → ]</a>
-          </div>
-        </li>
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-4">
-            <span class="approach-row__num">[04]</span>
-            <span class="approach-row__title">Ship under constraint</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-4" hidden>
-            <p><strong>Marvel: Dimension of Heroes</strong> — united a fractured, over-scoped team → delivered on a
-              tight timeline.</p>
-            <a href="projects/marvel-dimension-of-heroes.html" class="approach-row__link" data-project="marvel">[ Marvel: Dimension of Heroes → ]</a>
-          </div>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- Experience Timeline -->
+  <!-- Experience -->
   <section id="experience" style="background: var(--bg-secondary); position: relative; z-index: 2;">
-    <!-- Vector wave decorations -->
-    <div class="wave-decoration wave-decoration--experience-left wave-decoration--red">
-      <img src="images/VectorWaves/Wireframe 25.png" alt="" loading="lazy">
-    </div>
-    <div class="wave-decoration wave-decoration--experience-right wave-decoration--dark">
-      <img src="images/WavyLineCircles/Wavy Line 82.png" alt="" loading="lazy">
-    </div>
     <div class="container container--narrow">
       <div class="section-header">
-        <span class="section-code">[04.CAREER]</span>
-        <h2 class="section-title" data-glitch="true">Experience Timeline</h2>
+        <span class="section-code">[03.CAREER]</span>
+        <h2 class="section-title">Experience</h2>
         <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 8.4 C 14 1.8, 22 2.7, 31 9.6 S 49 14.8, 60 7.8 S 78 1.1, 89 8.8 S 107 14.9, 118 9.8 S 136 2.5, 147 6.8 S 165 16.1, 178 8.8" /></svg>
       </div>
-      <!-- Decorative asterisk -->
-      <div class="decorative-asterisk decorative-asterisk--timeline" aria-hidden="true">※</div>
 
       <div class="timeline">
         <div class="timeline__item">
           <span class="timeline__year">May 2026 – Present</span>
-          <h4 class="timeline__title">Studio Design Director</h4>
+          <h3 class="timeline__title">Studio Design Director</h3>
           <p class="timeline__company">Keywords Studios (Smoking Gun Interactive)</p>
           <ul class="timeline__accomplishments">
-            <li><strong>Studio design leadership</strong><span>Leads design direction and the design team across
-                studio projects</span></li>
+            <li><strong>Studio design leadership</strong><span>Directs 4 to 5 projects of different sizes at once,
+                hands-on in the day-to-day design on some and at a management level on others</span></li>
+            <li><strong>Freefall Racers</strong><span>Studio Design Director on a released NEX console game controlled
+                by your body through a camera</span></li>
+          </ul>
+        </div>
+        <div class="timeline__item">
+          <span class="timeline__year">Jan 2026 – Present</span>
+          <h3 class="timeline__title">Technical Designer (part-time)</h3>
+          <p class="timeline__company">Useful Fiction</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>New games division</strong><span>Rapidly developing prototypes, using AI tools to assist as
+                core developer and designer</span></li>
+          </ul>
+        </div>
+        <div class="timeline__item">
+          <span class="timeline__year">Fall – Winter 2025</span>
+          <h3 class="timeline__title">Prototype Designer and Developer</h3>
+          <p class="timeline__company">Jetpack Interactive</p>
+          <ul class="timeline__accomplishments">
+            <li><strong>Game pitch</strong><span>Built a prototype in Unreal Engine 5; shelved when the team moved onto
+                God of War with Sony Santa Monica</span></li>
           </ul>
         </div>
         <div class="timeline__item">
           <span class="timeline__year">July 2022 – Nov 2025</span>
-          <h4 class="timeline__title">Game Director</h4>
+          <h3 class="timeline__title">Game Director</h3>
           <p class="timeline__company">Cloudhead Games</p>
           <ul class="timeline__accomplishments">
             <li><strong>Pistol Whip</strong><span>Award-winning, critically acclaimed, 500+ community remixes</span>
             </li>
+            <li><strong>Experimental prototypes</strong><span>Oversaw the studio's prototypes, including an unannounced
+                original tactical stealth shooter</span></li>
           </ul>
         </div>
+        <div class="timeline__more" id="timelineMore" hidden>
         <div class="timeline__item">
           <span class="timeline__year">April – Nov 2023</span>
-          <h4 class="timeline__title">Art Director (part-time)</h4>
+          <h3 class="timeline__title">Art Director (part-time)</h3>
           <p class="timeline__company">National Film Board of Canada</p>
           <ul class="timeline__accomplishments">
             <li><strong>Sunalimit</strong><span>Remotely managed team of indigenous artists on experimental
@@ -489,12 +621,12 @@
           </ul>
         </div>
         <div class="timeline__item">
-          <span class="timeline__year">Jan 2019 – July 2022</span>
-          <h4 class="timeline__title">Creative Director</h4>
-          <p class="timeline__company">Archiact Interactive</p>
+          <span class="timeline__year">June 2020 – July 2022</span>
+          <h3 class="timeline__title">Creative Director</h3>
+          <p class="timeline__company">Archiact Interactive (Design Lead from Jan 2019)</p>
           <ul class="timeline__accomplishments">
-            <li><strong>Journey to Foundation</strong><span>Co-directed and led the narrative and UX teams; the narrative
-                was cited as the "main highlight" in reviews</span></li>
+            <li><strong>Journey to Foundation</strong><span>Co-directed and led the narrative and UX teams; reviewers singled out
+                the story</span></li>
             <li><strong>Horizon Worlds</strong><span>Topped Meta's retention charts, top-performing, contract extended
                 6mo → 2+ years</span></li>
             <li><strong>Flourish</strong><span>Conceptualized creative vision; pioneered approach transforming
@@ -505,7 +637,7 @@
         </div>
         <div class="timeline__item">
           <span class="timeline__year">Feb 2018 – July 2023</span>
-          <h4 class="timeline__title">Co-Founder / Director</h4>
+          <h3 class="timeline__title">Co-Founder / Director</h3>
           <p class="timeline__company">Inscape Studios</p>
           <ul class="timeline__accomplishments">
             <li><strong>Proximity</strong><span>Sole developer to team lead; pitched, raised funds, and shipped
@@ -514,15 +646,15 @@
         </div>
         <div class="timeline__item">
           <span class="timeline__year">Jun 2015 – July 2017</span>
-          <h4 class="timeline__title">Lead Game Designer</h4>
+          <h3 class="timeline__title">Lead Game Designer</h3>
           <p class="timeline__company">Charm Games</p>
           <ul class="timeline__accomplishments">
             <li><strong>FORM</strong><span>Award-winning, noted for quality and critical reception</span></li>
           </ul>
         </div>
         <div class="timeline__item">
-          <span class="timeline__year">May – Nov 2014</span>
-          <h4 class="timeline__title">Lead Game Designer</h4>
+          <span class="timeline__year">Feb – Nov 2014</span>
+          <h3 class="timeline__title">Lead Game Designer</h3>
           <p class="timeline__company">Dramaforum</p>
           <ul class="timeline__accomplishments">
             <li><strong>Petra's Planet</strong><span>Transformed struggling platform (near-zero D2 retention) into
@@ -530,8 +662,8 @@
           </ul>
         </div>
         <div class="timeline__item">
-          <span class="timeline__year">Feb 2013 – May 2014</span>
-          <h4 class="timeline__title">Lead Designer</h4>
+          <span class="timeline__year">Feb – Sept 2013</span>
+          <h3 class="timeline__title">Lead Designer</h3>
           <p class="timeline__company">Eruptive Games</p>
           <ul class="timeline__accomplishments">
             <li><strong>Citizen Grim</strong><span>Designed and tuned mechanics using metrics analysis; improved
@@ -540,22 +672,20 @@
         </div>
         <div class="timeline__item">
           <span class="timeline__year">Sept 2012 – Jan 2013</span>
-          <h4 class="timeline__title">Senior Game Designer</h4>
+          <h3 class="timeline__title">Senior Game Designer</h3>
           <p class="timeline__company">Kennedy Miller Mitchell (Team Bondi)</p>
           <ul class="timeline__accomplishments">
-            <li><strong>Whore of the Orient <em class="timeline__note">(cancelled)</em></strong><span>Prototyped innovative Defendu combat and crowd
-                cover mechanics</span></li>
+            <li><strong>Whore of the Orient <em class="timeline__note">(cancelled)</em></strong><span>Designed combat systems based on Defendu and helped prototype combat, shooting and a chase scene through crowded alleyways</span></li>
           </ul>
         </div>
         <div class="timeline__item">
           <span class="timeline__year">Aug 2006 – April 2012</span>
-          <h4 class="timeline__title">Senior Game Designer</h4>
+          <h3 class="timeline__title">Senior Game Designer</h3>
           <p class="timeline__company">Slant Six Games</p>
           <ul class="timeline__accomplishments">
             <li><strong>Resident Evil: ORC</strong><span>Prototyped the level that led to Capcom greenlight, co-created
                 proprietary scripting language</span></li>
-            <li><strong>Star Wars: Battlefront Online <em class="timeline__note">(cancelled)</em></strong><span>Contributed to vehicle physics
-                system</span></li>
+            <li><strong>Star Wars: Battlefront Online <em class="timeline__note">(cancelled)</em></strong><span>Weapons tuning and level design iteration, and tuned the speeder bike mechanics with the engineer building the vehicle physics system</span></li>
             <li><strong>SOCOM: Fireteam Bravo 3</strong><span>Proposed narrative concept that became basis for entire
                 game; drove single-player campaign</span></li>
             <li><strong>SOCOM: Confrontation</strong><span>Responsible for Kasbah (regularly voted best map), launch of
@@ -566,7 +696,7 @@
         </div>
         <div class="timeline__item">
           <span class="timeline__year">Sept 2003 – June 2006</span>
-          <h4 class="timeline__title">Game Designer</h4>
+          <h3 class="timeline__title">Game Designer</h3>
           <p class="timeline__company">Rockstar Games</p>
           <ul class="timeline__accomplishments">
             <li><strong>Bully</strong><span>Critically well received, worked on combat system that influenced Sleeping
@@ -574,235 +704,15 @@
             <li><strong>Max Payne 2</strong><span>QA support on award-winning title</span></li>
           </ul>
         </div>
+        </div>
       </div>
-    </div>
-  </section>
-
-  <section id="work">
-    <!-- Vector wave decorations -->
-    <div class="wave-decoration wave-decoration--work-side wave-decoration--red">
-      <img src="images/WavyLineCircles/Wavy Line 65.png" alt="" loading="lazy">
-    </div>
-    <div class="container">
-      <div class="corner-bracket corner-bracket--top-right" aria-hidden="true">┐</div>
-      <div class="section-header">
-        <span class="section-code">[05.PORTFOLIO]</span>
-        <h2 class="section-title" data-glitch="true">Portfolio</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.4 C 14 2.8, 22 3.7, 31 7.6 S 49 16.6, 60 8.6 S 78 2.3, 89 6.9 S 107 15.5, 118 8.3 S 136 1.5, 147 8.7 S 165 15.9, 178 10.5" /></svg>
-      </div>
-
-      <!-- Projects Grid - Chronological Order (Most Recent First) -->
-      <div class="grid grid--3">
-
-        <!-- 2022-2025: Pistol Whip -->
-        <a href="projects/pistol-whip.html" class="project-card" data-project="pistolwhip">
-          <img src="images/pistol_whip_banner.jpg" alt="Pistol Whip" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Pistol Whip</h3>
-            <span class="project-card__role">Game Director</span>
-            <p class="project-card__desc">Directed content strategy and created the 'Pistol Mix' level editor for this
-              VR rhythm-shooter.</p>
-          </div>
-        </a>
-
-        <!-- 2022: Journey To Foundation -->
-        <a href="projects/journey-to-foundation.html" class="project-card" data-project="foundation">
-          <img src="images/JourneyToFoundation_Banner.webp" alt="Journey To Foundation" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Journey To Foundation</h3>
-            <span class="project-card__role">Co-Creative Director</span>
-            <p class="project-card__desc">VR Roleplaying Adventure based on Isaac Asimov's saga.</p>
-          </div>
-        </a>
-
-        <!-- 2022: Proximity -->
-        <a href="projects/proximity.html" class="project-card" data-project="proximity">
-          <img src="images/Proximity_Banner.webp" alt="Proximity" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Proximity</h3>
-            <span class="project-card__role">Creative Director / Co-Founder</span>
-            <p class="project-card__desc">Pioneering AI-driven narrative adventure. Early GPT-3 beta collaborator.</p>
-          </div>
-        </a>
-
-        <!-- 2022: Horizon Worlds -->
-        <a href="projects/horizon-worlds.html" class="project-card" data-project="horizon">
-          <img src="images/HorizonWorld_Banner.webp" alt="Horizon Worlds" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Horizon Worlds</h3>
-            <span class="project-card__role">Creative Director</span>
-            <p class="project-card__desc">Creative direction for Meta's social VR platform experiences.</p>
-          </div>
-        </a>
-
-        <!-- 2021: Flourish -->
-        <a href="projects/flourish.html" class="project-card" data-project="flourish">
-          <img src="images/Flourish_Banner.webp" alt="Flourish" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Flourish</h3>
-            <span class="project-card__role">Creative Director</span>
-            <p class="project-card__desc">VR Physiotherapy Game transforming exercises into magical spells.</p>
-          </div>
-        </a>
-
-        <!-- 2019: Marvel: Dimension of Heroes -->
-        <a href="projects/marvel-dimension-of-heroes.html" class="project-card" data-project="marvel">
-          <img src="images/Marvel_Banner.jpeg" alt="Marvel: Dimension of Heroes" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Marvel: Dimension of Heroes</h3>
-            <span class="project-card__role">Design Lead</span>
-            <p class="project-card__desc">Design leadership for this AR Marvel gaming experience.</p>
-          </div>
-        </a>
-
-        <!-- 2015-2017: FORM -->
-        <a href="projects/form.html" class="project-card" data-project="form">
-          <img src="images/FORM_banner.jpeg" alt="FORM" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">FORM</h3>
-            <span class="project-card__role">Lead Game Designer</span>
-            <p class="project-card__desc">Designed and scripted all puzzles for this surreal VR narrative experience.
-            </p>
-          </div>
-        </a>
-
-        <!-- 2014: Petra's Planet -->
-        <a href="projects/petras-planet.html" class="project-card" data-project="petras">
-          <img src="images/Petra_banner.png" alt="Petra's Planet" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Petra's Planet</h3>
-            <span class="project-card__role">Lead Game Designer</span>
-            <p class="project-card__desc">Kids Educational MMO with social and retention features.</p>
-          </div>
-        </a>
-
-        <!-- 2013: Citizen Grim -->
-        <a href="projects/citizen-grim.html" class="project-card" data-project="citizengrim">
-          <img src="images/CitizenGrim_banner.jpeg" alt="Citizen Grim" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Citizen Grim</h3>
-            <span class="project-card__role">Lead Designer</span>
-            <p class="project-card__desc">F2P Wave Shooter with progression and retention systems.</p>
-          </div>
-        </a>
-
-        <!-- 2012-2013: Whore of the Orient -->
-        <a href="projects/whore-of-the-orient.html" class="project-card" data-project="woto">
-          <img src="images/WhoreOftheOrient_banner.webp" alt="Whore of the Orient" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Whore of the Orient</h3>
-            <span class="project-card__role">Senior Game Designer</span>
-            <p class="project-card__desc">Open-World game set in 1920s Shanghai (cancelled).</p>
-          </div>
-        </a>
-
-        <!-- 2012: Resident Evil: Operation Raccoon City -->
-        <a href="projects/resident-evil-orc.html" class="project-card" data-project="re">
-          <img src="images/ResidentEvil_banner.jpeg" alt="Resident Evil: Operation Raccoon City"
-            class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Resident Evil: Op. Raccoon City</h3>
-            <span class="project-card__role">Senior Game Designer</span>
-            <p class="project-card__desc">Senior design on this squad-based shooter set in the RE universe.</p>
-          </div>
-        </a>
-
-        <!-- 2010: Star Wars: Battlefront Online -->
-        <a href="projects/star-wars-battlefront.html" class="project-card" data-project="starwars">
-          <img src="images/StarWars_banner.jpeg" alt="Star Wars: Battlefront Online" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Star Wars: Battlefront Online</h3>
-            <span class="project-card__role">Game Designer</span>
-            <p class="project-card__desc">Multiplayer shooter (cancelled).</p>
-          </div>
-        </a>
-
-        <!-- 2010: SOCOM: Fireteam Bravo 3 -->
-        <a href="projects/socom-fireteam-bravo-3.html" class="project-card" data-project="socom_fb3">
-          <img src="images/FireteamBravo_banner.png" alt="SOCOM: Fireteam Bravo 3" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">SOCOM: Fireteam Bravo 3</h3>
-            <span class="project-card__role">Senior Game Designer</span>
-            <p class="project-card__desc">Tactical Shooter for PSP.</p>
-          </div>
-        </a>
-
-        <!-- 2008: SOCOM: Confrontation -->
-        <a href="projects/socom-confrontation.html" class="project-card" data-project="socom_conf">
-          <img src="images/Confrontation_banner.jpg" alt="SOCOM: Confrontation" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">SOCOM: Confrontation</h3>
-            <span class="project-card__role">Game Designer</span>
-            <p class="project-card__desc">Multiplayer shooter for PS3.</p>
-          </div>
-        </a>
-
-        <!-- 2007: SOCOM: Tactical Strike -->
-        <a href="projects/socom-tactical-strike.html" class="project-card" data-project="socom_ts">
-          <img src="images/TacticalStike_banner.jpg" alt="SOCOM: Tactical Strike" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">SOCOM: Tactical Strike</h3>
-            <span class="project-card__role">Game Designer</span>
-            <p class="project-card__desc">Real-time Tactics for PSP.</p>
-          </div>
-        </a>
-
-        <!-- 2006: Bully -->
-        <a href="projects/bully.html" class="project-card" data-project="bully">
-          <img src="images/Bully_banner.jpeg" alt="Bully" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Bully</h3>
-            <span class="project-card__role">Game Designer</span>
-            <p class="project-card__desc">Game design on Rockstar's beloved open-world action-adventure.</p>
-          </div>
-        </a>
-
-        <!-- 2003: Max Payne 2 -->
-        <a href="projects/max-payne-2.html" class="project-card" data-project="maxpayne2">
-          <img src="images/MayPayne2_banner.jpeg" alt="Max Payne 2" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Max Payne 2</h3>
-            <span class="project-card__role">QA Support</span>
-            <p class="project-card__desc">QA support on the award-winning third-person shooter.</p>
-          </div>
-        </a>
-
-        <!-- Mystery: The Unreleased -->
-        <a href="#work" class="project-card project-card--mystery" data-project="mystery" role="button">
-          <img src="images/Mystery_banner.webp" alt="???" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">The Unreleased</h3>
-            <span class="project-card__role">Various Roles</span>
-            <p class="project-card__desc">Reflections on cancelled projects and the lessons they taught.</p>
-          </div>
-        </a>
-
-      </div>
+      <button type="button" class="timeline__toggle" id="timelineToggle" aria-expanded="false" aria-controls="timelineMore">
+        <span class="timeline__toggle-label">Earlier roles</span><span class="timeline__toggle-count">9</span>
+      </button>
     </div>
   </section>
 
 
-
-  <!-- Project Modal -->
-  <div class="modal" id="projectModal" role="dialog" aria-modal="true" aria-labelledby="caseStudyTitle">
-    <button class="modal__close" id="modalClose" aria-label="Close modal">&times;</button>
-    <div class="modal__nav modal__nav--prev">
-      <button class="modal__nav-btn" id="modalPrev" aria-label="Previous project">←</button>
-    </div>
-    <div class="modal__nav modal__nav--next">
-      <button class="modal__nav-btn" id="modalNext" aria-label="Next project">→</button>
-    </div>
-    <div class="modal__content" id="modalContent">
-      <!-- Dynamic content inserted by JavaScript -->
-    </div>
-  </div>
 
   <!-- Mystery Modal - The Unreleased -->
   <div class="mystery-modal" id="mysteryModal" role="dialog" aria-modal="true" aria-label="The Unreleased">
@@ -848,14 +758,10 @@
 
   <!-- Contact Section -->
   <section class="contact" id="contact">
-    <!-- Vector wave decoration -->
-    <div class="wave-decoration wave-decoration--contact-top wave-decoration--red">
-      <img src="images/WavyLineCircles/Wavy Line 95.png" alt="" loading="lazy">
-    </div>
     <div class="container container--narrow">
       <div class="section-header">
-        <span class="section-code">[06.CONNECT]</span>
-        <h2 class="section-title" data-glitch="true">Let's Work Together</h2>
+        <span class="section-code">[04.CONNECT]</span>
+        <h2 class="section-title">Let's Work Together</h2>
         <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 9.3 C 14 3.0, 22 1.7, 31 8.5 S 49 14.6, 60 7.4 S 78 1.3, 89 6.8 S 107 15.4, 118 9.8 S 136 0.5, 147 8.4 S 165 14.8, 178 9.9" /></svg>
       </div>
       <a href="mailto:jtylermc@gmail.com" class="contact__email">jtylermc@gmail.com</a>
@@ -874,16 +780,6 @@
   </section>
   </main>
 
-  <!-- Dot Navigation -->
-  <nav class="dot-nav" id="dotNav" aria-label="Section navigation">
-    <button class="dot-nav__dot" data-section="featured" aria-label="Featured work"></button>
-    <button class="dot-nav__dot" data-section="about" aria-label="About"></button>
-    <button class="dot-nav__dot" data-section="approach" aria-label="Approach"></button>
-    <button class="dot-nav__dot" data-section="experience" aria-label="Timeline"></button>
-    <button class="dot-nav__dot" data-section="work" aria-label="Portfolio"></button>
-    <button class="dot-nav__dot" data-section="contact" aria-label="Contact"></button>
-  </nav>
-
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
@@ -901,7 +797,7 @@
   </div>
 
   <!-- JavaScript -->
-  <script src="script.js?v=c1841315"></script>
+  <script src="script.js?v=860526f0"></script>
   <!-- Cloudflare Web Analytics -->
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
     data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script><!-- End Cloudflare Web Analytics -->

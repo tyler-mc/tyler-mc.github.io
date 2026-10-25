@@ -2,9 +2,6 @@
    Tyler McCulloch Portfolio - Neo-Brutalist Design System
    ============================================ */
 
-/* Typography Imports */
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap');
-
 /* CSS Custom Properties */
 :root {
   /* Colors - Neo-Brutalist Light Theme */
@@ -17,8 +14,8 @@
 
   /* Accent Colors */
   --accent-red: #FF3333;
-  /* Darker red for small text: 4.7:1 on the cream background */
-  --accent-red-text: #D62020;
+  /* Darker red for small text: 5.7:1 on the cream background, 5.1:1 on the gray sections */
+  --accent-red-text: #BF1B1B;
   --accent-red-muted: rgba(255, 51, 51, 0.15);
 
   /* Text Colors */
@@ -34,12 +31,10 @@
 
   /* Shadows */
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
-  --shadow-brutal: 4px 4px 0 var(--bg-dark);
-  --shadow-brutal-sm: 2px 2px 0 var(--bg-dark);
 
   /* Typography */
   --font-heading: 'Anton', 'Impact', sans-serif;
-  --font-body: 'IBM Plex Mono', 'Consolas', monospace;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
   /* Long-form reading text */
   --font-prose: 'IBM Plex Sans', system-ui, sans-serif;
@@ -194,10 +189,6 @@ section {
   text-align: center;
 }
 
-/* Glitch effect for section titles - triggered on scroll */
-.section-title[data-glitch="true"] {
-  animation: none;
-}
 
 /* Glitch animation class - applied via JS on scroll */
 .section-title.glitch-animate {
@@ -254,8 +245,7 @@ section {
   background: var(--accent-red);
   border-color: var(--accent-red);
   color: var(--text-primary);
-  box-shadow: 4px 4px 0 var(--bg-dark);
-  transform: translate(-3px, -3px) scale(1.02);
+  transform: scale(1.02);
 }
 
 .btn--outline {
@@ -266,8 +256,7 @@ section {
 .btn--outline:hover {
   background: var(--text-primary);
   color: var(--text-inverted);
-  box-shadow: 4px 4px 0 var(--accent-red);
-  transform: translate(-3px, -3px) scale(1.02);
+  transform: scale(1.02);
 }
 
 /* Badge/Tag */
@@ -673,18 +662,17 @@ section {
   margin-top: var(--space-lg);
 }
 
-/* Hero Particle Canvas */
-/* Global Particle Canvas */
-.global-particles {
+/* Cursor trail canvas: above the sections so the marks show on all of them, below the nav and overlays */
+.cursor-trail {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 0;
+  z-index: 50;
 }
 
-/* Ensure content is above particles */
+/* Ensure content is above the trail */
 .hero__content {
   z-index: 1;
 }
@@ -926,6 +914,7 @@ section {
   font-family: var(--font-heading);
   margin-bottom: 0.25rem;
   font-size: 1.1rem;
+  letter-spacing: 0.1em;
 }
 
 .timeline__company {
@@ -1014,56 +1003,6 @@ section {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-}
-
-/* ============================================
-   Modal
-   ============================================ */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-lg);
-  background: rgba(245, 245, 240, 0.95);
-}
-
-.modal.active {
-  display: flex;
-}
-
-.modal__content {
-  max-width: 1000px;
-  max-height: 90vh;
-  overflow-y: auto;
-  background: var(--bg-primary);
-  border: 2px solid var(--text-primary);
-  box-shadow: 8px 8px 0 var(--text-primary);
-}
-
-.modal__close {
-  position: absolute;
-  top: var(--space-lg);
-  right: var(--space-lg);
-  background: var(--bg-primary);
-  border: 2px solid var(--text-primary);
-  width: 48px;
-  height: 48px;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 1.5rem;
-  font-weight: bold;
-  transition: all var(--transition-fast);
-  z-index: 210;
-  /* Ensure above modal content and nav */
-}
-
-.modal__close:hover {
-  background: var(--text-primary);
-  color: var(--text-inverted);
-  border-color: var(--text-primary);
 }
 
 /* ============================================
@@ -1451,62 +1390,20 @@ section {
 }
 
 /* Wave positions for different sections */
-.wave-decoration--hero-top {
-  top: 80px;
-  right: -50px;
-  width: 450px;
-  height: 300px;
-  transform: rotate(-15deg);
-}
 
-.wave-decoration--hero-bottom {
-  bottom: 50px;
-  left: -30px;
-  width: 400px;
-  height: 250px;
-  transform: rotate(10deg);
-}
 
-.wave-decoration--about-right {
-  top: 20%;
-  right: -100px;
-  width: 500px;
-  height: 350px;
-  transform: rotate(-5deg);
-  opacity: 0.45;
-}
 
-.wave-decoration--work-top {
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 180px;
-  opacity: 0.3;
-}
 
-.wave-decoration--experience-left {
-  top: 30%;
-  left: -100px;
-  width: 450px;
-  height: 300px;
-  transform: rotate(5deg);
-  opacity: 0.42;
-}
 
-.wave-decoration--contact-bottom {
-  bottom: -30px;
-  right: 10%;
-  width: 500px;
-  height: 250px;
-  transform: rotate(-8deg);
-  opacity: 0.4;
-}
+
+
+
+
+
+
 
 /* Apply brand colors to wave decorations */
-.wave-decoration--red img {
-  filter: sepia(1) saturate(5) hue-rotate(-30deg) brightness(0.9);
-}
+
 
 .wave-decoration--dark img {
   filter: brightness(0) opacity(0.4);
@@ -1559,13 +1456,7 @@ section {
 }
 
 /* Additional hero wave */
-.wave-decoration--hero-mid {
-  top: 50%;
-  left: -100px;
-  width: 200px;
-  height: 200px;
-  transform: translateY(-50%) rotate(20deg);
-}
+
 
 /* ============================================
    Decorative Elements
@@ -1588,42 +1479,18 @@ section {
   font-size: 1.5rem;
 }
 
-.decorative-asterisk--timeline {
-  top: var(--space-2xl);
-  right: var(--space-xl);
-  font-size: 2.5rem;
-}
+
 
 /* Corner brackets */
-.corner-bracket {
-  position: absolute;
-  font-family: var(--font-mono);
-  font-size: 2.5rem;
-  color: var(--text-primary);
-  opacity: 0.15;
-  pointer-events: none;
-  z-index: 0;
-}
 
-.corner-bracket--top-left {
-  top: var(--space-lg);
-  left: var(--space-lg);
-}
 
-.corner-bracket--top-right {
-  top: var(--space-lg);
-  right: var(--space-lg);
-}
 
-.corner-bracket--bottom-left {
-  bottom: var(--space-lg);
-  left: var(--space-lg);
-}
 
-.corner-bracket--bottom-right {
-  bottom: var(--space-lg);
-  right: var(--space-lg);
-}
+
+
+
+
+
 
 /* Decorative circles */
 .decorative-circles {
@@ -1650,106 +1517,20 @@ section {
   opacity: 0.35;
 }
 
-.wave-decoration--work-side {
-  top: 20%;
-  right: -80px;
-  width: 400px;
-  height: 400px;
-  transform: rotate(-20deg);
-  opacity: 0.38;
-}
 
-.wave-decoration--experience-right {
-  bottom: 20%;
-  right: -90px;
-  width: 380px;
-  height: 300px;
-  transform: rotate(10deg);
-  opacity: 0.4;
-}
 
-.wave-decoration--contact-top {
-  top: -20px;
-  left: 10%;
-  width: 450px;
-  height: 250px;
-  transform: rotate(5deg);
-  opacity: 0.35;
-}
 
-.wave-decoration--hero-mid {
-  top: 45%;
-  right: 15%;
-  width: 280px;
-  height: 280px;
-  transform: rotate(25deg);
-  opacity: 0.25;
-}
 
-/* Case Study Modal Wave Decorations */
-.wave-decoration--modal-top-left {
-  top: 5%;
-  left: -80px;
-  width: 350px;
-  height: 300px;
-  transform: rotate(15deg);
-  opacity: 0.3;
-}
 
-.wave-decoration--modal-top-right {
-  top: 8%;
-  right: -60px;
-  width: 280px;
-  height: 280px;
-  transform: rotate(-20deg);
-  opacity: 0.35;
-}
 
-.wave-decoration--modal-mid-right {
-  top: 40%;
-  right: -100px;
-  width: 420px;
-  height: 350px;
-  transform: rotate(12deg);
-  opacity: 0.28;
-}
 
-.wave-decoration--modal-bottom-left {
-  bottom: 10%;
-  left: -70px;
-  width: 380px;
-  height: 320px;
-  transform: rotate(-18deg);
-  opacity: 0.32;
-}
 
 /* Additional section decorations for more variety */
-.wave-decoration--about-bottom {
-  bottom: 15%;
-  right: 5%;
-  width: 320px;
-  height: 280px;
-  transform: rotate(-25deg);
-  opacity: 0.25;
-}
 
-.wave-decoration--work-bottom {
-  bottom: 10%;
-  left: 5%;
-  width: 380px;
-  height: 300px;
-  transform: rotate(15deg);
-  opacity: 0.32;
-}
 
-.wave-decoration--experience-bottom {
-  bottom: 5%;
-  left: 50%;
-  transform: translateX(-50%) rotate(-10deg);
-  width: 400px;
-  height: 250px;
-  opacity: 0.28;
-}
+
+
+
 
 /* ============================================
    Animation for decorative elements
@@ -1783,19 +1564,11 @@ section {
   animation: floatWave 8s infinite ease-in-out;
 }
 
-.wave-decoration--hero-top {
-  --wave-rotation: -15deg;
-}
 
-.wave-decoration--hero-bottom {
-  --wave-rotation: 10deg;
-  animation-delay: -2s;
-}
 
-.wave-decoration--about-right {
-  --wave-rotation: -5deg;
-  animation-delay: -4s;
-}
+
+
+
 
 /* ============================================
    Case Study Body Links (no blue)
@@ -2083,112 +1856,18 @@ section {
 /* ============================================
    Dot Navigation - Brutalist Style
    ============================================ */
-.dot-nav {
-  position: fixed;
-  right: var(--space-lg);
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1000;
-  /* Ensure above all content */
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
 
-.dot-nav__dot {
-  width: 12px;
-  height: 12px;
-  padding: 0;
-  border: 2px solid var(--text-primary);
-  background: transparent;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
 
-.dot-nav__dot:hover {
-  background: var(--text-primary);
-  transform: scale(1.2);
-}
 
-.dot-nav__dot.active {
-  background: var(--accent-red);
-  border-color: var(--accent-red);
-}
 
-.dot-nav__dot.active:hover {
-  background: var(--accent-red);
-}
+
+
+
+
+
 
 /* Hide on mobile */
-@media (max-width: 768px) {
-  .dot-nav {
-    display: none;
-  }
-}
 
-/* ============================================
-   Modal Navigation - Prev/Next
-   ============================================ */
-.modal__nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  gap: var(--space-sm);
-  z-index: 10;
-}
-
-.modal__nav--prev {
-  left: var(--space-lg);
-}
-
-.modal__nav--next {
-  right: calc(var(--space-lg) + 60px);
-}
-
-.modal__nav-btn {
-  width: 48px;
-  height: 48px;
-  background: var(--bg-primary);
-  border: 2px solid var(--text-primary);
-  color: var(--text-primary);
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal__nav-btn:hover {
-  background: var(--text-primary);
-  color: var(--text-inverted);
-}
-
-.modal__nav-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-/* Responsive nav buttons */
-@media (max-width: 768px) {
-
-  .modal__nav--prev,
-  .modal__nav--next {
-    position: fixed;
-    top: auto;
-    bottom: var(--space-lg);
-    transform: none;
-  }
-
-  .modal__nav--prev {
-    left: var(--space-md);
-  }
-
-  .modal__nav--next {
-    right: var(--space-md);
-  }
-}
 
 /* ============================================
    Companies Section - Who I've Worked With
@@ -2317,7 +1996,6 @@ section {
   background: var(--bg-primary);
   padding: var(--space-xs) var(--space-sm);
   border: 1px solid var(--text-primary);
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
 .logo-message.visible {
@@ -2410,7 +2088,6 @@ section {
 .achievement-bar.complete:hover {
   background: var(--accent-red);
   transform: translate(-2px, -2px);
-  box-shadow: 2px 2px 0 var(--text-primary);
 }
 
 #celebrationClose {
@@ -2650,7 +2327,7 @@ section {
 
 .hero__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
   align-items: center;
   gap: var(--space-xl);
   width: 100%;
@@ -2665,28 +2342,13 @@ section {
   margin-bottom: 0;
 }
 
-.hero__rings {
-  display: inline-flex;
-  gap: 5px;
-}
 
-.hero__rings i {
-  display: block;
-  width: 10px;
-  height: 10px;
-  border: 1.5px solid var(--text-primary);
-  border-radius: 50%;
-  opacity: 0.5;
-}
 
-.hero__rings i:first-child {
-  animation: ringPulse 3s ease-in-out infinite;
-}
 
-@keyframes ringPulse {
-  0%, 100% { background: transparent; }
-  50% { background: var(--accent-red); border-color: var(--accent-red); opacity: 1; }
-}
+
+
+
+
 
 .hero__role {
   font-family: var(--font-mono);
@@ -2702,16 +2364,72 @@ section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-self: center;
+  justify-self: end;
   position: relative;
   z-index: 1;
 }
 
 .seed-circle {
   display: block;
-  width: min(20.4vw, 240px);
+  width: clamp(220px, 32vw, 460px);
   aspect-ratio: 1;
-  will-change: transform;
+  cursor: pointer;
+  transition: filter var(--transition-fast);
+}
+
+/* Same hover and press response as the nav logo */
+@media (hover: hover) {
+  .seed-circle:hover {
+    filter: invert(0.3);
+  }
+}
+
+.seed-circle:focus-visible {
+  outline: 2px solid var(--accent-red);
+  outline-offset: 6px;
+}
+
+.seed-circle.glitching {
+  animation: seedGlitch 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes seedGlitch {
+
+  0%,
+  100% {
+    transform: translate(0) scale(1);
+    filter: none;
+  }
+
+  10% {
+    transform: translate(-6px, 4px) scale(1.04);
+    filter: drop-shadow(3px 0 0 var(--accent-red));
+  }
+
+  20% {
+    transform: translate(6px, -4px) scale(0.96);
+    filter: invert(0.35);
+  }
+
+  30% {
+    transform: translate(-4px, -2px) scale(1.02);
+    filter: drop-shadow(-3px 0 0 var(--accent-red));
+  }
+
+  40% {
+    transform: translate(4px, 2px) scale(0.98);
+    filter: drop-shadow(3px 0 0 var(--accent-red));
+  }
+
+  60% {
+    transform: translate(-2px, 2px) scale(1.01);
+    filter: invert(0.35);
+  }
+
+  80% {
+    transform: translate(2px, -2px) scale(0.99);
+    filter: none;
+  }
 }
 
 .seed-counter {
@@ -2814,17 +2532,16 @@ section {
   color: var(--text-primary);
   text-decoration: none;
   background: var(--bg-primary);
-  border: 2px solid var(--text-primary);
-  box-shadow: 4px 4px 0 var(--text-primary);
+  border: 1px solid var(--text-primary);
   transform-origin: 50% 60%;
-  transition: box-shadow 0.15s ease;
+  transition: border-color 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .featured-card:hover,
 .featured-card:focus-visible {
   color: var(--text-primary);
-  box-shadow: 6px 6px 0 var(--accent-red);
+  border-color: var(--accent-red);
 }
 
 .featured-card__art {
@@ -3129,31 +2846,13 @@ section {
 }
 
 /* One bracket per section, anchored to the content column */
-.container > .corner-bracket--top-left {
-  top: -2.25rem;
-  left: -1.75rem;
-}
 
-.container > .corner-bracket--top-right {
-  top: -2.25rem;
-  right: -1.75rem;
-}
 
-.hero__layout > .corner-bracket--bottom-right {
-  top: auto;
-  bottom: -3rem;
-  right: 0;
-}
 
-@media (max-width: 768px) {
-  .container > .corner-bracket--top-left {
-    left: -0.5rem;
-  }
 
-  .container > .corner-bracket--top-right {
-    right: -0.5rem;
-  }
-}
+
+
+
 
 /* Studio logos: one ink treatment, matched in size */
 .company-logo img,
@@ -3287,6 +2986,7 @@ section {
 
 .case-study--page .case-study__content img {
   width: 100%;
+  height: auto;
   border: 2px solid var(--text-primary);
 }
 
@@ -3407,7 +3107,7 @@ section {
 }
 
 /* ============================================
-   Case-study template shared by modal and page
+   Case-study page template
    ============================================ */
 .case-study__meta {
   display: flex;
@@ -3490,25 +3190,6 @@ section {
 
 .case-study__intro .case-study__tagline {
   margin-bottom: 0;
-}
-
-.case-study__full {
-  display: inline-block;
-  margin-top: var(--space-lg);
-  padding: 0.6rem 1rem;
-  border: 2px solid var(--text-primary);
-  box-shadow: 3px 3px 0 var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text-primary);
-  text-decoration: none;
-}
-
-.case-study__full:hover {
-  color: var(--text-primary);
-  box-shadow: 5px 5px 0 var(--accent-red);
 }
 
 @media (max-width: 768px) {
@@ -3629,16 +3310,24 @@ section {
     padding: 0.1rem 0.3rem;
   }
 
-  #work .project-card__role,
   #work .project-card__overlay::before,
   #work .project-card__overlay::after {
     display: none;
   }
 
-  /* waves stay out from behind the hero text */
-  .wave-decoration--hero-bottom {
-    display: none;
+  /* No hover on phones: the role shows on the tile in the middle of the screen */
+  #work .project-card__role {
+    font-size: 0.55rem;
+    opacity: 0;
+    transition: opacity 0.15s ease;
   }
+
+  #work .project-card.is-centered .project-card__role {
+    opacity: 1;
+  }
+
+  /* waves stay out from behind the hero text */
+  
 }
 
 /* Case-study pages have no menu button: on phones their nav links stay
@@ -3660,4 +3349,1819 @@ section {
     font-size: 0.65rem;
     white-space: nowrap;
   }
+}
+
+/* ============================================
+   Page transitions - real page loads cross-fade instead of flashing; the
+   header stays put. Browsers without support just load the page normally.
+   ============================================ */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+.nav {
+  view-transition-name: site-nav;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+}
+
+/* ============================================
+   Deep-dive case studies (.case-study--deep)
+   Opt-in layout: fact strip, proof numbers, numbered sections, wide figures,
+   and a sticky "on this page" rail on wide screens.
+   ============================================ */
+.case-study--deep {
+  max-width: 1120px;
+  padding-top: 100px;
+  /* the sticky rail needs an ancestor that does not clip */
+  overflow: visible;
+}
+
+.case-study--deep [id] {
+  scroll-margin-top: 110px;
+}
+
+.case-study--deep .case-study__back {
+  margin-bottom: 1.1rem;
+}
+
+.case-study--page.case-study--deep .case-study__image {
+  height: 220px;
+  margin-bottom: 1.25rem;
+  object-position: 50% 28%;
+}
+
+.case-study--deep .case-study__tagline {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+.case-study--deep .case-study__header {
+  margin-bottom: 2rem;
+}
+
+.case-study--deep .case-study__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0;
+  margin-bottom: 1.75rem;
+  border-top: 1px solid var(--text-primary);
+  border-bottom: 1px solid var(--text-primary);
+}
+
+.case-study--deep .case-study__meta-item {
+  padding: 0.9rem 1rem;
+  border-left: 1px solid var(--border-subtle);
+}
+
+.case-study--deep .case-study__meta-item:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.cs-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem 2.5rem;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.cs-stat__num {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: clamp(2.8rem, 7vw, 4.5rem);
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.cs-stat__label {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.cs-layout {
+  display: block;
+}
+
+.cs-rail {
+  display: none;
+}
+
+@media (min-width: 1180px) {
+  .cs-layout {
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: 3rem;
+  }
+
+  .cs-rail {
+    display: block;
+    position: sticky;
+    top: 120px;
+    align-self: start;
+  }
+}
+
+.cs-rail__title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.cs-rail ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-left: 1px solid var(--border-subtle);
+}
+
+.cs-rail a {
+  display: block;
+  margin-left: -1px;
+  padding: 0.35rem 0 0.35rem 0.85rem;
+  border-left: 2px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.cs-rail a:hover,
+.cs-rail a.is-current {
+  color: var(--text-primary);
+  border-left-color: var(--accent-red);
+}
+
+.cs-h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: 3.5rem 0 1rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  scroll-margin-top: 110px;
+}
+
+.case-study--deep .case-study__content > .cs-h2:first-child {
+  margin-top: 0;
+}
+
+.cs-h2__num {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-red-text);
+}
+
+.case-study--deep .case-study__content figure {
+  margin: 2.5rem 0;
+}
+
+.case-study--deep .case-study__content figcaption {
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .case-study--deep {
+    padding-top: 84px;
+  }
+
+  .case-study--page.case-study--deep .case-study__image {
+    height: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .case-study--deep .case-study__meta-item:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .case-study--deep .case-study__meta-item:nth-child(n+3) {
+    border-top: 1px solid var(--border-subtle);
+  }
+}
+
+/* ============================================
+   Work: the deep-dive projects lead as large cards; everything else follows
+   as small tiles (15 = 3 rows of 5, 5 rows of 3)
+   ============================================ */
+#work .work__lead {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: var(--space-2xl);
+}
+
+#work .work__lead .featured-card {
+  grid-column: auto;
+}
+
+#work .work__grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+@media (max-width: 1100px) {
+  #work .work__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  #work .work__lead {
+    grid-template-columns: 1fr;
+  }
+
+  #work .work__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-sm);
+  }
+}
+
+/* How I work now sits inside About */
+#about .approach {
+  position: relative;
+  margin-top: var(--space-2xl);
+}
+
+#about .approach .companies__title {
+  margin-bottom: var(--space-md);
+}
+
+/* Experience: the three most recent roles show, earlier ones expand */
+.timeline__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: var(--space-lg);
+  padding: 0.7rem 1.1rem;
+  background: transparent;
+  border: 1px solid var(--text-primary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.timeline__toggle:hover,
+.timeline__toggle:focus-visible {
+  background: var(--text-primary);
+  color: var(--text-inverted);
+}
+
+.timeline__toggle-count {
+  color: var(--accent-red-text);
+}
+
+.timeline__toggle:hover .timeline__toggle-count,
+.timeline__toggle:focus-visible .timeline__toggle-count {
+  color: inherit;
+}
+
+.timeline__toggle[aria-expanded="true"] .timeline__toggle-count {
+  display: none;
+}
+
+/* Five across leaves little room: titles only, with the role revealed on hover */
+@media (min-width: 1101px) {
+  #work .work__grid .project-card__overlay {
+    padding: 0.4rem;
+  }
+
+  #work .work__grid .project-card__title {
+    font-size: 0.75rem;
+    padding: 0.1rem 0.3rem;
+  }
+
+  #work .work__grid .project-card__overlay::before,
+  #work .work__grid .project-card__overlay::after {
+    display: none;
+  }
+
+  #work .work__grid .project-card__role {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.35rem;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  #work .work__grid .project-card:hover .project-card__role,
+  #work .work__grid .project-card:focus-visible .project-card__role,
+  #work .work__grid .project-card.is-centered .project-card__role {
+    opacity: 1;
+  }
+}
+
+/* Colour marks the deep dives: the three lead cards keep their art in colour while the short-form tiles stay ink and wake on hover */
+.work__lead .featured-card__art img {
+  filter: none;
+}
+
+/* Hero credits: recognisable titles on the first screen */
+.hero__credits {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 1.1rem;
+  max-width: 36rem;
+  margin: var(--space-lg) 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.9;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.hero__credits-label {
+  margin-right: -0.2rem;
+  color: var(--accent-red-text);
+  font-weight: 600;
+}
+
+.hero__credits a {
+  color: var(--text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  background-image: linear-gradient(var(--accent-red), var(--accent-red));
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.2s ease;
+}
+
+.hero__credits a:hover,
+.hero__credits a:focus-visible {
+  background-size: 100% 2px;
+}
+
+
+/* ============================================
+   Pistol Whip branded pieces
+   Palette from the game's art: night violet, magenta and cyan. Magenta is for
+   rules and borders only (it fails contrast as text on the dark panel).
+   ============================================ */
+.pw-panel {
+  --pw-night: #14052a;
+  --pw-night-2: #2a0e58;
+  --pw-magenta: #d50c4d;
+  --pw-pink: #ff4d8d;
+  --pw-cyan: #4fe0d0;
+  --pw-cream: #f6f0ff;
+  --pw-soft: #c9b8e8;
+  --pw-line: rgba(201, 184, 232, 0.35);
+  position: relative;
+  margin: 2.75rem 0;
+  padding: 2rem 1.75rem 1.75rem;
+  color: var(--pw-cream);
+  background: linear-gradient(135deg, var(--pw-night) 0%, var(--pw-night-2) 100%);
+  border-top: 4px solid var(--pw-magenta);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+}
+
+.pw-panel__kicker {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--pw-pink);
+}
+
+.pw-panel__title {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--pw-cream);
+}
+
+.case-study--page .case-study__content .pw-panel a {
+  color: var(--pw-cyan);
+  text-decoration: none;
+}
+
+.pw-options,
+.pw-frames,
+.pw-releases {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pw-options,
+.pw-frames {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 800px) {
+  .pw-options,
+  .pw-frames {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pw-option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  border: 1px solid var(--pw-line);
+  background: rgba(20, 5, 42, 0.55);
+}
+
+.pw-option h4 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--pw-cream);
+}
+
+.case-study--page .case-study__content .pw-option p,
+.case-study--page .case-study__content .pw-release p,
+.case-study--page .case-study__content .pw-frame__cap {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--pw-soft);
+}
+
+.pw-verdict {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 0.25rem 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pw-option--start .pw-verdict {
+  border: 1px solid var(--pw-soft);
+  color: var(--pw-soft);
+}
+
+.pw-option--passed {
+  border: 1px dashed var(--pw-magenta);
+}
+
+.pw-option--passed .pw-verdict {
+  border: 1px solid var(--pw-pink);
+  color: var(--pw-pink);
+}
+
+.pw-option--chosen {
+  border: 2px solid var(--pw-cyan);
+}
+
+.pw-option--chosen .pw-verdict {
+  background: var(--pw-cyan);
+  color: var(--pw-night);
+  font-weight: 600;
+}
+
+.pw-frame svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--pw-line);
+}
+
+.case-study--page .case-study__content .pw-frame__cap {
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.pw-frame__cap b {
+  margin-right: 0.4rem;
+  color: var(--pw-pink);
+  font-weight: 600;
+}
+
+.pw-release {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  gap: 0.25rem 1.25rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--pw-line);
+}
+
+.pw-release:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+@media (max-width: 640px) {
+  .pw-release {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pw-release__date {
+  padding-top: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pw-pink);
+}
+
+.pw-release h4 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--pw-cream);
+}
+
+/* Short quotes in case studies */
+.case-study--page .case-study__content .cs-quote {
+  margin: 1.25rem 0;
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  border-left: 3px solid var(--accent-red);
+}
+
+.case-study--page .case-study__content .cs-quote p {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+/* Small tiles: hover shows the role only */
+#work .work__grid .project-card__desc {
+  display: none;
+}
+
+/* Embedded studio video */
+.cs-embed {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: 2px solid var(--text-primary);
+  background: var(--bg-dark);
+}
+
+.cs-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Contact sits on its own ground, so it does not run into the Experience section above it */
+#contact {
+  background: var(--bg-primary);
+  border-top: 2px solid var(--text-primary);
+}
+
+/* 404 */
+.not-found {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  padding: 8rem 0 4rem;
+}
+
+.not-found__title {
+  margin: 0.5rem 0 1rem;
+  font-size: clamp(2.6rem, 8vw, 6rem);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.not-found__text {
+  margin: 0 0 2rem;
+  max-width: 32rem;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   Miro-style boards: dotted canvas, frames, sticky notes and connectors,
+   for flows and documentation diagrams in case studies
+
+   The aim is a board a person laid out by hand in Miro: square stickies,
+   small offsets and tilts, curved connectors, a comment pointing at
+   something. All of the "hand placement" is fixed CSS (nth-child offsets),
+   so it renders the same every time. No JS. Connectors in flows are drawn
+   by CSS, so they follow the notes when a flow restacks.
+
+   CLASSES
+   .miro              the board (dotted canvas). Needs role="group" + aria-label.
+   .miro__grid        frames side by side when the board is wide, stacked when narrow
+   .miro__grid--linked  adds a curved arrow from the first frame to the second
+   .miro-frame        white frame. Put .miro-frame__title first inside it.
+   .miro-frame--wide  spans the full board row
+   .miro-frame--inset narrower frame pushed to the right (default 25rem)
+   .miro-frame--snug  narrower frame kept to the left (default 40rem, enough
+                      for a 3-note horizontal flow). Both take style='--w: 30rem'
+   .miro-flow         <ol role="list"> of stickies joined by arrows. Horizontal
+                      when its frame is wide (36rem+), vertical when narrow.
+   .miro-flow--col    always vertical          .miro-flow--long  goes horizontal
+                      only at 46rem+ (4 or 5 notes)   .miro-flow--flip  mirror the zigzag
+   .miro-note         square sticky. Colours: --yellow --green --blue --pink
+                      --orange --gray. Sizes: --lg (headline) --sm (annotation)
+   .miro-shape        outlined Miro shape (box). --pill for rounded ends
+   .miro-merge        many-to-one: <ul class="miro-stack"> + <svg class="miro-merge__lines">
+                      + .miro-shape. .miro-merge--out flips it to one-to-many
+                      (shape, svg, ul). Up to 5 items; stack notes hold 1-3 words.
+   .miro-comment      small sticky with an arrow pointing up at what is above it.
+                      Starts just left of the frame's centre (so the arrow lands on a
+                      centred flow); long text runs out over the right frame edge.
+                      --left mirrors it.
+                      Inside .miro-merge (after the shape) it tucks under the shape.
+   .miro-timeline     <ol role="list"> of stickies hung from a line; date in .miro-tag
+   .miro-text         plain text heading on the canvas
+   .miro-tag          small label chip, inside a note or on its own
+   .miro-label        short label on a connector. Put it FIRST inside the <li>
+                      it points at, so it reads in order.
+   Text stays short: 1-2 lines per sticky. Lists keep role="list" because
+   Safari drops list semantics when list-style is none. SVG: aria-hidden="true"
+   focusable="false".
+
+   EXAMPLES (role="list" omitted here for space; always add it)
+   Horizontal flow (vertical on phones):
+     <div class="miro-frame"><p class="miro-frame__title">Loop</p>
+       <ol class="miro-flow"><li class="miro-note miro-note--yellow">Find</li>
+         <li class="miro-note miro-note--blue miro-note--lg">Fight</li>
+         <li class="miro-note miro-note--green">Loot</li></ol></div>
+   Vertical flow: the same with <ol class="miro-flow miro-flow--col">
+   Fan-in (paths for 2 items: M0 0H30C62 0 66 50 100 50 / M0 100H30C62 100 66 50 100 50;
+   for 4 items use y = 0, 33.3, 66.7, 100):
+     <div class="miro-merge"><ul class="miro-stack"><li class="miro-note">A</li>
+       <li class="miro-note">B</li><li class="miro-note">C</li></ul>
+       <svg class="miro-merge__lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+       <path d="M0 0H30C62 0 66 50 100 50"/><path d="M0 50H100"/><path d="M0 100H30C62 100 66 50 100 50"/></svg>
+       <div class="miro-shape">Result</div></div>
+   Fan-out or decision: <div class="miro-merge miro-merge--out"><div class="miro-shape">Choice</div>
+       <svg ...same attributes...><path d="M0 50H30C62 50 66 0 100 0"/><path d="M0 50H100"/>
+       <path d="M0 50H30C62 50 66 100 100 100"/></svg>
+       <ul class="miro-stack"><li class="miro-note"><span class="miro-label">yes</span>A</li>...</ul></div>
+   Two-frame comparison:
+     <div class="miro__grid miro__grid--linked">
+       <div class="miro-frame"><p class="miro-frame__title">Before</p><ol class="miro-flow">...</ol>
+         <p class="miro-comment miro-note--orange">Why it hurt</p></div>
+       <div class="miro-frame"><p class="miro-frame__title">After</p><ol class="miro-flow">...</ol></div></div>
+   Timeline strip:
+     <ol class="miro-timeline"><li class="miro-note"><span class="miro-tag">May 2023</span>Season</li>
+       <li class="miro-note miro-note--blue"><span class="miro-tag">Oct 2023</span>Update</li></ol>
+   ============================================ */
+.miro {
+  --miro-ink: #1a1a1a;
+  --miro-line: #e2e3e8;
+  --miro-muted: #6b6f80;
+  container: miro / inline-size;
+  position: relative;
+  margin: 2.25rem 0;
+  padding: clamp(1.6rem, 4vw, 2.25rem) clamp(0.75rem, 3.2vw, 1.75rem) clamp(1rem, 3.2vw, 1.75rem);
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--miro-line);
+  border-radius: 8px;
+  background-color: #f7f7f8;
+  background-image: radial-gradient(#cdd0d8 1px, transparent 1.3px);
+  background-size: 20px 20px;
+  background-position: 7px 11px;
+  color: var(--miro-ink);
+  font-family: "Open Sans", "Noto Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.35;
+  text-align: left;
+}
+
+/* zero specificity, so the kit's own list classes set their padding */
+:where(.miro) :where(ol, ul) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* case-study prose styles every <p>; boards set their own */
+.case-study__content .miro p,
+.miro p {
+  margin: 0;
+  max-width: none;
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--miro-ink);
+}
+
+/* ---------- frames ---------- */
+.miro__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+
+/* inside a grid the gap leaves room for frame titles */
+.miro__grid > .miro-frame {
+  margin-top: 0;
+}
+
+@container miro (min-width: 40rem) {
+  .miro__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* frames are not top-aligned: the second one sits lower */
+  .miro__grid > .miro-frame:nth-child(2):not(.miro-frame--wide) {
+    margin-top: 3.75rem;
+  }
+
+  .miro__grid > .miro-frame--wide {
+    grid-column: 1 / -1;
+  }
+
+}
+
+.miro-frame {
+  container-type: inline-size;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  margin-top: 1.4rem;
+  padding: 1.6rem 0.875rem 1.4rem;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(20, 22, 40, 0.07), 0 1px 3px rgba(20, 22, 40, 0.06);
+}
+
+@container miro (min-width: 30rem) {
+  .miro-frame {
+    padding: 1.9rem 1.5rem 1.6rem;
+  }
+}
+
+.miro-frame--inset,
+.miro-frame--snug {
+  width: min(100%, var(--w, 25rem));
+}
+
+.miro-frame--inset {
+  justify-self: end;
+}
+
+@container miro (min-width: 40rem) {
+  .miro-frame--inset {
+    margin-right: 3%;
+  }
+}
+
+/* a board with one frame sits in the middle instead of leaving the left half empty */
+.miro__grid > .miro-frame--inset:only-child {
+  justify-self: center;
+  margin-right: 0;
+}
+
+.miro-frame--snug {
+  --w: 40rem;
+  justify-self: start;
+}
+
+.miro-frame__title,
+.miro p.miro-frame__title {
+  position: absolute;
+  bottom: 100%;
+  left: 1px;
+  margin: 0 0 0.3rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.3;
+  text-transform: none;
+  color: var(--miro-muted);
+}
+
+/* curved arrow from the first frame to the second (down when stacked) */
+.miro__grid--linked > .miro-frame:first-child + .miro-frame::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: 24%;
+  width: 48px;
+  height: 40px;
+  background: var(--miro-ink);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 40'%3E%3Cpath d='M0 30C21 30 22 20 40 20' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M39 16L48 20L39 24Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 40'%3E%3Cpath d='M0 30C21 30 22 20 40 20' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M39 16L48 20L39 24Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  transform-origin: 100% 50%;
+  transform: rotate(90deg);
+  pointer-events: none;
+}
+
+@container miro (min-width: 40rem) {
+  .miro__grid--linked > .miro-frame:first-child:not(.miro-frame--wide) + .miro-frame:not(.miro-frame--wide)::before {
+    top: 3.25rem;
+    right: 100%;
+    transform: none;
+  }
+}
+
+/* ---------- stickies and shapes ---------- */
+.miro-note {
+  --size: 9rem;
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: var(--size);
+  aspect-ratio: 1;
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+  color: var(--miro-ink);
+  background: #fff9b1;
+  border-radius: 1px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.07), 0 7px 9px -5px rgba(0, 0, 0, 0.28);
+}
+
+.miro-note--lg {
+  --size: 10.75rem;
+  font-size: 1rem;
+}
+
+.miro-note--sm {
+  --size: 6.5rem;
+  padding: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+/* smaller stickies in narrow frames, so a phone board stays a sane length */
+@container (max-width: 22rem) {
+  .miro-note {
+    --size: 7.75rem;
+  }
+
+  .miro-note--lg {
+    --size: 9rem;
+  }
+
+  .miro-note--sm {
+    --size: 6.5rem;
+  }
+}
+
+.miro-shape {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4.5rem;
+  padding: 0.75rem 0.9rem;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  color: var(--miro-ink);
+  background: #fff;
+  border: 2px solid var(--miro-ink);
+  border-radius: 10px;
+}
+
+.miro-shape--pill {
+  border-radius: 999px;
+  padding-inline: 1.25rem;
+}
+
+.miro-text,
+.miro p.miro-text {
+  margin: 0 0 1.1rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.miro-tag {
+  display: inline-block;
+  padding: 0.05rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.45;
+  white-space: nowrap;
+  color: var(--miro-ink);
+}
+
+.miro-label {
+  position: absolute;
+  z-index: 1;
+  padding: 0 0.25rem;
+  background: #fff;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: var(--miro-muted);
+}
+
+/* ---------- flows ----------
+   Each note after the first draws the arrow that points at it, so a
+   restacked flow can never leave an arrow pointing at nothing. The offsets
+   (--o), gaps (--g) and tilts (--r) repeat every 4 notes, and each arrow's
+   curve is drawn for exactly the offset it bridges. Vertical is the default;
+   the container query below turns a flow sideways when its frame is wide. */
+.miro-flow {
+  --f: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.miro-flow--flip,
+.miro__grid > .miro-frame:nth-child(even) .miro-flow {
+  --f: -1;
+}
+
+.miro-flow > li {
+  --o: 0px;
+  --g: 0px;
+  --r: 0deg;
+  flex: none;
+  margin-top: var(--g);
+  transform: translateX(calc(var(--o) * var(--f) * -1)) rotate(calc(var(--r) * var(--f)));
+}
+
+.miro-flow > li:nth-child(4n+2) {
+  --g: 52px;
+  --o: 12px;
+  --r: 1.2deg;
+  --link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 40'%3E%3Cpath d='M0 8C24 8 22 20 44 20' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M43 16L52 20L43 24Z'/%3E%3C/svg%3E");
+}
+
+.miro-flow > li:nth-child(4n+3) {
+  --g: 44px;
+  --o: -2px;
+  --link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 40'%3E%3Cpath d='M0 34C18 34 20 20 36 20' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M35 16L44 20L35 24Z'/%3E%3C/svg%3E");
+}
+
+.miro-flow > li:nth-child(4n+4) {
+  --g: 56px;
+  --o: 10px;
+  --r: -1.4deg;
+  --link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 40'%3E%3Cpath d='M0 8C27 8 24 20 48 20' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M47 16L56 20L47 24Z'/%3E%3C/svg%3E");
+}
+
+.miro-flow > li:nth-child(4n+5) {
+  --g: 48px;
+  --link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 40'%3E%3Cpath d='M0 30C21 30 22 20 40 20' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M39 16L48 20L39 24Z'/%3E%3C/svg%3E");
+}
+
+.miro-flow > li + li::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: 50%;
+  width: var(--g);
+  height: 40px;
+  background: var(--miro-ink);
+  -webkit-mask: var(--link) center / 100% 100% no-repeat;
+  mask: var(--link) center / 100% 100% no-repeat;
+  transform-origin: 100% 50%;
+  transform: rotate(90deg) scaleY(var(--f));
+  pointer-events: none;
+}
+
+.miro-flow > li > .miro-label {
+  top: calc(var(--g) * -0.5);
+  left: calc(50% + 1.4rem);
+  transform: translateY(-50%);
+}
+
+@container (min-width: 36rem) {
+  .miro-flow:not(.miro-flow--col):not(.miro-flow--long) {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0.9rem 0 1rem 1.25rem;
+  }
+
+  .miro-flow:not(.miro-flow--col):not(.miro-flow--long) > li {
+    flex: 0 1 var(--size);
+    min-width: 7rem;
+    margin-top: 0;
+    margin-left: var(--g);
+    transform: translateY(calc(var(--o) * var(--f))) rotate(calc(var(--r) * var(--f)));
+  }
+
+  .miro-flow:not(.miro-flow--col):not(.miro-flow--long) > li + li::before {
+    top: calc(50% - 20px);
+    right: 100%;
+    transform: scaleY(var(--f));
+  }
+
+  .miro-flow:not(.miro-flow--col):not(.miro-flow--long) > li > .miro-label {
+    top: auto;
+    bottom: calc(50% + 1.1rem);
+    left: auto;
+    right: calc(100% + var(--g) * 0.5);
+    transform: translateX(50%);
+  }
+}
+
+@container (min-width: 46rem) {
+  .miro-flow--long:not(.miro-flow--col) {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0.9rem 0 1rem 1.25rem;
+  }
+
+  .miro-flow--long:not(.miro-flow--col) > li {
+    flex: 0 1 var(--size);
+    min-width: 7rem;
+    margin-top: 0;
+    margin-left: var(--g);
+    transform: translateY(calc(var(--o) * var(--f))) rotate(calc(var(--r) * var(--f)));
+  }
+
+  .miro-flow--long:not(.miro-flow--col) > li + li::before {
+    top: calc(50% - 20px);
+    right: 100%;
+    transform: scaleY(var(--f));
+  }
+
+  .miro-flow--long:not(.miro-flow--col) > li > .miro-label {
+    top: auto;
+    bottom: calc(50% + 1.1rem);
+    left: auto;
+    right: calc(100% + var(--g) * 0.5);
+    transform: translateX(50%);
+  }
+}
+
+/* ---------- many-to-one / one-to-many ----------
+   Stack notes are fixed squares, so the line ends are known: the SVG spans
+   from the first note's centre to the last one's and starts underneath the
+   notes (fan-in) or the shape (fan-out), so offsets never leave a gap. */
+.miro-merge {
+  --fan: 5.25rem;
+  --fan-gap: 0.875rem;
+  --reach: 3rem;
+  --n: 3;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: var(--fan) var(--reach) minmax(6.5rem, 10rem);
+  justify-content: start;
+  align-items: center;
+  padding: 0.25rem 0 0.25rem 0.5rem;
+}
+
+.miro-merge:has(> .miro-stack > li:nth-child(2):last-child) { --n: 2; }
+.miro-merge:has(> .miro-stack > li:nth-child(4):last-child) { --n: 4; }
+.miro-merge:has(> .miro-stack > li:nth-child(5):last-child) { --n: 5; }
+
+@container (max-width: 15.5rem) {
+  .miro-merge {
+    --fan: 4.75rem;
+    --reach: 2.5rem;
+    padding-left: 0.25rem;
+  }
+}
+
+.miro-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fan-gap, 1rem);
+}
+
+.miro-merge > .miro-stack {
+  grid-row: 1;
+}
+
+.miro-merge > .miro-stack > li {
+  --size: var(--fan);
+  height: var(--fan);
+  aspect-ratio: auto;
+  padding: 0.4rem;
+  font-size: 0.875rem;
+}
+
+/* hand-placed: one note nudged left and tilted, one nudged right */
+.miro-merge:not(.miro-merge--out) > .miro-stack > li:nth-child(3n+2) {
+  transform: translateX(-9px) rotate(-1.5deg);
+}
+
+.miro-merge:not(.miro-merge--out) > .miro-stack > li:nth-child(3n) {
+  transform: translateX(6px);
+}
+
+.miro-merge--out > .miro-stack > li:nth-child(even) {
+  transform: rotate(1.2deg);
+}
+
+.miro-merge__lines {
+  position: relative;
+  z-index: -1;
+  display: block;
+  grid-column: 2;
+  grid-row: 1;
+  width: calc(100% + 1.75rem);
+  height: calc((var(--n) - 1) * (var(--fan) + var(--fan-gap)));
+  margin-left: -1.75rem;
+  overflow: visible;
+}
+
+.miro-merge__lines path {
+  fill: none;
+  stroke: var(--miro-ink);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.miro-merge > .miro-shape {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.miro-merge:not(.miro-merge--out) > .miro-shape::before,
+.miro-merge--out > .miro-stack > li::before {
+  content: '';
+  position: absolute;
+  top: calc(50% - 5px);
+  right: 100%;
+  width: 9px;
+  height: 10px;
+  background: var(--miro-ink);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.miro-merge--out {
+  grid-template-columns: minmax(6.5rem, 10rem) var(--reach) var(--fan);
+  padding: 0.25rem 0.5rem 0.25rem 0;
+}
+
+.miro-merge--out > .miro-shape {
+  grid-column: 1;
+}
+
+.miro-merge--out > .miro-stack {
+  grid-column: 3;
+}
+
+.miro-merge--out > .miro-stack > li > .miro-label {
+  right: calc(100% + 0.9rem);
+  bottom: calc(50% + 0.35rem);
+}
+
+/* a comment placed inside .miro-merge sits under the shape and points at it */
+.miro-merge > .miro-comment,
+.miro .miro-merge > p.miro-comment {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  margin-top: 1rem;
+}
+
+/* below the merge, the arrow starts further right so it still reaches the shape */
+.miro-merge > .miro-comment::before {
+  left: auto;
+  right: 2.25rem;
+}
+
+@container (min-width: 21rem) {
+  .miro-merge > .miro-comment,
+  .miro .miro-merge > p.miro-comment {
+    grid-row: 1;
+    grid-column: 3;
+    align-self: end;
+    justify-self: start;
+    width: max-content;
+    max-width: 12.5rem;
+    margin: 0 0 -1.25rem 1.25rem;
+  }
+
+  .miro-merge > .miro-comment::before {
+    left: 0.9rem;
+    right: auto;
+  }
+}
+
+/* ---------- comments ---------- */
+.miro-comment,
+.miro p.miro-comment {
+  position: relative;
+  box-sizing: border-box;
+  width: fit-content;
+  max-width: min(13.5rem, 72%);
+  margin: 3rem -1.375rem 0 calc(50% - 1rem);
+  padding: 0.65rem 0.85rem;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--miro-ink);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.07), 0 7px 9px -5px rgba(0, 0, 0, 0.28);
+  transform: rotate(-1.6deg);
+}
+
+/* default colour on its own, so the palette classes below can replace it */
+.miro-comment {
+  background: #fff9b1;
+}
+
+@container miro (min-width: 30rem) {
+  .miro-comment,
+  .miro p.miro-comment {
+    margin-right: -2.1rem;
+  }
+}
+
+/* it starts just left of the frame's centre, so its arrow lands on a centred
+   flow, and runs out over the right edge of the frame when the text is long.
+   The arrow a person draws from a comment to the thing it is about: */
+.miro-comment::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 0.9rem;
+  width: 40px;
+  height: 40px;
+  background: var(--miro-ink);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M26 40C26 24 20 12 11 7' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M4 3.2L12.9 3.5L9.1 10.5Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M26 40C26 24 20 12 11 7' fill='none' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M4 3.2L12.9 3.5L9.1 10.5Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+.miro-comment--left,
+.miro p.miro-comment--left {
+  margin-right: calc(50% - 1rem);
+  margin-left: -1.375rem;
+  transform: rotate(1.2deg);
+}
+
+@container miro (min-width: 30rem) {
+  .miro-comment--left,
+  .miro p.miro-comment--left {
+    margin-right: calc(50% - 1rem);
+    margin-left: -2.1rem;
+  }
+}
+
+.miro-comment--left::before {
+  left: auto;
+  right: 0.9rem;
+  transform: scaleX(-1);
+}
+
+/* ---------- timeline strip ---------- */
+.miro-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.25rem 0 0.5rem 2rem;
+}
+
+.miro-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0.6rem;
+  width: 2px;
+  background: var(--miro-ink);
+}
+
+.miro-timeline > li {
+  --drop: 0px;
+  flex: none;
+}
+
+/* stem from the line to the note */
+.miro-timeline > li::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  width: 1.4rem;
+  height: 2px;
+  background: var(--miro-ink);
+}
+
+.miro-timeline > li:nth-child(3n+2) {
+  margin-left: 0.6rem;
+}
+
+.miro-timeline > li:nth-child(3n+2)::before {
+  width: 2rem;
+}
+
+.miro-timeline > li:nth-child(even) {
+  transform: rotate(1deg);
+}
+
+@container (min-width: 36rem) {
+  .miro-timeline {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 2.25rem 0 0.75rem;
+  }
+
+  .miro-timeline::before {
+    top: 0.75rem;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: auto;
+    height: 2px;
+  }
+
+  .miro-timeline > li {
+    flex: 0 1 var(--size);
+    min-width: 7rem;
+    margin-top: var(--drop);
+  }
+
+  .miro-timeline > li:nth-child(3n+2) {
+    --drop: 1.25rem;
+    margin-left: 0;
+  }
+
+  .miro-timeline > li:nth-child(3n) {
+    --drop: 0.5rem;
+  }
+
+  .miro-timeline > li::before,
+  .miro-timeline > li:nth-child(3n+2)::before {
+    top: auto;
+    right: auto;
+    bottom: 100%;
+    left: 50%;
+    width: 2px;
+    height: calc(1.5rem + var(--drop));
+  }
+}
+
+/* ---------- Miro's sticky palette (last, so it wins on comments too) ---------- */
+.miro-note--yellow { background: #fff9b1; }
+.miro-note--green { background: #d5f692; }
+.miro-note--blue { background: #c6dcff; }
+.miro-note--pink { background: #ffcee0; }
+.miro-note--orange { background: #ffd8a8; }
+.miro-note--gray { background: #e6e6e6; }
+
+.pw-art {
+  max-width: 24rem;
+}
+
+.pw-art--regions {
+  max-width: 36rem;
+}
+
+.case-study--page .case-study__content .pw-art--regions img {
+  border: 0;
+}
+
+/* Real design documents on case-study pages: shown flat and full width, open full size on click */
+.cs-doc {
+  margin: 1.75rem 0;
+}
+
+.cs-doc a {
+  display: block;
+  border: 1px solid var(--border-subtle);
+  background: #fff;
+}
+
+.cs-doc img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cs-doc--narrow {
+  max-width: 420px;
+}
+
+/* ---------- Design diagrams (.dg) ----------
+   Working diagrams drawn in the site's own ink-and-red language, one shape per idea
+   (maps, state charts, tables, timelines, curves), not a shared template. Markup:
+
+   <figure class="dg" role="group" aria-label="What the diagram shows">
+     <div class="dg__frame">
+       <svg class="dg__wide" viewBox="0 0 720 360" role="img" aria-label="...">...</svg>
+       <svg class="dg__narrow" viewBox="0 0 360 520" role="img" aria-label="...">...</svg>
+     </div>
+     <figcaption>...</figcaption>
+   </figure>
+
+   Use .dg__wide and .dg__narrow when the drawing needs a different layout on phones; a diagram
+   that scales fine can use a single svg. Keep text at 13 viewBox units or larger at the size it
+   is displayed. Helper classes for svg children: .ink, .ink-thin, .ink-dash, .red, .red-fill,
+   .muted, .paper, .t (label), .t-b (bold), .t-s (small), .t-red, .t-caps. */
+.dg {
+  margin: 2rem 0;
+}
+
+.dg__frame {
+  padding: 1rem;
+  border: 2px solid var(--text-primary);
+  background: var(--bg-primary);
+}
+
+.dg svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.dg .dg__narrow {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .dg .dg__wide:not(:only-child) {
+    display: none;
+  }
+
+  .dg .dg__narrow {
+    display: block;
+  }
+
+  .dg__frame {
+    padding: 0.5rem;
+  }
+}
+
+.dg text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  fill: var(--text-primary);
+}
+
+.dg .t-b { font-weight: 600; }
+.dg .t-s { font-size: 11px; }
+.dg .t-red { fill: var(--accent-red-text); }
+.dg .t-muted { fill: var(--text-muted); }
+.dg .t-caps { text-transform: uppercase; letter-spacing: 0.08em; }
+.dg .ink { fill: none; stroke: var(--text-primary); stroke-width: 2; }
+.dg .ink-thin { fill: none; stroke: var(--text-primary); stroke-width: 1; }
+.dg .ink-dash { fill: none; stroke: var(--text-primary); stroke-width: 1.25; stroke-dasharray: 5 4; }
+.dg .red { fill: none; stroke: var(--accent-red); stroke-width: 2.5; }
+.dg .red-fill { fill: var(--accent-red); stroke: none; }
+.dg .ink-fill { fill: var(--text-primary); stroke: none; }
+.dg .paper { fill: #fff; stroke: var(--text-primary); stroke-width: 2; }
+.dg .tint { fill: var(--bg-tertiary); stroke: none; }
+.dg .muted { fill: none; stroke: var(--text-muted); stroke-width: 1.5; }
+
+/* ---------- Inline-SVG Miro board (horizon-worlds) and 2x2 storyboard (pistol-whip) ----------
+   A drawn diagram inside a .miro-frame, with a wide and a narrow variant like .dg. */
+.miro-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.miro .miro-svg--narrow {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .miro .miro-svg--wide {
+    display: none;
+  }
+
+  .miro .miro-svg--narrow {
+    display: block;
+  }
+}
+
+@media (min-width: 801px) {
+  .pw-frames.pw-frames--grid2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Pause button on looping clips (case-study pages) */
+.has-video-toggle {
+  position: relative;
+}
+
+.video-toggle {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 2px solid var(--text-primary);
+  background: var(--bg-primary);
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.video-toggle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 0.7rem;
+  height: 0.8rem;
+  border-left: 0.22rem solid var(--text-primary);
+  border-right: 0.22rem solid var(--text-primary);
+}
+
+.video-toggle[aria-pressed='true']::before {
+  width: 0;
+  height: 0;
+  border-left: 0.75rem solid var(--text-primary);
+  border-right: 0;
+  border-top: 0.45rem solid transparent;
+  border-bottom: 0.45rem solid transparent;
+}
+
+.video-toggle:hover,
+.video-toggle:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--accent-red);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   SPIN landing page (unlisted, spin.html)
+   ============================================ */
+.spin section {
+  padding: var(--space-2xl) 0;
+}
+
+.spin .section-header {
+  margin-bottom: var(--space-lg);
+}
+
+.spin__hero {
+  padding-top: 8rem;
+}
+
+.spin__title {
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  max-width: 14ch;
+  margin-bottom: var(--space-md);
+}
+
+.spin__lede {
+  max-width: 40rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.spin__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.spin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md) var(--space-lg);
+  margin: var(--space-xl) 0 0;
+  padding: var(--space-md) 0 0;
+  border-top: 2px solid var(--text-primary);
+  list-style: none;
+}
+
+.spin-stats .cs-stat__num {
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+}
+
+.spin-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+.spin-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  border: 1px solid var(--text-primary);
+}
+
+.spin-card__art {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-bottom: 2px solid var(--text-primary);
+  background: var(--bg-dark);
+}
+
+.spin-card__art img,
+.spin-card__art video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.spin-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--space-sm);
+}
+
+.spin-card__tag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-red-text);
+}
+
+.spin-card__title {
+  margin: 0.35rem 0 var(--space-sm);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.spin-card__facts {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 0.6rem var(--space-sm);
+  margin: 0 0 var(--space-sm);
+}
+
+.spin-card__facts dt {
+  padding-top: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.spin-card__facts dd {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.spin-card__more {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.spin-card__more:hover,
+.spin-card__more:focus-visible {
+  color: var(--accent-red-text);
+}
+
+.spin-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--text-primary);
+}
+
+.spin-rows > li {
+  display: grid;
+  grid-template-columns: minmax(10rem, 16rem) minmax(0, 1fr);
+  gap: var(--space-sm) var(--space-lg);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--text-primary);
+}
+
+.spin-rows__label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.spin-rows__label span {
+  display: block;
+  margin-top: 0.25rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.spin-rows p {
+  max-width: 46rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.spin-rows p + p {
+  margin-top: 0.5rem;
+}
+
+.spin-rows a {
+  border-bottom: 1px solid var(--accent-red);
+}
+
+.spin-split {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.spin-split figure {
+  margin: 0;
+}
+
+.spin-split img {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--text-primary);
+}
+
+.spin-split figcaption {
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.spin__contact {
+  border-top: 2px solid var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+@media (max-width: 900px) {
+  .spin-cards,
+  .spin-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .spin-rows > li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .spin-card__facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
+  }
+
+  .spin-card__facts dd {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.spin section[id] {
+  scroll-margin-top: 3.5rem;
+}
+
+.spin-rows strong {
+  color: var(--text-primary);
 }

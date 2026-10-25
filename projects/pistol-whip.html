@@ -42,7 +42,7 @@
     "description": "Award-winning VR rhythm-shooter where players blast their way through cinematic action scenes synced to the beat.",
     "genre": ["VR", "Rhythm", "Shooter"],
     "gamePlatform": ["Meta Quest", "PlayStation VR", "Steam VR"],
-    "author": {
+    "contributor": {
       "@type": "Person",
       "name": "Tyler McCulloch",
       "jobTitle": "Game Director",
@@ -60,14 +60,16 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="../styles.css?v=2d903dd0">
+    <link rel="stylesheet" href="../styles.css?v=886f7a89">
 
     <!-- Favicon -->
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
+    <script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/projects/*"},"eagerness":"moderate"}]}</script>
 </head>
 
 <body>
@@ -78,18 +80,16 @@
                 <img src="../images/WavyLineCircles/Wavy Line 7.png" alt="Logo">
             </a>
             <ul class="nav__links">
-                <li><a href="../index.html#featured" class="nav__link">Work</a></li>
+                <li><a href="../index.html#work" class="nav__link">Work</a></li>
                 <li><a href="../index.html#about" class="nav__link">About</a></li>
-                <li><a href="../index.html#approach" class="nav__link">Approach</a></li>
-                <li><a href="../index.html#experience" class="nav__link">Timeline</a></li>
-                <li><a href="../index.html#work" class="nav__link">Portfolio</a></li>
+                <li><a href="../index.html#experience" class="nav__link">Experience</a></li>
                 <li><a href="../index.html#contact" class="nav__link">Contact</a></li>
             </ul>
         </div>
     </nav>
 
-    <main class="case-study case-study--page">
-        <a href="../index.html#work" class="case-study__back">← Back to Portfolio</a>
+    <main class="case-study case-study--page case-study--deep">
+        <a href="../index.html#work" class="case-study__back">← Back to Work</a>
 
         <header class="case-study__header">
             <img src="../images/featured/pistol-whip-1600.webp" alt="Pistol Whip" class="case-study__image">
@@ -107,62 +107,184 @@
                     <span class="case-study__meta-label">Period</span>
                     <span>July 2022 – Nov 2025</span>
                 </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Team</span>
+                    <span>About 20 people</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Platform</span>
+                    <span>VR</span>
+                </div>
             </div>
 
             <h1 class="case-study__title">Pistol Whip</h1>
             <p class="case-study__tagline">VR Rhythm-Shooter</p>
 
             <div class="case-study__accomplishment">
-                Award-winning, critically acclaimed VR rhythm shooter. Community created 500+ remixes.
+                I was Game Director for the whole game, with a particular focus on the four-to-five-person design team.
             </div>
+
+            <ul class="cs-stats" aria-label="Pistol Whip in numbers">
+                <li><span class="cs-stat__num">20</span><span class="cs-stat__label">About 20 people on the team I was responsible for</span></li>
+                <li><span class="cs-stat__num">500+</span><span class="cs-stat__label">Levels remixed by the community</span></li>
+                <li><span class="cs-stat__num">45</span><span class="cs-stat__label">Levels released by the studio over the years</span></li>
+            </ul>
         </header>
 
-        <article class="case-study__content">
-            <p>Pistol Whip is an ongoing VR rhythm-shooter which I acted as Game Director for.</p>
-            <figure><img src="../images/pistol_whip_content_1.jpg" alt="Pistol Whip gameplay"></figure>
-            <p>I was responsible for planning new content releases and improvements that got added to the game. After
-                its
-                release the goal was to continually support the game with additional content releases and keep them free
-                which
-                generated a lot of goodwill with our loyal community.</p>
-            <figure><video src="../images/pistolwhip_voidslayergif.mp4" poster="../images/pistolwhip_voidslayergif_poster.jpg" autoplay muted loop playsinline aria-label="Pistol Whip content"></video></figure>
-            <p>I also focused on how to expand both music taste as well as new ways to play the game while staying true
-                to
-                the raw simplicity of the base game.</p>
-            <p>One of our final updates included creating a pc-based level editor so players could create their own
-                levels. I
-                called this 'Pistol Mix' as a nod to song remixes as it allowed players to take preexisting content and
-                remix
-                the levels in new and creative ways.</p>
-            <figure><img src="../images/pistolwhip_pisstolmix.avif" alt="Pistol Mix level editor"></figure>
-            <p>It has been an incredible way to continue to keep the community engaged and they have released well over
-                500
-                remixes far surpassing our total releases over the years of 45 levels.</p>
+        <div class="cs-layout">
+            <nav class="cs-rail" aria-label="On this page">
+                <p class="cs-rail__title">On this page</p>
+                <ol>
+                    <li><a href="#owned">What I owned</a></li>
+                    <li><a href="#grow">Growing the game</a></li>
+                    <li><a href="#remix">Pistol Mix</a></li>
+                    <li><a href="#skills">Skills applied</a></li>
+                </ol>
+            </nav>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Key Contributions</h2>
+            <article class="case-study__content">
+                <h2 class="cs-h2" id="owned"><span class="cs-h2__num">01</span>What I owned</h2>
+                <p>Pistol Whip is an ongoing VR rhythm-shooter, and I was its Game Director. I was responsible for
+                    everything overall, with a focus on the smaller design team of four to five.</p>
                 <ul class="case-study__contributions">
-                    <li>Directed post-launch content strategy, planning free content releases that generated community
-                        goodwill
-                    </li>
-                    <li>Expanded the game's musical diversity while maintaining gameplay simplicity</li>
-                    <li>Created 'Pistol Mix' - a PC-based level editor allowing players to remix existing content</li>
-                    <li>Managed live service model with regular content drops and progression tuning</li>
-                    <li>Identified workflow improvements in the content creation pipeline</li>
+                    <li>New gameplay mechanics and modifiers</li>
+                    <li>New onboarding and tutorialization, and a UX refresh</li>
+                    <li>New music genres and visuals, including finding and contacting artists directly for the contracts</li>
+                    <li>Reward and progression design across seasonal content updates</li>
+                    <li>The community level tools, Pistol Mix</li>
+                    <li>How we approached marketing and communication</li>
+                    <li>Supporting the team and pushing them in their contributions</li>
                 </ul>
-            </section>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Skills Applied</h2>
-                <div class="case-study__skills">
-                    <span class="case-study__skill">Live Service</span>
-                    <span class="case-study__skill">VR Design</span>
-                    <span class="case-study__skill">Team Leadership</span>
-                    <span class="case-study__skill">Content Strategy</span>
-                    <span class="case-study__skill">Level Editor Design</span>
+                <h2 class="cs-h2" id="grow"><span class="cs-h2__num">02</span>Growing the game</h2>
+                <p>I was responsible for planning the new content releases and improvements that were added to the game.
+                    After its release the goal was to keep supporting the game with additional content and to keep those
+                    releases free, which generated a lot of goodwill with our loyal community.</p>
+                <figure><img src="../images/pistol_whip_content_1.jpg" alt="Pistol Whip gameplay"></figure>
+                <p>Alongside the steady stream of new levels, I pushed the music into genres Pistol Whip had never had
+                    before. I hunted down those artists and reached out to them directly for the contracts.</p>
+                <figure><video src="../images/pistolwhip_voidslayergif.mp4" poster="../images/pistolwhip_voidslayergif_poster.jpg" autoplay muted loop playsinline aria-label="Pistol Whip content"></video></figure>
+                <p>New modifiers and weapons gave players new ways to play. Deflector let you hit bullets and reflect
+                    them back at enemies, for added challenge. The Drum Gun, our music gun, divided the space in front of you
+                    into the regions of a drum kit. You moved the gun into a region and fired, and it played the sound of the
+                    type shown by that symbol, so you could play along with the music.</p>
+                <figure class="pw-art pw-art--regions"><img src="../images/pistolwhip_drumgun_regions.webp" alt="The Drum Gun in the player's hand in front of a grid of regions, each marked with a drum or cymbal symbol, with three icons below showing a punch, a cancelled reload and a reload spin each mapped to a cymbal or bell" width="1050" height="798" loading="lazy">
+                    <figcaption>Move the gun into these regions and fire to play the sound of the type shown by the symbol.</figcaption>
+                </figure>
+                <div class="pw-panel pw-sketch" role="group" aria-label="Storyboard of the Deflector modifier">
+                    <h3 class="pw-panel__title">Deflector</h3>
+                    <ol class="pw-frames">
+                        <li class="pw-frame"><svg viewBox="0 0 300 170" role="img" aria-label="An enemy down the corridor fires; a bullet flies toward you." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect y="95" width="300" height="75" fill="#1d0a3d"/><line x1="125" y1="48" x2="0" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="48" x2="300" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#7a33d6" stroke-width="1"/><rect x="125" y="48" width="50" height="47" fill="none" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="137.5" y1="95" x2="75" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="150" y1="95" x2="150" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="162.5" y1="95" x2="225" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="108.3" y1="105" x2="191.7" y2="105" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="83.3" y1="120" x2="216.7" y2="120" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="50.0" y1="140" x2="250.0" y2="140" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="8.3" y1="165" x2="291.7" y2="165" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><circle cx="150" cy="64.0" r="6.0" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><polygon points="141.0,71.0 159.0,71.0 164.0,95.0 136.0,95.0" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><line x1="167.0" y1="78.0" x2="172.0" y2="78.0" stroke="#f6f0ff" stroke-width="1" stroke-linecap="round"/><line x1="165.5" y1="80.6" x2="168.0" y2="84.9" stroke="#f6f0ff" stroke-width="1" stroke-linecap="round"/><line x1="162.5" y1="80.6" x2="160.0" y2="84.9" stroke="#f6f0ff" stroke-width="1" stroke-linecap="round"/><line x1="161.0" y1="78.0" x2="156.0" y2="78.0" stroke="#f6f0ff" stroke-width="1" stroke-linecap="round"/><line x1="162.5" y1="75.4" x2="160.0" y2="71.1" stroke="#f6f0ff" stroke-width="1" stroke-linecap="round"/><line x1="165.5" y1="75.4" x2="168.0" y2="71.1" stroke="#f6f0ff" stroke-width="1" stroke-linecap="round"/><line x1="162" y1="80" x2="176" y2="118" stroke="#ff4d8d" stroke-width="1.5" stroke-dasharray="5 4"/><circle cx="176" cy="118" r="6" fill="#ff4d8d" stroke="#f6f0ff" stroke-width="1"/></svg><p class="pw-frame__cap"><b>01</b>An enemy's bullet comes in.</p></li>
+                        <li class="pw-frame"><svg viewBox="0 0 300 170" role="img" aria-label="The bullet is right in front of you as a bright swing arc sweeps across and meets it." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect y="95" width="300" height="75" fill="#1d0a3d"/><line x1="125" y1="48" x2="0" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="48" x2="300" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#7a33d6" stroke-width="1"/><rect x="125" y="48" width="50" height="47" fill="none" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="137.5" y1="95" x2="75" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="150" y1="95" x2="150" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="162.5" y1="95" x2="225" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="108.3" y1="105" x2="191.7" y2="105" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="83.3" y1="120" x2="216.7" y2="120" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="50.0" y1="140" x2="250.0" y2="140" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="8.3" y1="165" x2="291.7" y2="165" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><circle cx="150" cy="64.0" r="6.0" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><polygon points="141.0,71.0 159.0,71.0 164.0,95.0 136.0,95.0" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><line x1="162" y1="80" x2="196" y2="128" stroke="#ff4d8d" stroke-width="1.5" stroke-dasharray="5 4"/><circle cx="196" cy="128" r="9" fill="#ff4d8d" stroke="#f6f0ff" stroke-width="1"/><path d="M84 168Q150 96 258 110" fill="none" stroke="#4fe0d0" stroke-opacity=".35" stroke-width="10" stroke-linecap="round"/><path d="M84 168Q150 96 258 110" fill="none" stroke="#4fe0d0" stroke-width="2.5" stroke-linecap="round"/><path d="M258 110L246 102M258 110L247 118" stroke="#4fe0d0" stroke-width="2.5" stroke-linecap="round"/><line x1="208.8" y1="130.3" x2="215.7" y2="131.5" stroke="#f6f0ff" stroke-width="1.5" stroke-linecap="round"/><line x1="203.5" y1="138.6" x2="207.5" y2="144.4" stroke="#f6f0ff" stroke-width="1.5" stroke-linecap="round"/><line x1="193.7" y1="140.8" x2="192.5" y2="147.7" stroke="#f6f0ff" stroke-width="1.5" stroke-linecap="round"/><line x1="185.4" y1="135.5" x2="179.6" y2="139.5" stroke="#f6f0ff" stroke-width="1.5" stroke-linecap="round"/><line x1="183.2" y1="125.7" x2="176.3" y2="124.5" stroke="#f6f0ff" stroke-width="1.5" stroke-linecap="round"/><line x1="188.5" y1="117.4" x2="184.5" y2="111.6" stroke="#f6f0ff" stroke-width="1.5" stroke-linecap="round"/><line x1="198.3" y1="115.2" x2="199.5" y2="108.3" stroke="#f6f0ff" stroke-width="1.5" stroke-linecap="round"/><line x1="206.6" y1="120.5" x2="212.4" y2="116.5" stroke="#f6f0ff" stroke-width="1.5" stroke-linecap="round"/></svg><p class="pw-frame__cap"><b>02</b>You take a swing.</p></li>
+                        <li class="pw-frame"><svg viewBox="0 0 300 170" role="img" aria-label="The bullet flies back up the corridor toward the enemy." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect y="95" width="300" height="75" fill="#1d0a3d"/><line x1="125" y1="48" x2="0" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="48" x2="300" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#7a33d6" stroke-width="1"/><rect x="125" y="48" width="50" height="47" fill="none" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="137.5" y1="95" x2="75" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="150" y1="95" x2="150" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="162.5" y1="95" x2="225" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="108.3" y1="105" x2="191.7" y2="105" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="83.3" y1="120" x2="216.7" y2="120" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="50.0" y1="140" x2="250.0" y2="140" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="8.3" y1="165" x2="291.7" y2="165" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="200" y1="132" x2="156" y2="82" stroke="#4fe0d0" stroke-width="1.5" stroke-dasharray="5 4"/><circle cx="150" cy="64.0" r="6.0" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><polygon points="141.0,71.0 159.0,71.0 164.0,95.0 136.0,95.0" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><circle cx="166" cy="90" r="4" fill="#ff4d8d" stroke="#f6f0ff" stroke-width="1"/></svg><p class="pw-frame__cap"><b>03</b>The bullet goes back at them.</p></li>
+                    </ol>
                 </div>
-            </section>
-        </article>
+                <div class="pw-panel pw-sketch" role="group" aria-label="Storyboard of the Drum Gun">
+                    <h3 class="pw-panel__title">Drum Gun</h3>
+                    <ol class="pw-frames pw-frames--grid2">
+                        <li class="pw-frame"><svg viewBox="0 0 300 170" role="img" aria-label="Your gun fires down the corridor and a sound wave rises from the muzzle." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect y="95" width="300" height="75" fill="#1d0a3d"/><line x1="125" y1="48" x2="0" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="48" x2="300" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#7a33d6" stroke-width="1"/><rect x="125" y="48" width="50" height="47" fill="none" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="137.5" y1="95" x2="75" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="150" y1="95" x2="150" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="162.5" y1="95" x2="225" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="108.3" y1="105" x2="191.7" y2="105" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="83.3" y1="120" x2="216.7" y2="120" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="50.0" y1="140" x2="250.0" y2="140" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="8.3" y1="165" x2="291.7" y2="165" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="205" y1="120" x2="150" y2="82" stroke="#ff4d8d" stroke-width="1.5" stroke-dasharray="5 4"/><g transform="translate(205 120) rotate(44)" opacity="1" fill="#14052a" stroke="#4fe0d0" stroke-width="1.5" stroke-linejoin="round"><rect x="0" y="-7" width="58" height="14" rx="2"/><polygon points="36,7 50,7 56,32 42,32"/><path d="M30 7Q30 16 38 16" fill="none"/></g><line x1="213.5" y1="116.9" x2="219.1" y2="114.9" stroke="#f6f0ff" stroke-width="1.2" stroke-linecap="round"/><line x1="212.7" y1="124.7" x2="217.8" y2="127.8" stroke="#f6f0ff" stroke-width="1.2" stroke-linecap="round"/><line x1="206.1" y1="128.9" x2="206.9" y2="134.9" stroke="#f6f0ff" stroke-width="1.2" stroke-linecap="round"/><line x1="198.7" y1="126.4" x2="194.5" y2="130.7" stroke="#f6f0ff" stroke-width="1.2" stroke-linecap="round"/><line x1="196.0" y1="119.1" x2="190.1" y2="118.5" stroke="#f6f0ff" stroke-width="1.2" stroke-linecap="round"/><line x1="200.1" y1="112.4" x2="196.9" y2="107.4" stroke="#f6f0ff" stroke-width="1.2" stroke-linecap="round"/><line x1="207.9" y1="111.5" x2="209.8" y2="105.8" stroke="#f6f0ff" stroke-width="1.2" stroke-linecap="round"/><path d="M214.0 86.0L215.3 80.4L216.6 76.5L217.9 74.9L219.2 75.9L220.5 78.8L221.8 83.0L223.1 87.4L224.4 91.1L225.7 93.4L227.0 93.9L228.3 92.7L229.6 90.2L230.9 87.1L232.2 84.0L233.5 81.7L234.8 80.4L236.1 80.5L237.4 81.7L238.7 83.7L240.0 86.0L241.3 88.1L242.6 89.5L243.9 90.1L245.2 89.7L246.5 88.6L247.8 87.1L249.1 85.5L250.4 84.1L251.7 83.3L253.0 83.1L254.3 83.5L255.6 84.5L256.9 85.6L258.2 86.7L259.5 87.6L260.8 88.0L262.1 88.0L263.4 87.6L264.7 86.8L266.0 86.0" fill="none" stroke="#4fe0d0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg><p class="pw-frame__cap"><b>01</b>Shot.</p></li>
+                        <li class="pw-frame"><svg viewBox="0 0 300 170" role="img" aria-label="An enemy is hit; a different, spiky sound wave rises." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect y="95" width="300" height="75" fill="#1d0a3d"/><line x1="125" y1="48" x2="0" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="48" x2="300" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#7a33d6" stroke-width="1"/><rect x="125" y="48" width="50" height="47" fill="none" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="137.5" y1="95" x2="75" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="150" y1="95" x2="150" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="162.5" y1="95" x2="225" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="108.3" y1="105" x2="191.7" y2="105" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="83.3" y1="120" x2="216.7" y2="120" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="50.0" y1="140" x2="250.0" y2="140" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="8.3" y1="165" x2="291.7" y2="165" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><circle cx="150" cy="64.0" r="6.0" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><polygon points="141.0,71.0 159.0,71.0 164.0,95.0 136.0,95.0" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><line x1="172.0" y1="78.0" x2="180.0" y2="78.0" stroke="#ff4d8d" stroke-width="1.5" stroke-linecap="round"/><line x1="167.8" y1="90.9" x2="174.3" y2="95.6" stroke="#ff4d8d" stroke-width="1.5" stroke-linecap="round"/><line x1="156.8" y1="98.9" x2="159.3" y2="106.5" stroke="#ff4d8d" stroke-width="1.5" stroke-linecap="round"/><line x1="143.2" y1="98.9" x2="140.7" y2="106.5" stroke="#ff4d8d" stroke-width="1.5" stroke-linecap="round"/><line x1="132.2" y1="90.9" x2="125.7" y2="95.6" stroke="#ff4d8d" stroke-width="1.5" stroke-linecap="round"/><line x1="128.0" y1="78.0" x2="120.0" y2="78.0" stroke="#ff4d8d" stroke-width="1.5" stroke-linecap="round"/><line x1="132.2" y1="65.1" x2="125.7" y2="60.4" stroke="#ff4d8d" stroke-width="1.5" stroke-linecap="round"/><line x1="143.2" y1="57.1" x2="140.7" y2="49.5" stroke="#ff4d8d" stroke-width="1.5" stroke-linecap="round"/><line x1="156.8" y1="57.1" x2="159.3" y2="49.5" stroke="#ff4d8d" stroke-width="1.5" stroke-linecap="round"/><line x1="167.8" y1="65.1" x2="174.3" y2="60.4" stroke="#ff4d8d" stroke-width="1.5" stroke-linecap="round"/><path d="M184 70L188.0 56.0L193.8 81.2L199.6 61.6L205.3 76.3L211.1 65.5L216.9 72.8L222.7 68.6L236 70" fill="none" stroke="#4fe0d0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg><p class="pw-frame__cap"><b>02</b>Hit.</p></li>
+                        <li class="pw-frame"><svg viewBox="0 0 300 170" role="img" aria-label="The gun tilts for a reload, circled by a turning arrow, with a third, blocky sound wave." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect y="95" width="300" height="75" fill="#1d0a3d"/><line x1="125" y1="48" x2="0" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="48" x2="300" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#7a33d6" stroke-width="1"/><rect x="125" y="48" width="50" height="47" fill="none" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="137.5" y1="95" x2="75" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="150" y1="95" x2="150" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="162.5" y1="95" x2="225" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="108.3" y1="105" x2="191.7" y2="105" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="83.3" y1="120" x2="216.7" y2="120" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="50.0" y1="140" x2="250.0" y2="140" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="8.3" y1="165" x2="291.7" y2="165" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><g transform="translate(196 118) rotate(20)" opacity="1" fill="#14052a" stroke="#4fe0d0" stroke-width="1.5" stroke-linejoin="round"><rect x="0" y="-7" width="58" height="14" rx="2"/><polygon points="36,7 50,7 56,32 42,32"/><path d="M30 7Q30 16 38 16" fill="none"/></g><path d="M168 136A44 44 0 1 1 196 160" fill="none" stroke="#ff4d8d" stroke-width="1.5"/><path d="M196 160L185 154M196 160L186 167" stroke="#ff4d8d" stroke-width="1.5" stroke-linecap="round"/><path d="M36 120H44.7V106H53.3V120H66.3V106H75.0V120H88" fill="none" stroke="#4fe0d0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg><p class="pw-frame__cap"><b>03</b>Reload. Shot, hit and reload: a different sound each.</p></li>
+                        <li class="pw-frame"><svg viewBox="0 0 300 170" role="img" aria-label="The gun sweeps through an arc with your hand; at each point along the sweep the shot's sound wave has a different shape." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect y="95" width="300" height="75" fill="#1d0a3d"/><line x1="125" y1="48" x2="0" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="48" x2="300" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#7a33d6" stroke-width="1"/><rect x="125" y="48" width="50" height="47" fill="none" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="137.5" y1="95" x2="75" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="150" y1="95" x2="150" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="162.5" y1="95" x2="225" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="108.3" y1="105" x2="191.7" y2="105" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="83.3" y1="120" x2="216.7" y2="120" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="50.0" y1="140" x2="250.0" y2="140" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="8.3" y1="165" x2="291.7" y2="165" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><g transform="translate(132 104) rotate(62)" opacity="0.35" fill="#14052a" stroke="#4fe0d0" stroke-width="1.5" stroke-linejoin="round"><rect x="0" y="-7" width="58" height="14" rx="2"/><polygon points="36,7 50,7 56,32 42,32"/><path d="M30 7Q30 16 38 16" fill="none"/></g><g transform="translate(186 90) rotate(44)" opacity="0.6" fill="#14052a" stroke="#4fe0d0" stroke-width="1.5" stroke-linejoin="round"><rect x="0" y="-7" width="58" height="14" rx="2"/><polygon points="36,7 50,7 56,32 42,32"/><path d="M30 7Q30 16 38 16" fill="none"/></g><g transform="translate(240 86) rotate(24)" opacity="1" fill="#14052a" stroke="#4fe0d0" stroke-width="1.5" stroke-linejoin="round"><rect x="0" y="-7" width="58" height="14" rx="2"/><polygon points="36,7 50,7 56,32 42,32"/><path d="M30 7Q30 16 38 16" fill="none"/></g><path d="M118 124Q176 70 262 74" fill="none" stroke="#f6f0ff" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="3 4"/><path d="M262 74L252 68M262 74L253 81" stroke="#f6f0ff" stroke-opacity=".8" stroke-width="1.5" stroke-linecap="round"/><path d="M84.0 86.0L84.9 83.8L85.8 81.9L86.7 80.4L87.6 79.4L88.5 78.8L89.4 78.7L90.3 79.0L91.2 79.6L92.1 80.6L93.0 81.7L93.9 83.0L94.8 84.3L95.7 85.6L96.6 86.8L97.5 87.8L98.4 88.6L99.3 89.3L100.2 89.6L101.1 89.8L102.0 89.7L102.9 89.4L103.8 89.0L104.7 88.4L105.6 87.8L106.5 87.1L107.4 86.4L108.3 85.8L109.2 85.2L110.1 84.8L111.0 84.4L111.9 84.2L112.8 84.1L113.7 84.1L114.6 84.2L115.5 84.4L116.4 84.7L117.3 85.0L118.2 85.3L119.1 85.7L120.0 86.0" fill="none" stroke="#4fe0d0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M140.0 62.0L140.9 57.7L141.8 54.7L142.7 53.5L143.6 54.2L144.5 56.5L145.4 59.7L146.3 63.1L147.2 65.9L148.1 67.7L149.0 68.1L149.9 67.1L150.8 65.2L151.7 62.8L152.6 60.5L153.5 58.7L154.4 57.7L155.3 57.8L156.2 58.7L157.1 60.2L158.0 62.0L158.9 63.6L159.8 64.7L160.7 65.1L161.6 64.9L162.5 64.0L163.4 62.8L164.3 61.6L165.2 60.6L166.1 59.9L167.0 59.8L167.9 60.1L168.8 60.8L169.7 61.7L170.6 62.6L171.5 63.2L172.4 63.6L173.3 63.6L174.2 63.2L175.1 62.6L176.0 62.0" fill="none" stroke="#4fe0d0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M200.0 44.0L200.9 37.3L201.8 35.0L202.7 37.9L203.6 44.0L204.5 49.5L205.4 51.4L206.3 49.0L207.2 44.0L208.1 39.5L209.0 37.9L209.9 39.9L210.8 44.0L211.7 47.7L212.6 49.0L213.5 47.3L214.4 44.0L215.3 41.0L216.2 39.9L217.1 41.3L218.0 44.0L218.9 46.5L219.8 47.3L220.7 46.2L221.6 44.0L222.5 42.0L223.4 41.3L224.3 42.2L225.2 44.0L226.1 45.7L227.0 46.2L227.9 45.5L228.8 44.0L229.7 42.6L230.6 42.2L231.5 42.8L232.4 44.0L233.3 45.1L234.2 45.5L235.1 45.0L236.0 44.0" fill="none" stroke="#4fe0d0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg><p class="pw-frame__cap"><b>04</b>Moving your hand changes the sound of your shots.</p></li>
+                    </ol>
+                </div>
+                <figure class="pw-art"><img src="../images/pistolwhip_drumgun.webp" alt="Pistol Whip announcement art for the Drum Gun" width="720" height="720" loading="lazy">
+                    <figcaption>The Drum Gun announcement art</figcaption>
+                </figure>
+
+                <p>Through all of it I worked to stay true to the raw simplicity of the base game.</p>
+
+                <div class="pw-panel pw-timeline">
+                    <p class="pw-panel__kicker">Release notes</p>
+                    <h3 class="pw-panel__title">Releases while I was Game Director</h3>
+                    <ol class="pw-releases">
+                        <li class="pw-release">
+                            <span class="pw-release__date">December 2022</span>
+                            <div><h4>Winter Roadmap and Holiday Update</h4><p>A roadmap for 2023 (Pico 4, PS VR2, an official modding tool and a series of new Scenes), alongside a holiday update of quality-of-life improvements for a more comfortable and intuitive experience.</p></div>
+                        </li>
+                        <li class="pw-release">
+                            <span class="pw-release__date">April – June 2023</span>
+                            <div><h4>Pistol Mix</h4><p>An open beta of the official modding tool began in April. It launched in full in June on Steam and Mod.io, with community-made Scenes playable in the game on select headsets, alongside localization into seven languages.</p></div>
+                        </li>
+                        <li class="pw-release">
+                            <span class="pw-release__date">May 2023</span>
+                            <div><h4>Overdrive Season</h4><p>A free Season of five new Scenes, with a new one dropping each month through the summer.</p></div>
+                        </li>
+                        <li class="pw-release">
+                            <span class="pw-release__date">October 2023</span>
+                            <div><h4>Elixir of Madness!</h4><p>Three new Scenes that brought a whole new genre of music to the game, electroswing, plus three new modifiers (Graze, Glitch and a laser pointer) and interactable props.</p></div>
+                        </li>
+                        <li class="pw-release">
+                            <span class="pw-release__date">November 2023</span>
+                            <div><h4>Drum Gun</h4><p>A surprise anniversary update for four years of Pistol Whip. The Drum Gun is a new weapon where each shot, hit or reload makes a different sound, and moving your hand changes the sound of your shots. Three more weapons came with it.</p></div>
+                        </li>
+                        <li class="pw-release">
+                            <span class="pw-release__date">June 2024</span>
+                            <div><h4>Voidslayer</h4><p>A power metal collection of three new Scenes, and two new modifiers: Deflector, which lets you swing at bullets and send them back at enemies, and Colour Match.</p></div>
+                        </li>
+                    </ol>
+                </div>
+
+                <h2 class="cs-h2" id="remix"><span class="cs-h2__num">03</span>Pistol Mix</h2>
+                <div class="pw-panel pw-decision">
+                    <p class="pw-panel__kicker">The decision</p>
+                    <h3 class="pw-panel__title">How do players make levels?</h3>
+                    <ol class="pw-options">
+                        <li class="pw-option pw-option--start">
+                            <h4>A heavy, slow pipeline</h4>
+                            <p>Our level pipeline was heavy and slow for the quality and standards we held ourselves to, so we couldn't keep up with what fans wanted. The most dedicated players were already reverse engineering the game to mod their own levels.</p>
+                            <span class="pw-verdict">Where we started</span>
+                        </li>
+                        <li class="pw-option pw-option--passed">
+                            <h4>"Play to create"</h4>
+                            <p>Run through blank levels in the headset and shoot where you want enemies or props. It risked not running within our target metrics on Quest 2, where most players were, and we wanted parity across every version of the game.</p>
+                            <span class="pw-verdict">Passed</span>
+                        </li>
+                        <li class="pw-option pw-option--chosen">
+                            <h4>A free PC tool</h4>
+                            <p>The most passionate level modders were PC players. This became Pistol Mix.</p>
+                            <span class="pw-verdict">Chosen</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <p>There was already an enthusiastic community, and we wanted to celebrate it.</p>
+                <p>One early idea of mine was to "play to create": you would run through blank levels and shoot where you
+                    wanted enemies or props to appear. We had to pass on it, for the reasons above.</p>
+                <div class="pw-panel pw-sketch">
+                    <p class="pw-panel__kicker">Concept sketch · never built</p>
+                    <h3 class="pw-panel__title">"Play to create"</h3>
+                    <ol class="pw-frames">
+                        <li class="pw-frame"><svg viewBox="0 0 300 170" role="img" aria-label="A blank corridor with a neon floor grid and nothing in it." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect y="95" width="300" height="75" fill="#1d0a3d"/><line x1="125" y1="48" x2="0" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="48" x2="300" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#7a33d6" stroke-width="1"/><rect x="125" y="48" width="50" height="47" fill="none" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="137.5" y1="95" x2="75" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="150" y1="95" x2="150" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="162.5" y1="95" x2="225" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="108.3" y1="105" x2="191.7" y2="105" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="83.3" y1="120" x2="216.7" y2="120" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="50.0" y1="140" x2="250.0" y2="140" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="8.3" y1="165" x2="291.7" y2="165" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/></svg><p class="pw-frame__cap"><b>01</b>A blank level.</p></li>
+                        <li class="pw-frame"><svg viewBox="0 0 300 170" role="img" aria-label="A crosshair aimed at a spot on the floor of the corridor, with a dashed shot line coming from the player." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect y="95" width="300" height="75" fill="#1d0a3d"/><line x1="125" y1="48" x2="0" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="48" x2="300" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#7a33d6" stroke-width="1"/><rect x="125" y="48" width="50" height="47" fill="none" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="137.5" y1="95" x2="75" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="150" y1="95" x2="150" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="162.5" y1="95" x2="225" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="108.3" y1="105" x2="191.7" y2="105" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="83.3" y1="120" x2="216.7" y2="120" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="50.0" y1="140" x2="250.0" y2="140" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="8.3" y1="165" x2="291.7" y2="165" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="150" y1="170" x2="190" y2="128" stroke="#ff4d8d" stroke-width="1.5" stroke-dasharray="5 4"/><circle cx="190" cy="120" r="10" fill="none" stroke="#4fe0d0" stroke-width="1.5"/><circle cx="190" cy="120" r="17" fill="none" stroke="#4fe0d0" stroke-opacity=".5" stroke-width="1" stroke-dasharray="3 3"/><line x1="190" y1="104" x2="190" y2="112" stroke="#4fe0d0" stroke-width="1.5"/><line x1="190" y1="128" x2="190" y2="136" stroke="#4fe0d0" stroke-width="1.5"/><line x1="174" y1="120" x2="182" y2="120" stroke="#4fe0d0" stroke-width="1.5"/><line x1="198" y1="120" x2="206" y2="120" stroke="#4fe0d0" stroke-width="1.5"/></svg><p class="pw-frame__cap"><b>02</b>You shoot where you want an enemy or prop.</p></li>
+                        <li class="pw-frame"><svg viewBox="0 0 300 170" role="img" aria-label="An enemy figure and a crate now stand in the corridor where the shots landed." xmlns="http://www.w3.org/2000/svg"><rect width="300" height="170" fill="#14052a"/><rect y="95" width="300" height="75" fill="#1d0a3d"/><line x1="125" y1="48" x2="0" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="48" x2="300" y2="0" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#7a33d6" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#7a33d6" stroke-width="1"/><rect x="125" y="48" width="50" height="47" fill="none" stroke="#7a33d6" stroke-width="1"/><line x1="125" y1="95" x2="0" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="137.5" y1="95" x2="75" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="150" y1="95" x2="150" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="162.5" y1="95" x2="225" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="175" y1="95" x2="300" y2="170" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="108.3" y1="105" x2="191.7" y2="105" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="83.3" y1="120" x2="216.7" y2="120" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="50.0" y1="140" x2="250.0" y2="140" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><line x1="8.3" y1="165" x2="291.7" y2="165" stroke="#d50c4d" stroke-opacity=".55" stroke-width="1"/><circle cx="190" cy="103" r="6" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><polygon points="181,110 199,110 204,134 176,134" fill="#d50c4d" stroke="#ff4d8d" stroke-width="1.5"/><rect x="84" y="121" width="24" height="24" fill="none" stroke="#4fe0d0" stroke-width="1.5"/><line x1="84" y1="121" x2="108" y2="145" stroke="#4fe0d0" stroke-opacity=".6" stroke-width="1"/><line x1="108" y1="121" x2="84" y2="145" stroke="#4fe0d0" stroke-opacity=".6" stroke-width="1"/></svg><p class="pw-frame__cap"><b>03</b>It appears where you shot.</p></li>
+                    </ol>
+                </div>
+                <p>A free PC tool felt like the strongest option after that, because the most passionate level
+                    modders were PC players. I called it Pistol Mix, as a nod to song remixes: it lets players take
+                    existing content and remix the levels in new and creative ways.</p>
+                <figure><img src="../images/pistolwhip_pisstolmix.avif" alt="Pistol Mix level editor"></figure>
+                <figure>
+                    <div class="cs-embed"><iframe src="https://www.youtube-nocookie.com/embed/QzeD5tAincM" title="Pistol Whip modding timelapse: making a custom Scene in Pistol Mix" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+                    <figcaption>Making a custom Scene in Pistol Mix (Cloudhead Games on YouTube)</figcaption>
+                </figure>
+                <p>The community liked and received the tool well. They have released well over 500 remixes, far more
+                    than the 45 levels we released over the years.</p>
+
+                <section class="case-study__section" id="skills">
+                    <h2 class="case-study__section-title">Skills Applied</h2>
+                    <div class="case-study__skills">
+                        <span class="case-study__skill">Live Service</span>
+                        <span class="case-study__skill">VR Design</span>
+                        <span class="case-study__skill">Team Leadership</span>
+                        <span class="case-study__skill">Content Strategy</span>
+                        <span class="case-study__skill">Community Tools</span>
+                        <span class="case-study__skill">Onboarding Design</span>
+                        <span class="case-study__skill">Level Editor Design</span>
+                    </div>
+                </section>
+            </article>
+        </div>
 
         <nav class="case-study__nav">
             <a href="max-payne-2.html" class="case-study__nav-link">
@@ -186,6 +308,7 @@
     <!-- Cloudflare Web Analytics -->
     <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
         data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script>
+    <script src="../page.js?v=5566eff6" defer></script>
 </body>
 
 </html>

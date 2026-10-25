@@ -21,3 +21,4 @@ Disallow: /DocuGenius/
 Disallow: /*.pdf$
 Disallow: /parse_content.py
 Disallow: /portfolio_export.md
+Disallow: /tools/

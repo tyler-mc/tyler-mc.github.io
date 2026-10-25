@@ -22,7 +22,7 @@
         "description": "Squad-based 3rd person shooter with tactical elements for PSP",
         "genre": ["Tactical", "Shooter", "Military"],
         "gamePlatform": ["PSP"],
-        "author": {
+        "contributor": {
             "@type": "Person",
             "name": "Tyler McCulloch",
             "jobTitle": "Senior Game Designer",
@@ -37,10 +37,12 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="../styles.css?v=2d903dd0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
+    <link rel="stylesheet" href="../styles.css?v=886f7a89">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
+    <script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/projects/*"},"eagerness":"moderate"}]}</script>
 </head>
 
 <body>
@@ -49,20 +51,20 @@
             <a href="../index.html" class="nav__logo"><img src="../images/WavyLineCircles/Wavy Line 7.png"
                     alt="Logo"></a>
             <ul class="nav__links">
-                <li><a href="../index.html#featured" class="nav__link">Work</a></li>
+                <li><a href="../index.html#work" class="nav__link">Work</a></li>
                 <li><a href="../index.html#about" class="nav__link">About</a></li>
-                <li><a href="../index.html#approach" class="nav__link">Approach</a></li>
-                <li><a href="../index.html#experience" class="nav__link">Timeline</a></li>
-                <li><a href="../index.html#work" class="nav__link">Portfolio</a></li>
+                <li><a href="../index.html#experience" class="nav__link">Experience</a></li>
                 <li><a href="../index.html#contact" class="nav__link">Contact</a></li>
             </ul>
         </div>
     </nav>
 
-    <main class="case-study case-study--page">
-        <a href="../index.html#work" class="case-study__back">← Back to Portfolio</a>
+    <main class="case-study case-study--page case-study--deep">
+        <a href="../index.html#work" class="case-study__back">← Back to Work</a>
+
         <header class="case-study__header">
-            <img src="../images/FireteamBravo_banner.png" alt="SOCOM: Fireteam Bravo 3" class="case-study__image">
+            <img src="../images/FireteamBravo_shot3.webp" alt="SOCOM: Fireteam Bravo 3: four SEALs, named Sandman, Raven and Toro on screen, stacked up in a concrete corridor" class="case-study__image" style="object-position: 50% 45%">
+
             <div class="case-study__meta">
                 <div class="case-study__meta-item">
                     <span class="case-study__meta-label">Role</span>
@@ -76,59 +78,181 @@
                     <span class="case-study__meta-label">Period</span>
                     <span>Aug 2006 – April 2012</span>
                 </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Released</span>
+                    <span>Feb 2010</span>
+                </div>
+                <div class="case-study__meta-item">
+                    <span class="case-study__meta-label">Platform</span>
+                    <span>PSP</span>
+                </div>
             </div>
+
             <h1 class="case-study__title">SOCOM: Fireteam Bravo 3</h1>
             <p class="case-study__tagline">Squad-based 3rd person shooter with tactical elements</p>
+
             <div class="case-study__accomplishment">
-                Proposed 'gone wrong' narrative concept that became basis for entire game.
+                I proposed the 'gone wrong' narrative concept that became the basis for the game, and directed the level
+                design and story of the single-player campaign.
             </div>
         </header>
 
-        <article class="case-study__content">
-            <p>One of my goals with Fireteam Bravo 3 was to bring a new narrative perspective to the successful
-                fireteam bravo series.</p>
-            <p>Previously the series had been about getting clear orders, going in, executing the orders and getting
-                out all while being guided by a mission operator that knew everything that was going on.</p>
-            <figure><img src="../images/FireteamBravo_shot1.webp" alt="Fireteam Bravo 3 gameplay"></figure>
-            <p>I proposed the idea, 'what if something went wrong and the Seals had to figure out things on their own?'
-                which eventually became the basis for the game.</p>
-            <figure><img src="../images/FireteamBravo_shot2.webp" alt="Notebook UI"></figure>
-            <p>In the first two games, the front end and in-game UI were all high-tech. I pushed for this notebook
-                design to help reinforce this on-the-ground offline feel.</p>
-            <figure><img src="../images/FireteamBravo_shot3.webp" alt="Mission structure"></figure>
-            <p>I was responsible for laying out the core mission structure, as well as implementing multiple level
-                scenarios.</p>
-            <p>We also brought over tactical command elements that we had created in Tactical Strike where players
-                could give commands to teammates, each level was also fully playable with online co-op where these
-                commands would change to verbal orders.</p>
-            <p>I was also responsible for the AI design of teammates and enemies. Teammates were a particular design
-                challenge because they needed to be always out of the way of the player shooting but always visible and
-                looking effective.</p>
-            <p>I also designed a system where teammates would head towards where the player needed to go if no enemies
-                threats were detected to naturally drive the player forward.</p>
+        <div class="cs-layout">
+            <nav class="cs-rail" aria-label="On this page">
+                <p class="cs-rail__title">On this page</p>
+                <ol>
+                    <li><a href="#owned">What I owned</a></li>
+                    <li><a href="#concept">The concept</a></li>
+                    <li><a href="#notebook">The notebook UI</a></li>
+                    <li><a href="#missions">Missions and commands</a></li>
+                    <li><a href="#ai">Teammate AI</a></li>
+                    <li><a href="#learned">What I learned</a></li>
+                    <li><a href="#skills">Skills applied</a></li>
+                </ol>
+            </nav>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Key Contributions</h2>
+            <article class="case-study__content">
+                <h2 class="cs-h2" id="owned"><span class="cs-h2__num">01</span>What I owned</h2>
                 <ul class="case-study__contributions">
-                    <li>Proposed 'gone wrong' narrative concept that became basis for the game</li>
-                    <li>Designed notebook UI to reinforce on-the-ground feel</li>
-                    <li>Created core mission structure and multiple level scenarios</li>
-                    <li>Designed teammate AI that supports without obstructing player</li>
-                    <li>Created system where teammates head toward objectives when no threats detected</li>
+                    <li>Proposed the 'something went wrong' idea that became the basis for the game</li>
+                    <li>Directed the level design and story of the single-player campaign</li>
+                    <li>Laid out the core mission structure and implemented multiple level scenarios</li>
+                    <li>Pushed for the notebook design of the front end and in-game UI</li>
+                    <li>The AI design of teammates and enemies</li>
+                    <li>Scripted combat AI and gameplay systems supporting multiple playstyles</li>
                 </ul>
-            </section>
 
-            <section class="case-study__section">
-                <h2 class="case-study__section-title">Skills Applied</h2>
-                <div class="case-study__skills">
-                    <span class="case-study__skill">Narrative Design</span>
-                    <span class="case-study__skill">AI Design</span>
-                    <span class="case-study__skill">Level Design</span>
-                    <span class="case-study__skill">UI Concept</span>
-                    <span class="case-study__skill">Tactical Shooters</span>
-                </div>
-            </section>
-        </article>
+                <h2 class="cs-h2" id="concept"><span class="cs-h2__num">02</span>The concept</h2>
+                <p>One of my goals with Fireteam Bravo 3 was to bring a new narrative perspective to the successful
+                    Fireteam Bravo series.</p>
+                <p>Previously the series had been about getting clear orders, going in, executing the orders and getting
+                    out, all while being guided by a mission operator that knew everything that was going on.</p>
+                <p>I proposed the idea, 'what if something went wrong and the Seals had to figure out things on their
+                    own?' which eventually became the basis for the game.</p>
+                <figure class="dg" role="group" aria-label="Diagram comparing the series' clear-orders missions with the 'something went wrong' idea">
+                    <div class="dg__frame">
+                <svg class="dg__wide" viewBox="0 0 720 384" role="img" aria-label="Two tracks. Previously in the series: get clear orders, go in, execute the orders, get out, with a mission operator who knew everything above every step. The idea I proposed: the track breaks where something goes wrong, and the SEALs figure things out on their own.">
+                <defs><marker id="fb-w-ai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ink-fill"/></marker></defs>
+                <g><rect x="0" y="0" width="240" height="26" class="ink-fill"/><text x="12" y="18" class="t-b" style="fill:var(--bg-primary)">FIG. 1</text><line x1="67" y1="6" x2="67" y2="20" style="stroke:var(--bg-primary);stroke-width:1"/><text x="77" y="18" class="t-b t-caps" style="fill:var(--bg-primary)">Mission structure</text></g>
+                <text x="0" y="66" class="t-b t-caps">Previously in the series</text>
+                <line x1="20" y1="100" x2="700" y2="100" class="ink-dash"/>
+                <text x="700" y="90" class="t-muted" text-anchor="end">Mission operator, knew everything</text>
+                <path d="M20 148H700" style="fill:none;stroke:var(--text-primary);stroke-width:5;stroke-linecap:butt"/>
+                <path d="M20 136V160M700 136V160" class="ink" style="stroke-width:3"/>
+                <line x1="80" y1="100" x2="80" y2="136" class="ink-dash"/>
+                <circle cx="80" cy="148" r="10" class="paper" style="stroke-width:3"/>
+                <text text-anchor="middle" x="80" y="184" style="font-size:13px">Get clear orders</text>
+                <line x1="260" y1="100" x2="260" y2="136" class="ink-dash"/>
+                <circle cx="260" cy="148" r="10" class="paper" style="stroke-width:3"/>
+                <text text-anchor="middle" x="260" y="184" style="font-size:13px">Go in</text>
+                <line x1="440" y1="100" x2="440" y2="136" class="ink-dash"/>
+                <circle cx="440" cy="148" r="10" class="paper" style="stroke-width:3"/>
+                <text text-anchor="middle" x="440" y="184" style="font-size:13px">Execute the orders</text>
+                <line x1="620" y1="100" x2="620" y2="136" class="ink-dash"/>
+                <circle cx="620" cy="148" r="10" class="paper" style="stroke-width:3"/>
+                <text text-anchor="middle" x="620" y="184" style="font-size:13px">Get out</text>
+                <line x1="0" y1="214" x2="720" y2="214" class="ink-thin" style="stroke-opacity:.35"/>
+                <text x="0" y="250" class="t-b t-caps">The idea I proposed</text>
+                <path d="M20 310H196" style="fill:none;stroke:var(--text-primary);stroke-width:5;stroke-linecap:butt"/>
+                <path d="M20 298V322" class="ink" style="stroke-width:3"/>
+                <line x1="204" y1="321" x2="212" y2="299" class="red" style="stroke-width:3"/><line x1="216" y1="321" x2="224" y2="299" class="red" style="stroke-width:3"/>
+                <text x="204" y="284" class="t-b t-red">Something goes wrong</text>
+                <path d="M246 310 C 286 310, 296 340, 330 336 S 360 292, 398 296 S 432 334, 468 326 C 500 318, 516 282, 498 276 C 480 270, 474 312, 520 316 S 584 286, 616 300 S 660 314, 696 308" class="ink" style="stroke-width:2.5" marker-end="url(#fb-w-ai)"/>
+                <text x="300" y="368">The SEALs figure things out on their own</text>
+                <text x="720" y="250" class="t-b t-red" text-anchor="end">Became the basis for the game</text>
+                </svg>
+                <svg class="dg__narrow" viewBox="0 0 340 640" role="img" aria-label="Two tracks. Previously in the series: get clear orders, go in, execute the orders, get out, with a mission operator who knew everything above every step. The idea I proposed: the track breaks where something goes wrong, and the SEALs figure things out on their own.">
+                <defs><marker id="fb-n-ai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="13" markerHeight="13" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ink-fill"/></marker></defs>
+                <g><rect x="0" y="0" width="240" height="26" class="ink-fill"/><text x="12" y="18" class="t-b" style="fill:var(--bg-primary)">FIG. 1</text><line x1="67" y1="6" x2="67" y2="20" style="stroke:var(--bg-primary);stroke-width:1"/><text x="77" y="18" class="t-b t-caps" style="fill:var(--bg-primary)">Mission structure</text></g>
+                <text x="0" y="62" class="t-b t-caps" style="font-size:14px">Previously</text>
+                <text x="0" y="81" class="t-b t-caps" style="font-size:14px">in the series</text>
+                <line x1="10" y1="100" x2="10" y2="560" class="ink-dash"/>
+                <text x="0" y="590" class="t-muted" style="font-size:13px">Mission operator,</text>
+                <text x="0" y="608" class="t-muted" style="font-size:13px">knew everything</text>
+                <path d="M38 112V556" style="fill:none;stroke:var(--text-primary);stroke-width:5;stroke-linecap:butt"/>
+                <path d="M26 112H50M26 556H50" class="ink" style="stroke-width:3"/>
+                <line x1="10" y1="160" x2="26" y2="160" class="ink-dash"/>
+                <circle cx="38" cy="160" r="10" class="paper" style="stroke-width:3"/>
+                <text x="58" y="165" style="font-size:14px">Get clear</text>
+                <text x="58" y="184" style="font-size:14px">orders</text>
+                <line x1="10" y1="270" x2="26" y2="270" class="ink-dash"/>
+                <circle cx="38" cy="270" r="10" class="paper" style="stroke-width:3"/>
+                <text x="58" y="275" style="font-size:14px">Go in</text>
+                <line x1="10" y1="380" x2="26" y2="380" class="ink-dash"/>
+                <circle cx="38" cy="380" r="10" class="paper" style="stroke-width:3"/>
+                <text x="58" y="385" style="font-size:14px">Execute</text>
+                <text x="58" y="404" style="font-size:14px">the orders</text>
+                <line x1="10" y1="490" x2="26" y2="490" class="ink-dash"/>
+                <circle cx="38" cy="490" r="10" class="paper" style="stroke-width:3"/>
+                <text x="58" y="495" style="font-size:14px">Get out</text>
+                <line x1="164" y1="56" x2="164" y2="620" class="ink-thin" style="stroke-opacity:.35"/>
+                <text x="182" y="62" class="t-b t-caps" style="font-size:14px">The idea</text>
+                <text x="182" y="81" class="t-b t-caps" style="font-size:14px">I proposed</text>
+                <path d="M196 112V200" style="fill:none;stroke:var(--text-primary);stroke-width:5;stroke-linecap:butt"/>
+                <path d="M184 112H208" class="ink" style="stroke-width:3"/>
+                <line x1="185" y1="214" x2="207" y2="206" class="red" style="stroke-width:3"/><line x1="185" y1="226" x2="207" y2="218" class="red" style="stroke-width:3"/>
+                <text x="218" y="216" class="t-b t-red" style="font-size:14px">Something</text>
+                <text x="218" y="235" class="t-b t-red" style="font-size:14px">goes wrong</text>
+                <path d="M196 240 C 196 270, 178 284, 186 312 S 216 340, 208 368 C 202 392, 176 396, 184 410 C 192 424, 214 404, 204 392 S 180 440, 192 470 S 198 520, 196 552" class="ink" style="stroke-width:2.5" marker-end="url(#fb-n-ai)"/>
+                <text x="230" y="300" style="font-size:14px">The SEALs</text>
+                <text x="230" y="319" style="font-size:14px">figure</text>
+                <text x="230" y="338" style="font-size:14px">things out</text>
+                <text x="230" y="357" style="font-size:14px">on their</text>
+                <text x="230" y="376" style="font-size:14px">own</text>
+                <text x="182" y="590" class="t-b t-red" style="font-size:13px">Became the basis</text>
+                <text x="182" y="608" class="t-b t-red" style="font-size:13px">for the game</text>
+                </svg>
+                    </div>
+                    <figcaption>The old mission structure against the idea I proposed.</figcaption>
+                </figure>
+                <p>The game put a heightened emphasis on the story and on the characters of the SEALs, with the relationship between squadmates used to move the story forward.</p>
+
+                <h2 class="cs-h2" id="notebook"><span class="cs-h2__num">03</span>The notebook UI</h2>
+                <p>In the first two games, the front end and in-game UI were all high-tech. I pushed for this notebook
+                    design to help reinforce this on-the-ground, offline feel.</p>
+                <figure><img src="../images/FireteamBravo_shot1.webp" alt="The Operations Map screen drawn as a spiral-bound notebook, with a paper-clipped photo of the Urban Assault mission, hand-written location and time, and a target circled in red on a paper map" loading="lazy">
+                    <figcaption>The Operations Map, drawn as a field notebook instead of a high-tech display.</figcaption>
+                </figure>
+
+                <h2 class="cs-h2" id="missions"><span class="cs-h2__num">04</span>Missions and commands</h2>
+                <p>I was responsible for laying out the core mission structure, as well as implementing multiple level
+                    scenarios.</p>
+                <p>We also brought over tactical command elements that we had created in Tactical Strike, where players
+                    could give commands to teammates. Each level was also fully playable with online co-op, where these
+                    commands would change to verbal orders.</p>
+                <figure><img src="../images/FireteamBravo_shot2.webp" alt="The squad command menu: Move To and Cover Target at top and bottom, Movement options Follow and Hold Position on the left, and Engagement options Hold Fire, Fire at Will and Stealth on the right" loading="lazy">
+                    <figcaption>The command menu for giving orders to teammates.</figcaption>
+                </figure>
+                <p>The game supported co-op for two to four players through the single-player campaign,
+                    over both ad hoc and infrastructure.</p>
+
+                <h2 class="cs-h2" id="ai"><span class="cs-h2__num">05</span>Teammate AI</h2>
+                <p>I was also responsible for the AI design of teammates and enemies.</p>
+                <p>Teammates were a particular design challenge because they needed to be always out of the way of the
+                    player shooting, but always visible and looking effective.</p>
+                <figure><img src="../images/FireteamBravo_shot3.webp" alt="The player's view down a corridor, with three AI teammates spread to the sides and ahead, clear of the centre crosshair" loading="lazy">
+                    <figcaption>Three teammates in view, off to the sides of the player's crosshair.</figcaption>
+                </figure>
+                <p>I also designed a system where teammates would head towards where the player needed to go if no enemy
+                    threats were detected, to naturally drive the player forward.</p>
+
+                <h2 class="cs-h2" id="learned"><span class="cs-h2__num">06</span>What I learned</h2>
+                <p>My combat work at Slant Six meant working closely with animators and engineers to get behaviors
+                    feeling right. That foundation shaped how I think about pacing, player agency, and tuning.</p>
+
+                <section class="case-study__section" id="skills">
+                    <h2 class="case-study__section-title">Skills Applied</h2>
+                    <div class="case-study__skills">
+                        <span class="case-study__skill">Narrative Design</span>
+                        <span class="case-study__skill">Mission Structure</span>
+                        <span class="case-study__skill">AI Design</span>
+                        <span class="case-study__skill">Level Design</span>
+                        <span class="case-study__skill">UI Concept</span>
+                        <span class="case-study__skill">Tactical Shooters</span>
+                    </div>
+                </section>
+            </article>
+        </div>
 
         <nav class="case-study__nav">
             <a href="star-wars-battlefront.html" class="case-study__nav-link">
@@ -148,6 +272,7 @@
     </footer>
     <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
         data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script>
+    <script src="../page.js?v=5566eff6" defer></script>
 </body>
 
 </html>
