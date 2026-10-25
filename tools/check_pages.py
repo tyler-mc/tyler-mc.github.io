@@ -31,6 +31,10 @@ def check(path):
         if target not in ids:
             problems.append(f'in-page link #{target} has no target')
 
+    for m in re.finditer(r'\sposter="([^"]+)"', html):
+        if not os.path.exists(os.path.normpath(os.path.join(base, m.group(1)))):
+            problems.append(f'missing poster {m.group(1)}')
+
     for attr in ('src', 'href'):
         for m in re.finditer(r'\s' + attr + r'="([^"#?][^"]*)"', html):
             u = m.group(1)
@@ -60,6 +64,14 @@ def check(path):
     for bad in ('TODO', 'lorem', 'main highlight', 'open-source PC tool'):
         if bad.lower() in html.lower():
             problems.append(f'unwanted text: {bad}')
+
+    # Source links and publication credits are not used on case studies
+    for u in re.findall(r'<a [^>]*href="https?://[^"]*"[^>]*>', body):
+        problems.append('external link in page body: ' + u[:70])
+    if re.search(r'<cite\b|\u2197|Source:', body):
+        problems.append('source attribution text (cite, arrow or "Source:")')
+    if '\u2014' in body:
+        problems.append('em dash in page body')
 
     for u in re.findall(r'<a [^>]*target="_blank"[^>]*>', body):
         if 'rel="noopener"' not in u:

@@ -2378,8 +2378,10 @@ section {
 }
 
 /* Same hover and press response as the nav logo */
-.seed-circle:hover {
-  filter: invert(0.3);
+@media (hover: hover) {
+  .seed-circle:hover {
+    filter: invert(0.3);
+  }
 }
 
 .seed-circle:focus-visible {
@@ -3908,17 +3910,7 @@ section {
   color: var(--pw-cream);
 }
 
-.pw-release__src {
-  display: inline-block;
-  margin: 0.5rem 1rem 0 0;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border-bottom: 1px solid currentColor;
-}
-
-/* Short sourced quotes in case studies */
+/* Short quotes in case studies */
 .case-study--page .case-study__content .cs-quote {
   margin: 1.25rem 0;
   padding: 0.25rem 0 0.25rem 1.25rem;
@@ -3931,14 +3923,6 @@ section {
   font-style: italic;
   line-height: 1.45;
   color: var(--text-primary);
-}
-
-.cs-quote cite {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-style: normal;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 /* Small tiles: hover shows the role only */
@@ -4784,13 +4768,6 @@ section {
   max-width: 420px;
 }
 
-.cs-pair {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 0 1.5rem;
-  align-items: start;
-}
-
 /* ---------- Design diagrams (.dg) ----------
    Working diagrams drawn in the site's own ink-and-red language, one shape per idea
    (maps, state charts, tables, timelines, curves), not a shared template. Markup:
@@ -4888,4 +4865,49 @@ section {
   .pw-frames.pw-frames--grid2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* Pause button on looping clips (case-study pages) */
+.has-video-toggle {
+  position: relative;
+}
+
+.video-toggle {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 2px solid var(--text-primary);
+  background: var(--bg-primary);
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.video-toggle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 0.7rem;
+  height: 0.8rem;
+  border-left: 0.22rem solid var(--text-primary);
+  border-right: 0.22rem solid var(--text-primary);
+}
+
+.video-toggle[aria-pressed='true']::before {
+  width: 0;
+  height: 0;
+  border-left: 0.75rem solid var(--text-primary);
+  border-right: 0;
+  border-top: 0.45rem solid transparent;
+  border-bottom: 0.45rem solid transparent;
+}
+
+.video-toggle:hover,
+.video-toggle:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--accent-red);
+  outline-offset: 2px;
 }

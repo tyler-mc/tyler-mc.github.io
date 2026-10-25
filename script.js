@@ -965,30 +965,28 @@ function initLogoCycling() {
     95: "The final seed awaits..."
   };
 
+  // Returns true when the logo took the step (it is finished after the 100-click ending)
   function advance() {
-    // Don't allow clicks after completion
-    if (navLogo.classList.contains('completed')) return;
+    if (navLogo.classList.contains('completed')) return false;
 
     clickCount++;
-
-    // Add glitch class
     navLogo.classList.add('glitching');
 
-    // Change image after glitch animation starts (200ms into the animation)
+    // The index moves on the click; the picture swaps 200ms into the glitch
+    currentIndex = (currentIndex + 1) % wavyLines.length;
+    const shown = currentIndex;
     setTimeout(() => {
-      currentIndex = (currentIndex + 1) % wavyLines.length;
-      logoImage.src = wavyLines[currentIndex];
+      logoImage.src = wavyLines[shown];
       // The hero circle follows the logo
-      document.dispatchEvent(new CustomEvent('wavy:changed', { detail: { index: currentIndex } }));
+      document.dispatchEvent(new CustomEvent('wavy:changed', { detail: { index: shown } }));
     }, 200);
 
-    // Remove glitch class after animation completes
     setTimeout(() => {
       navLogo.classList.remove('glitching');
     }, 400);
 
-    // Handle Easter egg progression
     handleEasterEgg(clickCount);
+    return true;
   }
 
   navLogo.addEventListener('click', (e) => {
@@ -997,7 +995,9 @@ function initLogoCycling() {
   });
 
   // The hero circle runs the same sequence through this event
-  document.addEventListener('wavy:advance', advance);
+  document.addEventListener('wavy:advance', (e) => {
+    if (advance()) e.detail.handled = true;
+  });
 
   function handleEasterEgg(count) {
     // Show messages at milestones, with a jolt that grows each time
@@ -1502,7 +1502,16 @@ function initSeedGarden() {
     setTimeout(() => circle.classList.remove('glitching'), 400);
   }
 
-  const pressCircle = () => document.dispatchEvent(new CustomEvent('wavy:advance'));
+  const pressCircle = () => {
+    const request = { handled: false };
+    document.dispatchEvent(new CustomEvent('wavy:advance', { detail: request }));
+    // After the logo's 100-click ending only the circle keeps stepping
+    if (!request.handled) {
+      frame = (frame + 1) % FRAMES;
+      drawCircle();
+      pulseCircle();
+    }
+  };
   circle.addEventListener('click', pressCircle);
   circle.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {

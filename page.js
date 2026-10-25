@@ -42,12 +42,42 @@
   }
 
   document.addEventListener('keydown', (e) => {
-    if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
-    const tag = document.activeElement ? document.activeElement.tagName : '';
-    if (/^(INPUT|TEXTAREA|SELECT|VIDEO|AUDIO)$/.test(tag)) return;
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+    // Only from an idle page: not while something has focus, text is selected or the caret is moving
+    if (document.activeElement && document.activeElement !== document.body) return;
+    const selection = window.getSelection();
+    if (selection && selection.type === 'Range') return;
     const selector = e.key === 'ArrowLeft' ? '.case-study__nav-link:not(.case-study__nav-link--next)'
       : e.key === 'ArrowRight' ? '.case-study__nav-link--next' : null;
     const link = selector && document.querySelector(selector);
     if (link) link.click();
+  });
+
+  // Looping clips: still under reduced motion, and a pause button on every one
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('video[autoplay]').forEach(video => {
+    const figure = video.closest('figure');
+    if (reduced) {
+      video.removeAttribute('autoplay');
+      video.pause();
+    }
+    if (!figure) return;
+    figure.classList.add('has-video-toggle');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'video-toggle';
+    const sync = () => {
+      const playing = !video.paused;
+      button.setAttribute('aria-label', playing ? 'Pause clip' : 'Play clip');
+      button.setAttribute('aria-pressed', String(!playing));
+    };
+    button.addEventListener('click', () => {
+      if (video.paused) video.play().catch(() => {});
+      else video.pause();
+    });
+    video.addEventListener('play', sync);
+    video.addEventListener('pause', sync);
+    sync();
+    figure.appendChild(button);
   });
 })();
