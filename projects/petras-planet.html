@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
-    <link rel="stylesheet" href="../styles.css?v=94a1d4ae">
+    <link rel="stylesheet" href="../styles.css?v=2f400ba3">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
@@ -124,26 +124,175 @@
                     would be loaded into a randomized location and left to explore from there. Connecting everyone
                     together encourages players to socialize and make friends, so they could then explore the world
                     together.</p>
-                <div class="miro" role="group" aria-label="Diagram comparing a randomized starting location with one main hub world for all players">
-                    <div class="miro__grid miro__grid--linked">
-                        <div class="miro-frame">
-                            <p class="miro-frame__title">Before: a randomized location</p>
-                            <ol class="miro-flow miro-flow--col" role="list">
-                                <li class="miro-note miro-note--gray">Loaded into a randomized location</li>
-                                <li class="miro-note miro-note--gray miro-note--lg">Left to explore from there</li>
-                            </ol>
-                        </div>
-                        <div class="miro-frame">
-                            <p class="miro-frame__title">After: one main hub world</p>
-                            <ol class="miro-flow miro-flow--col" role="list">
-                                <li class="miro-note miro-note--green miro-note--lg">All players load into the main hub</li>
-                                <li class="miro-note miro-note--green">Socialize and make friends</li>
-                                <li class="miro-note miro-note--green">Explore the world together</li>
-                            </ol>
-                            <p class="miro-comment miro-note--blue">Connecting everyone together encourages players to socialize and make friends.</p>
-                        </div>
+                <figure class="dg" role="group" aria-label="Two maps of the same world. Before: players load into randomized locations and explore from there on their own. After: all players load into one main hub, then head out along paths to explore the world together.">
+                    <div class="dg__frame">
+                        <svg class="dg__wide" viewBox="0 0 720 396" role="img" aria-label="Before and after maps of where players load in">
+                            <defs>
+                                <marker id="pp-w-ah" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0 1L9 5L0 9z" fill="#0A0A0A"/></marker>
+                                <marker id="pp-w-as" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" fill="#0A0A0A"/></marker>
+                                <path id="pp-w-land" d="M27 55C18 18 82 4 127 16C163 25 190 0 235 12C280 25 294 72 276 108C262 136 290 168 258 190C221 214 172 194 136 203C90 214 36 203 23 167C11 136 36 108 20 86C13 72 24 63 27 55Z"/>
+                                <g id="pp-w-places">
+                                    <rect x="57" y="47" width="10" height="10" style="fill:#fff;stroke:#0A0A0A;stroke-width:1.5"/>
+                                    <rect x="233" y="35" width="10" height="10" style="fill:#fff;stroke:#0A0A0A;stroke-width:1.5"/>
+                                    <rect x="243" y="123" width="10" height="10" style="fill:#fff;stroke:#0A0A0A;stroke-width:1.5"/>
+                                    <rect x="185" y="173" width="10" height="10" style="fill:#fff;stroke:#0A0A0A;stroke-width:1.5"/>
+                                    <rect x="61" y="155" width="10" height="10" style="fill:#fff;stroke:#0A0A0A;stroke-width:1.5"/>
+                                </g>
+                                <g id="pp-w-waves" style="fill:none;stroke:#666;stroke-width:1.25">
+                                    <path d="M-4 24q4-4 8 0t8 0t8 0"/>
+                                    <path d="M290 30q4-4 8 0t8 0"/>
+                                    <path d="M282 206q4-4 8 0t8 0t8 0"/>
+                                    <path d="M0 196q4-4 8 0t8 0"/>
+                                </g>
+                            </defs>
+
+                            <rect x="0" y="0" width="207" height="24" class="ink-fill"/>
+                            <text x="10" y="16.5" class="t t-b t-caps" style="fill:#F5F5F0">Where players load in</text>
+
+                            <text x="20" y="56" class="t t-b t-caps">Before</text>
+                            <g transform="translate(20 70)">
+                                <use href="#pp-w-waves"/>
+                                <use href="#pp-w-land" class="paper"/>
+                                <use href="#pp-w-places"/>
+                                <g class="ink-thin" style="stroke-dasharray:2 3">
+                                    <path d="M104 40c8 6 16 2 20 10s-4 14 4 20"/>
+                                    <path d="M206 92c-6 8-2 16-10 20s-12 2-14 10"/>
+                                    <path d="M90 118c10 2 12 12 22 12s10-8 18-6"/>
+                                    <path d="M226 168c-4-10 4-16 0-24s-12-6-12-14"/>
+                                    <path d="M138 176c-8-4-16 2-22-4s-2-12-10-16"/>
+                                    <path d="M46 98c4-10 14-8 16-18s-2-10 4-16"/>
+                                </g>
+                                <g class="ink-thin">
+                                    <circle cx="104" cy="40" r="7.5"/><circle cx="206" cy="92" r="7.5"/><circle cx="90" cy="118" r="7.5"/>
+                                    <circle cx="226" cy="168" r="7.5"/><circle cx="138" cy="176" r="7.5"/><circle cx="46" cy="98" r="7.5"/>
+                                </g>
+                                <g class="ink-fill">
+                                    <circle cx="104" cy="40" r="3.5"/><circle cx="206" cy="92" r="3.5"/><circle cx="90" cy="118" r="3.5"/>
+                                    <circle cx="226" cy="168" r="3.5"/><circle cx="138" cy="176" r="3.5"/><circle cx="46" cy="98" r="3.5"/>
+                                </g>
+                            </g>
+                            <text x="20" y="312" class="t">Loaded into a randomized location.</text>
+                            <text x="20" y="330" class="t">Left to explore from there.</text>
+
+                            <path d="M336 178H382" class="ink" marker-end="url(#pp-w-ah)"/>
+
+                            <text x="400" y="56" class="t t-b t-caps t-red">After</text>
+                            <g transform="translate(400 70)">
+                                <use href="#pp-w-waves"/>
+                                <use href="#pp-w-land" class="paper"/>
+                                <use href="#pp-w-places"/>
+                                <g class="ink" style="stroke-width:1.5">
+                                    <path d="M123.8 91.4L69.6 56.8" marker-end="url(#pp-w-as)"/>
+                                    <path d="M174.5 89.1L230.9 45.5" marker-end="url(#pp-w-as)"/>
+                                    <path d="M180.4 114.2L239.2 126.2" marker-end="url(#pp-w-as)"/>
+                                    <path d="M165.4 134.9L185.5 170.2" marker-end="url(#pp-w-as)"/>
+                                    <path d="M123.6 124.3L73.7 155.3" marker-end="url(#pp-w-as)"/>
+                                </g>
+                                <circle cx="150" cy="108" r="27" class="red" style="fill:#fff"/>
+                                <g class="ink-fill">
+                                    <circle cx="142" cy="99" r="3.2"/><circle cx="151" cy="96" r="3.2"/><circle cx="160" cy="101" r="3.2"/>
+                                    <circle cx="139" cy="110" r="3.2"/><circle cx="149" cy="107" r="3.2"/><circle cx="159" cy="111" r="3.2"/>
+                                    <circle cx="145" cy="119" r="3.2"/><circle cx="155" cy="121" r="3.2"/>
+                                    <circle cx="97" cy="68" r="3.2"/><circle cx="91" cy="77" r="3.2"/>
+                                    <circle cx="209" cy="70" r="3.2"/><circle cx="202" cy="61" r="3.2"/>
+                                    <circle cx="212" cy="127" r="3.2"/><circle cx="214" cy="115" r="3.2"/>
+                                    <circle cx="102" cy="145" r="3.2"/><circle cx="95" cy="135" r="3.2"/>
+                                </g>
+                                <text x="150" y="72" text-anchor="middle" class="t t-b t-caps t-red">Main hub</text>
+                            </g>
+                            <text x="400" y="312" class="t t-red">All players load into the main hub.</text>
+                            <text x="400" y="330" class="t">Socialize and make friends,</text>
+                            <text x="400" y="348" class="t">then explore the world together.</text>
+
+                            <line x1="0" y1="366" x2="720" y2="366" class="ink-thin" style="stroke-dasharray:2 4"/>
+                            <circle cx="24" cy="384" r="3.5" class="ink-fill"/>
+                            <text x="36" y="388.5" class="t">player</text>
+                            <rect x="114" y="379" width="10" height="10" class="ink" style="stroke-width:1.5"/>
+                            <text x="134" y="388.5" class="t">place to explore</text>
+                            <circle cx="300" cy="384" r="7.5" class="ink-thin"/>
+                            <text x="316" y="388.5" class="t">where a player loads in</text>
+                        </svg>
+                        <svg class="dg__narrow" viewBox="0 0 320 752" role="img" aria-label="Before and after maps of where players load in">
+                            <defs>
+                                <marker id="pp-n-ah" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0 1L9 5L0 9z" fill="#0A0A0A"/></marker>
+                                <marker id="pp-n-as" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" fill="#0A0A0A"/></marker>
+                                <path id="pp-n-land" d="M27 55C18 18 82 4 127 16C163 25 190 0 235 12C280 25 294 72 276 108C262 136 290 168 258 190C221 214 172 194 136 203C90 214 36 203 23 167C11 136 36 108 20 86C13 72 24 63 27 55Z"/>
+                                <g id="pp-n-places">
+                                    <rect x="57" y="47" width="10" height="10" style="fill:#fff;stroke:#0A0A0A;stroke-width:1.5"/>
+                                    <rect x="233" y="35" width="10" height="10" style="fill:#fff;stroke:#0A0A0A;stroke-width:1.5"/>
+                                    <rect x="243" y="123" width="10" height="10" style="fill:#fff;stroke:#0A0A0A;stroke-width:1.5"/>
+                                    <rect x="185" y="173" width="10" height="10" style="fill:#fff;stroke:#0A0A0A;stroke-width:1.5"/>
+                                    <rect x="61" y="155" width="10" height="10" style="fill:#fff;stroke:#0A0A0A;stroke-width:1.5"/>
+                                </g>
+                            </defs>
+
+                            <rect x="0" y="0" width="207" height="24" class="ink-fill"/>
+                            <text x="10" y="16.5" class="t t-b t-caps" style="fill:#F5F5F0">Where players load in</text>
+
+                            <text x="10" y="54" class="t t-b t-caps">Before</text>
+                            <g transform="translate(10 64)">
+                                <use href="#pp-n-land" class="paper"/>
+                                <use href="#pp-n-places"/>
+                                <g class="ink-thin" style="stroke-dasharray:2 3">
+                                    <path d="M104 40c8 6 16 2 20 10s-4 14 4 20"/>
+                                    <path d="M206 92c-6 8-2 16-10 20s-12 2-14 10"/>
+                                    <path d="M90 118c10 2 12 12 22 12s10-8 18-6"/>
+                                    <path d="M226 168c-4-10 4-16 0-24s-12-6-12-14"/>
+                                    <path d="M138 176c-8-4-16 2-22-4s-2-12-10-16"/>
+                                    <path d="M46 98c4-10 14-8 16-18s-2-10 4-16"/>
+                                </g>
+                                <g class="ink-thin">
+                                    <circle cx="104" cy="40" r="7.5"/><circle cx="206" cy="92" r="7.5"/><circle cx="90" cy="118" r="7.5"/>
+                                    <circle cx="226" cy="168" r="7.5"/><circle cx="138" cy="176" r="7.5"/><circle cx="46" cy="98" r="7.5"/>
+                                </g>
+                                <g class="ink-fill">
+                                    <circle cx="104" cy="40" r="3.5"/><circle cx="206" cy="92" r="3.5"/><circle cx="90" cy="118" r="3.5"/>
+                                    <circle cx="226" cy="168" r="3.5"/><circle cx="138" cy="176" r="3.5"/><circle cx="46" cy="98" r="3.5"/>
+                                </g>
+                            </g>
+                            <text x="10" y="300" class="t">Loaded into a randomized location.</text>
+                            <text x="10" y="318" class="t">Left to explore from there.</text>
+
+                            <path d="M160 334V370" class="ink" marker-end="url(#pp-n-ah)"/>
+
+                            <text x="10" y="398" class="t t-b t-caps t-red">After</text>
+                            <g transform="translate(10 408)">
+                                <use href="#pp-n-land" class="paper"/>
+                                <use href="#pp-n-places"/>
+                                <g class="ink" style="stroke-width:1.5">
+                                    <path d="M123.8 91.4L69.6 56.8" marker-end="url(#pp-n-as)"/>
+                                    <path d="M174.5 89.1L230.9 45.5" marker-end="url(#pp-n-as)"/>
+                                    <path d="M180.4 114.2L239.2 126.2" marker-end="url(#pp-n-as)"/>
+                                    <path d="M165.4 134.9L185.5 170.2" marker-end="url(#pp-n-as)"/>
+                                    <path d="M123.6 124.3L73.7 155.3" marker-end="url(#pp-n-as)"/>
+                                </g>
+                                <circle cx="150" cy="108" r="27" class="red" style="fill:#fff"/>
+                                <g class="ink-fill">
+                                    <circle cx="142" cy="99" r="3.2"/><circle cx="151" cy="96" r="3.2"/><circle cx="160" cy="101" r="3.2"/>
+                                    <circle cx="139" cy="110" r="3.2"/><circle cx="149" cy="107" r="3.2"/><circle cx="159" cy="111" r="3.2"/>
+                                    <circle cx="145" cy="119" r="3.2"/><circle cx="155" cy="121" r="3.2"/>
+                                    <circle cx="97" cy="68" r="3.2"/><circle cx="91" cy="77" r="3.2"/>
+                                    <circle cx="209" cy="70" r="3.2"/><circle cx="202" cy="61" r="3.2"/>
+                                    <circle cx="212" cy="127" r="3.2"/><circle cx="214" cy="115" r="3.2"/>
+                                    <circle cx="102" cy="145" r="3.2"/><circle cx="95" cy="135" r="3.2"/>
+                                </g>
+                                <text x="150" y="72" text-anchor="middle" class="t t-b t-caps t-red">Main hub</text>
+                            </g>
+                            <text x="10" y="644" class="t t-red">All players load into the main hub.</text>
+                            <text x="10" y="662" class="t">Socialize and make friends,</text>
+                            <text x="10" y="680" class="t">then explore the world together.</text>
+
+                            <line x1="0" y1="698" x2="320" y2="698" class="ink-thin" style="stroke-dasharray:2 4"/>
+                            <circle cx="14" cy="716" r="3.5" class="ink-fill"/>
+                            <text x="26" y="720.5" class="t">player</text>
+                            <rect x="114" y="711" width="10" height="10" class="ink" style="stroke-width:1.5"/>
+                            <text x="132" y="720.5" class="t">place to explore</text>
+                            <circle cx="14" cy="740" r="7.5" class="ink-thin"/>
+                            <text x="30" y="744.5" class="t">where a player loads in</text>
+                        </svg>
                     </div>
-                </div>
+                    <figcaption>Where players loaded in, before and after the main hub.</figcaption>
+                </figure>
                 <figure><img src="../images/Petra_Shot1.webp" alt="Avatars standing and chatting in a plaza beside a waterfall full of coins" loading="lazy">
                     <figcaption>The main hub, where every player loaded in. The coin waterfall is on the left.</figcaption>
                 </figure>

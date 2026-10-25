@@ -2930,6 +2930,7 @@ section {
 
 .case-study--page .case-study__content img {
   width: 100%;
+  height: auto;
   border: 2px solid var(--text-primary);
 }
 
@@ -4806,3 +4807,31 @@ section {
 .dg .paper { fill: #fff; stroke: var(--text-primary); stroke-width: 2; }
 .dg .tint { fill: var(--bg-tertiary); stroke: none; }
 .dg .muted { fill: none; stroke: var(--text-muted); stroke-width: 1.5; }
+
+/* ---------- Inline-SVG Miro board (horizon-worlds) and 2x2 storyboard (pistol-whip) ----------
+   A drawn diagram inside a .miro-frame, with a wide and a narrow variant like .dg. */
+.miro-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.miro .miro-svg--narrow {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .miro .miro-svg--wide {
+    display: none;
+  }
+
+  .miro .miro-svg--narrow {
+    display: block;
+  }
+}
+
+@media (min-width: 801px) {
+  .pw-frames.pw-frames--grid2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

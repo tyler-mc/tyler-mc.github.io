@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
-    <link rel="stylesheet" href="../styles.css?v=94a1d4ae">
+    <link rel="stylesheet" href="../styles.css?v=2f400ba3">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
@@ -123,31 +123,12 @@
                 <figure><img src="../images/ResidentEvil_shot1.png" alt="Illustration of a soldier running up to a wall and dropping into a crouch behind it, with no separate cover button" loading="lazy">
                     <figcaption>Cover was automatic: moving next to a valid object put you in cover.</figcaption>
                 </figure>
+                <figure><video src="../images/re_orc_cover_crates.mp4" poster="../images/re_orc_cover_crates_poster.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Gameplay of a soldier moving up to a row of crates and taking cover behind them to aim and fire"></video>
+                    <figcaption>In the game: moving up to the crates puts you in cover, with the same controls.</figcaption>
+                </figure>
                 <p>So I decided to make cover automated and context sensitive whenever you were near valid objects. The
                     player's controls and movement remained exactly the same regardless of being in cover or not, which
                     reduced the cognitive load.</p>
-                <div class="miro" role="group" aria-label="Diagram comparing typical snap-to-cover with automated, context-sensitive cover">
-                    <div class="miro__grid miro__grid--linked">
-                        <div class="miro-frame">
-                            <p class="miro-frame__title">Typical snap-to-cover</p>
-                            <ol class="miro-flow miro-flow--col" role="list">
-                                <li class="miro-note miro-note--gray">Swarmed with close-quarter enemies</li>
-                                <li class="miro-note miro-note--gray miro-note--lg">Players panic and wrestle with the controls</li>
-                                <li class="miro-note miro-note--gray">Feeling 'stuck' to cover</li>
-                            </ol>
-                            <p class="miro-comment miro-note--orange">Games with this system would fall apart.</p>
-                        </div>
-                        <div class="miro-frame">
-                            <p class="miro-frame__title">Automated, context-sensitive cover</p>
-                            <ol class="miro-flow miro-flow--col" role="list">
-                                <li class="miro-note miro-note--green">Near a valid object</li>
-                                <li class="miro-note miro-note--green miro-note--lg">Cover is automated and context sensitive</li>
-                                <li class="miro-note miro-note--green">Controls and movement stay exactly the same</li>
-                            </ol>
-                            <p class="miro-comment miro-note--blue">This reduced the cognitive load.</p>
-                        </div>
-                    </div>
-                </div>
 
                 <h2 class="cs-h2" id="combat"><span class="cs-h2__num">04</span>Quick draw and bleeding</h2>
                 <p>One fun feature of the combat system I worked on was the 'Quick draw'. By holding down a button and

@@ -52,7 +52,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
-    <link rel="stylesheet" href="../styles.css?v=94a1d4ae">
+    <link rel="stylesheet" href="../styles.css?v=2f400ba3">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
@@ -165,20 +165,83 @@
                 </figure>
                 <p>I balanced the intrinsic motivation of experiencing a surreal world with the layering complication of
                     puzzle mechanics, always keeping the player's emotional journey first.</p>
-                <div class="miro" role="group" aria-label="Diagram of balancing a surreal world with layered puzzle mechanics, keeping the player's emotional journey first">
-                    <div class="miro-frame miro-frame--inset">
-                        <p class="miro-frame__title">Puzzle balance</p>
-                        <div class="miro-merge">
-                            <ul class="miro-stack" role="list">
-                                <li class="miro-note miro-note--green">A surreal world</li>
-                                <li class="miro-note miro-note--blue">Puzzle mechanics</li>
-                            </ul>
-                            <svg class="miro-merge__lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 0H30C62 0 66 50 100 50"/><path d="M0 100H30C62 100 66 50 100 50"/></svg>
-                            <div class="miro-shape">Balance</div>
-                        </div>
-                        <p class="miro-comment miro-note--yellow">Always keeping the player's emotional journey first.</p>
+                <figure class="dg" role="group" aria-label="A level balance beam. On one end, the intrinsic motivation of experiencing a surreal world. On the other, the layering complication of puzzle mechanics. The pivot under the beam is the player's emotional journey, always kept first.">
+                    <div class="dg__frame">
+                        <svg class="dg__wide" viewBox="0 0 720 322" role="img" aria-label="Balance beam: a surreal world against layered puzzle mechanics, resting on the player's emotional journey">
+                            <rect x="0" y="0" width="144" height="24" class="ink-fill"/>
+                            <text x="10" y="16.5" class="t t-b t-caps" style="fill:#F5F5F0">Puzzle balance</text>
+
+                            <text x="190" y="64" text-anchor="middle" class="t t-b t-caps">Intrinsic motivation</text>
+                            <text x="190" y="82" text-anchor="middle" class="t">of experiencing a surreal world</text>
+                            <text x="530" y="64" text-anchor="middle" class="t t-b t-caps">Puzzle mechanics</text>
+                            <text x="530" y="82" text-anchor="middle" class="t">layering complication</text>
+
+                            <path d="M190 108L226 152L190 196L154 152Z" class="ink" style="fill:#fff"/>
+                            <path d="M190 126L208 152L190 178L172 152Z" class="ink-thin"/>
+                            <path d="M190 141L197 152L190 163L183 152Z" class="ink-fill"/>
+                            <path d="M190 100V92M232 152H240M148 152H140" class="ink-thin"/>
+
+                            <g class="paper">
+                                <rect x="478" y="182" width="104" height="13"/>
+                                <rect x="486" y="166" width="104" height="13"/>
+                                <rect x="472" y="150" width="104" height="13"/>
+                                <rect x="482" y="134" width="104" height="13"/>
+                                <rect x="476" y="118" width="104" height="13"/>
+                            </g>
+
+                            <defs>
+                                <marker id="fo-w-ah" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 1L9 5L0 9z" fill="#0A0A0A"/></marker>
+                            </defs>
+                            <path d="M78 174A30 30 0 0 0 78 226" class="ink-dash" marker-start="url(#fo-w-ah)" marker-end="url(#fo-w-ah)"/>
+                            <path d="M642 174A30 30 0 0 1 642 226" class="ink-dash" marker-start="url(#fo-w-ah)" marker-end="url(#fo-w-ah)"/>
+                            <rect x="100" y="196" width="520" height="8" class="ink-fill"/>
+                            <rect x="338" y="182" width="44" height="12" rx="6" class="ink-thin" style="fill:#fff"/>
+                            <circle cx="360" cy="188" r="3.5" class="ink-fill"/>
+                            <path d="M352 182V185M368 182V185" class="ink-thin"/>
+
+                            <path d="M360 204L322 262H398Z" class="red-fill"/>
+                            <path d="M262 262H458" class="ink"/>
+                            <path d="M272 262l-8 9M290 262l-8 9M308 262l-8 9M326 262l-8 9M344 262l-8 9M362 262l-8 9M380 262l-8 9M398 262l-8 9M416 262l-8 9M434 262l-8 9M452 262l-8 9" class="ink-thin"/>
+
+                            <text x="360" y="296" text-anchor="middle" class="t t-red t-b">Always keeping the player's</text>
+                            <text x="360" y="314" text-anchor="middle" class="t t-red t-b">emotional journey first.</text>
+                        </svg>
+                        <svg class="dg__narrow" viewBox="0 0 320 346" role="img" aria-label="Balance beam: a surreal world against layered puzzle mechanics, resting on the player's emotional journey">
+                            <rect x="0" y="0" width="144" height="24" class="ink-fill"/>
+                            <text x="10" y="16.5" class="t t-b t-caps" style="fill:#F5F5F0">Puzzle balance</text>
+
+                            <text x="10" y="58" class="t t-b t-caps">Intrinsic motivation</text>
+                            <text x="10" y="76" class="t">of experiencing</text>
+                            <text x="10" y="94" class="t">a surreal world</text>
+                            <text x="310" y="124" text-anchor="end" class="t t-b t-caps">Puzzle mechanics</text>
+                            <text x="310" y="142" text-anchor="end" class="t">layering complication</text>
+
+                            <path d="M78 166L104 201L78 236L52 201Z" class="ink" style="fill:#fff"/>
+                            <path d="M78 183L91 201L78 219L65 201Z" class="ink-thin"/>
+                            <path d="M78 194L83 201L78 208L73 201Z" class="ink-fill"/>
+                            <path d="M78 159V152M110 201H117M46 201H39" class="ink-thin"/>
+
+                            <g class="paper">
+                                <rect x="226" y="225" width="72" height="11"/>
+                                <rect x="232" y="211" width="72" height="11"/>
+                                <rect x="222" y="197" width="72" height="11"/>
+                                <rect x="229" y="183" width="72" height="11"/>
+                            </g>
+
+                            <rect x="20" y="236" width="280" height="7" class="ink-fill"/>
+                            <rect x="144" y="224" width="32" height="10" rx="5" class="ink-thin" style="fill:#fff"/>
+                            <circle cx="160" cy="229" r="3" class="ink-fill"/>
+
+                            <path d="M160 243L134 287H186Z" class="red-fill"/>
+                            <path d="M96 287H224" class="ink"/>
+                            <path d="M106 287l-7 8M122 287l-7 8M138 287l-7 8M154 287l-7 8M170 287l-7 8M186 287l-7 8M202 287l-7 8M218 287l-7 8" class="ink-thin"/>
+
+                            <text x="160" y="320" text-anchor="middle" class="t t-red t-b">Always keeping the player's</text>
+                            <text x="160" y="338" text-anchor="middle" class="t t-red t-b">emotional journey first.</text>
+                        </svg>
                     </div>
-                </div>
+                    <figcaption>Puzzle balance, with the player's emotional journey as the pivot.</figcaption>
+                </figure>
                 <figure><img src="../images/FORM_Shot1.png" alt="A floating puzzle board of hexagons lit in red, with geometric shapes in glowing frames around it" loading="lazy">
                     <figcaption>One of the puzzles in the final game.</figcaption>
                 </figure>
