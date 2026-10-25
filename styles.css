@@ -4735,3 +4735,74 @@ section {
   gap: 0 1.5rem;
   align-items: start;
 }
+
+/* ---------- Design diagrams (.dg) ----------
+   Working diagrams drawn in the site's own ink-and-red language, one shape per idea
+   (maps, state charts, tables, timelines, curves), not a shared template. Markup:
+
+   <figure class="dg" role="group" aria-label="What the diagram shows">
+     <div class="dg__frame">
+       <svg class="dg__wide" viewBox="0 0 720 360" role="img" aria-label="...">...</svg>
+       <svg class="dg__narrow" viewBox="0 0 360 520" role="img" aria-label="...">...</svg>
+     </div>
+     <figcaption>...</figcaption>
+   </figure>
+
+   Use .dg__wide and .dg__narrow when the drawing needs a different layout on phones; a diagram
+   that scales fine can use a single svg. Keep text at 13 viewBox units or larger at the size it
+   is displayed. Helper classes for svg children: .ink, .ink-thin, .ink-dash, .red, .red-fill,
+   .muted, .paper, .t (label), .t-b (bold), .t-s (small), .t-red, .t-caps. */
+.dg {
+  margin: 2rem 0;
+}
+
+.dg__frame {
+  padding: 1rem;
+  border: 2px solid var(--text-primary);
+  background: var(--bg-primary);
+}
+
+.dg svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.dg .dg__narrow {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .dg .dg__wide:not(:only-child) {
+    display: none;
+  }
+
+  .dg .dg__narrow {
+    display: block;
+  }
+
+  .dg__frame {
+    padding: 0.5rem;
+  }
+}
+
+.dg text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  fill: var(--text-primary);
+}
+
+.dg .t-b { font-weight: 600; }
+.dg .t-s { font-size: 11px; }
+.dg .t-red { fill: var(--accent-red-text); }
+.dg .t-muted { fill: var(--text-muted); }
+.dg .t-caps { text-transform: uppercase; letter-spacing: 0.08em; }
+.dg .ink { fill: none; stroke: var(--text-primary); stroke-width: 2; }
+.dg .ink-thin { fill: none; stroke: var(--text-primary); stroke-width: 1; }
+.dg .ink-dash { fill: none; stroke: var(--text-primary); stroke-width: 1.25; stroke-dasharray: 5 4; }
+.dg .red { fill: none; stroke: var(--accent-red); stroke-width: 2.5; }
+.dg .red-fill { fill: var(--accent-red); stroke: none; }
+.dg .ink-fill { fill: var(--text-primary); stroke: none; }
+.dg .paper { fill: #fff; stroke: var(--text-primary); stroke-width: 2; }
+.dg .tint { fill: var(--bg-tertiary); stroke: none; }
+.dg .muted { fill: none; stroke: var(--text-muted); stroke-width: 1.5; }
