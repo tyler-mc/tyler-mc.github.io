@@ -17,7 +17,7 @@ for name in ASSETS:
     with open(os.path.join(ROOT, name), 'rb') as f:
         hashes[name] = hashlib.md5(f.read()).hexdigest()[:8]
 
-pages = [os.path.join(ROOT, name) for name in ('index.html', 'press-kit.html', '404.html')]
+pages = [os.path.join(ROOT, name) for name in ('index.html', 'press-kit.html', '404.html', 'spin.html')]
 pages += sorted(glob.glob(os.path.join(ROOT, 'projects', '*.html')))
 
 changed = 0

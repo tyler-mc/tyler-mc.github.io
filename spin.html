@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tyler McCulloch | Game Director</title>
+    <meta name="description"
+        content="Prototype-first game director. Hands-on third-person combat and controls, small-team prototypes, and design teams led in parallel.">
+    <meta name="author" content="J Tyler McCulloch">
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Tyler McCulloch | Game Director">
+    <meta property="og:description"
+        content="Prototype-first game director. Hands-on third-person combat and controls, small-team prototypes, and design teams led in parallel.">
+    <meta property="og:image" content="https://jtylermc.ca/images/og-cover.jpg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
+    <link rel="stylesheet" href="styles.css?v=886f7a89">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+</head>
+
+<body>
+    <nav class="nav" id="nav">
+        <div class="container nav__inner">
+            <a href="index.html" class="nav__logo"><img src="images/WavyLineCircles/Wavy Line 7.png"
+                    alt="Tyler McCulloch, full portfolio"></a>
+            <ul class="nav__links">
+                <li><a href="index.html#work" class="nav__link">Full portfolio</a></li>
+                <li><a href="#contact" class="nav__link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="spin" id="main">
+        <section class="spin__hero">
+            <div class="container">
+                <span class="section-code">[GAME DIRECTOR · SPIN]</span>
+                <h1 class="spin__title">Prototype-first game director</h1>
+                <p class="spin__lede">I design the 3Cs, prototype new interaction models fast, and lead the teams that finish them.
+                    22 years of games, from the combat in Bully to a GPT-3 conversation prototype and a 100-person VR RPG.</p>
+                <div class="spin__cta">
+                    <a href="#threecs" class="btn btn--primary">[ See the decisions ]</a>
+                    <a href="#contact" class="btn btn--outline">[ Contact ]</a>
+                </div>
+
+                <ul class="spin-stats" aria-label="At a glance">
+                    <li><span class="cs-stat__num">22+</span><span class="cs-stat__label">Years in games, AAA to VR to live service</span></li>
+                    <li><span class="cs-stat__num">~6</span><span class="cs-stat__label">Years in director roles, since becoming Creative Director at Archiact in June 2020</span></li>
+                    <li><span class="cs-stat__num">~100</span><span class="cs-stat__label">People on Journey to Foundation, where I directed the narrative and UX teams</span></li>
+                    <li><span class="cs-stat__num">4 to 5</span><span class="cs-stat__label">Projects of different sizes I direct at once at Smoking Gun Interactive</span></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="threecs">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-code">[01.CAMERA · CHARACTER · CONTROLS]</span>
+                    <h2 class="section-title">The 3Cs, as decisions</h2>
+                </div>
+
+                <div class="spin-cards">
+                    <article class="spin-card">
+                        <figure class="spin-card__art"><img src="images/Bully_shot2.png"
+                                alt="Jimmy kicking one student while another waits with his fists up inside the school"
+                                loading="lazy"></figure>
+                        <div class="spin-card__body">
+                            <span class="spin-card__tag">Bully · Rockstar · Controls</span>
+                            <h3 class="spin-card__title">One button, one attacker at a time</h3>
+                            <dl class="spin-card__facts">
+                                <dt>Constraint</dt>
+                                <dd>Combat used every face button. The challenge was to keep the depth and simplify it to one.</dd>
+                                <dt>Call</dt>
+                                <dd>A token system borrowed from kung fu movies. Many enemies surround you, but only the one holding the token attacks.</dd>
+                                <dt>Result</dt>
+                                <dd>Shipped in 2006. I was one of the four people who built the combat system, and I designed its bosses. Very similar systems were later seen in games like Arkham Asylum and Sleeping Dogs.</dd>
+                            </dl>
+                            <a class="spin-card__more" href="projects/bully.html">Case study →</a>
+                        </div>
+                    </article>
+
+                    <article class="spin-card">
+                        <figure class="spin-card__art"><video src="images/re_orc_cover_enter.mp4"
+                                poster="images/re_orc_cover_enter_poster.jpg" autoplay muted loop playsinline
+                                preload="metadata"
+                                aria-label="Gameplay of a soldier standing in the open, then moving and dropping into cover behind a barrier"></video></figure>
+                        <div class="spin-card__body">
+                            <span class="spin-card__tag">Resident Evil: Operation Raccoon City · Character and camera</span>
+                            <h3 class="spin-card__title">Cover that never takes the controls away</h3>
+                            <dl class="spin-card__facts">
+                                <dt>Constraint</dt>
+                                <dd>Snap-to-cover fell apart when swarmed. Players panicked and felt stuck to the wall.</dd>
+                                <dt>Call</dt>
+                                <dd>Cover is automatic and context sensitive. Controls and movement stay identical in or out of cover. Quick draw snaps your aim with a held button and the stick, without moving the camera.</dd>
+                                <dt>Result</dt>
+                                <dd>Shipped in 2012 on PS3 and Xbox 360, and sold 2.80 million units as of June 30, 2026.</dd>
+                            </dl>
+                            <a class="spin-card__more" href="projects/resident-evil-orc.html">Case study →</a>
+                        </div>
+                    </article>
+
+                    <article class="spin-card">
+                        <figure class="spin-card__art"><img src="images/WhoreOftheOrient_shot1.jpeg"
+                                alt="A hand-to-hand fight on a Shanghai street, from the prototype" loading="lazy"></figure>
+                        <div class="spin-card__body">
+                            <span class="spin-card__tag">Open-world prototype · Kennedy Miller Mitchell · Character</span>
+                            <h3 class="spin-card__title">A combat system built on a real martial art</h3>
+                            <dl class="spin-card__facts">
+                                <dt>Constraint</dt>
+                                <dd>A 1920s Shanghai open-world game in pre-production, with combat to design from nothing.</dd>
+                                <dt>Call</dt>
+                                <dd>Third-person combat based on Defendu, designed to grow as the player's skills unlock. The prototype added shooting and a chase through crowded alleys.</dd>
+                                <dt>Result</dt>
+                                <dd>Cancelled in pre-production. I also mentored the team of five designers.</dd>
+                            </dl>
+                            <a class="spin-card__more" href="projects/whore-of-the-orient.html">Case study →</a>
+                        </div>
+                    </article>
+
+                    <article class="spin-card">
+                        <figure class="spin-card__art"><img src="images/pistolwhip_drumgun.webp"
+                                alt="Pistol Whip Drum Gun announcement art" loading="lazy"
+                                style="object-position: 50% 40%"></figure>
+                        <div class="spin-card__body">
+                            <span class="spin-card__tag">Pistol Whip · Cloudhead · Controls in VR</span>
+                            <h3 class="spin-card__title">Swing at bullets. Play the gun.</h3>
+                            <dl class="spin-card__facts">
+                                <dt>Constraint</dt>
+                                <dd>A live rhythm-shooter that needed new ways to play without losing its raw simplicity.</dd>
+                                <dt>Call</dt>
+                                <dd>Deflector lets you swing at bullets and send them back. The Drum Gun plays a different drum sound for each shot, hit and reload, and your hand movement changes it.</dd>
+                                <dt>Result</dt>
+                                <dd>Drum Gun shipped in the November 2023 anniversary update. Deflector shipped in June 2024.</dd>
+                            </dl>
+                            <a class="spin-card__more" href="projects/pistol-whip.html">Case study →</a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-code">[02.EXPERIMENTAL · PROTOTYPE-FIRST]</span>
+                    <h2 class="section-title">Experiments and first versions</h2>
+                </div>
+                <ul class="spin-rows">
+                    <li>
+                        <div class="spin-rows__label">Useful Fiction<span>Technical designer, part-time<br>Jan 2026 to now</span></div>
+                        <p>I work with their new games division, rapidly developing prototypes. I use AI tools to assist that prototyping, as the core developer and designer.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Jetpack Interactive<span>Fall and winter 2025</span></div>
+                        <p>I built a prototype in Unreal Engine 5 for a game pitch we developed together. The pitch was shelved when their team was pulled onto God of War with Sony Santa Monica.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Cloudhead Games<span>Game Director</span></div>
+                        <div class="spin-rows__body">
+                            <p>Alongside Pistol Whip I oversaw the studio's experimental prototypes, including an unannounced original tactical stealth shooter.</p>
+                            <p>On Pistol Mix I passed on my own "play to create" idea when it put our Quest 2 targets at risk, and chose a free PC tool for the modders instead. Players have released well over 500 levels with it, against the 45 we released.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Flourish<span>Archiact</span></div>
+                        <p>A physiotherapy session turned into a world where your actions cast magic and restore a fantasy world, so that people want to come back to the exercises. Built in Unreal.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Horizon Worlds<span>Archiact for Meta</span></div>
+                        <p>Overlapping 3 to 6 month production cycles, each ending live, on hold or cancelled by Meta. A contract planned for 6 months ran for more than 2 years.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Resident Evil: ORC<span>Slant Six</span></div>
+                        <p>The prototype team was primarily three people: me, an artist and an engineer. The playable concept got Capcom's greenlight. With the lead engineer I co-created the scripting language and toolset that was adopted across the SOCOM franchise and RE: ORC.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">FORM<span>Charm Games</span></div>
+                        <p>Sole designer on a team of 3 that grew to 5 or 6. I prototyped and implemented every system mechanic and puzzle, scripted almost entirely in Playmaker.</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-code">[03.AI]</span>
+                    <h2 class="section-title">AI in games, from the GPT-3 beta</h2>
+                </div>
+                <ul class="spin-rows">
+                    <li>
+                        <div class="spin-rows__label">Proximity<span>Inscape Studios</span></div>
+                        <div class="spin-rows__body">
+                            <p>A VR adventure built around real-time AI conversation with a robot named Lou. It began on an earlier conversation framework we built with Playabl Studios. When I got closed-beta access to GPT-3, I pivoted the project and implemented GPT-3 into it myself, and worked directly with OpenAI to understand what the models could do in an interactive context.</p>
+                            <p>In the surgery sequence you describe the malware to Lou out loud, and if you are right Lou builds an antibody. The core team was 5, up to 10 for specific work like art assets.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Systems around the model<span>Inscape Studios</span></div>
+                        <p>I built the authoring tools and context schemas that made the model's behaviour consistent enough to design with, and refined system prompts and context management through user testing.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">AI in my own workflow<span>Now</span></div>
+                        <p>I use AI tools to assist my prototyping, working as both the core developer and the designer.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Traditional game AI<span>Rockstar and Slant Six</span></div>
+                        <p>I designed and scripted AI for Bully, the SOCOM franchise and RE: ORC, including teammate, enemy and squad companion behaviour.</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-code">[04.NEW DEVICES AND INTERACTIONS]</span>
+                    <h2 class="section-title">Unique interaction models</h2>
+                </div>
+                <ul class="spin-rows">
+                    <li>
+                        <div class="spin-rows__label">Freefall Racers<span>NEX console<br>Smoking Gun Interactive</span></div>
+                        <p>A released camera-based game where your body controls the player on screen, with no controller. I was the Studio Design Director on it, and it is the most recent SGI game I was involved in.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Virtual reality<span>10+ years</span></div>
+                        <p>Hand-driven design in Pistol Whip (Deflector, the Drum Gun), Flourish (exercises that cast spells), FORM (linking nodes by hand) and Journey to Foundation, where we used the body as a controller so players were not standing around waiting for conversations to end.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Marvel: Dimension of Heroes<span>Lenovo Mirage AR</span></div>
+                        <p>A game for the first consumer AR headset, which needed a phone inserted into it. Getting it running on the target hardware at a good framerate was a challenge.</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-code">[05.SYSTEMIC · OPEN AND SEMI-OPEN]</span>
+                    <h2 class="section-title">Systems, and what I learned about scope</h2>
+                </div>
+                <ul class="spin-rows">
+                    <li>
+                        <div class="spin-rows__label">Bully<span>Open world</span></div>
+                        <p>Scripted NPC navigation and ambient NPC interactions, designed the social reputation system,
+                            and scripted mini-games, including Future Street Race 2165.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">SOCOM: Fireteam Bravo 3<span>Squad AI</span></div>
+                        <p>Designed the AI for teammates and enemies, directed the single-player level design and story,
+                            and brought squad commands over from Tactical Strike. Teammates had to stay out of the way of
+                            your shot and still look effective.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Journey to Foundation<span>Semi-open levels</span></div>
+                        <p>Halfway through development we found our semi-open, multi-path levels were not feasible on the
+                            target hardware, and they were cut back to linear. The lesson I took: understand the target
+                            hardware's technical limits before building levels around them.</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-code">[06.DESIGN TEAMS IN PARALLEL]</span>
+                    <h2 class="section-title">Leading designers across projects</h2>
+                </div>
+                <ol class="spin-rows">
+                    <li>
+                        <div class="spin-rows__label">Studio Design Director<span>Keywords Studios (Smoking Gun Interactive)<br>May 2026 to now</span></div>
+                        <p>Directs 4 to 5 projects of different sizes and needs at once. On some I am hands-on in the day-to-day design, and on others I work at a management level.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Technical Designer, part-time<span>Useful Fiction<br>Jan 2026 to now</span></div>
+                        <p>Rapidly developing prototypes for their new games division.</p>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Game Director<span>Cloudhead Games<br>July 2022 to Nov 2025</span></div>
+                        <div class="spin-rows__body">
+                        <p>Directed the live game Pistol Whip and the studio's experimental prototypes, with a design team of 4 to 5
+                            inside a team of about 20. Set goals and gave feedback, and aligned design, production,
+                            engineering and marketing with leadership.</p>
+                        <p>Releases I directed: Winter Roadmap and Holiday Update, Pistol Mix, Overdrive Season, Elixir of
+                            Madness, Drum Gun and Voidslayer.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Creative Director<span>Archiact Interactive<br>June 2020 to July 2022<br>Design Lead from Jan 2019</span></div>
+                        <div class="spin-rows__body">
+                        <p><strong>Journey to Foundation.</strong> Co-creative director, directing the narrative and UX
+                            teams and their interaction systems. Journey to Foundation and Horizon Worlds ran at the same time, and I took the co-creative director role so I could split my focus
+                            between them. I kept the creative and technical vision for the gameplay systems in Unreal. I left in July 2022 and the game launched in October 2023.</p>
+                        <p><strong>Horizon Worlds.</strong> Led the team, and built the hiring and training procedures for
+                            new designers.</p>
+                        <p><strong>Flourish.</strong> Set the creative vision and the long-term progression for a VR
+                            physiotherapy game.</p>
+                        <p><strong>Marvel: Dimension of Heroes.</strong> Design lead. The design team was fractured when I
+                            joined, and I rebuilt its trust. I secured feature approvals from Disney and Marvel executives.
+                            It launched in September 2019.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="spin-rows__label">Senior Game Designer<span>Kennedy Miller Mitchell<br>Sept 2012 to Jan 2013</span></div>
+                        <p>Mentored a team of five designers on design practice and technical implementation.</p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-code">[07.NARRATIVE]</span>
+                    <h2 class="section-title">Story that players take part in</h2>
+                </div>
+                <div class="spin-split">
+                    <figure>
+                        <img src="images/JourneyToFoundation_MentalicsStoryboard.jpg"
+                            alt="Storyboard showing how mentalics are used in conversation through VR interactions"
+                            loading="lazy">
+                        <figcaption>My storyboard for using mentalics in conversation through VR interactions.</figcaption>
+                    </figure>
+                    <ul class="spin-rows">
+                        <li>
+                            <div class="spin-rows__label">Journey to Foundation</div>
+                            <p>"Participatory drama": NPCs see what you are doing, not only the choice you select, so
+                                players take part through physical actions instead of menus. It became part of the final
+                                game's boss fights. Reviews consistently singled out the narrative.
+                                <a href="projects/journey-to-foundation.html">Case study →</a></p>
+                        </li>
+                        <li>
+                            <div class="spin-rows__label">SOCOM: Fireteam Bravo 3</div>
+                            <p>I proposed the "something went wrong" idea that became the basis of the game, and directed
+                                the single-player level design and story.
+                                <a href="projects/socom-fireteam-bravo-3.html">Case study →</a></p>
+                        </li>
+                        <li>
+                            <div class="spin-rows__label">G.I. Joe (cancelled)</div>
+                            <p>Wrote the narrative structure and had it approved by the IP owners.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="spin__contact" id="contact">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-code">[08.CONTACT]</span>
+                    <h2 class="section-title">Let's talk</h2>
+                </div>
+                <div class="spin__cta">
+                    <a href="mailto:jtylermc@gmail.com" class="btn btn--primary">[ jtylermc@gmail.com ]</a>
+                    <a href="https://www.linkedin.com/in/jtylermc/" class="btn btn--outline" target="_blank"
+                        rel="noopener">[ LinkedIn ]</a>
+                    <a href="index.html#work" class="btn btn--outline">[ All 17 case studies ]</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer__text">© 2026 Tyler McCulloch.</p>
+        </div>
+    </footer>
+
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+        data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script>
+    <script src="page.js?v=5566eff6" defer></script>
+</body>
+
+</html>
