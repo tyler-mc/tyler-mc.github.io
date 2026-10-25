@@ -2373,7 +2373,61 @@ section {
   display: block;
   width: clamp(220px, 32vw, 460px);
   aspect-ratio: 1;
-  will-change: transform;
+  cursor: pointer;
+  transition: filter var(--transition-fast);
+}
+
+/* Same hover and press response as the nav logo */
+.seed-circle:hover {
+  filter: invert(0.3);
+}
+
+.seed-circle:focus-visible {
+  outline: 2px solid var(--accent-red);
+  outline-offset: 6px;
+}
+
+.seed-circle.glitching {
+  animation: seedGlitch 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes seedGlitch {
+
+  0%,
+  100% {
+    transform: translate(0) scale(1);
+    filter: none;
+  }
+
+  10% {
+    transform: translate(-6px, 4px) scale(1.04);
+    filter: drop-shadow(3px 0 0 var(--accent-red));
+  }
+
+  20% {
+    transform: translate(6px, -4px) scale(0.96);
+    filter: invert(0.35);
+  }
+
+  30% {
+    transform: translate(-4px, -2px) scale(1.02);
+    filter: drop-shadow(-3px 0 0 var(--accent-red));
+  }
+
+  40% {
+    transform: translate(4px, 2px) scale(0.98);
+    filter: drop-shadow(3px 0 0 var(--accent-red));
+  }
+
+  60% {
+    transform: translate(-2px, 2px) scale(1.01);
+    filter: invert(0.35);
+  }
+
+  80% {
+    transform: translate(2px, -2px) scale(0.99);
+    filter: none;
+  }
 }
 
 .seed-counter {

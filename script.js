@@ -965,9 +965,7 @@ function initLogoCycling() {
     95: "The final seed awaits..."
   };
 
-  navLogo.addEventListener('click', (e) => {
-    e.preventDefault();
-
+  function advance() {
     // Don't allow clicks after completion
     if (navLogo.classList.contains('completed')) return;
 
@@ -980,6 +978,8 @@ function initLogoCycling() {
     setTimeout(() => {
       currentIndex = (currentIndex + 1) % wavyLines.length;
       logoImage.src = wavyLines[currentIndex];
+      // The hero circle follows the logo
+      document.dispatchEvent(new CustomEvent('wavy:changed', { detail: { index: currentIndex } }));
     }, 200);
 
     // Remove glitch class after animation completes
@@ -989,7 +989,15 @@ function initLogoCycling() {
 
     // Handle Easter egg progression
     handleEasterEgg(clickCount);
+  }
+
+  navLogo.addEventListener('click', (e) => {
+    e.preventDefault();
+    advance();
   });
+
+  // The hero circle runs the same sequence through this event
+  document.addEventListener('wavy:advance', advance);
 
   function handleEasterEgg(count) {
     // Show messages at milestones, with a jolt that grows each time
@@ -1377,9 +1385,9 @@ function initCelebrationParticles(canvas) {
 }
 
 /**
- * Seed garden - the hero's signature toy. A hand-drawn circle flips through
- * the 100 wavy-line textures as the pointer moves (or the page scrolls);
- * clicking empty hero space plants the current texture as an ink stamp.
+ * Seed garden - the hero's signature toy. The big hand-drawn circle is the
+ * nav logo's twin: click either to step through the 100 wavy-line textures.
+ * Clicking empty hero space plants the current texture as an ink stamp.
  * Some seeds bloom. Most don't.
  */
 function initSeedGarden() {
@@ -1394,7 +1402,6 @@ function initSeedGarden() {
   const FRAMES = 100;
   const COLS = 10;
   let FRAME_PX = 320;
-  const FLIP_PX = 80;          // pointer travel per page turn
   const SEED_SIZE = 72;        // base planted size (CSS px)
   const BLOOM_CHANCE = 0.2;    // "not all will bloom"
   const RED_RATIO = 0.3;
@@ -1407,10 +1414,6 @@ function initSeedGarden() {
   const seeds = [];
   let sheet = null;
   let frame = 6; // Wavy Line 7, the logo
-  let travel = 0;
-  let frozenUntil = 0;
-  let lastX = null;
-  let lastY = null;
   let planted = 0;
   let bloomed = 0;
   let gardenRAF = 0;
@@ -1482,59 +1485,31 @@ function initSeedGarden() {
     drawFrame(circleCtx, frame, INK, circle.width / 2, circle.height / 2, circle.width * 0.98);
   }
 
-  function turnPages(distance) {
-    if (REDUCED_MOTION || performance.now() < frozenUntil) return;
-    travel += distance;
-    if (travel < FLIP_PX) return;
-    const steps = Math.floor(travel / FLIP_PX);
-    travel -= steps * FLIP_PX;
-    frame = (frame + steps) % FRAMES;
+  // The circle shows the same frame as the nav logo. Clicking it runs the
+  // logo's sequence, and the logo's clicks land here through wavy:changed.
+  const SPRITE_FRAME_COUNT = FRAMES;
+  document.addEventListener('wavy:changed', (e) => {
+    frame = e.detail.index % SPRITE_FRAME_COUNT;
     drawCircle();
-  }
-
-  // The circle leans with the pointer's horizontal speed
-  let lean = 0;
-  let leanTarget = 0;
-  let leanRAF = 0;
-  function kickLean() {
-    if (leanRAF) return;
-    const step = () => {
-      lean += (leanTarget - lean) * 0.18;
-      leanTarget *= 0.86;
-      circle.style.transform = `rotate(${lean.toFixed(2)}deg)`;
-      if (Math.abs(lean) > 0.05 || Math.abs(leanTarget) > 0.05) {
-        leanRAF = requestAnimationFrame(step);
-      } else {
-        circle.style.transform = '';
-        lean = 0;
-        leanRAF = 0;
-      }
-    };
-    leanRAF = requestAnimationFrame(step);
-  }
-
-  hero.addEventListener('pointermove', (e) => {
-    if (e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
-    if (lastX !== null) {
-      const dx = e.clientX - lastX;
-      turnPages(Math.hypot(dx, e.clientY - lastY));
-      if (!REDUCED_MOTION) {
-        leanTarget = Math.max(-3, Math.min(3, dx * 0.15));
-        kickLean();
-      }
-    }
-    lastX = e.clientX;
-    lastY = e.clientY;
+    pulseCircle();
   });
-  hero.addEventListener('pointerleave', () => { lastX = lastY = null; });
 
-  // Scrolling turns the pages too (the main way on touch screens)
-  let lastScrollY = window.scrollY;
-  window.addEventListener('scroll', () => {
-    const dy = window.scrollY - lastScrollY;
-    lastScrollY = window.scrollY;
-    if (hero.getBoundingClientRect().bottom > 0) turnPages(Math.abs(dy) * 0.6);
-  }, { passive: true });
+  function pulseCircle() {
+    if (REDUCED_MOTION) return;
+    circle.classList.remove('glitching');
+    void circle.offsetWidth;
+    circle.classList.add('glitching');
+    setTimeout(() => circle.classList.remove('glitching'), 400);
+  }
+
+  const pressCircle = () => document.dispatchEvent(new CustomEvent('wavy:advance'));
+  circle.addEventListener('click', pressCircle);
+  circle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      pressCircle();
+    }
+  });
 
   function sizeCanvases() {
     const c = circle.getBoundingClientRect();
@@ -1582,18 +1557,8 @@ function initSeedGarden() {
     const living = seeds.filter(seed => !seed.fadeStart);
     if (living.length > GARDEN_CAP) living[0].fadeStart = now;
 
-    // Next seed is a different texture; brief hit-stop and squash on the circle
-    frame = (frame + 1) % FRAMES;
-    drawCircle();
-    frozenUntil = now + 80;
-    if (!REDUCED_MOTION) {
-      circle.animate([
-        { transform: 'scale(1)' },
-        { transform: 'scale(.9, .86)', offset: 0.25 },
-        { transform: 'scale(1.05)', offset: 0.6 },
-        { transform: 'scale(1)' }
-      ], { duration: 320, easing: 'ease-out' });
-    }
+    // The next seed is a different texture: planting runs the shared sequence
+    pressCircle();
     updateCounter();
     if (!gardenRAF) gardenRAF = requestAnimationFrame(tick);
   }
@@ -1687,7 +1652,7 @@ function initSeedGarden() {
 
   hero.addEventListener('click', (e) => {
     if (e.button !== 0) return;
-    if (e.target.closest('a, button, h1, p, .hero__label, .hero__meta')) return;
+    if (e.target.closest('a, button, h1, p, .hero__label, .hero__meta, .seed-circle')) return;
     const r = hero.getBoundingClientRect();
     plant(e.clientX - r.left, e.clientY - r.top);
   });
