@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  <script>document.documentElement.classList.add("os");setTimeout(function(){if(!window.__osBoot)document.documentElement.classList.remove("os")},4000)</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Primary Meta Tags -->
@@ -135,10 +136,12 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Tiny5&display=swap">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=886f7a89">
+  <link rel="stylesheet" href="/os.css?v=9c5c1053">
+  <link rel="stylesheet" href="/rw.css?v=4daaf0ed">
+  <link rel="stylesheet" href="/plain.css?v=a1a01a04">
 
   <!-- Favicon -->
   <link rel="icon" href="favicon.ico" sizes="any">
@@ -148,659 +151,202 @@
 </head>
 
 <body>
-  <!-- Navigation -->
-  <nav class="nav" id="nav">
-    <div class="container nav__inner">
-      <a href="#" class="nav__logo" id="navLogo">
-        <img src="images/WavyLineCircles/Wavy Line 7.png" alt="J Tyler McCulloch" id="logoImage">
-      </a>
-      <ul class="nav__links" id="navLinks">
-        <li><a href="#work" class="nav__link">Work</a></li>
-        <li><a href="#about" class="nav__link">About</a></li>
-        <li><a href="#experience" class="nav__link">Experience</a></li>
-        <li><a href="#contact" class="nav__link">Contact</a></li>
-      </ul>
-      <button class="nav__toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 12h18M3 6h18M3 18h18" />
-        </svg>
-      </button>
+<svg class="defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+  <pattern id="ck" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#1A1716"/><rect x="1" y="1" width="1" height="1" fill="#1A1716"/></pattern>
+  <filter id="thr" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncA type="discrete" tableValues="0 1 1"/></feComponentTransfer></filter>
+  <filter id="thrs" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+    <feComponentTransfer in="SourceGraphic" result="a"><feFuncA type="discrete" tableValues="0 1 1"/></feComponentTransfer>
+    <feFlood flood-color="#032A2C" result="f"/><feComposite in="f" in2="a" operator="in" result="s"/><feOffset in="s" dx="1" dy="1" result="so"/>
+    <feMerge><feMergeNode in="so"/><feMergeNode in="a"/></feMerge>
+  </filter>
+  <filter id="dz" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feColorMatrix in="SourceGraphic" type="saturate" values="1.15" result="s"/><feImage href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='2' height='2' fill='rgb(2,2,2)'/%3E%3Crect x='2' y='0' width='2' height='2' fill='rgb(129,129,129)'/%3E%3Crect x='4' y='0' width='2' height='2' fill='rgb(34,34,34)'/%3E%3Crect x='6' y='0' width='2' height='2' fill='rgb(161,161,161)'/%3E%3Crect x='8' y='0' width='2' height='2' fill='rgb(10,10,10)'/%3E%3Crect x='10' y='0' width='2' height='2' fill='rgb(137,137,137)'/%3E%3Crect x='12' y='0' width='2' height='2' fill='rgb(42,42,42)'/%3E%3Crect x='14' y='0' width='2' height='2' fill='rgb(169,169,169)'/%3E%3Crect x='0' y='2' width='2' height='2' fill='rgb(193,193,193)'/%3E%3Crect x='2' y='2' width='2' height='2' fill='rgb(66,66,66)'/%3E%3Crect x='4' y='2' width='2' height='2' fill='rgb(225,225,225)'/%3E%3Crect x='6' y='2' width='2' height='2' fill='rgb(98,98,98)'/%3E%3Crect x='8' y='2' width='2' height='2' fill='rgb(201,201,201)'/%3E%3Crect x='10' y='2' width='2' height='2' fill='rgb(74,74,74)'/%3E%3Crect x='12' y='2' width='2' height='2' fill='rgb(233,233,233)'/%3E%3Crect x='14' y='2' width='2' height='2' fill='rgb(106,106,106)'/%3E%3Crect x='0' y='4' width='2' height='2' fill='rgb(50,50,50)'/%3E%3Crect x='2' y='4' width='2' height='2' fill='rgb(177,177,177)'/%3E%3Crect x='4' y='4' width='2' height='2' fill='rgb(18,18,18)'/%3E%3Crect x='6' y='4' width='2' height='2' fill='rgb(145,145,145)'/%3E%3Crect x='8' y='4' width='2' height='2' fill='rgb(58,58,58)'/%3E%3Crect x='10' y='4' width='2' height='2' fill='rgb(185,185,185)'/%3E%3Crect x='12' y='4' width='2' height='2' fill='rgb(26,26,26)'/%3E%3Crect x='14' y='4' width='2' height='2' fill='rgb(153,153,153)'/%3E%3Crect x='0' y='6' width='2' height='2' fill='rgb(241,241,241)'/%3E%3Crect x='2' y='6' width='2' height='2' fill='rgb(114,114,114)'/%3E%3Crect x='4' y='6' width='2' height='2' fill='rgb(209,209,209)'/%3E%3Crect x='6' y='6' width='2' height='2' fill='rgb(82,82,82)'/%3E%3Crect x='8' y='6' width='2' height='2' fill='rgb(249,249,249)'/%3E%3Crect x='10' y='6' width='2' height='2' fill='rgb(122,122,122)'/%3E%3Crect x='12' y='6' width='2' height='2' fill='rgb(217,217,217)'/%3E%3Crect x='14' y='6' width='2' height='2' fill='rgb(90,90,90)'/%3E%3Crect x='0' y='8' width='2' height='2' fill='rgb(14,14,14)'/%3E%3Crect x='2' y='8' width='2' height='2' fill='rgb(141,141,141)'/%3E%3Crect x='4' y='8' width='2' height='2' fill='rgb(46,46,46)'/%3E%3Crect x='6' y='8' width='2' height='2' fill='rgb(173,173,173)'/%3E%3Crect x='8' y='8' width='2' height='2' fill='rgb(6,6,6)'/%3E%3Crect x='10' y='8' width='2' height='2' fill='rgb(133,133,133)'/%3E%3Crect x='12' y='8' width='2' height='2' fill='rgb(38,38,38)'/%3E%3Crect x='14' y='8' width='2' height='2' fill='rgb(165,165,165)'/%3E%3Crect x='0' y='10' width='2' height='2' fill='rgb(205,205,205)'/%3E%3Crect x='2' y='10' width='2' height='2' fill='rgb(78,78,78)'/%3E%3Crect x='4' y='10' width='2' height='2' fill='rgb(237,237,237)'/%3E%3Crect x='6' y='10' width='2' height='2' fill='rgb(110,110,110)'/%3E%3Crect x='8' y='10' width='2' height='2' fill='rgb(197,197,197)'/%3E%3Crect x='10' y='10' width='2' height='2' fill='rgb(70,70,70)'/%3E%3Crect x='12' y='10' width='2' height='2' fill='rgb(229,229,229)'/%3E%3Crect x='14' y='10' width='2' height='2' fill='rgb(102,102,102)'/%3E%3Crect x='0' y='12' width='2' height='2' fill='rgb(62,62,62)'/%3E%3Crect x='2' y='12' width='2' height='2' fill='rgb(189,189,189)'/%3E%3Crect x='4' y='12' width='2' height='2' fill='rgb(30,30,30)'/%3E%3Crect x='6' y='12' width='2' height='2' fill='rgb(157,157,157)'/%3E%3Crect x='8' y='12' width='2' height='2' fill='rgb(54,54,54)'/%3E%3Crect x='10' y='12' width='2' height='2' fill='rgb(181,181,181)'/%3E%3Crect x='12' y='12' width='2' height='2' fill='rgb(22,22,22)'/%3E%3Crect x='14' y='12' width='2' height='2' fill='rgb(149,149,149)'/%3E%3Crect x='0' y='14' width='2' height='2' fill='rgb(253,253,253)'/%3E%3Crect x='2' y='14' width='2' height='2' fill='rgb(126,126,126)'/%3E%3Crect x='4' y='14' width='2' height='2' fill='rgb(221,221,221)'/%3E%3Crect x='6' y='14' width='2' height='2' fill='rgb(94,94,94)'/%3E%3Crect x='8' y='14' width='2' height='2' fill='rgb(245,245,245)'/%3E%3Crect x='10' y='14' width='2' height='2' fill='rgb(118,118,118)'/%3E%3Crect x='12' y='14' width='2' height='2' fill='rgb(213,213,213)'/%3E%3Crect x='14' y='14' width='2' height='2' fill='rgb(86,86,86)'/%3E%3C/svg%3E" x="0" y="0" width="16" height="16" preserveAspectRatio="none" result="t"/><feTile in="t" result="tt"/><feComposite in="s" in2="tt" operator="arithmetic" k1="0" k2="0.6667" k3="0.3333" k4="0" result="m"/><feComponentTransfer in="m"><feFuncR type="discrete" tableValues="0.04 0.5 1"/><feFuncG type="discrete" tableValues="0.04 0.5 1"/><feFuncB type="discrete" tableValues="0.04 0.5 1"/><feFuncA type="discrete" tableValues="1 1"/></feComponentTransfer></filter>
+<filter id="m80" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+ <feColorMatrix in="SourceGraphic" type="matrix" values="1.3 1.3 .4 0 -.35 1.3 1.3 .4 0 -.35 1.3 1.3 .4 0 -.35 0 0 0 1 0" result="g"/>
+ <feGaussianBlur in="g" stdDeviation="1.2" result="b"/>
+ <feFlood x="1" y="1" width="2" height="2" flood-color="#fff" result="d0"/><feComposite in="d0" width="4" height="4" result="d1"/><feTile in="d1" result="dt"/>
+ <feComposite in="b" in2="dt" operator="in" result="sp"/><feMorphology in="sp" operator="dilate" radius="1" result="px"/>
+ <feImage href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%20shape-rendering='crispEdges'%3E%3Crect%20x='0'%20y='0'%20width='4'%20height='4'%20fill='rgb%282%2C2%2C2%29'/%3E%3Crect%20x='4'%20y='0'%20width='4'%20height='4'%20fill='rgb%28130%2C130%2C130%29'/%3E%3Crect%20x='8'%20y='0'%20width='4'%20height='4'%20fill='rgb%2834%2C34%2C34%29'/%3E%3Crect%20x='12'%20y='0'%20width='4'%20height='4'%20fill='rgb%28162%2C162%2C162%29'/%3E%3Crect%20x='16'%20y='0'%20width='4'%20height='4'%20fill='rgb%2810%2C10%2C10%29'/%3E%3Crect%20x='20'%20y='0'%20width='4'%20height='4'%20fill='rgb%28138%2C138%2C138%29'/%3E%3Crect%20x='24'%20y='0'%20width='4'%20height='4'%20fill='rgb%2842%2C42%2C42%29'/%3E%3Crect%20x='28'%20y='0'%20width='4'%20height='4'%20fill='rgb%28170%2C170%2C170%29'/%3E%3Crect%20x='0'%20y='4'%20width='4'%20height='4'%20fill='rgb%28194%2C194%2C194%29'/%3E%3Crect%20x='4'%20y='4'%20width='4'%20height='4'%20fill='rgb%2866%2C66%2C66%29'/%3E%3Crect%20x='8'%20y='4'%20width='4'%20height='4'%20fill='rgb%28226%2C226%2C226%29'/%3E%3Crect%20x='12'%20y='4'%20width='4'%20height='4'%20fill='rgb%2898%2C98%2C98%29'/%3E%3Crect%20x='16'%20y='4'%20width='4'%20height='4'%20fill='rgb%28202%2C202%2C202%29'/%3E%3Crect%20x='20'%20y='4'%20width='4'%20height='4'%20fill='rgb%2874%2C74%2C74%29'/%3E%3Crect%20x='24'%20y='4'%20width='4'%20height='4'%20fill='rgb%28234%2C234%2C234%29'/%3E%3Crect%20x='28'%20y='4'%20width='4'%20height='4'%20fill='rgb%28106%2C106%2C106%29'/%3E%3Crect%20x='0'%20y='8'%20width='4'%20height='4'%20fill='rgb%2850%2C50%2C50%29'/%3E%3Crect%20x='4'%20y='8'%20width='4'%20height='4'%20fill='rgb%28178%2C178%2C178%29'/%3E%3Crect%20x='8'%20y='8'%20width='4'%20height='4'%20fill='rgb%2818%2C18%2C18%29'/%3E%3Crect%20x='12'%20y='8'%20width='4'%20height='4'%20fill='rgb%28146%2C146%2C146%29'/%3E%3Crect%20x='16'%20y='8'%20width='4'%20height='4'%20fill='rgb%2858%2C58%2C58%29'/%3E%3Crect%20x='20'%20y='8'%20width='4'%20height='4'%20fill='rgb%28186%2C186%2C186%29'/%3E%3Crect%20x='24'%20y='8'%20width='4'%20height='4'%20fill='rgb%2826%2C26%2C26%29'/%3E%3Crect%20x='28'%20y='8'%20width='4'%20height='4'%20fill='rgb%28154%2C154%2C154%29'/%3E%3Crect%20x='0'%20y='12'%20width='4'%20height='4'%20fill='rgb%28242%2C242%2C242%29'/%3E%3Crect%20x='4'%20y='12'%20width='4'%20height='4'%20fill='rgb%28114%2C114%2C114%29'/%3E%3Crect%20x='8'%20y='12'%20width='4'%20height='4'%20fill='rgb%28210%2C210%2C210%29'/%3E%3Crect%20x='12'%20y='12'%20width='4'%20height='4'%20fill='rgb%2882%2C82%2C82%29'/%3E%3Crect%20x='16'%20y='12'%20width='4'%20height='4'%20fill='rgb%28250%2C250%2C250%29'/%3E%3Crect%20x='20'%20y='12'%20width='4'%20height='4'%20fill='rgb%28122%2C122%2C122%29'/%3E%3Crect%20x='24'%20y='12'%20width='4'%20height='4'%20fill='rgb%28218%2C218%2C218%29'/%3E%3Crect%20x='28'%20y='12'%20width='4'%20height='4'%20fill='rgb%2890%2C90%2C90%29'/%3E%3Crect%20x='0'%20y='16'%20width='4'%20height='4'%20fill='rgb%2814%2C14%2C14%29'/%3E%3Crect%20x='4'%20y='16'%20width='4'%20height='4'%20fill='rgb%28142%2C142%2C142%29'/%3E%3Crect%20x='8'%20y='16'%20width='4'%20height='4'%20fill='rgb%2846%2C46%2C46%29'/%3E%3Crect%20x='12'%20y='16'%20width='4'%20height='4'%20fill='rgb%28174%2C174%2C174%29'/%3E%3Crect%20x='16'%20y='16'%20width='4'%20height='4'%20fill='rgb%286%2C6%2C6%29'/%3E%3Crect%20x='20'%20y='16'%20width='4'%20height='4'%20fill='rgb%28134%2C134%2C134%29'/%3E%3Crect%20x='24'%20y='16'%20width='4'%20height='4'%20fill='rgb%2838%2C38%2C38%29'/%3E%3Crect%20x='28'%20y='16'%20width='4'%20height='4'%20fill='rgb%28166%2C166%2C166%29'/%3E%3Crect%20x='0'%20y='20'%20width='4'%20height='4'%20fill='rgb%28206%2C206%2C206%29'/%3E%3Crect%20x='4'%20y='20'%20width='4'%20height='4'%20fill='rgb%2878%2C78%2C78%29'/%3E%3Crect%20x='8'%20y='20'%20width='4'%20height='4'%20fill='rgb%28238%2C238%2C238%29'/%3E%3Crect%20x='12'%20y='20'%20width='4'%20height='4'%20fill='rgb%28110%2C110%2C110%29'/%3E%3Crect%20x='16'%20y='20'%20width='4'%20height='4'%20fill='rgb%28198%2C198%2C198%29'/%3E%3Crect%20x='20'%20y='20'%20width='4'%20height='4'%20fill='rgb%2870%2C70%2C70%29'/%3E%3Crect%20x='24'%20y='20'%20width='4'%20height='4'%20fill='rgb%28230%2C230%2C230%29'/%3E%3Crect%20x='28'%20y='20'%20width='4'%20height='4'%20fill='rgb%28102%2C102%2C102%29'/%3E%3Crect%20x='0'%20y='24'%20width='4'%20height='4'%20fill='rgb%2862%2C62%2C62%29'/%3E%3Crect%20x='4'%20y='24'%20width='4'%20height='4'%20fill='rgb%28190%2C190%2C190%29'/%3E%3Crect%20x='8'%20y='24'%20width='4'%20height='4'%20fill='rgb%2830%2C30%2C30%29'/%3E%3Crect%20x='12'%20y='24'%20width='4'%20height='4'%20fill='rgb%28158%2C158%2C158%29'/%3E%3Crect%20x='16'%20y='24'%20width='4'%20height='4'%20fill='rgb%2854%2C54%2C54%29'/%3E%3Crect%20x='20'%20y='24'%20width='4'%20height='4'%20fill='rgb%28182%2C182%2C182%29'/%3E%3Crect%20x='24'%20y='24'%20width='4'%20height='4'%20fill='rgb%2822%2C22%2C22%29'/%3E%3Crect%20x='28'%20y='24'%20width='4'%20height='4'%20fill='rgb%28150%2C150%2C150%29'/%3E%3Crect%20x='0'%20y='28'%20width='4'%20height='4'%20fill='rgb%28254%2C254%2C254%29'/%3E%3Crect%20x='4'%20y='28'%20width='4'%20height='4'%20fill='rgb%28126%2C126%2C126%29'/%3E%3Crect%20x='8'%20y='28'%20width='4'%20height='4'%20fill='rgb%28222%2C222%2C222%29'/%3E%3Crect%20x='12'%20y='28'%20width='4'%20height='4'%20fill='rgb%2894%2C94%2C94%29'/%3E%3Crect%20x='16'%20y='28'%20width='4'%20height='4'%20fill='rgb%28246%2C246%2C246%29'/%3E%3Crect%20x='20'%20y='28'%20width='4'%20height='4'%20fill='rgb%28118%2C118%2C118%29'/%3E%3Crect%20x='24'%20y='28'%20width='4'%20height='4'%20fill='rgb%28214%2C214%2C214%29'/%3E%3Crect%20x='28'%20y='28'%20width='4'%20height='4'%20fill='rgb%2886%2C86%2C86%29'/%3E%3C/svg%3E" x="0" y="0" width="32" height="32" preserveAspectRatio="none" result="t"/><feTile in="t" result="tt"/>
+ <feComposite in="px" in2="tt" operator="arithmetic" k1="0" k2="1" k3="1" k4="-.5" result="m"/>
+ <feComponentTransfer in="m" result="q"><feFuncR type="discrete" tableValues="0 1"/><feFuncG type="discrete" tableValues="0 1"/><feFuncB type="discrete" tableValues="0 1"/><feFuncA type="discrete" tableValues="1 1"/></feComponentTransfer>
+ <feComposite in="q" in2="SourceAlpha" operator="in"/></filter>
+<filter id="g80" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+ <feColorMatrix type="matrix" values=".2126 .7152 .0722 0 0 .2126 .7152 .0722 0 0 .2126 .7152 .0722 0 0 0 0 0 1 0"/>
+ <feComponentTransfer><feFuncR type="discrete" tableValues="0 .4 .75 1"/><feFuncG type="discrete" tableValues="0 .4 .75 1"/><feFuncB type="discrete" tableValues="0 .4 .75 1"/></feComponentTransfer></filter></defs></svg>
+<div id="scan" aria-hidden="true"></div>
+
+<div id="boot" aria-hidden="true">
+  <div class="boot-c">
+    <span class="dm" id="bootm"></span>
+    <div class="bar"><i></i></div>
+    <p class="boot-t">I plant seeds knowing not all will bloom</p>
+  </div>
+</div>
+
+<header id="mbar">
+  <div class="mb-l">
+    <button id="logo" class="mb mb-logo" aria-haspopup="menu" aria-expanded="false" data-menu="seed" aria-label="Seed menu"><span class="dm" id="logodm"></span></button>
+    <nav class="mb-menus" aria-label="Menu bar">
+      <button class="mb" data-menu="file" aria-haspopup="menu" aria-expanded="false">File</button>
+      <button class="mb" data-menu="view" aria-haspopup="menu" aria-expanded="false">View</button>
+      <button class="mb" data-menu="window" aria-haspopup="menu" aria-expanded="false">Window</button>
+      <button class="mb" data-menu="special" aria-haspopup="menu" aria-expanded="false">Special</button>
+    </nav>
+  </div>
+  <div class="mb-r">
+    <span class="ind" id="ind-w"><span data-px="wins"></span><span class="vh">Open windows</span><b id="nw">0</b></span>
+    <span class="ind seedc zero" id="ind-s"><span data-px="seed"></span><span class="vh">Seeds planted</span><b id="ns">0</b></span>
+    <span class="clock" id="clock"></span>
+  </div>
+</header>
+<i class="scr tl" aria-hidden="true"></i><i class="scr tr" aria-hidden="true"></i><i class="scr bl" aria-hidden="true"></i><i class="scr br" aria-hidden="true"></i>
+<div id="menu" class="menu" role="menu" hidden></div>
+
+<main id="desk" aria-label="Desktop">
+  <canvas id="wall" aria-hidden="true"></canvas>
+  <div id="seeds" aria-hidden="true"></div>
+  <div id="glows" aria-hidden="true"></div>
+  
+
+  <div class="icons" id="icons">
+    <button class="icon" data-open="work"><span class="ic" data-ic="work"></span><span class="lb">Work</span></button>
+    <button class="icon" data-open="about"><span class="ic" data-ic="about"></span><span class="lb">About</span></button>
+    <button class="icon" data-open="career"><span class="ic" data-ic="career"></span><span class="lb">Career</span></button>
+    <button class="icon" data-open="how"><span class="ic" data-ic="how"></span><span class="lb">How I Work</span></button>
+    <button class="icon" data-open="worked"><span class="ic" data-ic="worked"></span><span class="lb">Worked With</span></button>
+    <button class="icon" data-open="contacts"><span class="ic" data-ic="contacts"></span><span class="lb">Contacts</span></button>
+    <button class="icon" data-open="view"><span class="ic" data-ic="view"></span><span class="lb">View</span></button>
+    <button class="icon" id="ic-trash" data-open="trash"><span class="ic" data-ic="trash"></span><span class="lb">Trash</span></button>
+  </div>
+
+  <div id="buddy" data-stage="0">
+    <canvas id="bcv" width="32" height="48" aria-hidden="true"></canvas>
+    <button class="bx" id="bx" aria-label="Dismiss seed buddy"></button><div id="bub" role="status" aria-live="polite"></div>
+  </div>
+
+  <nav id="strip" aria-label="Open windows"><div class="sin"><button class="grip" id="sgrip" type="button" aria-expanded="true" aria-label="Collapse the open windows list"><span class="dm" id="gripdm"></span></button><div id="stabs"></div><button class="cap-end" id="scap" type="button" aria-expanded="true" aria-label="Collapse the open windows list"></button></div></nav>
+</main>
+
+<div id="alertw" hidden>
+  <div class="alert" role="alertdialog" aria-modal="true" aria-labelledby="alt">
+    <div class="al-in">
+      <div class="al-ico"><canvas id="alc" width="32" height="48" aria-hidden="true"></canvas></div>
+      <p id="alt">You planted 100 seeds.</p>
+      <div class="al-btns"><span class="ring"><button class="btn bev" id="alok">OK</button></span></div>
     </div>
-  </nav>
+  </div>
+</div>
 
-  <!-- Logo Click Easter Egg - Message Display -->
-  <div id="logoMessage" class="logo-message"></div>
-
+<!-- plain:start -->
+<div id="plain" class="plain">
+  <header class="pl-head">
+    <h1>J Tyler McCulloch</h1>
+    <p class="pl-role">Game Designer &amp; Director</p>
+    <p class="pl-sub">22+ years across AAA, VR, mobile and live service. 12+ leading design teams, 15 shipped titles. I design and lead emotionally resonant interactive experiences, from concept to controller.</p>
+    <nav class="pl-nav" aria-label="Sections">
+      <a href="#work">Work</a><a href="#about">About</a><a href="#approach">How I Work</a><a href="#companies">Worked With</a><a href="#experience">Career</a><a href="#contact">Contact</a><a href="press-kit.html">Press kit</a>
+    </nav>
+  </header>
   <main id="main">
-  <!-- Hero Section -->
-  <section class="hero" id="hero">
-    <!-- Planted seeds (hero toy) -->
-    <canvas class="seed-garden" id="seedGarden" aria-hidden="true"></canvas>
-    <div class="container hero__layout">
-      <div class="hero__content">
-        <div class="hero__meta">
-          <span class="section-code">[00.INTRO]</span>
-        </div>
-        <span class="hero__label animate-fade-up" id="heroTagline">→ I plant seeds knowing not all will bloom</span>
-        <h1 class="hero__title animate-fade-up animate-delay-1" id="heroTitle" data-glitch="true" data-legible>
-          J Tyler McCulloch
-        </h1>
-        <p class="hero__role animate-fade-up animate-delay-2">Game Designer &amp; Director</p>
-        <p class="hero__subtitle animate-fade-up animate-delay-2">
-          22+ years across AAA, VR, mobile and live service — 12+ leading design teams, 15 shipped titles.
-          I design and lead emotionally resonant interactive experiences, from concept to controller.
-        </p>
-        <div class="hero__cta animate-fade-up animate-delay-3">
-          <a href="#work" class="btn btn--primary" data-recoil>[ View Work ]</a>
-          <a href="#contact" class="btn btn--outline" data-recoil>[ Contact ]</a>
-        </div>
-        <p class="hero__credits animate-fade-up animate-delay-3">
-          <span class="hero__credits-label">Shipped</span><a href="projects/pistol-whip.html">Pistol Whip</a><a href="projects/bully.html">Bully</a><a href="projects/resident-evil-orc.html">Resident Evil: Operation Raccoon City</a><a href="projects/socom-confrontation.html">SOCOM</a><a href="projects/marvel-dimension-of-heroes.html">Marvel: Dimension of Heroes</a><a href="projects/journey-to-foundation.html">Journey to Foundation</a>
-        </p>
+    <section id="work">
+      <h2>Work</h2>
+      <ul class="pl-work">
+      <li data-slug="pistol-whip"><a href="projects/pistol-whip.html"><img src="images/featured/pistol-whip-800.webp" alt="Pistol Whip key art" loading="lazy" decoding="async"><b>Pistol Whip</b></a><span class="pl-role">Game Director</span><p class="pl-blurb">Directed content strategy and created the &#x27;Pistol Mix&#x27; level editor for this VR rhythm-shooter.</p></li>
+      <li data-slug="journey-to-foundation"><a href="projects/journey-to-foundation.html"><img src="images/featured/journey-to-foundation-800.webp" alt="Journey to Foundation key art" loading="lazy" decoding="async"><b>Journey to Foundation</b></a><span class="pl-role">Co-Creative Director</span><p class="pl-blurb">VR Roleplaying Adventure based on Isaac Asimov&#x27;s saga.</p></li>
+      <li data-slug="flourish"><a href="projects/flourish.html"><img src="images/featured/flourish-800.webp" alt="Flourish key art" loading="lazy" decoding="async"><b>Flourish</b></a><span class="pl-role">Creative Director</span><p class="pl-blurb">VR Physiotherapy Game transforming exercises into magical spells.</p></li>
+      <li data-slug="proximity"><a href="projects/proximity.html"><img src="images/Proximity_Banner.webp" alt="Proximity" loading="lazy" decoding="async"><b>Proximity</b></a><span class="pl-role">Creative Director / Co-Founder</span><p class="pl-blurb">Pioneering AI-driven narrative adventure. Early GPT-3 beta collaborator.</p></li>
+      <li data-slug="horizon-worlds"><a href="projects/horizon-worlds.html"><img src="images/HorizonWorld_Banner.webp" alt="Horizon Worlds" loading="lazy" decoding="async"><b>Horizon Worlds</b></a><span class="pl-role">Creative Director</span><p class="pl-blurb">Creative direction for Meta&#x27;s social VR platform experiences.</p></li>
+      <li data-slug="marvel-dimension-of-heroes"><a href="projects/marvel-dimension-of-heroes.html"><img src="images/Marvel_Banner.jpeg" alt="Marvel: Dimension of Heroes" loading="lazy" decoding="async"><b>Marvel: Dimension of Heroes</b></a><span class="pl-role">Design Lead</span><p class="pl-blurb">Design leadership for this AR Marvel gaming experience.</p></li>
+      <li data-slug="form"><a href="projects/form.html"><img src="images/FORM_banner.jpeg" alt="FORM" loading="lazy" decoding="async"><b>FORM</b></a><span class="pl-role">Lead Game Designer</span><p class="pl-blurb">Designed and scripted all puzzles for this surreal VR narrative experience.</p></li>
+      <li data-slug="petras-planet"><a href="projects/petras-planet.html"><img src="images/Petra_Shot1.webp" alt="Petra&#x27;s Planet" loading="lazy" decoding="async"><b>Petra&#x27;s Planet</b></a><span class="pl-role">Lead Game Designer</span><p class="pl-blurb">Kids Educational MMO with social and retention features.</p></li>
+      <li data-slug="citizen-grim"><a href="projects/citizen-grim.html"><img src="images/CitizenGrim_banner.jpeg" alt="Citizen Grim" loading="lazy" decoding="async"><b>Citizen Grim</b></a><span class="pl-role">Lead Designer</span><p class="pl-blurb">F2P Wave Shooter with progression and retention systems.</p></li>
+      <li data-slug="whore-of-the-orient"><a href="projects/whore-of-the-orient.html"><img src="images/WhoreOftheOrient_banner.webp" alt="Whore of the Orient" loading="lazy" decoding="async"><b>Whore of the Orient</b></a><span class="pl-role">Senior Game Designer</span><p class="pl-blurb">Open-World game set in 1920s Shanghai (cancelled).</p></li>
+      <li data-slug="resident-evil-orc"><a href="projects/resident-evil-orc.html"><img src="images/ResidentEvil_banner.jpeg" alt="Resident Evil: Operation Raccoon City" loading="lazy" decoding="async"><b>Resident Evil: Op. Raccoon City</b></a><span class="pl-role">Senior Game Designer</span><p class="pl-blurb">Senior design on this squad-based shooter set in the RE universe.</p></li>
+      <li data-slug="star-wars-battlefront"><a href="projects/star-wars-battlefront.html"><img src="images/StarWars_banner.jpeg" alt="Star Wars: Battlefront Online" loading="lazy" decoding="async"><b>Star Wars: Battlefront Online</b></a><span class="pl-role">Game Designer</span><p class="pl-blurb">Multiplayer shooter (cancelled).</p></li>
+      <li data-slug="socom-fireteam-bravo-3"><a href="projects/socom-fireteam-bravo-3.html"><img src="images/FireteamBravo_banner.png" alt="SOCOM: Fireteam Bravo 3" loading="lazy" decoding="async"><b>SOCOM: Fireteam Bravo 3</b></a><span class="pl-role">Senior Game Designer</span><p class="pl-blurb">Tactical Shooter for PSP.</p></li>
+      <li data-slug="socom-confrontation"><a href="projects/socom-confrontation.html"><img src="images/Confrontation_banner.jpg" alt="SOCOM: Confrontation" loading="lazy" decoding="async"><b>SOCOM: Confrontation</b></a><span class="pl-role">Game Designer</span><p class="pl-blurb">Multiplayer shooter for PS3.</p></li>
+      <li data-slug="socom-tactical-strike"><a href="projects/socom-tactical-strike.html"><img src="images/TacticalStike_banner.jpg" alt="SOCOM: Tactical Strike" loading="lazy" decoding="async"><b>SOCOM: Tactical Strike</b></a><span class="pl-role">Game Designer</span><p class="pl-blurb">Real-time Tactics for PSP.</p></li>
+      <li data-slug="bully"><a href="projects/bully.html"><img src="images/Bully_banner.jpeg" alt="Bully" loading="lazy" decoding="async"><b>Bully</b></a><span class="pl-role">Game Designer</span><p class="pl-blurb">Game design on Rockstar&#x27;s beloved open-world action-adventure.</p></li>
+      <li data-slug="max-payne-2"><a href="projects/max-payne-2.html"><img src="images/MayPayne2_banner.jpeg" alt="Max Payne 2" loading="lazy" decoding="async"><b>Max Payne 2</b></a><span class="pl-role">QA Support</span><p class="pl-blurb">QA support on the award-winning third-person shooter.</p></li>
+      </ul>
+    </section>
+    <section id="about">
+      <h2>About</h2>
+      <div class="pl-about">
+      <p>Design is not what we add.<br> It is what remains when we remove everything unnecessary.<br> I'm a veteran creative <span class="about-keyword" data-line="1">lead</span>er<span class="about-keyword" data-line="1"> with </span>an <span class="about-keyword" data-line="1">empath</span>etic, pla<span class="about-keyword" data-line="1">y</span>er-first design philosophy grounded in psychology, data-driven iteration,<span class="about-keyword" data-line="2"> and collaborat</span>ion. From dir<span class="about-keyword" data-line="2">e</span>cting Pistol Whip's studio-wide creative design strategy to shaping Journey To Foundation's narrative vision, I've delivered 15 shipped titles across AAA, VR, mobile, and live service platforms.</p>
+      <p><span class="about-keyword" data-line="3">I thrive on</span> defining, <span class="about-keyword" data-line="3"> upholding</span>, and executing creative vision from concept through production — leading and mentoring multidisciplinary<span class="about-keyword" data-line="3"> teams </span>while driving cross-team collaboration<span class="about-keyword" data-line="4"> with </span>production, engineering, art, marketing, and leadership. Whether I'm hands-on scripting prototypes or managing<span class="about-keyword" data-line="4"> design</span>ers, I bring both strategic<span class="about-keyword" data-line="4"> vision and</span> <span class="about-keyword" data-line="5">technical fluency </span>to every project.</p>
       </div>
-      <div class="hero__seed">
-        <canvas class="seed-circle" id="seedCircle" role="button" tabindex="0" aria-label="Change the circle"></canvas>
-        <p class="seed-counter" id="seedCounter" aria-live="polite"></p>
-      </div>
-    </div>
-  </section>
-
-  <section id="work">
-    <span id="featured" class="anchor-alias" aria-hidden="true"></span>
-    <div class="container">
-      <div class="section-header">
-        <span class="section-code">[01.WORK]</span>
-        <h2 class="section-title">Work</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.4 C 14 2.8, 22 3.7, 31 7.6 S 49 16.6, 60 8.6 S 78 2.3, 89 6.9 S 107 15.5, 118 8.3 S 136 1.5, 147 8.7 S 165 15.9, 178 10.5" /></svg>
-      </div>
-
-      <div class="featured__grid work__lead">
-        <a href="projects/pistol-whip.html" class="featured-card">
-          <div class="featured-card__art">
-            <img src="images/featured/pistol-whip-800.webp"
-              srcset="images/featured/pistol-whip-800.webp 800w, images/featured/pistol-whip-1600.webp 1600w"
-              sizes="(max-width: 700px) 100vw, 20vw" alt="Pistol Whip key art" width="800" height="450">
-          </div>
-          <div class="featured-card__body">
-            <h3 class="featured-card__title">Pistol Whip</h3>
-            <p class="featured-card__role">Game Director</p>
-            <p class="featured-card__proof">Directed content strategy and created the 'Pistol Mix' level editor for this VR rhythm-shooter.</p>
-          </div>
-        </a>
-        <a href="projects/journey-to-foundation.html" class="featured-card">
-          <div class="featured-card__art">
-            <img src="images/featured/journey-to-foundation-800.webp" sizes="(max-width: 700px) 100vw, 20vw"
-              alt="Journey to Foundation key art" width="800" height="450">
-          </div>
-          <div class="featured-card__body">
-            <h3 class="featured-card__title">Journey to Foundation</h3>
-            <p class="featured-card__role">Co-Creative Director</p>
-            <p class="featured-card__proof">VR Roleplaying Adventure based on Isaac Asimov's saga.</p>
-          </div>
-        </a>
-        <a href="projects/flourish.html" class="featured-card">
-          <div class="featured-card__art">
-            <img src="images/featured/flourish-800.webp"
-              srcset="images/featured/flourish-800.webp 800w, images/featured/flourish-1600.webp 1600w"
-              sizes="(max-width: 700px) 100vw, 20vw" alt="Flourish key art" width="800" height="450" loading="lazy">
-          </div>
-          <div class="featured-card__body">
-            <h3 class="featured-card__title">Flourish</h3>
-            <p class="featured-card__role">Creative Director</p>
-            <p class="featured-card__proof">VR Physiotherapy Game transforming exercises into magical spells.</p>
-          </div>
-        </a>
-      </div>
-
-      <!-- Everything else, most recent first -->
-      <div class="grid grid--3 work__grid">
-
-
-
-        <!-- 2022: Proximity -->
-        <a href="projects/proximity.html" class="project-card">
-          <img src="images/Proximity_Banner.webp" alt="Proximity" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Proximity</h3>
-            <span class="project-card__role">Creative Director / Co-Founder</span>
-            <p class="project-card__desc">Pioneering AI-driven narrative adventure. Early GPT-3 beta collaborator.</p>
-          </div>
-        </a>
-
-        <!-- 2022: Horizon Worlds -->
-        <a href="projects/horizon-worlds.html" class="project-card">
-          <img src="images/HorizonWorld_Banner.webp" alt="Horizon Worlds" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Horizon Worlds</h3>
-            <span class="project-card__role">Creative Director</span>
-            <p class="project-card__desc">Creative direction for Meta's social VR platform experiences.</p>
-          </div>
-        </a>
-
-
-        <!-- 2019: Marvel: Dimension of Heroes -->
-        <a href="projects/marvel-dimension-of-heroes.html" class="project-card">
-          <img src="images/Marvel_Banner.jpeg" alt="Marvel: Dimension of Heroes" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Marvel: Dimension of Heroes</h3>
-            <span class="project-card__role">Design Lead</span>
-            <p class="project-card__desc">Design leadership for this AR Marvel gaming experience.</p>
-          </div>
-        </a>
-
-        <!-- 2015-2017: FORM -->
-        <a href="projects/form.html" class="project-card">
-          <img src="images/FORM_banner.jpeg" alt="FORM" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">FORM</h3>
-            <span class="project-card__role">Lead Game Designer</span>
-            <p class="project-card__desc">Designed and scripted all puzzles for this surreal VR narrative experience.</p>
-          </div>
-        </a>
-
-        <!-- 2014: Petra's Planet -->
-        <a href="projects/petras-planet.html" class="project-card">
-          <img src="images/Petra_Shot1.webp" alt="Petra's Planet" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Petra's Planet</h3>
-            <span class="project-card__role">Lead Game Designer</span>
-            <p class="project-card__desc">Kids Educational MMO with social and retention features.</p>
-          </div>
-        </a>
-
-        <!-- 2013: Citizen Grim -->
-        <a href="projects/citizen-grim.html" class="project-card">
-          <img src="images/CitizenGrim_banner.jpeg" alt="Citizen Grim" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Citizen Grim</h3>
-            <span class="project-card__role">Lead Designer</span>
-            <p class="project-card__desc">F2P Wave Shooter with progression and retention systems.</p>
-          </div>
-        </a>
-
-        <!-- 2012-2013: Whore of the Orient -->
-        <a href="projects/whore-of-the-orient.html" class="project-card">
-          <img src="images/WhoreOftheOrient_banner.webp" alt="Whore of the Orient" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Whore of the Orient</h3>
-            <span class="project-card__role">Senior Game Designer</span>
-            <p class="project-card__desc">Open-World game set in 1920s Shanghai (cancelled).</p>
-          </div>
-        </a>
-
-        <!-- 2012: Resident Evil: Operation Raccoon City -->
-        <a href="projects/resident-evil-orc.html" class="project-card">
-          <img src="images/ResidentEvil_banner.jpeg" alt="Resident Evil: Operation Raccoon City"
-            class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Resident Evil: Op. Raccoon City</h3>
-            <span class="project-card__role">Senior Game Designer</span>
-            <p class="project-card__desc">Senior design on this squad-based shooter set in the RE universe.</p>
-          </div>
-        </a>
-
-        <!-- 2010: Star Wars: Battlefront Online -->
-        <a href="projects/star-wars-battlefront.html" class="project-card">
-          <img src="images/StarWars_banner.jpeg" alt="Star Wars: Battlefront Online" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Star Wars: Battlefront Online</h3>
-            <span class="project-card__role">Game Designer</span>
-            <p class="project-card__desc">Multiplayer shooter (cancelled).</p>
-          </div>
-        </a>
-
-        <!-- 2010: SOCOM: Fireteam Bravo 3 -->
-        <a href="projects/socom-fireteam-bravo-3.html" class="project-card">
-          <img src="images/FireteamBravo_banner.png" alt="SOCOM: Fireteam Bravo 3" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">SOCOM: Fireteam Bravo 3</h3>
-            <span class="project-card__role">Senior Game Designer</span>
-            <p class="project-card__desc">Tactical Shooter for PSP.</p>
-          </div>
-        </a>
-
-        <!-- 2008: SOCOM: Confrontation -->
-        <a href="projects/socom-confrontation.html" class="project-card">
-          <img src="images/Confrontation_banner.jpg" alt="SOCOM: Confrontation" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">SOCOM: Confrontation</h3>
-            <span class="project-card__role">Game Designer</span>
-            <p class="project-card__desc">Multiplayer shooter for PS3.</p>
-          </div>
-        </a>
-
-        <!-- 2007: SOCOM: Tactical Strike -->
-        <a href="projects/socom-tactical-strike.html" class="project-card">
-          <img src="images/TacticalStike_banner.jpg" alt="SOCOM: Tactical Strike" class="project-card__image"
-            loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">SOCOM: Tactical Strike</h3>
-            <span class="project-card__role">Game Designer</span>
-            <p class="project-card__desc">Real-time Tactics for PSP.</p>
-          </div>
-        </a>
-
-        <!-- 2006: Bully -->
-        <a href="projects/bully.html" class="project-card">
-          <img src="images/Bully_banner.jpeg" alt="Bully" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Bully</h3>
-            <span class="project-card__role">Game Designer</span>
-            <p class="project-card__desc">Game design on Rockstar's beloved open-world action-adventure.</p>
-          </div>
-        </a>
-
-        <!-- 2003: Max Payne 2 -->
-        <a href="projects/max-payne-2.html" class="project-card">
-          <img src="images/MayPayne2_banner.jpeg" alt="Max Payne 2" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">Max Payne 2</h3>
-            <span class="project-card__role">QA Support</span>
-            <p class="project-card__desc">QA support on the award-winning third-person shooter.</p>
-          </div>
-        </a>
-
-        <!-- Mystery: The Unreleased -->
-        <a href="#work" class="project-card project-card--mystery" role="button">
-          <img src="images/Mystery_banner.webp" alt="???" class="project-card__image" loading="lazy">
-          <div class="project-card__overlay">
-            <h3 class="project-card__title">The Unreleased</h3>
-            <span class="project-card__role">Various Roles</span>
-            <p class="project-card__desc">Reflections on cancelled projects and the lessons they taught.</p>
-          </div>
-        </a>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- About Section -->
-  <section id="about">
-    <div class="wave-decoration wave-decoration--about-left wave-decoration--dark">
-      <img src="images/WavyLineCircles/Wavy Line 48.png" alt="" loading="lazy">
-    </div>
-    <div class="container container--narrow">
-      <div class="section-header">
-        <span class="section-code">[02.ABOUT]</span>
-        <h2 class="section-title">Crafting Experiences That Resonate</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 10.1 C 14 4.0, 22 4.5, 31 8.3 S 49 16.9, 60 9.7 S 78 2.5, 89 6.8 S 107 14.5, 118 8.6 S 136 2.8, 147 7.2 S 165 16.0, 178 8.4" /></svg>
-      </div>
-      <div class="glass-card">
-        <button type="button" class="decorative-asterisk about-distill" aria-pressed="false"
-          aria-label="Distill this into one sentence">※</button>
-        <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem;">
-          Design is not what we add.<br> It is what remains when we remove everything unnecessary.<br>
-          I'm a veteran creative <span class="about-keyword" data-line="1">lead</span>er<span class="about-keyword"
-            data-line="1"> with </span>an <span class="about-keyword" data-line="1">empath</span>etic, pla<span
-            class="about-keyword" data-line="1">y</span>er-first
-          design philosophy
-          grounded in psychology, data-driven
-          iteration,<span class="about-keyword" data-line="2"> and collaborat</span>ion. From dir<span
-            class="about-keyword" data-line="2">e</span>cting
-          Pistol Whip's studio-wide creative design strategy to
-          shaping
-          Journey To Foundation's narrative vision, I've delivered
-          15 shipped titles across AAA, VR, mobile, and live service platforms.
-        </p>
-        <p style="font-size: 1.1rem; line-height: 1.8;">
-          <span class="about-keyword" data-line="3">I thrive on</span> defining,
-          <span class="about-keyword" data-line="3"> upholding</span>, and executing creative vision from concept
-          through production —
-          leading and mentoring multidisciplinary<span class="about-keyword" data-line="3"> teams </span>while driving
-          cross-team
-          collaboration<span class="about-keyword" data-line="4"> with </span>production, engineering,
-          art, marketing, and leadership. Whether I'm hands-on scripting prototypes or managing<span
-            class="about-keyword" data-line="4"> design</span>ers,
-          I bring both strategic<span class="about-keyword" data-line="4"> vision and</span>
-          <span class="about-keyword" data-line="5">technical fluency </span>to every project.
-        </p>
-      </div>
-
-      <!-- How I work -->
-      <div class="approach" id="approach">
-        <span id="skills" class="anchor-alias" aria-hidden="true"></span>
-        <h3 class="companies__title">[HOW I WORK]</h3>
-      <ol class="approach__list">
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-1">
-            <span class="approach-row__num">[01]</span>
-            <span class="approach-row__title">Player agency over spectacle</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-1" hidden>
-            <p><strong>Journey to Foundation</strong> — our mantra was “participatory drama”: players take part in
-              conversations through physical actions, not menu choices. It became the game's boss fights.</p>
-            <a href="projects/journey-to-foundation.html" class="approach-row__link">[ Journey to Foundation → ]</a>
-          </div>
-        </li>
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-2">
-            <span class="approach-row__num">[02]</span>
-            <span class="approach-row__title">Systems that teach through play</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-2" hidden>
-            <p><strong>Flourish</strong> — repetitive physio exercises became magic spells: as players heal their
-              bodies, the energy heals the broken land around them.</p>
-            <a href="projects/flourish.html" class="approach-row__link">[ Flourish → ]</a>
-          </div>
-        </li>
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-3">
-            <span class="approach-row__num">[03]</span>
-            <span class="approach-row__title">Vision held across disciplines</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-3" hidden>
-            <p><strong>Horizon Worlds</strong> — led the team through overlapping 3–6 month production cycles while
-              Meta's tools kept changing; a 6-month contract grew to 2+ years.</p>
-            <a href="projects/horizon-worlds.html" class="approach-row__link">[ Horizon Worlds → ]</a>
-          </div>
-        </li>
-        <li class="approach-row">
-          <button type="button" class="approach-row__toggle" aria-expanded="false" aria-controls="approach-4">
-            <span class="approach-row__num">[04]</span>
-            <span class="approach-row__title">Ship under constraint</span>
-            <span class="approach-row__icon" aria-hidden="true"></span>
-          </button>
-          <div class="approach-row__proof" id="approach-4" hidden>
-            <p><strong>Marvel: Dimension of Heroes</strong> — united a fractured, over-scoped team → delivered on a
-              tight timeline.</p>
-            <a href="projects/marvel-dimension-of-heroes.html" class="approach-row__link">[ Marvel: Dimension of Heroes → ]</a>
-          </div>
-        </li>
+    </section>
+    <section id="approach">
+      <span id="skills" class="anchor-alias" aria-hidden="true"></span>
+      <h2>How I Work</h2>
+      <ol class="pl-how">
+      <li><details><summary>Player agency over spectacle</summary><p><strong>Journey to Foundation</strong> — our mantra was “participatory drama”: players take part in conversations through physical actions, not menu choices. It became the game's boss fights.</p><a href="projects/journey-to-foundation.html">Journey to Foundation</a></details></li>
+      <li><details><summary>Systems that teach through play</summary><p><strong>Flourish</strong> — repetitive physio exercises became magic spells: as players heal their bodies, the energy heals the broken land around them.</p><a href="projects/flourish.html">Flourish</a></details></li>
+      <li><details><summary>Vision held across disciplines</summary><p><strong>Horizon Worlds</strong> — led the team through overlapping 3–6 month production cycles while Meta's tools kept changing; a 6-month contract grew to 2+ years.</p><a href="projects/horizon-worlds.html">Horizon Worlds</a></details></li>
+      <li><details><summary>Ship under constraint</summary><p><strong>Marvel: Dimension of Heroes</strong> — united a fractured, over-scoped team → delivered on a tight timeline.</p><a href="projects/marvel-dimension-of-heroes.html">Marvel: Dimension of Heroes</a></details></li>
       </ol>
+    </section>
+    <section id="companies">
+      <h2>Who I've Worked With</h2>
+      <ul class="pl-worked">
+      <li class="pl-logo company-logo--current" data-h="52"><img src="images/logos/mono/keywords-studios-logo.svg" alt="Keywords Studios" loading="lazy" decoding="async"></li>
+      <li class="pl-logo" data-h="56"><img src="images/logos/mono/nfb-onf-logo.svg" alt="National Film Board of Canada" loading="lazy" decoding="async"></li>
+      <li class="pl-logo" data-h="58"><img src="images/logos/mono/rockstar-games-logo.webp" alt="Rockstar Games" loading="lazy" decoding="async"></li>
+      <li class="pl-logo" data-h="38"><img src="images/logos/mono/Meta-Logo.webp" alt="Meta" loading="lazy" decoding="async"></li>
+      <li class="pl-logo" data-h="76"><img src="images/logos/mono/Sony-Computer-Entertainment-Logo.webp" alt="Sony Computer Entertainment" loading="lazy" decoding="async"></li>
+      <li class="pl-logo" data-h="35"><img src="images/logos/mono/Capcom-Logo.webp" alt="Capcom" loading="lazy" decoding="async"></li>
+      <li class="pl-logo company-logo--large" data-h="65"><img src="images/logos/mono/disney-logo.webp" alt="Disney" loading="lazy" decoding="async"></li>
+      <li class="pl-logo" data-h="63"><img src="images/logos/mono/lucasarts_logo.webp" alt="LucasArts" loading="lazy" decoding="async"></li>
+      <li class="pl-logo" data-h="51"><img src="images/logos/mono/Marvel-Logo.webp" alt="Marvel" loading="lazy" decoding="async"></li>
+      <li class="pl-logo company-logo--small" data-h="33"><img src="images/logos/mono/Skydance_logo.webp" alt="Skydance" loading="lazy" decoding="async"></li>
+      <li class="pl-logo company-logo--small" data-h="36"><img src="images/logos/mono/Penumbra_logo.webp" alt="Penumbra" loading="lazy" decoding="async"></li>
+      </ul>
+    </section>
+    <section id="experience">
+      <h2>Career</h2>
+      <ol class="pl-career">
+      <li><h3>Studio Design Director</h3><p class="pl-co">Keywords Studios (Smoking Gun Interactive)</p><p class="pl-yrs">May 2026 – Present</p><ul><li><strong>Studio design leadership</strong> <span>Directs 4 to 5 projects of different sizes at once, hands-on in the day-to-day design on some and at a management level on others</span></li><li><strong>Freefall Racers</strong> <span>Studio Design Director on a released NEX console game controlled by your body through a camera</span></li></ul></li>
+      <li><h3>Technical Designer (part-time)</h3><p class="pl-co">Useful Fiction</p><p class="pl-yrs">Jan 2026 – Present</p><ul><li><strong>New games division</strong> <span>Rapidly developing prototypes, using AI tools to assist as core developer and designer</span></li></ul></li>
+      <li><h3>Prototype Designer and Developer</h3><p class="pl-co">Jetpack Interactive</p><p class="pl-yrs">Fall – Winter 2025</p><ul><li><strong>Game pitch</strong> <span>Built a prototype in Unreal Engine 5; shelved when the team moved onto God of War with Sony Santa Monica</span></li></ul></li>
+      <li><h3>Game Director</h3><p class="pl-co">Cloudhead Games</p><p class="pl-yrs">July 2022 – Nov 2025</p><ul><li><strong>Pistol Whip</strong> <span>Award-winning, critically acclaimed, 500+ community remixes</span></li><li><strong>Experimental prototypes</strong> <span>Oversaw the studio&#x27;s prototypes, including an unannounced original tactical stealth shooter</span></li></ul></li>
+      <li><h3>Art Director (part-time)</h3><p class="pl-co">National Film Board of Canada</p><p class="pl-yrs">April – Nov 2023</p><ul><li><strong>Sunalimit</strong> <span>Remotely managed team of indigenous artists on experimental project</span></li></ul></li>
+      <li><h3>Creative Director</h3><p class="pl-co">Archiact Interactive (Design Lead from Jan 2019)</p><p class="pl-yrs">June 2020 – July 2022</p><ul><li><strong>Journey to Foundation</strong> <span>Co-directed and led the narrative and UX teams; reviewers singled out the story</span></li><li><strong>Horizon Worlds</strong> <span>Topped Meta&#x27;s retention charts, top-performing, contract extended 6mo → 2+ years</span></li><li><strong>Flourish</strong> <span>Conceptualized creative vision; pioneered approach transforming repetitive physio into engaging gameplay</span></li><li><strong>Marvel: Dimension of Heroes</strong> <span>United and focused a fractured, over-scoped team to deliver within tight timelines</span></li></ul></li>
+      <li><h3>Co-Founder / Director</h3><p class="pl-co">Inscape Studios</p><p class="pl-yrs">Feb 2018 – July 2023</p><ul><li><strong>Proximity</strong> <span>Sole developer to team lead; pitched, raised funds, and shipped experimental AI narrative game</span></li></ul></li>
+      <li><h3>Lead Game Designer</h3><p class="pl-co">Charm Games</p><p class="pl-yrs">Jun 2015 – July 2017</p><ul><li><strong>FORM</strong> <span>Award-winning, noted for quality and critical reception</span></li></ul></li>
+      <li><h3>Lead Game Designer</h3><p class="pl-co">Dramaforum</p><p class="pl-yrs">Feb – Nov 2014</p><ul><li><strong>Petra&#x27;s Planet</strong> <span>Transformed struggling platform (near-zero D2 retention) into thriving world; designed economy and reward loops</span></li></ul></li>
+      <li><h3>Lead Designer</h3><p class="pl-co">Eruptive Games</p><p class="pl-yrs">Feb – Sept 2013</p><ul><li><strong>Citizen Grim</strong> <span>Designed and tuned mechanics using metrics analysis; improved retention and ratings</span></li></ul></li>
+      <li><h3>Senior Game Designer</h3><p class="pl-co">Kennedy Miller Mitchell (Team Bondi)</p><p class="pl-yrs">Sept 2012 – Jan 2013</p><ul><li><strong>Whore of the Orient (cancelled)</strong> <span>Designed combat systems based on Defendu and helped prototype combat, shooting and a chase scene through crowded alleyways</span></li></ul></li>
+      <li><h3>Senior Game Designer</h3><p class="pl-co">Slant Six Games</p><p class="pl-yrs">Aug 2006 – April 2012</p><ul><li><strong>Resident Evil: ORC</strong> <span>Prototyped the level that led to Capcom greenlight, co-created proprietary scripting language</span></li><li><strong>Star Wars: Battlefront Online (cancelled)</strong> <span>Weapons tuning and level design iteration, and tuned the speeder bike mechanics with the engineer building the vehicle physics system</span></li><li><strong>SOCOM: Fireteam Bravo 3</strong> <span>Proposed narrative concept that became basis for entire game; drove single-player campaign</span></li><li><strong>SOCOM: Confrontation</strong> <span>Responsible for Kasbah (regularly voted best map), launch of game so popular it brought down Sony&#x27;s servers</span></li><li><strong>SOCOM: Tactical Strike</strong> <span>Helped reimagine SOCOM as strategy game; received a BAFTA nomination (Strategy/Simulation)</span></li></ul></li>
+      <li><h3>Game Designer</h3><p class="pl-co">Rockstar Games</p><p class="pl-yrs">Sept 2003 – June 2006</p><ul><li><strong>Bully</strong> <span>Critically well received, worked on combat system that influenced Sleeping Dogs and Arkham Asylum</span></li><li><strong>Max Payne 2</strong> <span>QA support on award-winning title</span></li></ul></li>
+      </ol>
+    </section>
+    <section id="unreleased">
+      <h2>The Unreleased</h2>
+      <p class="pl-role">Various Roles</p>
+      <p class="pl-blurb">Reflections on cancelled projects and the lessons they taught.</p>
+      <div class="pl-unr">
+      <p>Over the years, there have been about as many, if not more, projects I have worked than ones considered complete.<br> These have died in various stages of development each with its own unique set of circumstances.<br> Each one a unique branch of effort, collaboration, and creativity.</p>
+      <p><span class="ac">Each one having some part of myself in it.</span></p>
+      <p>Though not every project we work on blooms into something presentable, with each one <span class="ac">we learn a little more about ourselves, what we create and how we collaborate.</span> <br> It is true that each seed we plant has the opportunity to bloom into something great but in my mind, it is important to stay in the moment and <span class="ac">love the act of planting the seed itself</span>. <br> That is to say, enjoy the process of creating.<br> Enjoy the process of collaboration.<br></p>
+      <p><span class="ac">Enjoy creating art simply for the act of creating it</span>.</p>
+      <p>Each project is an experience that stays with you in some way.<br> It continues to shape and mold you whether you realize it or not.<br> Though not every project grows, with the right mindset, <span class="ac">we do</span> and we can shape ourselves into something<br> <span class="ac">stronger, kinder and more open</span> to what the universe has in store for us next.</p>
       </div>
-
-      <!-- Who I've Worked With -->
-      <div class="companies-section">
-        <h3 class="companies__title">[WHO I'VE WORKED WITH]</h3>
-        <div class="companies__grid">
-          <div class="company-logo company-logo--current" title="Keywords Studios">
-            <img src="images/logos/mono/keywords-studios-logo.svg" style="--logo-h: 52px" alt="Keywords Studios" width="108" height="38" loading="lazy">
-          </div>
-          <div class="company-logo" title="National Film Board of Canada">
-            <img src="images/logos/mono/nfb-onf-logo.svg" style="--logo-h: 56px" alt="National Film Board of Canada" width="300" height="146" loading="lazy">
-          </div>
-          <div class="company-logo" title="Rockstar Games">
-            <img src="images/logos/mono/rockstar-games-logo.webp" style="--logo-h: 58px" alt="Rockstar Games" loading="lazy">
-          </div>
-          <div class="company-logo" title="Meta">
-            <img src="images/logos/mono/Meta-Logo.webp" style="--logo-h: 38px" alt="Meta" loading="lazy">
-          </div>
-          <div class="company-logo" title="Sony Computer Entertainment">
-            <img src="images/logos/mono/Sony-Computer-Entertainment-Logo.webp" style="--logo-h: 76px" alt="Sony Computer Entertainment"
-              loading="lazy">
-          </div>
-          <div class="company-logo" title="Capcom">
-            <img src="images/logos/mono/Capcom-Logo.webp" style="--logo-h: 35px" alt="Capcom" loading="lazy">
-          </div>
-          <div class="company-logo company-logo--large" title="Disney">
-            <img src="images/logos/mono/disney-logo.webp" style="--logo-h: 65px" alt="Disney" loading="lazy">
-          </div>
-          <div class="company-logo" title="LucasArts">
-            <img src="images/logos/mono/lucasarts_logo.webp" style="--logo-h: 63px" alt="LucasArts" loading="lazy">
-          </div>
-          <div class="company-logo" title="Marvel">
-            <img src="images/logos/mono/Marvel-Logo.webp" style="--logo-h: 51px" alt="Marvel" loading="lazy">
-          </div>
-          <div class="company-logo company-logo--small" title="Skydance">
-            <img src="images/logos/mono/Skydance_logo.webp" style="--logo-h: 33px" alt="Skydance" loading="lazy">
-          </div>
-          <div class="company-logo company-logo--small" title="Penumbra">
-            <img src="images/logos/mono/Penumbra_logo.webp" style="--logo-h: 36px" alt="Penumbra" loading="lazy">
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Experience -->
-  <section id="experience" style="background: var(--bg-secondary); position: relative; z-index: 2;">
-    <div class="container container--narrow">
-      <div class="section-header">
-        <span class="section-code">[03.CAREER]</span>
-        <h2 class="section-title">Experience</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 8.4 C 14 1.8, 22 2.7, 31 9.6 S 49 14.8, 60 7.8 S 78 1.1, 89 8.8 S 107 14.9, 118 9.8 S 136 2.5, 147 6.8 S 165 16.1, 178 8.8" /></svg>
-      </div>
-
-      <div class="timeline">
-        <div class="timeline__item">
-          <span class="timeline__year">May 2026 – Present</span>
-          <h3 class="timeline__title">Studio Design Director</h3>
-          <p class="timeline__company">Keywords Studios (Smoking Gun Interactive)</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Studio design leadership</strong><span>Directs 4 to 5 projects of different sizes at once,
-                hands-on in the day-to-day design on some and at a management level on others</span></li>
-            <li><strong>Freefall Racers</strong><span>Studio Design Director on a released NEX console game controlled
-                by your body through a camera</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Jan 2026 – Present</span>
-          <h3 class="timeline__title">Technical Designer (part-time)</h3>
-          <p class="timeline__company">Useful Fiction</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>New games division</strong><span>Rapidly developing prototypes, using AI tools to assist as
-                core developer and designer</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Fall – Winter 2025</span>
-          <h3 class="timeline__title">Prototype Designer and Developer</h3>
-          <p class="timeline__company">Jetpack Interactive</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Game pitch</strong><span>Built a prototype in Unreal Engine 5; shelved when the team moved onto
-                God of War with Sony Santa Monica</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">July 2022 – Nov 2025</span>
-          <h3 class="timeline__title">Game Director</h3>
-          <p class="timeline__company">Cloudhead Games</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Pistol Whip</strong><span>Award-winning, critically acclaimed, 500+ community remixes</span>
-            </li>
-            <li><strong>Experimental prototypes</strong><span>Oversaw the studio's prototypes, including an unannounced
-                original tactical stealth shooter</span></li>
-          </ul>
-        </div>
-        <div class="timeline__more" id="timelineMore" hidden>
-        <div class="timeline__item">
-          <span class="timeline__year">April – Nov 2023</span>
-          <h3 class="timeline__title">Art Director (part-time)</h3>
-          <p class="timeline__company">National Film Board of Canada</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Sunalimit</strong><span>Remotely managed team of indigenous artists on experimental
-                project</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">June 2020 – July 2022</span>
-          <h3 class="timeline__title">Creative Director</h3>
-          <p class="timeline__company">Archiact Interactive (Design Lead from Jan 2019)</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Journey to Foundation</strong><span>Co-directed and led the narrative and UX teams; reviewers singled out
-                the story</span></li>
-            <li><strong>Horizon Worlds</strong><span>Topped Meta's retention charts, top-performing, contract extended
-                6mo → 2+ years</span></li>
-            <li><strong>Flourish</strong><span>Conceptualized creative vision; pioneered approach transforming
-                repetitive physio into engaging gameplay</span></li>
-            <li><strong>Marvel: Dimension of Heroes</strong><span>United and focused a fractured, over-scoped team to
-                deliver within tight timelines</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Feb 2018 – July 2023</span>
-          <h3 class="timeline__title">Co-Founder / Director</h3>
-          <p class="timeline__company">Inscape Studios</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Proximity</strong><span>Sole developer to team lead; pitched, raised funds, and shipped
-                experimental AI narrative game</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Jun 2015 – July 2017</span>
-          <h3 class="timeline__title">Lead Game Designer</h3>
-          <p class="timeline__company">Charm Games</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>FORM</strong><span>Award-winning, noted for quality and critical reception</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Feb – Nov 2014</span>
-          <h3 class="timeline__title">Lead Game Designer</h3>
-          <p class="timeline__company">Dramaforum</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Petra's Planet</strong><span>Transformed struggling platform (near-zero D2 retention) into
-                thriving world; designed economy and reward loops</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Feb – Sept 2013</span>
-          <h3 class="timeline__title">Lead Designer</h3>
-          <p class="timeline__company">Eruptive Games</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Citizen Grim</strong><span>Designed and tuned mechanics using metrics analysis; improved
-                retention and ratings</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Sept 2012 – Jan 2013</span>
-          <h3 class="timeline__title">Senior Game Designer</h3>
-          <p class="timeline__company">Kennedy Miller Mitchell (Team Bondi)</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Whore of the Orient <em class="timeline__note">(cancelled)</em></strong><span>Designed combat systems based on Defendu and helped prototype combat, shooting and a chase scene through crowded alleyways</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Aug 2006 – April 2012</span>
-          <h3 class="timeline__title">Senior Game Designer</h3>
-          <p class="timeline__company">Slant Six Games</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Resident Evil: ORC</strong><span>Prototyped the level that led to Capcom greenlight, co-created
-                proprietary scripting language</span></li>
-            <li><strong>Star Wars: Battlefront Online <em class="timeline__note">(cancelled)</em></strong><span>Weapons tuning and level design iteration, and tuned the speeder bike mechanics with the engineer building the vehicle physics system</span></li>
-            <li><strong>SOCOM: Fireteam Bravo 3</strong><span>Proposed narrative concept that became basis for entire
-                game; drove single-player campaign</span></li>
-            <li><strong>SOCOM: Confrontation</strong><span>Responsible for Kasbah (regularly voted best map), launch of
-                game so popular it brought down Sony's servers</span></li>
-            <li><strong>SOCOM: Tactical Strike</strong><span>Helped reimagine SOCOM as strategy game; received a BAFTA
-                nomination (Strategy/Simulation)</span></li>
-          </ul>
-        </div>
-        <div class="timeline__item">
-          <span class="timeline__year">Sept 2003 – June 2006</span>
-          <h3 class="timeline__title">Game Designer</h3>
-          <p class="timeline__company">Rockstar Games</p>
-          <ul class="timeline__accomplishments">
-            <li><strong>Bully</strong><span>Critically well received, worked on combat system that influenced Sleeping
-                Dogs and Arkham Asylum</span></li>
-            <li><strong>Max Payne 2</strong><span>QA support on award-winning title</span></li>
-          </ul>
-        </div>
-        </div>
-      </div>
-      <button type="button" class="timeline__toggle" id="timelineToggle" aria-expanded="false" aria-controls="timelineMore">
-        <span class="timeline__toggle-label">Earlier roles</span><span class="timeline__toggle-count">9</span>
-      </button>
-    </div>
-  </section>
-
-
-
-  <!-- Mystery Modal - The Unreleased -->
-  <div class="mystery-modal" id="mysteryModal" role="dialog" aria-modal="true" aria-label="The Unreleased">
-    <button class="mystery-modal__close" id="mysteryModalClose" aria-label="Close">&times;</button>
-
-    <!-- Animated background lines - reveal progressively on scroll -->
-    <div class="mystery-modal__bg">
-      <img class="mystery-modal__line mystery-modal__line--1" src="images/WavyLineCircles/Wavy Line 9.png" alt="" loading="lazy">
-      <img class="mystery-modal__line mystery-modal__line--2" src="images/WavyLineCircles/Wavy Line 34.png" alt="" loading="lazy">
-      <img class="mystery-modal__line mystery-modal__line--3" src="images/VectorWaves/Wireframe 33.png" alt="" loading="lazy">
-      <img class="mystery-modal__line mystery-modal__line--4" src="images/WavyLineCircles/Wavy Line 71.png" alt="" loading="lazy">
-      <img class="mystery-modal__line mystery-modal__line--5" src="images/VectorWaves/Wireframe 45.png" alt="" loading="lazy">
-      <img class="mystery-modal__line mystery-modal__line--6" src="images/WavyLineCircles/Wavy Line 5.png" alt="" loading="lazy">
-    </div>
-
-    <!-- Content -->
-    <div class="mystery-modal__content">
-      <div class="mystery-modal__text" id="mysteryText">
-        <p data-delay="0">Over the years, there have been about as many, if not more, projects I have worked than ones
-          considered complete.<br> These have died in various stages of development each with its own unique set of
-          circumstances.<br> Each one a unique branch of effort, collaboration, and creativity. </p>
-        <p data-delay="1"><span class="mystery-accent">Each one having some part of myself in it.</span> </p>
-
-        <p data-delay="2">Though not every project we work on blooms into something presentable, with each one <span
-            class="mystery-accent">we learn a little more about ourselves, what we create and how we collaborate.</span>
-          <br> It is true that each seed we plant has the opportunity to bloom into something great but in my mind,
-          it is important to stay in the moment and <span class="mystery-accent">love the act of planting the seed
-            itself</span>.
-          <br> That is to say, enjoy the process of creating.<br>
-          Enjoy the process of collaboration.<br>
-        </p>
-        <p data-delay="3"><span class="mystery-accent">Enjoy creating art simply for the act of creating it</span>.</p>
-
-        <p data-delay="4">Each project is an experience that stays with you in some way.<br> It continues to shape and
-          mold
-          you whether you realize it or not.<br> Though not every project grows, with the right mindset, <span
-            class="mystery-accent">we do</span> and we can shape ourselves into something<br> <span
-            class="mystery-accent">stronger, kinder and more open</span> to what the universe has in store for us next.
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Contact Section -->
-  <section class="contact" id="contact">
-    <div class="container container--narrow">
-      <div class="section-header">
-        <span class="section-code">[04.CONNECT]</span>
-        <h2 class="section-title">Let's Work Together</h2>
-        <svg class="section-stroke" viewBox="0 0 180 18" aria-hidden="true" focusable="false"><path d="M2 9.3 C 14 3.0, 22 1.7, 31 8.5 S 49 14.6, 60 7.4 S 78 1.3, 89 6.8 S 107 15.4, 118 9.8 S 136 0.5, 147 8.4 S 165 14.8, 178 9.9" /></svg>
-      </div>
-      <a href="mailto:jtylermc@gmail.com" class="contact__email">jtylermc@gmail.com</a>
-      <div class="contact__links">
-        <a href="https://www.linkedin.com/in/jtylermc/" target="_blank" rel="noopener" class="contact__link">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-            <rect x="2" y="9" width="4" height="12" />
-            <circle cx="4" cy="4" r="2" />
-          </svg>
-          LinkedIn
-        </a>
-        <a href="press-kit.html" class="contact__link">[ Press kit ]</a>
-      </div>
-    </div>
-  </section>
+    </section>
+    <section id="contact">
+      <h2>Let's Work Together</h2>
+      <p><a href="mailto:jtylermc@gmail.com">jtylermc@gmail.com</a></p>
+      <p><a href="https://www.linkedin.com/in/jtylermc/" target="_blank" rel="noopener">LinkedIn</a></p>
+      <p><a href="press-kit.html">Press kit</a></p>
+    </section>
   </main>
+  <footer class="pl-foot"><p>© 2026 Tyler McCulloch</p></footer>
+</div>
+<!-- plain:end -->
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <p class="footer__text">© 2026 Tyler McCulloch</p>
-    </div>
-  </footer>
-
-  <!-- Celebration Modal - 100 Click Easter Egg -->
-  <div class="celebration-modal" id="celebrationModal" role="dialog" aria-modal="true" aria-label="Thank you">
-    <canvas class="celebration-particles" id="celebrationParticles"></canvas>
-    <button class="mystery-modal__close" id="celebrationClose" aria-label="Close">&times;</button>
-    <div class="celebration-content">
-      <div class="celebration-text" id="celebrationText"></div>
-    </div>
-  </div>
-
-  <!-- JavaScript -->
-  <script src="script.js?v=860526f0"></script>
-  <!-- Cloudflare Web Analytics -->
-  <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
-    data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script><!-- End Cloudflare Web Analytics -->
+<script src="/os-data.js?v=a47bc2b0"></script>
+<script src="/os.js?v=041050d6"></script>
+<!-- Cloudflare Web Analytics -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+  data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
-
 </html>
