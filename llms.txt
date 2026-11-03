@@ -12,6 +12,8 @@ Location: Vancouver, BC, Canada
 Email: jtylermc@gmail.com
 LinkedIn: https://www.linkedin.com/in/jtylermc/
 Portfolio: https://jtylermc.ca
+Simple view (whole portfolio as one plain page): https://jtylermc.ca/simple.html
+Press kit: https://jtylermc.ca/press-kit.html
 
 ## Professional Summary
 Game Designer and Director with 22+ years of experience across AAA, VR, mobile, and live service platforms. 12+ years in design leadership. 15 shipped titles. Specializes in creative direction, player-first design philosophy, and leading multidisciplinary teams from concept to ship.
