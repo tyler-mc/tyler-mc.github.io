@@ -1,0 +1,33 @@
+/* The OS skin for the static pages (project pages, press kit, 404): a menu bar and a window frame around the page. No JavaScript.
+   The markup is stamped between markers by tools/build_shell.py; the desktop itself styles itself in os.css. */
+body:has(.os-win),body:has(.os-alert){background-color:#008080;background-image:radial-gradient(#00585C 1px,transparent 1.6px);background-size:4px 4px;padding:24px 0 0;min-height:100vh}
+.os-bar{position:fixed;top:0;left:0;right:0;height:24px;z-index:1000;display:flex;align-items:center;gap:14px;padding:0 8px;background:#C0C0C0;border-bottom:1px solid #1A1716;box-shadow:inset 0 1px 0 #fff;font:16px/24px 'Tiny5',ui-monospace,monospace;color:#1A1716;-webkit-font-smoothing:none}
+.os-disc{display:block;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FF9A9A 0 12%,#FF3333 13% 100%);border:1px solid #1A1716;box-shadow:inset -2px -2px 0 #B01E23;flex:none}
+.os-menu{display:flex;gap:2px;overflow:hidden}
+.os-menu a{color:inherit;text-decoration:none;padding:0 8px;white-space:nowrap}
+.os-menu a:hover,.os-menu a:focus-visible{background:#000080;color:#fff;outline:0}
+.os-win{position:relative;width:calc(100% - 24px);max-width:1180px;margin:16px auto 32px;padding:3px;background:#C0C0C0;border:1px solid #1A1716;box-shadow:inset 1px 1px 0 #fff,3px 3px 0 #1A1716}
+.os-tbar{display:flex;align-items:stretch;gap:6px;height:24px;margin-bottom:3px;background:repeating-linear-gradient(0deg,#1A1716 0 1px,transparent 1px 3px);background-origin:content-box;padding:0 2px}
+.os-ttl{display:flex;align-items:center;padding:0 10px;background:var(--acc,#FF3333);color:var(--acc-ink,#fff);font:16px/22px 'Tiny5',ui-monospace,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%;-webkit-font-smoothing:none}
+.os-x{margin-left:auto;align-self:center;display:block;width:18px;height:18px;border:1px solid #1A1716;background:#C0C0C0;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080;position:relative}
+.os-x::before,.os-x::after{content:"";position:absolute;left:3px;right:3px;top:7px;height:2px;background:#1A1716;transform:rotate(45deg)}
+.os-x::after{transform:rotate(-45deg)}
+.os-x:hover,.os-x:focus-visible{background:#E0E0E0;outline:0}
+.os-win>main{max-width:none;width:auto;margin:0;border:1px solid #1A1716;background:var(--bg-primary,#F4F4EF);box-shadow:inset 1px 1px 0 #808080}
+.os-win>.case-study{padding-top:12px}
+@media (max-width:700px){
+  .os-menu a{padding:0 5px}
+  .os-win{width:100%;margin:0 0 24px;border-left:0;border-right:0;box-shadow:none}
+}
+/* the 404 dialog */
+.os-alert{max-width:440px;margin:96px auto 0;padding:3px;background:#C0C0C0;border:1px solid #1A1716;box-shadow:inset 1px 1px 0 #fff,4px 4px 0 #1A1716;position:relative}
+.os-alert-in{display:grid;grid-template-columns:72px 1fr;gap:16px 20px;padding:20px;align-items:start}
+.os-alert img{width:64px;height:96px;image-rendering:pixelated;display:block}
+.os-alert h1{margin:16px 0 0;font:600 16px/24px 'IBM Plex Sans',system-ui,sans-serif;letter-spacing:0;text-transform:none;color:#1A1716}
+.os-alert p{margin:4px 0 0;font:400 16px/24px 'IBM Plex Sans',system-ui,sans-serif;color:#1A1716}
+.os-alert .os-btns{grid-column:1/-1;display:flex;justify-content:flex-end}
+.os-btn{display:inline-block;padding:6px 18px;font:16px/20px 'Tiny5',ui-monospace,monospace;color:#1A1716;text-decoration:none;background:#C0C0C0;border:1px solid #1A1716;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080;outline:2px solid #1A1716;outline-offset:2px}
+.os-btn:hover,.os-btn:focus-visible{background:#D0D0D0}
+.os-btn:active{box-shadow:inset 1px 1px 0 #808080}
+
+.os-win>.press-kit{padding-left:max(1.5rem,calc((100% - 820px)/2));padding-right:max(1.5rem,calc((100% - 820px)/2))}

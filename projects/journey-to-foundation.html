@@ -60,10 +60,11 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&family=Tiny5&display=swap">
 
     <!-- Styles -->
     <link rel="stylesheet" href="../styles.css?v=886f7a89">
+    <link rel="stylesheet" href="../os-page.css?v=a5ed019d">
 
     <!-- Favicon -->
     <link rel="icon" href="../favicon.ico" sizes="any">
@@ -73,18 +74,13 @@
 </head>
 
 <body>
-    <nav class="nav" id="nav">
-        <div class="container nav__inner">
-            <a href="../index.html" class="nav__logo"><img src="../images/WavyLineCircles/Wavy Line 7.png"
-                    alt="Logo"></a>
-            <ul class="nav__links">
-                <li><a href="../index.html#work" class="nav__link">Work</a></li>
-                <li><a href="../index.html#about" class="nav__link">About</a></li>
-                <li><a href="../index.html#experience" class="nav__link">Experience</a></li>
-                <li><a href="../index.html#contact" class="nav__link">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
+    <!-- os:menubar -->
+  <header class="os-bar"><a class="os-disc" href="../index.html" aria-label="Home"></a><nav class="os-menu" aria-label="Site"><a href="../index.html#work">Work</a><a href="../index.html#about">About</a><a href="../index.html#experience">Career</a><a href="../index.html#contact">Contact</a><a href="../simple.html">View</a></nav></header>
+  <!-- /os:menubar -->
+
+    <!-- os:frame -->
+  <div class="os-win" style="--acc:#3B2A9E;--acc-ink:#fff"><div class="os-tbar"><span class="os-ttl">Journey To Foundation</span><a class="os-x" href="../index.html#work" aria-label="Close window"></a></div>
+  <!-- /os:frame -->
 
     <main class="case-study case-study--page case-study--deep">
         <a href="../index.html#work" class="case-study__back">← Back to Work</a>
@@ -345,6 +341,7 @@
             </a>
         </nav>
     </main>
+  <!-- os:frame-end --></div><!-- /os:frame-end -->
 
     <footer class="footer">
         <div class="container">
