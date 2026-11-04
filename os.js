@@ -17,11 +17,12 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'
 const NOP=()=>{};
 const TK=window.TK||{landing:NOP,open:NOP,track:NOP,discover:NOP,trackOnce:NOP,quiet:f=>f(),onHide:NOP,log:[],debug:false};
 let viaNext=null;
+const reads=new Set();
 /* how a window was opened, from the element that opened it (none: the menu, the mascot or the code) */
 function viaOf(src){
   if(viaNext)return viaNext;
   if(!src||!src.classList)return 'sys';
-  return src.classList.contains('icon')?'icon':src.closest('[data-p]')?'card':src.closest('[data-slug]')||src.tagName==='A'?'link':'sys';
+  return src.closest('[data-p]')?'card':src.classList.contains('icon')||src.classList.contains('item')?'icon':src.closest('[data-slug]')||src.tagName==='A'?'link':'sys';
 }
 /* which icon was dragged: a project id, or the element's own id */
 function itemKey(it){return (it&&(it.dataset.p||it.id||(it.dataset.mail!==undefined?'mail':'')))||'item'}
@@ -309,6 +310,7 @@ function focusWin(id,{bump=false,focusEl=true}={}){
   const w=WIN[id];if(!w||!w.open)return;
   if(topId!==id||w.el.style.zIndex==='')w.el.style.zIndex=++Z;
   topId=id;for(const k in WIN)WIN[k].el.classList.toggle('focused',k===id);
+  readSync();
   if(bump)thunk(w.el);
   if(focusEl&&!w.el.contains(document.activeElement))w.el.focus({preventScroll:true});
   renderStrip();
@@ -678,27 +680,35 @@ function ensureProject(el,p){
     $$('img',el).forEach(i=>i.decode&&i.decode().catch(()=>{}));
   }).catch(()=>{el._ld=null;rw.innerHTML='<p class="pad"><a href="/projects/'+p.slug+'.html">'+esc(p.name)+'</a></p>';rw.removeAttribute('aria-busy')});
 }
-/* reading a case study: how far down it got (0/25/50/75/100) and for how long, counted while the window is open and the tab is visible.
-   Sent when the window closes or the tab is hidden; under 3 s is a glance and is dropped. */
-const reads=new Set();
-function readBegin(r){r.t0=performance.now();r.max=0}
+/* reading a case study: how far down it got (0/25/50/75/100) and for how long. Time counts only while the window is the front one
+   and the tab is visible, so stacked windows do not each claim the same minutes. Sent when the window closes or the tab is
+   hidden; under 3 s is a glance and is dropped. */
+function readTick(r,on){
+  const now=performance.now();
+  if(on&&r.t0===null)r.t0=now;
+  else if(!on&&r.t0!==null){r.acc+=now-r.t0;r.t0=null}
+}
+function readSync(){const vis=!document.hidden;reads.forEach(r=>readTick(r,vis&&topId===r.id))}
+function readBegin(r){r.t0=null;r.acc=0;r.max=0}
 function readEnd(r){
-  if(r.t0===null)return;const secs=Math.round((performance.now()-r.t0)/1000);r.t0=null;r.max=Math.max(r.max,r.bucket());
+  readTick(r,false);r.max=Math.max(r.max,r.bucket());
+  const secs=Math.round(r.acc/1000);r.acc=0;
   if(secs>=3)TK.track('project_read',{slug:r.slug,depth:r.max,secs:Math.min(secs,1800)});
+  r.max=0;
 }
 TK.onHide(()=>reads.forEach(readEnd));
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)reads.forEach(readBegin)});
+document.addEventListener('visibilitychange',readSync);
 function projWin(p){
   const n=pjN++%5;
-  const rd={slug:p.slug,t0:null,max:0,vid:0,body:null,ok:0,
-    bucket(){const b=this.body;if(!b||!this.ok)return 0;const m=b.scrollHeight-b.clientHeight;return m<=1?100:Math.min(100,Math.floor((b.scrollTop+b.clientHeight)/b.scrollHeight*4)*25)},
+  const rd={id:p.id,slug:p.slug,t0:null,acc:0,max:0,vid:0,body:null,ok:0,
+    bucket(){const b=this.body;if(!b||!this.ok||!b.clientHeight)return 0;const m=b.scrollHeight-b.clientHeight;return m<=1?100:Math.min(100,Math.floor((b.scrollTop+b.clientHeight)/b.scrollHeight*4)*25)},
     video(){if(!this.vid){this.vid=1;TK.track('video',{slug:this.slug})}}};
   return makeWin({id:p.id,title:p.name,x:96+n*32,y:36+n*24,w:960,h:700,grow:1,acc:p.acc,ink:p.ink,
    body:'<div class="rw" aria-busy="true"></div>',
    foot:`<span>jtylermc.ca/projects/${p.slug}.html</span><span></span>`,
    init(el){
      el._rd=rd;rd.body=$('.wbody',el);
-     rd.body.addEventListener('scroll',()=>{if(rd.t0!==null)rd.max=Math.max(rd.max,rd.bucket())},{passive:true});
+     rd.body.addEventListener('scroll',()=>{rd.max=Math.max(rd.max,rd.bucket())},{passive:true});
      /* a clip with its own controls: the visitor pressed play (the looping clips start by themselves, their button is handled in loadRw) */
      el.addEventListener('play',e=>{const v=e.target;if(v.tagName==='VIDEO'&&!v.hasAttribute('data-auto')&&!v.hasAttribute('autoplay'))rd.video()},true)},
    onopen(el){readBegin(rd);reads.add(rd);ensureProject(el,p).then(()=>{rd.ok=1;loadRw(el)})},
