@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stamp the OS menu bar and window frame into the static pages (project pages, press kit, 404), between markers.
+"""Stamp the OS menu bar, window frame and analytics tag into the static pages (project pages, press kit, 404), between markers.
 
 The first run replaces the old <nav> and wraps <main>; later runs only refresh the marked blocks, so the shared
 markup lives here and is never hand-copied. Idempotent.
@@ -28,6 +28,15 @@ def frame_top(title, close, acc, ink):
     return f'''<!-- os:frame -->
   <div class="os-win" style="--acc:{acc};--acc-ink:{ink}"><div class="os-tbar"><span class="os-ttl">{H.escape(title)}</span><a class="os-x" href="{close}" aria-label="Close window"></a></div>
   <!-- /os:frame -->'''
+
+
+# Umami Cloud (cookieless). analytics.js comes first so ?notrack is honoured before the tracker's own pageview.
+def analytics(p):
+    """p is the same prefix as for the menu bar: relative on project pages and the press kit (the page checker follows them), '/' on the 404."""
+    return f'''<!-- os:analytics -->
+  <script src="{p}analytics.js"></script>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="0f6eb15d-dcd5-46dd-8fc6-24269aaa06a9" data-domains="jtylermc.ca,www.jtylermc.ca" data-do-not-track="true" data-exclude-hash="true"></script>
+  <!-- /os:analytics -->'''
 
 
 FRAME_END = '<!-- os:frame-end --></div><!-- /os:frame-end -->'
@@ -62,6 +71,12 @@ def stamp(path, title, close, acc, ink, prefix, frame=True):
         assert n == 1, path + ': no <main>'
         s, n = re.subn(r'(</main>)', lambda m: m.group(1) + '\n  ' + FRAME_END, s, count=1)
         assert n == 1
+    # analytics: the marked block, or just before </body>
+    if '<!-- os:analytics -->' in s:
+        s = re.sub(r'<!-- os:analytics -->.*?<!-- /os:analytics -->', lambda m: analytics(prefix), s, count=1, flags=re.S)
+    else:
+        s, n = re.subn(r'(\n)(\s*)(</body>)', lambda m: m.group(1) + '  ' + analytics(prefix) + '\n' + m.group(3), s, count=1)
+        assert n == 1, path + ': no </body>'
     with open(path, 'w', encoding='utf-8') as f:
         f.write(s)
 

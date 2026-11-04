@@ -197,6 +197,8 @@ simple = f'''<!DOCTYPE html>
   </main>
   <footer class="pl-foot"><p>© 2026 Tyler McCulloch</p></footer>
 </div>
+<script src="/analytics.js"></script>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="0f6eb15d-dcd5-46dd-8fc6-24269aaa06a9" data-domains="jtylermc.ca,www.jtylermc.ca" data-do-not-track="true" data-exclude-hash="true"></script>
 </body>
 </html>
 '''

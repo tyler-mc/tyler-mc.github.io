@@ -3,6 +3,34 @@
  * it, and the arrow keys step between projects.
  */
 (() => {
+  /* Analytics (analytics.js): how far down a case study got and for how long (visible time), sent when the tab is hidden or
+     closed; under 3 s is a glance. Depth is 0/25/50/75/100. The desktop's project windows do the same in os.js. */
+  const TK = window.TK;
+  const slug = /\/projects\//.test(location.pathname) ? location.pathname.replace(/^.*\//, '').replace(/\.html$/, '') : '';
+  const reading = { t0: performance.now(), max: 0, vid: false,
+    depth() {
+      const doc = document.documentElement;
+      return Math.min(100, Math.floor((scrollY + innerHeight) / doc.scrollHeight * 4) * 25);
+    },
+    end() {
+      if (this.t0 === null) return;
+      const secs = Math.round((performance.now() - this.t0) / 1000);
+      this.t0 = null;
+      this.max = Math.max(this.max, this.depth());
+      if (secs >= 3) TK.track('project_read', { slug, depth: this.max, secs: Math.min(secs, 1800), direct: 1 });
+    },
+    video() { if (!this.vid) { this.vid = true; TK.track('video', { slug }); } } };
+  if (TK && slug) {
+    TK.onHide(() => reading.end());
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && reading.t0 === null) { reading.t0 = performance.now(); reading.max = 0; } });
+    addEventListener('scroll', () => { reading.max = Math.max(reading.max, reading.depth()); }, { passive: true });
+    document.addEventListener('play', (e) => {
+      if (e.target.tagName === 'VIDEO' && !e.target.hasAttribute('autoplay')) reading.video();
+    }, true);
+  } else {
+    reading.end = reading.video = () => {};
+  }
+
   const back = document.querySelector('.case-study__back');
   let fromHome = false;
   try {
@@ -72,7 +100,7 @@
       button.setAttribute('aria-pressed', String(!playing));
     };
     button.addEventListener('click', () => {
-      if (video.paused) video.play().catch(() => {});
+      if (video.paused) { video.play().catch(() => {}); reading.video(); }
       else video.pause();
     });
     video.addEventListener('play', sync);

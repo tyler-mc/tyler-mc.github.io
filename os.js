@@ -13,6 +13,18 @@ const B8=[0,32,8,40,2,34,10,42,48,16,56,24,50,18,58,26,12,44,4,36,14,46,6,38,60,
 const store={get(k){try{return sessionStorage.getItem(k)}catch(_){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(_){}}};
 let rs=11;const rnd=()=>(rs=(rs*16807)%2147483647)/2147483647;
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+/* analytics: analytics.js wraps Umami; the stub keeps the desktop working if that file did not load */
+const NOP=()=>{};
+const TK=window.TK||{landing:NOP,open:NOP,track:NOP,discover:NOP,trackOnce:NOP,quiet:f=>f(),onHide:NOP,log:[],debug:false};
+let viaNext=null;
+/* how a window was opened, from the element that opened it (none: the menu, the mascot or the code) */
+function viaOf(src){
+  if(viaNext)return viaNext;
+  if(!src||!src.classList)return 'sys';
+  return src.classList.contains('icon')?'icon':src.closest('[data-p]')?'card':src.closest('[data-slug]')||src.tagName==='A'?'link':'sys';
+}
+/* which icon was dragged: a project id, or the element's own id */
+function itemKey(it){return (it&&(it.dataset.p||it.id||(it.dataset.mail!==undefined?'mail':'')))||'item'}
 
 /* ================= pixel art: tiny painter -> crisp SVG ================= */
 const PAL={N:'#0A66C2',Q:'#3DD16F',J:'#1F9D55',k:INK,w:'#FFFFFF',c:'#FBF6EA',g:'#C0C0C0',e:'#A4A4A4',G:'#999999',x:'#555555',y:'#FFE38A',Y:'#F6B92B',o:'#C77F0E',
@@ -324,6 +336,8 @@ function openWin(id,src){
   if(el.classList.contains('shaded'))shade(id,false);
   if(w.open){focusWin(id,{bump:true});return}
   w.open=true;w.opener=src&&src.focus?src:null;el.hidden=false;order.push(id);clampWin(el);
+  TK.open(PB[id]?'/projects/'+PB[id].slug+'.html':'/os/'+id,w.title,id,viaOf(src));
+  if(id==='trash')TK.discover('trash-open',{},'crash_trash_open');
   el.style.zIndex=++Z;
   if(w.onopen)w.onopen(el);
   const r=src&&src.getBoundingClientRect?src.getBoundingClientRect():src;
@@ -464,6 +478,7 @@ function renderList(){
   $$('th',el).forEach(th=>{const on=th.dataset.k===sortK;on?th.setAttribute('aria-sort',sortD>0?'ascending':'descending'):th.removeAttribute('aria-sort');$('.ar',th).innerHTML=on?gl(sortD>0?'up':'down'):''});
 }
 function setView(v){
+  if(v==='list')TK.discover('view-list');
   view=v;const el=WIN.work.el;
   $$('[data-view]',el).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===v)));
   $('#iv').hidden=v!=='icons';$('#lv').hidden=v!=='list';$('.slide',el).style.visibility=v==='icons'?'':'hidden';
@@ -566,7 +581,7 @@ function initDistill(el){
   function lines(){const L={};$$('.kw',card).forEach(k=>{(L[k.dataset.line]=L[k.dataset.line]||[]).push(k)});
     return Object.keys(L).sort().map(n=>{let text='';const pieces=L[n].map(kw=>{let piece=kw.textContent.replace(/\s+/g,' ');if(!text||text.endsWith(' '))piece=piece.replace(/^ /,'');const start=text.length;text+=piece;return {kw,piece,start}});return {text:text.trim(),pieces}})}
   function start(m){
-    if(active||fadeT||poemT)return;mode=m;if(toggle)toggle.setAttribute('aria-pressed','true');
+    if(active||fadeT||poemT)return;mode=m;TK.discover('distill-'+m);if(toggle)toggle.setAttribute('aria-pressed','true');
     const delay=m==='hover'?DWELL:0,len=reduce?0:(m==='hover'?FADE:900);
     fadeT=setTimeout(()=>{fadeT=null;card.classList.add('text-fading');poemT=setTimeout(()=>{poemT=null;active=true;card.classList.add('keywords-activated');toPoem()},len)},delay);
   }
@@ -581,6 +596,7 @@ function initDistill(el){
   card.addEventListener('pointerup',e=>{if(e.pointerType!=='touch'||e.target.closest('.pbtn'))return;if(mode)reset();else start('toggle')});
   if(toggle)toggle.addEventListener('click',()=>{if(mode==='toggle')reset();else{reset();start('toggle')}});
   function toPoem(){
+    TK.discover('distill-done');
     const my=run,L=lines(),cr=card.getBoundingClientRect();
     card.style.height=cr.height+'px';card.style.minHeight=cr.height+'px';
     poem=document.createElement('div');poem.className='poem-container';poem.setAttribute('aria-hidden','true');
@@ -650,7 +666,7 @@ function loadRw(el){
     const fig=v.closest('figure');
     if(fig){fig.classList.add('has-video-toggle');const b=document.createElement('button');b.type='button';b.className='video-toggle';
       const sync=()=>{const pl=!v.paused;b.setAttribute('aria-label',pl?'Pause clip':'Play clip');b.setAttribute('aria-pressed',String(!pl))};
-      b.addEventListener('click',()=>{if(v.paused){v._off=0;v.play().catch(()=>{})}else{v._off=1;v.pause()}});v.addEventListener('play',sync);v.addEventListener('pause',sync);sync();fig.appendChild(b)}
+      b.addEventListener('click',()=>{if(v.paused){v._off=0;v.play().catch(()=>{});if(el._rd)el._rd.video()}else{v._off=1;v.pause()}});v.addEventListener('play',sync);v.addEventListener('pause',sync);sync();fig.appendChild(b)}
     if(!reduce)v.play().catch(()=>{});else v._off=1;
   });
 }
@@ -662,14 +678,32 @@ function ensureProject(el,p){
     $$('img',el).forEach(i=>i.decode&&i.decode().catch(()=>{}));
   }).catch(()=>{el._ld=null;rw.innerHTML='<p class="pad"><a href="/projects/'+p.slug+'.html">'+esc(p.name)+'</a></p>';rw.removeAttribute('aria-busy')});
 }
+/* reading a case study: how far down it got (0/25/50/75/100) and for how long, counted while the window is open and the tab is visible.
+   Sent when the window closes or the tab is hidden; under 3 s is a glance and is dropped. */
+const reads=new Set();
+function readBegin(r){r.t0=performance.now();r.max=0}
+function readEnd(r){
+  if(r.t0===null)return;const secs=Math.round((performance.now()-r.t0)/1000);r.t0=null;r.max=Math.max(r.max,r.bucket());
+  if(secs>=3)TK.track('project_read',{slug:r.slug,depth:r.max,secs:Math.min(secs,1800)});
+}
+TK.onHide(()=>reads.forEach(readEnd));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)reads.forEach(readBegin)});
 function projWin(p){
   const n=pjN++%5;
+  const rd={slug:p.slug,t0:null,max:0,vid:0,body:null,ok:0,
+    bucket(){const b=this.body;if(!b||!this.ok)return 0;const m=b.scrollHeight-b.clientHeight;return m<=1?100:Math.min(100,Math.floor((b.scrollTop+b.clientHeight)/b.scrollHeight*4)*25)},
+    video(){if(!this.vid){this.vid=1;TK.track('video',{slug:this.slug})}}};
   return makeWin({id:p.id,title:p.name,x:96+n*32,y:36+n*24,w:960,h:700,grow:1,acc:p.acc,ink:p.ink,
    body:'<div class="rw" aria-busy="true"></div>',
    foot:`<span>jtylermc.ca/projects/${p.slug}.html</span><span></span>`,
-   onopen(el){ensureProject(el,p).then(()=>loadRw(el))},
+   init(el){
+     el._rd=rd;rd.body=$('.wbody',el);
+     rd.body.addEventListener('scroll',()=>{if(rd.t0!==null)rd.max=Math.max(rd.max,rd.bucket())},{passive:true});
+     /* a clip with its own controls: the visitor pressed play (the looping clips start by themselves, their button is handled in loadRw) */
+     el.addEventListener('play',e=>{const v=e.target;if(v.tagName==='VIDEO'&&!v.hasAttribute('data-auto')&&!v.hasAttribute('autoplay'))rd.video()},true)},
+   onopen(el){readBegin(rd);reads.add(rd);ensureProject(el,p).then(()=>{rd.ok=1;loadRw(el)})},
    onshown(el){ensureProject(el,p).then(()=>ditherIn(el))},
-   onclose(el){$$('video',el).forEach(v=>v.pause());clearDither(el)}});
+   onclose(el){readEnd(rd);reads.delete(rd);$$('video',el).forEach(v=>v.pause());clearDither(el)}});
 }
 /* ================= Contacts: one icon per way to reach him; Email opens the compose-style dialog ================= */
 makeWin({id:'contacts',title:'Contacts',x:380,y:140,w:420,h:250,
@@ -677,7 +711,7 @@ makeWin({id:'contacts',title:'Contacts',x:380,y:140,w:420,h:250,
   <button class="item" type="button" data-mail style="width:112px"><span class="cmp" aria-hidden="true">${svg(ICON.mail,2)}</span><span class="nm">Email</span></button>
   <a class="item" href="https://www.linkedin.com/in/jtylermc/" target="_blank" rel="noopener" style="width:112px"><span class="cmp" aria-hidden="true">${svg(ICON.linkedin,2)}</span><span class="nm">LinkedIn</span></a></div></div>`,
  foot:'<span>2 items</span><span></span>',
- init(el){$('[data-mail]',el).addEventListener('click',e=>{$$('.item',el).forEach(x=>x.classList.toggle('sel',x===e.currentTarget));openWin('mail',e.currentTarget)})},
+ init(el){$('[data-mail]',el).addEventListener('click',e=>{TK.track('contact',{method:'email-open'});$$('.item',el).forEach(x=>x.classList.toggle('sel',x===e.currentTarget));openWin('mail',e.currentTarget)})},
  onclose(el){$$('.item',el).forEach(x=>x.classList.remove('sel'))}});
 makeWin({id:'mail',title:'Email',x:430,y:190,w:480,
  body:`<div class="ml"><span class="ml-ic" aria-hidden="true">${svg(ICON.mail,3)}</span>
@@ -685,7 +719,7 @@ makeWin({id:'mail',title:'Email',x:430,y:190,w:480,
   <div class="etch ml-sep"></div>
   <div class="ml-btns"><button class="btn bev" type="button" id="ml-copy">Copy</button><span class="ring"><a class="btn bev" href="mailto:jtylermc@gmail.com">Compose</a></span></div></div>`,
  init(el){
-   $('#ml-copy',el).addEventListener('click',async e=>{const b=e.currentTarget,t=$('#ml-addr',el);
+   $('#ml-copy',el).addEventListener('click',async e=>{const b=e.currentTarget,t=$('#ml-addr',el);TK.track('contact',{method:'email-copy'});
      try{await navigator.clipboard.writeText(t.textContent)}catch(_){const r=document.createRange();r.selectNodeContents(t);const s=getSelection();s.removeAllRanges();s.addRange(r)}
      b.textContent='Copied';setTimeout(()=>{b.textContent='Copy'},1200)});
  }});
@@ -724,7 +758,7 @@ function makeAchBar(){
 }
 function setAch(p){if(!achEl||!achFill)return;achFill.style.width=Math.round(p*100)+'%';achEl.setAttribute('aria-valuenow',String(Math.round(p*100)))}
 function completeAch(){
-  if(!achEl)return;clearTimeout(achLabelT);const r=achEl.getBoundingClientRect();burstAt(r.left+r.width/2,r.top+r.height/2,30);
+  if(!achEl)return;TK.discover('ach-complete',{},'ach_complete');clearTimeout(achLabelT);const r=achEl.getBoundingClientRect();burstAt(r.left+r.width/2,r.top+r.height/2,30);
   setTimeout(()=>{achEl.classList.add('complete');achEl.setAttribute('role','button');achEl.removeAttribute('aria-valuenow');achEl.setAttribute('aria-label','Open the ending');achEl.tabIndex=0;const t=$('.at',achEl);t.classList.remove('fade');t.textContent='complete'},reduce?0:400);
   const go=()=>{if(achEl.classList.contains('complete'))openEnding()};
   achEl.addEventListener('click',go);achEl.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}});
@@ -733,8 +767,8 @@ function completeAch(){
 function logoClick(){if(!endingDone)cycleLogo()}
 function discoveryClick(){
   if(endingDone)return false;logoN++;let said=false;
-  if(LMSG[logoN]){const r=buddy.getBoundingClientRect(),p={3:4,15:6,35:9,65:12}[logoN]||6;shake(p);burstAt(r.left+r.width/2,r.top+r.height*.55,10+p*2)}
-  if(logoN===50)makeAchBar();
+  if(LMSG[logoN]){const r=buddy.getBoundingClientRect(),p={3:4,15:6,35:9,65:12}[logoN]||6;shake(p);burstAt(r.left+r.width/2,r.top+r.height*.55,10+p*2);TK.discover('mascot-'+logoN)}
+  if(logoN===50){makeAchBar();TK.discover('ach-bar',{},'ach_bar')}
   if(logoN>=50&&logoN<100)setAch((logoN-50)/50);
   if(logoN===100){setAch(1);completeAch()}
   return said;
@@ -750,6 +784,7 @@ function endStars(cv){
   const f=()=>{x.clearRect(0,0,W,H);P.forEach(p=>{p.x=(p.x+p.vx+W)%W;p.y=(p.y+p.vy+H)%H;x.globalAlpha=p.a;x.fillStyle=p.c;x.fillRect(Math.round(p.x),Math.round(p.y),p.s,p.s)});endRaf=requestAnimationFrame(f)};f();
 }
 function openEnding(){
+  TK.discover('ending-open',{},'ach_ending');
   endRet=document.activeElement;const t=$('.et',endEl),run=++endRun;t.innerHTML='';
   const ps=END_LINES.map(l=>{const p=document.createElement('p');p.dataset.t=l;t.appendChild(p);return p});
   endEl.classList.add('on');if(!reduce)endStars($('.ec',endEl));
@@ -762,7 +797,7 @@ function openEnding(){
 }
 function closeEnding(){
   endRun++;cancelAnimationFrame(endRaf);endEl.classList.remove('on');
-  endingDone=true;LS.set('tos_ending','1');showSpecialBar();paintMarks();
+  endingDone=true;TK.discover('ending-done');LS.set('tos_ending','1');showSpecialBar();paintMarks();
   if(endRet&&document.contains(endRet)&&endRet.focus)endRet.focus({preventScroll:true});
 }
 $('.ex',endEl).addEventListener('click',closeEnding);
@@ -832,6 +867,7 @@ footInfo($('.wbody',WIN.trash.el),'.item',t=>t.id==='tr-compost'?compostInfo():t
 /* ================= D6: View (Simple view, 80s version) and the 404 dialog ================= */
 let sync80=()=>{};
 function set80(on,keep=true){
+  if(on&&keep)TK.discover('80s');
   v80on=on;document.documentElement.classList.toggle('v80',on);
   if(keep)try{on?localStorage.setItem('tos_v80','1'):localStorage.removeItem('tos_v80')}catch(_){}
   if(on)for(const k in WIN)if(WIN[k].open)clearDither(WIN[k].el);
@@ -858,8 +894,8 @@ function show404(){showAlert(`<span class="a1">${NF_TITLE}</span><span class="a2
 function PREF(k,d){try{return localStorage.getItem(k)||d}catch(_){return d}}
 function PSET(k,v){try{localStorage.setItem(k,v)}catch(_){}}
 let syncMascotCP=()=>{};
-function setHat(h,keep=true){BS.hat=h==='none'?0:h;if(keep)PSET('tos_hat',h);bRender()}
-function setWall(k,keep=true){WALLK=k;if(keep)PSET('tos_wall',k);buildWall()}
+function setHat(h,keep=true){if(keep&&h!=='none')TK.discover('hat:'+h);BS.hat=h==='none'?0:h;if(keep)PSET('tos_hat',h);bRender()}
+function setWall(k,keep=true){if(keep)TK.discover('wall:'+k);WALLK=k;if(keep)PSET('tos_wall',k);buildWall()}
 /* other wallpapers: night garden (dithered sky, stars that twinkle), paper grid, plain teal */
 let twT=0,stars=[];
 function altWall(){
@@ -942,14 +978,14 @@ makeWin({id:'cpanel',title:'Control Panel',x:380,y:96,w:300,
  init(el){
    const m=$('#cp-m',el),set=(b,on)=>b.setAttribute('aria-checked',String(on)),prev=$('#cp-prev',el);
    const dim=()=>prev.setAttribute('aria-disabled',String(saverK==='none'));
-   m.addEventListener('click',()=>setMascot(m.getAttribute('aria-checked')!=='true'));
+   m.addEventListener('click',()=>{const on=m.getAttribute('aria-checked')!=='true';if(!on)TK.discover('mascot-off');setMascot(on)});
    $('#cp-mask',el).addEventListener('click',()=>setMask(!BS.mask));
    el.addEventListener('click',e=>{
      const b=e.target.closest('[data-g]');if(!b)return;
      $$('[data-g="'+b.dataset.g+'"]',el).forEach(x=>set(x,x===b));
      if(b.dataset.g==='hat')setHat(b.dataset.v);
      else if(b.dataset.g==='wall')setWall(b.dataset.v);
-     else{saverK=b.dataset.v;PSET('tos_saver',saverK);dim()}});
+     else{saverK=b.dataset.v;PSET('tos_saver',saverK);if(saverK!=='none')TK.discover('saver:'+saverK);dim()}});
    prev.addEventListener('click',()=>{if(saverK!=='none')ssStart()});
    dim();
    syncMascotCP=()=>set(m,!buddy.hidden);
@@ -973,7 +1009,7 @@ sv.addEventListener('click',e=>{const a=e.target.closest('a');if(!a)return;const
   const m=h.match(/^\/?projects\/([\w-]+)\.html$/);if(m&&SLUGID[m[1]]){e.preventDefault();closeSimple();openWin(SLUGID[m[1]])}});
 
 let svRet=null;
-function openSimple(){closeMenu(false);svRet=document.activeElement;loadSimple();sv.hidden=false;sv.scrollTop=0;$('#svb',sv).focus()}
+function openSimple(){TK.open('/simple.html','Simple view','simple',viaOf());TK.discover('simple-view');closeMenu(false);svRet=document.activeElement;loadSimple();sv.hidden=false;sv.scrollTop=0;$('#svb',sv).focus()}
 function closeSimple(){sv.hidden=true;if(svRet&&document.contains(svRet))svRet.focus({preventScroll:true})}
 $('#svb',sv).addEventListener('click',closeSimple);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!sv.hidden)closeSimple()});
@@ -1093,6 +1129,7 @@ const compost={seed:0,sprout:0,flower:0};
 function crumble(p){if(!plants.has(p)||p.st!=='seed')return;if(p.pulled){p.g=setTimeout(()=>crumble(p),1500);return}p.st='crumble';if(reduce){dropPlant(p);return}steps(p,'crumble',5,140,p.col,()=>dropPlant(p))}
 function plant(x,y){
   const crowded=crowd(x,y);if(crowded){nudge(crowded);return null}
+  TK.discover('plant');
   const el=document.createElement('canvas');el.width=PW;el.height=PH;el.className='pl';
   const p={el,x,y,st:'seed',col:PETAL[(Math.random()*PETAL.length)|0],t:0,g:0,fate:nextFate()};
   plantEl(p);$('#seeds').appendChild(el);plants.add(p);
@@ -1101,13 +1138,13 @@ function plant(x,y){
   if(!reduce)burst(x,y,28);
   seeds++;setCount();buddyPlant();
   if(!reduce){phase+=4;drawRings()}
-  if(seeds===100)setTimeout(showAlert,380);
+  if(seeds===100){TK.discover('100-seeds');setTimeout(showAlert,380)}
   return p;
 }
 function sprout(p){if(!plants.has(p)||p.st!=='seed')return;if(p.pulled){p.g=setTimeout(()=>sprout(p),1500);return}
   p.st='sprout';steps(p,'sprout',4,130,p.col,()=>{p.el.classList.add('act')});
   if(sproutFate()==='wither')p.w=setTimeout(()=>wither(p),(reduce?3000:7000)+Math.random()*8000)}
-function bloom(p){if(p.st!=='sprout')return;clearTimeout(p.w);p.w=0;p.st='bloom';steps(p,'bloom',3,120,p.col);
+function bloom(p){if(p.st!=='sprout')return;clearTimeout(p.w);p.w=0;p.st='bloom';TK.discover('bloom');steps(p,'bloom',3,120,p.col);
   if(flowerFate()==='wither')p.w=setTimeout(()=>wither(p),(reduce?3000:8000)+Math.random()*8000)}
 /* half of the sprouts and half of the flowers droop, crumble and go, like the seeds do */
 function wither(p){
@@ -1119,12 +1156,14 @@ function wither(p){
 }
 function makeHeap(x,y,unit){
   const el=document.createElement('canvas');el.width=PW;el.height=PH;el.className='pl act';
+  TK.discover('heap');
   const p={el,x,y,st:'heap',col:'#FFFFFF',t:0,g:0,w:0,unit};plantEl(p);$('#seeds').appendChild(el);plants.add(p);drawPlant(el,'heap',0,p.col,false);freeSpot(p);
   if(!reduce)burst(p.x,p.y,24);return p;
 }
 /* a seed planted in compost grows into a larger glowing flower */
 function sowHeap(p,fromSeed){
   if(!plants.has(p)||p.st!=='heap')return;
+  TK.discover('glow-flower');
   p.st='glowgrow';p.el.classList.remove('act');clearTimeout(p.t);
   const cv=p.el;$('#glows').appendChild(cv);cv.width=GW;cv.height=GH;cv.style.width=GW*PX+'px';cv.style.height=GH*PX+'px';p.pw=GW;p.gr=GR;plantEl(p);
   if(!fromSeed){seeds++;setCount();buddyPlant()}
@@ -1143,6 +1182,7 @@ function Swing(L,damp,max=1.3){return {th:0,om:0,step(dt,ax){const a=-(SWG/L)*Ma
 const rotQ=th=>Math.round(-th*180/Math.PI/3)*3;
 function eat(p){
   const kind=p.st;dropPlant(p);bump(kind==='sprout'?'sprouts':'flowers');
+  TK.discover(kind==='glow'?'glow-eat':kind==='bloom'?'eat-flower':'eat-sprout');
   if(kind==='glow'){eatGlow();return}
   const chomp=[[{f:'squash',mouth:1,happy:0,face:0},110],[{f:'idle',mouth:0},90],[{f:'squash',mouth:1},110]];
   const reset=[{face:0,dx:0,heart:0,happy:0,hop:0,mouth:0,f:'idle'},0];
@@ -1153,6 +1193,7 @@ function eat(p){
 }
 /* a seed fed to the mascot: he chews, makes a face, and spits it out; it lands nearby and replants */
 function spit(p){
+  TK.discover('spit-seed');
   const r=buddy.getBoundingClientRect(),dr=desk.getBoundingClientRect(),el=p.el;
   const mx=r.left+r.width/2-dr.left,my=r.top+r.height*.62-dr.top,side=Math.random()<.5?-1:1;
   const land=Math.max(24,Math.min(desk.clientWidth-140,mx+side*(110+Math.random()*80))),ly=Math.min(desk.clientHeight-12,Math.max(60,r.top-dr.top+FEET()-4));
@@ -1190,7 +1231,7 @@ function updCompost(){
 function updTrashCount(){const n=$$('.item:not([hidden])',WIN.trash.el).length,cell=$('.wfoot span',WIN.trash.el);cell.textContent=n+(n===1?' item':' items');cell.dataset.rest=cell.textContent}
 function compostInfo(){const a=[['seed','seed'],['sprout','sprout'],['flower','flower']].filter(([k])=>compost[k]).map(([k,w])=>compost[k]+' '+w+(compost[k]>1?'s':''));return 'Compost: '+(a.join(', ')||'empty')}
 function toCompost(p){
-  const k=p.st==='bloom'||p.st==='glow'?'flower':p.st==='heap'?p.unit:p.st;dropPlant(p);compost[k]++;updCompost();
+  const k=p.st==='bloom'||p.st==='glow'?'flower':p.st==='heap'?p.unit:p.st;dropPlant(p);compost[k]++;updCompost();TK.discover('compost');
   const ic=$('#ic-trash .ic');if(ic&&!reduce){ic.classList.remove('pop2');void ic.offsetWidth;ic.classList.add('pop2')}
   if(!reduce)burst(p.x,p.y,18);
 }
@@ -1388,7 +1429,7 @@ function scare(on){clearInterval(scT);scT=0;
   else{Object.assign(BS,RESET);bRender()}}
 bx.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.stopPropagation();holdX=true;scare(true);waitShown=speak('Wait, wait, wait!',60000,!waitSeen);waitSeen=true});
 ['pointerleave','pointercancel'].forEach(t=>bx.addEventListener(t,()=>{if(!holdX)return;holdX=false;scare(false);if(waitShown)speak('Phew!',1000,true);waitShown=false}));
-bx.addEventListener('click',()=>{holdX=false;waitShown=false;scare(false);const at=buddy.getBoundingClientRect();setMascot(false);if(PREF('tos_bye','')!=='1'){PSET('tos_bye','1');goodbye(at)}});
+bx.addEventListener('click',()=>{holdX=false;waitShown=false;scare(false);const at=buddy.getBoundingClientRect();setMascot(false);TK.discover('mascot-off');if(PREF('tos_bye','')!=='1'){PSET('tos_bye','1');goodbye(at)}});
 /* the first time the mascot is dismissed: his last line stays where he stood, and the seed logo blinks, because that is where Control Panel lives */
 const bye=document.createElement('div');bye.id='bye';bye.setAttribute('role','status');desk.appendChild(bye);let byeT=0,byeI=0,nudgeT=0;
 function clearBye(){clearTimeout(byeT);clearInterval(byeI);bye.className=''}
@@ -1497,7 +1538,7 @@ bcv.addEventListener('pointermove',e=>{if(!bdrag)return;
     play([[{f:'stretch',happy:0,mouth:0,hop:0,face:0,air:1},0]]);carry.raf=requestAnimationFrame(carryLoop)}
   carry.cx=e.clientX;carry.cy=e.clientY+4;const ot=overTrash(e);trashHot(ot)});
 const endDrag=()=>{if(!bdrag)return;const m=bdrag.moved;bdrag=null;
-  if(m&&carry){bump('drops');const pt={clientX:carry.cx,clientY:carry.cy-4};cancelAnimationFrame(carry.raf);carry=null;buddy.classList.remove('carried');buddy.style.transform='';buddy.style.transformOrigin='';
+  if(m&&carry){bump('drops');TK.discover('mascot-drag');const pt={clientX:carry.cx,clientY:carry.cy-4};cancelAnimationFrame(carry.raf);carry=null;buddy.classList.remove('carried');buddy.style.transform='';buddy.style.transformOrigin='';
     const ot=overTrash(pt);trashHot(false);if(ot)trashDive();else dropBuddy()}
   else huh()};
 bcv.addEventListener('pointerup',endDrag);bcv.addEventListener('pointercancel',endDrag);bcv.addEventListener('lostpointercapture',endDrag);
@@ -1508,6 +1549,7 @@ const lerp=(a,b,k)=>a+(b-a)*k,wait=ms=>new Promise(r=>setTimeout(r,ms));
 const anim=(ms,fn)=>new Promise(res=>{const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
 const trashFrame=k=>{const ic=$('#ic-trash .ic');if(ic)ic.innerHTML=svg(ICON[k],2)+svg(ICON[k],2,{fill:'url(#ck)',cls:'selov'})};
 async function trashDive(){
+  TK.discover('mascot-trash');
   if(reduce){dropBuddy();return}
   diving=true;perch=null;hideBub();
   const icn=$('#ic-trash .ic'),dr=desk.getBoundingClientRect(),r=icn.getBoundingClientRect(),bw=buddy.offsetWidth,bh=buddy.offsetHeight;
@@ -1549,6 +1591,7 @@ function showItem(item){item.style.visibility='';item.classList.remove('lifted')
 function binRestore(){for(const rec of [...bin.items,...bin.out])showItem(rec.item);bin.items.length=0;bin.out.clear();for(const G of [...bin.ghosts])dropGhost(G)}
 /* the icon is let go over the Trash: it shrinks into the can and joins whatever is already in there */
 function binFeed(item,G,from){
+  TK.discover('icon-to-trash',{item:itemKey(item)});
   bin.items.push({item});item.classList.remove('lifted');item.style.visibility='hidden';
   const t=trashPt();bin.until=Math.max(bin.until,performance.now()+1100);
   const ic=$('#ic-trash .ic');if(ic&&!reduce){ic.classList.remove('pop2');void ic.offsetWidth;ic.classList.add('pop2')}
@@ -1705,6 +1748,7 @@ function mawLine(item){
 }
 const pose=o=>{clearTimeout(seqT);seq=[];Object.assign(BS,o);bRender()};
 async function mawEat(item,G,from){
+  TK.discover('icon-to-mascot',{item:itemKey(item)});
   item.classList.remove('lifted');item.style.visibility='hidden';diving=true;
   let holding=false;
   try{
@@ -1752,7 +1796,7 @@ function unrPulse(){
   shakeAll(7);
 }
 function unrOut(x,y){
-  if(unr.on)return;unr.on=true;
+  if(unr.on)return;unr.on=true;TK.discover('unreleased-out',{},'crash_unreleased_out');
   const b=document.createElement('button');b.type='button';b.className='icon unrd';b.id='ic-unr';
   b.appendChild(unrApp());b.insertAdjacentHTML('beforeend','<span class="lb">Unreleased</span>');
   const dw=desk.clientWidth,dh=desk.clientHeight;
@@ -1834,7 +1878,7 @@ function screenGlitch(ms){
 }
 async function unrOpen(){
   if(!unr.on||crash.on||diving)return;
-  crash.on=true;crash.hop=null;clearInterval(unr.t);unr.t=0;
+  crash.on=true;crash.hop=null;clearInterval(unr.t);unr.t=0;TK.discover('crash-open',{},'crash_open');
   await screenGlitch(reduce?0:720);
   const w=WIN.crash.el;w.style.left=Math.round((desk.clientWidth-400)/2)+'px';w.style.top=Math.round(Math.max(150,desk.clientHeight*.36-60))+'px';
   openWin('crash',unr.el);
@@ -1846,6 +1890,7 @@ async function unrOpen(){
 }
 /* Ignore: the dialog goes, the icon stays out, and so does the pulse */
 function crashIgnored(){
+  TK.discover('crash-ignore');
   crash.on=false;hideBub();
   if(unr.on){clearInterval(unr.t);unr.t=setInterval(unrPulse,5000);BS.pens=1}
   if(!buddy.hidden&&!diving)play([[RESET,0]]);bRender();
@@ -1907,7 +1952,7 @@ function vxPlace(pc,C,t,fx){
 }
 async function unrTryAgain(){
   if(crash.go||!crash.on)return;
-  crash.go=true;clearInterval(unr.t);unr.t=0;
+  crash.go=true;TK.discover('crash-retry',{},'crash_retry');clearInterval(unr.t);unr.t=0;
   const lock=document.createElement('div');lock.id='vxlock';document.body.appendChild(lock);
   /* let a hop onto the dialog, a Trash rummage or a feed finish before the mascot is taken over */
   try{await crash.hop}catch(_){}
@@ -1956,8 +2001,9 @@ async function unrTryAgain(){
     if(hole)hole.remove();
     await wait(reduce?300:600);
     if(!reduce){flash=document.createElement('div');flash.id='vxskull';flash.innerHTML=svg(ICON.skull,Math.max(6,Math.floor(Math.min(innerWidth,innerHeight)*.5/32)));document.body.appendChild(flash);await wait(420);flash.remove();flash=null;await wait(450)}
-    /* then three words, a second each, before the system comes back */
-    for(const w of ['I','design','experiences.']){word=document.createElement('div');word.id='vxword';word.textContent=w;document.body.appendChild(word);await wait(1000);word.remove();word=null;await wait(80)}
+    /* then three words, a beat of 300 ms each (a short buzz with each on touch devices), before the system comes back */
+    const buzz=matchMedia('(pointer:coarse)').matches&&navigator.vibrate;
+    for(const w of ['I','design','experiences.']){word=document.createElement('div');word.id='vxword';word.textContent=w;document.body.appendChild(word);if(buzz)try{navigator.vibrate(18)}catch(_){}await wait(300);word.remove();word=null}
   }finally{
     /* put everything back exactly, behind the black, then reboot */
     if(col){document.body.classList.remove('vx');col.shards.forEach(d=>d.remove());
@@ -1978,9 +2024,10 @@ function unrReset(){
   clearInterval(unr.t);unr.t=0;if(unr.el)unr.el.remove();unr.el=null;unr.on=false;
   $('[data-open="unreleased"]',WIN.trash.el).hidden=false;updTrashCount();
 }
-function unlockSkull(){PSET(SKULL_KEY,'1');syncSkull()}
+function unlockSkull(){TK.discover('skull',{},'crash_skull');PSET(SKULL_KEY,'1');syncSkull()}
 const MASK_KEY='tos_mask';
 function setMask(on,keep=true){
+  if(on&&keep)TK.discover('mask');
   BS.mask=on?1:0;if(keep)PSET(MASK_KEY,on?'1':'0');bRender();syncSkull();
 }
 /* the skull lives in the Trash once the system has crashed; worn, it sits on the mascot and is off the Trash shelf */
@@ -2145,8 +2192,8 @@ function startDesktop(fromBoot){
   /* Read Me opens as if its desktop icon had just been clicked: the icon is selected and dips, and the window zooms out of it */
   const ric=$('#ic-readme');
   if(WIN.readme.open)focusWin('readme',{bump:true});
-  else if(ric){selIcon(ric);if(!reduce){ric.classList.remove('press');void ric.offsetWidth;ric.classList.add('press');setTimeout(()=>ric.classList.remove('press'),400)}openWin('readme',ric)}
-  else openWin('readme',r);
+  else if(ric){selIcon(ric);if(!reduce){ric.classList.remove('press');void ric.offsetWidth;ric.classList.add('press');setTimeout(()=>ric.classList.remove('press'),400)}TK.quiet(()=>openWin('readme',ric))}
+  else TK.quiet(()=>openWin('readme',r));
   (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(decode,reduce?0:200));
 }
 function finishBoot(){
@@ -2172,7 +2219,7 @@ if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,ma
 /* the site's old anchors still work: index.html#work, #about, #experience, #contact, and #<project-slug> open the matching window */
 const HASHWIN={work:'work',about:'about',experience:'career',career:'career',contact:'contacts',contacts:'contacts',approach:'how',skills:'how',how:'how',companies:'worked',unreleased:'trash',press:'view',view:'view'};
 function openHash(h){const id=HASHWIN[h]||SLUGID[h];if(id&&(WIN[id]||PB[id]))openWin(id)}
-function routeHash(){const h=decodeURIComponent(location.hash.slice(1));if(h)openHash(h)}
+function routeHash(){const h=decodeURIComponent(location.hash.slice(1));if(h){viaNext='hash';try{openHash(h)}finally{viaNext=null}}}
 addEventListener('hashchange',routeHash);
 
 /* the desktop is up: this is what the 4 s guard in index.html waits for (it also brings the desktop back if the load was only slow) */

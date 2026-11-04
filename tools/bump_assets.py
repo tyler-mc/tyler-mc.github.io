@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Refresh the ?v= cache-busting hash on the site's CSS and JS files in every HTML page
-(styles.css, script.js, page.js, and the desktop's os.css, os.js, os-data.js, rw.css, plain.css, os-page.css).
-A reference without ?v= gets one. Run it after editing or regenerating any of those files:
+(styles.css, script.js, page.js, analytics.js, and the desktop's os.css, os.js, os-data.js, rw.css, plain.css, os-page.css).
+A reference without ?v= gets one (Umami's own script.js, on cloud.umami.is, is left alone). Run it after editing or regenerating any of those files:
 
     python3 tools/build_os.py && python3 tools/build_shell.py && python3 tools/bump_assets.py
 """
@@ -11,7 +11,7 @@ import os
 import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ASSETS = ['styles.css', 'script.js', 'page.js', 'os.css', 'os.js', 'os-data.js', 'rw.css', 'plain.css', 'os-page.css']
+ASSETS = ['styles.css', 'script.js', 'page.js', 'os.css', 'os.js', 'os-data.js', 'rw.css', 'plain.css', 'os-page.css', 'analytics.js']
 
 hashes = {}
 for name in ASSETS:
@@ -27,7 +27,7 @@ for page in pages:
         html = f.read()
     updated = html
     for name, digest in hashes.items():
-        updated = re.sub(r'(?<=[/"\'])' + re.escape(name) + r'(?:\?v=[0-9a-f]{8})?(?=["\'])', f'{name}?v={digest}', updated)
+        updated = re.sub(r'(?<=[/"\'])(?<!umami\.is/)' + re.escape(name) + r'(?:\?v=[0-9a-f]{8})?(?=["\'])', f'{name}?v={digest}', updated)
     if updated != html:
         with open(page, 'w', encoding='utf-8') as f:
             f.write(updated)

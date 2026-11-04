@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <script>document.documentElement.classList.add("os");setTimeout(function(){if(!window.__osBoot)document.documentElement.classList.remove("os")},4000)</script>
+  <script>document.documentElement.classList.add("os");setTimeout(function(){if(!window.__osBoot){document.documentElement.classList.remove("os");window.TK&&TK.track("os_fallback")}},4000)</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Primary Meta Tags -->
@@ -346,8 +346,11 @@
 </div>
 <!-- plain:end -->
 
+<script src="/analytics.js?v=9a499a5d" data-landing></script>
 <script src="/os-data.js?v=d42aaae7"></script>
-<script src="/os.js?v=93f52ae4"></script>
+<script src="/os.js?v=3eebce33"></script>
+<!-- Umami Cloud: the desktop sends its own pageviews (analytics.js), so auto-track is off here -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="0f6eb15d-dcd5-46dd-8fc6-24269aaa06a9" data-domains="jtylermc.ca,www.jtylermc.ca" data-do-not-track="true" data-exclude-hash="true" data-auto-track="false"></script>
 <!-- Cloudflare Web Analytics -->
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
   data-cf-beacon='{"token": "8af1412ed9cb4f27834e75b58be35c0e"}'></script><!-- End Cloudflare Web Analytics -->
