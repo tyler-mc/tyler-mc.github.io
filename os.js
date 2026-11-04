@@ -1606,6 +1606,10 @@ const boot=$('#boot');let bootOn=false,bootTimers=[];
 function startDesktop(fromBoot){
   const r=fromBoot?$('#bootm').getBoundingClientRect():null;
   fitCards();
+  /* on a phone, or where Read Me would fill the whole screen, the desktop shows first and Read Me waits for a tap */
+  const rm=WIN.readme.el;let full=isMobile();
+  if(!full&&!WIN.readme.open){rm.hidden=false;full=rm.offsetWidth>=desk.clientWidth-40||rm.offsetHeight>=desk.clientHeight-40;rm.hidden=true}
+  if(full&&!WIN.readme.open)return;
   if(!WIN.readme.open)openWin('readme',r);else focusWin('readme',{bump:true});
   (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(decode,reduce?0:200));
 }
