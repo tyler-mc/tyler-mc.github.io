@@ -433,7 +433,7 @@ makeWin({id:'work',title:'Work',x:184,y:64,w:680,h:560,grow:1,
  <div class="small">${P.filter(p=>!p.flag).map(p=>`<button class="item" data-p="${p.id}">${appHTML(p)}<span class="nm">${esc(p.name)}</span></button>`).join('')}</div></div>
  <div class="tablewrap" id="lv" hidden><table class="list"><thead><tr>${cols.map(([k,l])=>`<th data-k="${k}"><button>${l}<span class="ar"></span></button></th>`).join('')}</tr></thead><tbody></tbody></table></div>`,
  foot:`<span>${P.length} items</span><span></span>`,
- onopen(el){$$("img",el).forEach(i=>i.decode&&i.decode().catch(()=>{}))},onshown(el){ditherIn(el)},onclose(el){clearDither(el)},
+ onopen(el){$$("img",el).forEach(i=>i.decode&&i.decode().catch(()=>{}));fitWork(el)},onshown(el){ditherIn(el)},onclose(el){clearDither(el)},
  init(el){
    $$('.ico[data-w]',el).forEach(i=>{if(i.dataset.w!=='')i.appendChild(mk(+i.dataset.w,'#FFFFFF',48))});
    $('.small',el).previousElementSibling.style.margin='16px 0 0';
@@ -443,6 +443,20 @@ makeWin({id:'work',title:'Work',x:184,y:64,w:680,h:560,grow:1,
    $('thead',el).addEventListener('click',e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;sortD=sortK===k?-sortD:1;sortK=k;renderList()});
    renderList(el);
  }});
+const HOPTOP=6;/* the least gap between the top of the desktop and the head of a mascot standing on a window */
+/* the first time it opens: wide and tall enough to show every title, and low enough that the mascot can stand on top when the screen leaves room */
+function fitWork(el){
+  if(isMobile()||el.dataset.fit)return;el.dataset.fit='1';
+  const dw=desk.clientWidth,dh=desk.clientHeight,body=$('.wbody',el);
+  el.style.width=Math.min(800,dw-16)+'px';el.style.height='200px';
+  const need=200-body.clientHeight+body.scrollHeight+4,roof=Math.ceil(buddy.offsetHeight*43/48)+HOPTOP;
+  const y=need<=dh-6-roof?roof:Math.max(16,Math.min(64,dh-6-need)),h=Math.min(need,dh-6-y);
+  el.style.top=y+'px';el.style.height=h+'px';
+  /* keep clear of the open-windows list in the bottom-left corner (it grows as windows open) */
+  const sr=$('#strip').getBoundingClientRect(),dr=desk.getBoundingClientRect();
+  if(y+h>sr.top-dr.top-4)el.style.left=Math.max(parseFloat(el.style.left)||0,272)+'px';
+  clampWin(el);
+}
 function renderList(){
   const el=WIN.work.el;let rows=P.slice();
   if(sortK)rows.sort((a,b)=>{const A=sortK==='year'?yrOf(a.year):a[sortK].toLowerCase(),B=sortK==='year'?yrOf(b.year):b[sortK].toLowerCase();return (A>B?1:A<B?-1:0)*sortD});
@@ -1401,6 +1415,25 @@ function dropBuddy(){
     buddy.style.top=Math.round(top)+'px';requestAnimationFrame(step)};
   requestAnimationFrame(step);
 }
+/* hops up onto the top edge of a window and stands there; false when there is no room above it */
+async function hopOnto(id){
+  const w=WIN[id];
+  if(!w||!w.open||isMobile()||buddy.hidden||carry||bdrag||diving||buddy.classList.contains('falling'))return false;
+  const L=ledgeNow({host:id,kind:'top'}),bw=buddy.offsetWidth,fo=FEET();
+  if(!L||L.y-fo<HOPTOP)return false;
+  const dr=desk.getBoundingClientRect(),br=buddy.getBoundingClientRect(),sx=br.left-dr.left,sy=br.top-dr.top;
+  const cx=Math.min(Math.max(sx+bw/2,L.x0+bw/2+24),L.x0+L.w-bw/2-24),tx=cx-bw/2,ty=L.y-fo;
+  stopDance();hideBub();perch=null;buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.left=Math.round(sx)+'px';buddy.style.top=Math.round(sy)+'px';
+  const stand=()=>{perch={host:id,kind:'top',dx:cx-L.x0};buddy.classList.remove('falling');saveBuddy();
+    play([[{f:'squash',happy:1,hop:0,air:0},110],[{f:'idle',happy:1},300],[RESET,0]])};
+  if(reduce){buddy.style.left=Math.round(tx)+'px';buddy.style.top=Math.round(ty)+'px';stand();return true}
+  buddy.classList.add('falling');play([[{f:'squash',happy:1},90],[{f:'stretch',air:0,hop:3,happy:1},900],[RESET,0]]);
+  await wait(90);
+  await anim(520,k=>{if(carry||bdrag)return;const e=k*k*(3-2*k);buddy.style.left=Math.round(lerp(sx,tx,e))+'px';buddy.style.top=Math.round(lerp(sy,ty,e)-96*4*k*(1-k))+'px'});
+  if(carry||bdrag){buddy.classList.remove('falling');return false}
+  if(!w.open){dropBuddy();return true}
+  stand();return true;
+}
 bcv.addEventListener('pointerdown',e=>{if(e.button!==0||diving)return;e.preventDefault();bcv.setPointerCapture(e.pointerId);bdrag={sx:e.clientX,sy:e.clientY,moved:false}});
 bcv.addEventListener('pointermove',e=>{if(!bdrag)return;
   if(!bdrag.moved){if(Math.hypot(e.clientX-bdrag.sx,e.clientY-bdrag.sy)<4)return;
@@ -1459,8 +1492,10 @@ const welcomed=new Set();
 function mascotWelcome(id){
   const line=WELCOME[id];if(!line||welcomed.has(id)||buddy.hidden||carry||bdrag)return;
   welcomed.add(id);
-  setTimeout(()=>{if(buddy.hidden||carry)return;speak(line,2600,true);
+  const say=()=>setTimeout(()=>{if(buddy.hidden||carry)return;speak(line,2600,true);
     play([[{f:'stretch',hop:3,happy:1},110],[{f:'idle',hop:0},260],[RESET,0]])},350);
+  /* the first time Work opens, the mascot hops up onto it first (when there is room) */
+  if(id==='work')hopOnto(id).then(say);else say();
 }
 
 
