@@ -105,7 +105,7 @@ const ICON={
        if((f>.78&&(x+y)%2===0)||(f>.6&&f<=.78&&x%2===0&&y%2===0))P(x,y,'G')}
      if(y>13&&y<27){P(11,y,'G');P(12,y,'w');P(16,y,'G');P(17,y,'w')}}
    R(9,29,14,1,'k');P(8,28,'k');P(23,28,'k')}),
- doc:art(32,32,({R,P,D})=>{
+ readme:art(32,32,({R,P,D})=>{
    R(6,2,15,1,'k');R(5,3,1,27,'k');R(6,29,21,1,'k');R(26,8,1,21,'k');for(let i=0;i<6;i++)P(21+i,2+i,'k');R(21,3,1,5,'k');R(22,7,4,1,'k');
    R(6,3,15,26,'w');for(let i=0;i<5;i++)R(21,3+i+1,i+1,1,'w');for(let i=0;i<4;i++)R(22+i,3+i+1,1,4-i,'g');R(6,3,15,26,'w');R(21,8,5,21,'w');
    R(8,10,16,10,'k');R(9,11,14,8,'T');R(9,11,14,1,'t');D(16,15,3.2,'k');D(16,15,2.2,'r');
@@ -1145,7 +1145,7 @@ function eat(p){
   const chomp=[[{f:'squash',mouth:1,happy:0,face:0},110],[{f:'idle',mouth:0},90],[{f:'squash',mouth:1},110]];
   const reset=[{face:0,dx:0,heart:0,happy:0,hop:0,mouth:0,f:'idle'},0];
   if(reduce){BS.face=kind==='bloom'?'love':'yuck';bRender();setTimeout(()=>{Object.assign(BS,reset[0]);bRender()},1400);return}
-  speak(kind==='bloom'?'Aww, for me? Thanks!':'Blegh. Too leafy.',2200);
+  sayOnce(kind==='bloom'?'bloom':'sprout',kind==='bloom'?'Aww, for me? Thanks!':'Blegh. Too leafy.',2200);
   if(kind==='bloom')play([...chomp,[{f:'stretch',mouth:0,face:'love',happy:1,hop:3,heart:1},130],[{f:'idle',hop:0,heart:2},120],[{f:'stretch',hop:3,heart:3},130],[{f:'idle',hop:0,heart:1},120],[{f:'stretch',hop:3,heart:2},130],[{f:'idle',hop:0,heart:0},1100],reset]);
   else play([...chomp,[{f:'idle',mouth:0,face:'yuck',happy:0,dx:-1},100],[{dx:1},100],[{dx:-1},100],[{dx:1},100],[{dx:-1},100],[{dx:1},100],[{dx:0},1100],reset]);
 }
@@ -1156,12 +1156,12 @@ function spit(p){
   const land=Math.max(24,Math.min(desk.clientWidth-140,mx+side*(110+Math.random()*80))),ly=Math.min(desk.clientHeight-12,Math.max(60,r.top-dr.top+FEET()-4));
   p.pulled=true;el.classList.remove('act');
   const done=()=>{el.style.transform='';p.x=land;p.y=ly;p.pulled=false;freeSpot(p);drawPlant(el,'seed',4,p.col,false);el.style.visibility='';el.classList.add('act');if(!reduce)burst(p.x,p.y,22)};
-  if(reduce){speak('Ptoo!',1100,true);done();return}
+  if(reduce){sayOnce('spit','Ptoo!',1100);done();return}
   el.style.visibility='hidden';
   const chew=[[{f:'squash',mouth:1,happy:0,face:0},110],[{f:'idle',mouth:0},90],[{f:'squash',mouth:1},110],[{f:'idle',mouth:0},90],[{f:'squash',mouth:1},110],[{f:'idle',mouth:0,face:'yuck',dx:-1},140],[{dx:1},100]];
   play([...chew,[{f:'stretch',mouth:1,face:0,dx:0},300],[RESET,0]]);
   setTimeout(()=>{
-    speak('Ptoo!',1100,true);drawPlant(el,'seed',4,p.col,true);p.x=mx;p.y=my;plantEl(p);el.style.visibility='';
+    sayOnce('spit','Ptoo!',1100);drawPlant(el,'seed',4,p.col,true);p.x=mx;p.y=my;plantEl(p);el.style.visibility='';
     const t0=performance.now(),D=560,f=t=>{const k=Math.min(1,(t-t0)/D);p.x=mx+(land-mx)*k;p.y=my+(ly-my)*k-4*90*k*(1-k);plantEl(p);el.style.transform='rotate('+Math.round(k*720)+'deg)';
       if(k<1)requestAnimationFrame(f);else done()};
     requestAnimationFrame(f);
@@ -1172,15 +1172,15 @@ const AWE_LINE='Sometimes even discarded ideas can become something even greater
 function eatGlow(){
   const chomp=[[{f:'squash',mouth:1,happy:0,face:0},110],[{f:'idle',mouth:0},90],[{f:'squash',mouth:1},110]];
   const awe=[{f:'stretch',face:'awe',mouth:0,happy:0,hop:0,dx:0,heart:0},0];
-  if(reduce){Object.assign(BS,awe[0]);bRender();speak(AWE_LINE,6000,true);setTimeout(()=>{Object.assign(BS,RESET);bRender()},4000);return}
+  if(reduce){Object.assign(BS,awe[0]);bRender();sayOnce('awe',AWE_LINE,6000);setTimeout(()=>{Object.assign(BS,RESET);bRender()},4000);return}
   play([...chomp,awe]);
-  setTimeout(()=>{speak(AWE_LINE,3200,true)},330);
+  setTimeout(()=>{sayOnce('awe',AWE_LINE,3200)},330);
   setTimeout(()=>dance(5200),330+AWE_LINE.length*15+2000);
 }
 const finalFrame=p=>p.st==='bloom'?2:p.st==='seed'?4:p.st==='heap'?0:3;
 /* what is under the pointer: the Trash icon or an open Trash window (not the thing being dragged) */
 function overTrash(pt){for(const n of document.elementsFromPoint(pt.clientX,pt.clientY)){if(n.closest('.pl,#buddy,#bub'))continue;return n.closest('#ic-trash,#w-trash')}return null}
-const trashHot=on=>$('#ic-trash').classList.toggle('hot',!!on);
+const trashHot=on=>{$('#ic-trash').classList.toggle('hot',!!on);$('#w-trash').classList.toggle('hot',!!on)};
 function updCompost(){
   const n=compost.seed+compost.sprout+compost.flower,it=$('#tr-compost');if(!it)return;
   it.hidden=!n;const cell=$('.wfoot span',WIN.trash.el);cell.textContent=n?'2 items':'1 item';cell.dataset.rest=cell.textContent;
@@ -1274,9 +1274,11 @@ function drawBuddy(ctx,s){
   else if(s.face==='huh'){g[my][cx-1]=g[my][cx]=g[my+1][cx-1]=g[my+1][cx]='k'}
   else if(s.face==='yuck'){[[-3,1],[-2,0],[-1,1],[0,0],[1,1],[2,0]].forEach(([a,b])=>{g[my+b][cx+a]='k'});[[0,2],[1,2],[0,3]].forEach(([a,b])=>{g[my+b][cx+a]='T'});g[my+4]&&(g[my+4][cx]='k')}
   else if(s.face==='awe'){for(let yy=my-1;yy<=my+5;yy++)for(let xx=cx-3;xx<=cx+2;xx++){const e=yy===my-1||yy===my+5||xx===cx-3||xx===cx+2,c=(yy===my-1||yy===my+5)&&(xx===cx-3||xx===cx+2);if(c)continue;g[yy][xx]=e?'k':'m'}}
+  else if(s.gape){const gw=Math.min(7,2+Math.round(s.gape*1.2)),gh=Math.min(6,1+Math.round(s.gape*1.2));for(let yy=my-1;yy<=my+gh+1;yy++)for(let xx=cx-gw-1;xx<=cx+gw;xx++){const e=yy===my-1||yy===my+gh+1||xx===cx-gw-1||xx===cx+gw;g[yy][xx]=e?'k':'m'}}
   else if(s.mouth){for(let yy=my-1;yy<=my+2;yy++)for(let xx=cx-2;xx<=cx+1;xx++)g[yy][xx]=(yy>=my&&yy<=my+1&&xx>=cx-1&&xx<=cx)?'m':'k'}
   else if(s.happy){g[my][cx-2]='k';g[my][cx-1]='m';g[my][cx]='m';g[my][cx+1]='k';g[my+1][cx-1]='k';g[my+1][cx]='k'}
   else{g[my][cx-1]=g[my][cx]='k'}
+  if(s.hold)stamp(g,["kkkkk","krrrk","kkkkk"],s.hold>0?cx+rx-2:cx-rx-2,cy-2);
   if(s.face==='love'){g[cy+2][cx-9]=g[cy+2][cx-8]=g[cy+2][cx+7]=g[cy+2][cx+8]='c'}
   if(s.heart){const hp=(hx,hy)=>["H.H","HHH",".H."].forEach((row,yy)=>{for(let xx=0;xx<3;xx++)if(row[xx]==='H'&&g[hy+yy]&&g[hy+yy][hx+xx]!==undefined)g[hy+yy][hx+xx]='H'});
     const by=Math.max(0,cy-ry-3-s.heart*3);hp(cx+8,by);hp(cx-11,by+6)}
@@ -1313,11 +1315,14 @@ function speak(text,ms=2400,force,scr){
   else{let i=0;bubI=setInterval(()=>{i+=2;t.textContent=text.slice(0,i);if(i>=text.length)clearInterval(bubI)},30)}
   bubT=setTimeout(hideBub,ms+(reduce?0:text.length*30));return true;
 }
+/* each line the mascot says for something he is given is said once per page load; after that he just reacts */
+const saidOnce=new Set();
+function sayOnce(key,text,ms){if(saidOnce.has(key))return false;if(!speak(text,ms,true))return false;saidOnce.add(key);return true}
 const clampBuddy=()=>{if(!buddy.style.left)return;const dw=desk.clientWidth,dh=desk.clientHeight,bw=buddy.offsetWidth,bh=buddy.offsetHeight;
   buddy.style.left=Math.round(Math.min(Math.max(parseFloat(buddy.style.left),-bw*.3),dw-bw*.7))+'px';buddy.style.top=Math.round(Math.min(Math.max(parseFloat(buddy.style.top),24),dh-bh*.6))+'px'};
 const saveBuddy=()=>store.set('buddyPos',JSON.stringify({l:buddy.style.left,t:buddy.style.top}));
 try{const bp=JSON.parse(store.get('buddyPos')||'null');if(bp){buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.left=bp.l;buddy.style.top=bp.t;clampBuddy()}}catch(_){}
-const RESET={face:0,dx:0,heart:0,happy:0,hop:0,mouth:0,q:0,sweat:0,air:0,f:'idle'};
+const RESET={face:0,dx:0,heart:0,happy:0,hop:0,mouth:0,q:0,sweat:0,air:0,hold:0,gape:0,f:'idle'};
 /* clicked, not dragged */
 function huh(){
   bump('clicks');const said=discoveryClick();const now=performance.now();
@@ -1441,10 +1446,10 @@ bcv.addEventListener('pointermove',e=>{if(!bdrag)return;
     const r=buddy.getBoundingClientRect(),tp=bcv.offsetHeight*19/48;buddy.style.transformOrigin='50% '+tp+'px';
     carry={px:r.left+r.width/2,py:r.top+tp,cx:e.clientX,cy:e.clientY+4,vx:0,ax:0,tp,sw:Swing(112,2.2,.85),last:performance.now(),raf:0};
     play([[{f:'stretch',happy:0,mouth:0,hop:0,face:0,air:1},0]]);carry.raf=requestAnimationFrame(carryLoop)}
-  carry.cx=e.clientX;carry.cy=e.clientY+4;const ot=overTrash(e);trashHot(ot&&ot.id==='ic-trash')});
+  carry.cx=e.clientX;carry.cy=e.clientY+4;const ot=overTrash(e);trashHot(ot)});
 const endDrag=()=>{if(!bdrag)return;const m=bdrag.moved;bdrag=null;
   if(m&&carry){bump('drops');const pt={clientX:carry.cx,clientY:carry.cy-4};cancelAnimationFrame(carry.raf);carry=null;buddy.classList.remove('carried');buddy.style.transform='';buddy.style.transformOrigin='';
-    const ot=overTrash(pt);trashHot(false);if(ot&&ot.id==='ic-trash')trashDive();else dropBuddy()}
+    const ot=overTrash(pt);trashHot(false);if(ot)trashDive();else dropBuddy()}
   else huh()};
 bcv.addEventListener('pointerup',endDrag);bcv.addEventListener('pointercancel',endDrag);bcv.addEventListener('lostpointercapture',endDrag);
 addEventListener('pointerup',endDrag,true);addEventListener('blur',endDrag);addEventListener('pointermove',e=>{if(bdrag&&bdrag.moved&&e.buttons===0)endDrag()},true);
@@ -1474,6 +1479,187 @@ async function trashDive(){
   buddy.style.clipPath='';const ex=Math.max(8,cx-140);
   await anim(340,k=>{buddy.style.left=Math.round(lerp(cx,ex,k))+'px';buddy.style.top=Math.round(upY-4*70*k*(1-k))+'px'});
   trashFrame('trash');diving=false;dropBuddy();
+}
+
+/* ================= an icon dragged out of a window into the Trash: the mascot rummages, then everything in there flies back out ================= */
+const bin={items:[],out:new Set(),ghosts:new Set(),run:false,until:0};
+const nextFrame=()=>new Promise(r=>requestAnimationFrame(r));
+function makeGhost(item){
+  const r=item.getBoundingClientRect(),el=document.createElement('div');el.className='dgh item';
+  el.style.width=r.width+'px';el.style.setProperty('--k',(getComputedStyle(item).getPropertyValue('--k')||'1').trim()||'1');
+  for(const n of item.children){if(!n.matches('.rl,.bl'))el.appendChild(n.cloneNode(true))}
+  const a=item.querySelectorAll('canvas'),b=el.querySelectorAll('canvas');a.forEach((c,i)=>{try{b[i].getContext('2d').drawImage(c,0,0)}catch(_){}});
+  document.body.appendChild(el);const G={el,w:el.offsetWidth,h:el.offsetHeight,cx:r.left+r.width/2,cy:r.top+r.height/2};G.s=Math.min(1,104/G.w);bin.ghosts.add(G);return G;
+}
+function putGhost(G,cx,cy,sc=1,rot=0){G.el.style.transform=`translate(${Math.round(cx-G.w/2)}px,${Math.round(cy-G.h/2)}px) rotate(${rot}deg) scale(${sc})`}
+function dropGhost(G){G.el.remove();bin.ghosts.delete(G)}
+const trashPt=()=>{const r=$('#ic-trash .ic').getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height*.4,r}};
+function showItem(item){item.style.visibility='';item.classList.remove('lifted')}
+/* every hidden icon comes back, whatever happened */
+function binRestore(){for(const rec of [...bin.items,...bin.out])showItem(rec.item);bin.items.length=0;bin.out.clear();for(const G of [...bin.ghosts])dropGhost(G)}
+/* the icon is let go over the Trash: it shrinks into the can and joins whatever is already in there */
+function binFeed(item,G,from){
+  bin.items.push({item});item.classList.remove('lifted');item.style.visibility='hidden';
+  const t=trashPt();bin.until=Math.max(bin.until,performance.now()+1100);
+  const ic=$('#ic-trash .ic');if(ic&&!reduce){ic.classList.remove('pop2');void ic.offsetWidth;ic.classList.add('pop2')}
+  anim(reduce?1:240,k=>putGhost(G,lerp(from.cx,t.x,k),lerp(from.cy,t.y,k)-26*4*k*(1-k),lerp(from.sc,.25,k),from.rot*(1-k))).then(()=>dropGhost(G));
+  if(!bin.run)binRun();
+}
+async function binRun(){
+  bin.run=true;
+  try{await binShow()}catch(err){console.error(err)}
+  finally{binRestore();bin.run=false;bin.until=0;const ic=$('#ic-trash .ic');if(ic)ic.style.transform='';trashFrame('trash')}
+}
+async function binShow(){
+  const icn=$('#ic-trash .ic');
+  if(reduce){await wait(900);return}
+  while(diving||buddy.classList.contains('falling')||carry||bdrag)await wait(100);
+  const mascot=!buddy.hidden;diving=true;
+  const shake=async()=>{for(let i=0;i<4;i++){icn.style.transform='translateX('+(i%2?2:-2)+'px)';await wait(55)}icn.style.transform=''};
+  let ejected=null;
+  try{
+    if(!mascot){
+      bin.until=Math.max(bin.until,performance.now()+1500);await shake();while(performance.now()<bin.until){await shake();await wait(120)}
+      trashFrame('trashO0');
+      do{await binEject(0)}while(bin.items.length);
+      trashFrame('trashO1');await wait(140);
+      return;
+    }
+    const dr=desk.getBoundingClientRect(),bw=buddy.offsetWidth,bh=buddy.offsetHeight,fo=FEET(),br=buddy.getBoundingClientRect();
+    const sx=br.left-dr.left,sy=br.top-dr.top;
+    stopDance();hideBub();perch=null;buddy.classList.remove('falling');buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.left=Math.round(sx)+'px';buddy.style.top=Math.round(sy)+'px';buddy.style.zIndex='6';
+    /* surprised: a jump, wide eyes, a line */
+    play([[{f:'stretch',face:'scared',hop:3,sweat:1,happy:0,mouth:0},0]]);
+    await anim(240,k=>{buddy.style.top=Math.round(sy-34*4*k*(1-k))+'px'});
+    await wait(850);hideBub();
+    /* over to the Trash in three hops */
+    const t=trashPt(),cx=t.x-dr.left-bw/2,rimY=t.r.top-dr.top+t.r.height*.3,topIn=rimY-bh;
+    const x0=Math.round(sx);
+    play([[{f:'stretch',face:0,hop:3,happy:1,sweat:0},0]]);
+    await anim(620,k=>{const e=k*k*(3-2*k);buddy.style.left=Math.round(lerp(x0,cx,e))+'px';buddy.style.top=Math.round(lerp(sy,topIn-30,e)-26*Math.abs(Math.sin(k*Math.PI*3)))+'px'});
+    /* flip and go in headfirst: rotated 180 the part under the rim is the top of the canvas */
+    const rot=a=>{buddy.style.transform='rotate('+a+'deg)'},clip=d=>{const n=Math.max(0,Math.round(d));buddy.style.clipPath=n?'inset('+n+'px 0 0 0)':''};
+    buddy.style.transformOrigin='50% 50%';play([[{f:'stretch',air:1,face:0,happy:0,mouth:0,hop:0},0]]);
+    await anim(220,k=>{buddy.style.top=Math.round(lerp(topIn-30,topIn,k)-18*4*k*(1-k))+'px';rot(180*k)});
+    await anim(300,k=>{const d=fo*.55*k*k;buddy.style.top=Math.round(topIn+d)+'px';clip(d)});
+    /* rummage until nothing else has been dropped for a moment */
+    const t0=performance.now();let lastB=t0,lastS=t0;bin.until=Math.max(bin.until,t0+2300);
+    while(performance.now()<bin.until){
+      const now=performance.now(),tm=now-t0,d=fo*(.58+.2*Math.sin(tm*.011));
+      buddy.style.top=Math.round(topIn+d)+'px';buddy.style.left=Math.round(cx+4*Math.sin(tm*.017))+'px';clip(d);rot(180+11*Math.sin(tm*.021));
+      if(now-lastS>110){lastS=now;icn.style.transform='translateX('+(Math.random()<.5?-2:2)+'px)'}
+      if(now-lastB>520){lastB=now;burstAt(t.x,t.r.top+t.r.height*.28,6)}
+      await nextFrame();
+    }
+    icn.style.transform='';
+    /* the icons shoot out, the mascot climbs out after them */
+    ejected=(async()=>{do{await binEject(0)}while(bin.items.length)})();
+    await anim(220,k=>{const d=fo*.78*(1-k);buddy.style.top=Math.round(topIn+d)+'px';buddy.style.left=Math.round(cx)+'px';clip(d);rot(180)});
+    buddy.style.clipPath='';buddy.style.visibility='';
+    play([[{f:'stretch',air:0,hop:3,happy:1},120],[{f:'idle',hop:0},400],[RESET,0]]);
+    const ex=Math.max(8,cx-140);
+    await anim(380,k=>{buddy.style.left=Math.round(lerp(cx,ex,k))+'px';buddy.style.top=Math.round(topIn-4*60*k*(1-k))+'px';rot(180+180*k)});
+    buddy.style.transform='';buddy.style.transformOrigin='';
+    await ejected;ejected=null;
+  }finally{
+    if(ejected)await ejected.catch(()=>{});
+    buddy.style.clipPath='';buddy.style.transform='';buddy.style.transformOrigin='';buddy.style.visibility='';icn.style.transform='';
+    trashFrame('trash');
+    diving=false;if(mascot){Object.assign(BS,RESET);bRender();dropBuddy()}
+  }
+}
+/* everything in the can leaves it in an arc, lands on the desktop, blinks out and reappears where it came from */
+async function binEject(){
+  const jobs=[];let i=0;
+  while(bin.items.length){const rec=bin.items.shift();bin.out.add(rec);jobs.push(binFly(rec,i++));await wait(reduce?0:130)}
+  await Promise.all(jobs);
+}
+async function binFly(rec,i){
+  const G=makeGhost(rec.item),t=trashPt(),col=i%5,row=(i/5)|0;
+  const lx=Math.max(60,t.x-120-col*86-Math.random()*14),ly=Math.min(innerHeight-70,t.r.bottom-18)-row*96,spin=(i%2?1:-1)*(300+Math.random()*120);
+  await anim(560,k=>putGhost(G,lerp(t.x,lx,k),lerp(t.y,ly,k)-190*4*k*(1-k),lerp(.25,G.s,Math.min(1,k*2.5)),spin*k));
+  burstAt(lx,ly+G.h*G.s*.4,6);
+  await anim(190,k=>putGhost(G,lx,ly-26*4*k*(1-k),G.s,spin%360));
+  await anim(120,k=>putGhost(G,lx,ly-9*4*k*(1-k),G.s,spin%360));
+  await wait(650);
+  for(let b=0;b<3;b++){G.el.style.visibility='hidden';await wait(70);G.el.style.visibility='';await wait(70)}
+  dropGhost(G);bin.out.delete(rec);showItem(rec.item);
+  if(!reduce){rec.item.classList.add('back');setTimeout(()=>rec.item.classList.remove('back'),320)}
+}
+/* picking an icon up out of any window except the Trash itself (mouse and pen: a finger drag scrolls the window) */
+(function(){
+  let block=false;
+  desk.addEventListener('click',e=>{if(block){e.preventDefault();e.stopPropagation()}},true);
+  desk.addEventListener('dragstart',e=>{if(e.target.closest&&e.target.closest('.win .item'))e.preventDefault()});
+  desk.addEventListener('pointerdown',e=>{
+    if(e.button!==0||e.pointerType==='touch')return;
+    const item=e.target.closest('.win .item');if(!item||item.closest('#w-trash'))return;
+    const sx=e.clientX,sy=e.clientY;let G=null,raf=0,t0=0,px=sx,py=sy,lpx=sx,rot=0,off=null,cur=null;
+    const draw=t=>{
+      const sc=lerp(1,G.s,Math.min(1,(t-t0)/140));rot+=(Math.max(-10,Math.min(10,(px-lpx)*.7))-rot)*.25;lpx=px;
+      cur={cx:px+off.x*sc,cy:py+off.y*sc,sc,rot};putGhost(G,cur.cx,cur.cy,sc,rot);raf=requestAnimationFrame(draw)};
+    const mv=ev=>{if(ev.buttons===0){end(ev,true);return}px=ev.clientX;py=ev.clientY;
+      if(!G){if(Math.hypot(px-sx,py-sy)<5)return;
+        G=makeGhost(item);off={x:G.cx-sx,y:G.cy-sy};item.classList.add('lifted');document.body.classList.add('dgdrag');t0=performance.now();raf=requestAnimationFrame(draw)}
+      const ob=mawReady()&&overBuddy(ev);buddy.classList.toggle('hot',ob);trashHot(!ob&&overTrash(ev))};
+    let done=false;
+    const end=async(ev,cancel)=>{if(done)return;done=true;
+      removeEventListener('pointermove',mv);removeEventListener('pointerup',up);removeEventListener('pointercancel',cx);removeEventListener('blur',cx);cancelAnimationFrame(raf);
+      if(!G)return;document.body.classList.remove('dgdrag');trashHot(false);buddy.classList.remove('hot');block=true;setTimeout(()=>{block=false},80);
+      if(!cancel&&mawReady()&&overBuddy(ev)){mawEat(item,G,cur);return}
+      if(!cancel&&overTrash(ev)){binFeed(item,G,cur);return}
+      const f=cur;await anim(reduce?1:160,k=>putGhost(G,lerp(f.cx,G.cx,k),lerp(f.cy,G.cy,k),lerp(f.sc,1,k),f.rot*(1-k)));dropGhost(G);item.classList.remove('lifted')};
+    const up=ev=>end(ev,false),cx=ev=>end(ev,true);
+    addEventListener('pointermove',mv);addEventListener('pointerup',up);addEventListener('pointercancel',cx);addEventListener('blur',cx);
+  });
+})();
+
+
+/* ================= an icon dropped on the mascot: he holds it up, has a thought about it, opens wide, swallows it, and it comes back ================= */
+const mawReady=()=>!buddy.hidden&&!diving&&!carry&&!bdrag&&!buddy.classList.contains('falling')&&!bin.run;
+const MAWL={pistol:"Yum! One of the most successful VR titles of all-time!",journey:"Mmm, highly ambitious this one",flourish:"Creative AND Helpful!",proximity:"Wow, WAY ahead of its time!",horizon:"Dozens of innovative mini-games!",marvel:"Delicious Marvel Characters!",form:"A beautiful and innovative experience, tasty!",'petras-planet':"Making learning fun!? yum!",'citizen-grim':"This has a really loyal fanbase? wow!",'whore-of-the-orient':"Not enough time in the oven, but these ingredients are delicious!",'resident-evil-orc':"mm, itchy... tasty...",'star-wars-battlefront':"One challenge on this was Darth Vader wasn't allowed to run!",'socom-fireteam-bravo-3':"mm, they packed so much into such a small morsel",'socom-confrontation':"The MOST popular PS3 game on release, yum!",'socom-tactical-strike':"Delicious Real-time tactics!",bully:"The team fought hard so that you could kiss boys and girls equally, a first on PS2!",'max-payne-2':"Moody Noir is always delicious",
+  mail:"Ohh, a vintage communication method!",linkedin:"I'll eat it... but my tummy won't agree with it after",simple:"you know if you click on this I go away, haha",v80:"hmm, smells a little plain"};
+/* [key, line] for an icon; a project with no written line falls back to its own blurb */
+function mawLine(item){
+  const p=item.dataset.p&&P.find(q=>q.id===item.dataset.p);
+  const k=p?p.id:item.matches('[data-mail]')?'mail':item.matches('a[href*="linkedin"]')?'linkedin':item.id==='vw-simple'?'simple':item.id==='vw-80'?'v80':'';
+  if(MAWL[k])return['m:'+k,MAWL[k]];
+  if(p)return['m:'+p.id,'Hm, '+p.name+'. '+p.blurb];
+  return['m:'+(item.id||'?'),'Hm, '+(($('.nm',item)||{}).textContent||'this')+'.'];
+}
+const pose=o=>{clearTimeout(seqT);seq=[];Object.assign(BS,o);bRender()};
+async function mawEat(item,G,from){
+  item.classList.remove('lifted');item.style.visibility='hidden';diving=true;
+  let holding=false;
+  try{
+    stopDance();hideBub();const [key,line]=mawLine(item),fresh=!saidOnce.has(key);
+    if(reduce){dropGhost(G);if(fresh)sayOnce(key,line,2600);await wait(fresh?2800:600);return}
+    const dr=desk.getBoundingClientRect(),side=buddy.getBoundingClientRect().left+buddy.offsetWidth/2<dr.left+dr.width/2?1:-1;
+    const hs=Math.min(1,72/G.w),hp=(r,t=0)=>({x:r.left+r.width/2+side*(r.width*.5+G.w*hs*.5-4),y:r.top+r.height*.5+Math.sin(t*.006)*4});
+    /* he reaches out and takes it */
+    pose({f:'stretch',hold:side,happy:1,face:0,mouth:0});
+    {const r=buddy.getBoundingClientRect(),h=hp(r);await anim(240,k=>putGhost(G,lerp(from.cx,h.x,k),lerp(from.cy,h.y,k)-20*4*k*(1-k),lerp(from.sc,hs,k),from.rot*(1-k)))}
+    /* holds on to it and says what he makes of it */
+    holding=true;const t0=performance.now();
+    (async()=>{while(holding){const t=performance.now()-t0,h=hp(buddy.getBoundingClientRect(),t);putGhost(G,h.x,h.y,hs,Math.sin(t*.004)*6);await nextFrame()}})();
+    pose({f:'idle',hold:side,happy:1});
+    const hold=fresh?Math.min(7000,Math.max(2400,line.length*45+600)):900;if(fresh)sayOnce(key,line,hold);
+    await wait(hold*.5);pose({f:'stretch',hold:side,happy:0});await wait(hold*.25);pose({f:'idle',hold:side,happy:1});await wait(hold*.25);hideBub();
+    /* the mouth grows to take the whole thing */
+    holding=false;await nextFrame();
+    const r=buddy.getBoundingClientRect(),h0=hp(r,performance.now()-t0),m={x:r.left+r.width/2,y:r.top+r.height*.76};
+    await anim(620,k=>{const e=k*k,gape=Math.round(1+k*5);if(gape!==BS.gape)pose({f:'stretch',hold:side,gape,happy:0,mouth:0});
+      putGhost(G,lerp(h0.x,m.x,e),lerp(h0.y,m.y,e),lerp(hs,.1,Math.max(0,(k-.35)/.65)),0)});
+    dropGhost(G);await wait(120);
+    /* gulp */
+    pose({f:'stretch',gape:3,hold:0});await wait(90);pose({f:'squash',gape:0,mouth:0,happy:0});await wait(130);
+    pose({f:'stretch',gape:0,happy:0});await wait(120);pose({f:'squash',happy:1});await wait(140);
+    showItem(item);item.classList.add('back');setTimeout(()=>item.classList.remove('back'),320);
+    {const ir=item.getBoundingClientRect();burstAt(ir.left+ir.width/2,ir.top+ir.height/2,8)}
+    pose({f:'idle',happy:1,hop:3});await wait(160);pose({hop:0});await wait(500);
+  }finally{
+    holding=false;dropGhost(G);showItem(item);Object.assign(BS,RESET);bRender();diving=false;
+  }
 }
 
 if(buddy.style.left&&!buddy.hidden)setTimeout(()=>{if(!carry&&!perch)dropBuddy()},1700);
@@ -1610,7 +1796,11 @@ function startDesktop(fromBoot){
   const rm=WIN.readme.el;let full=isMobile();
   if(!full&&!WIN.readme.open){rm.hidden=false;full=rm.offsetWidth>=desk.clientWidth-40||rm.offsetHeight>=desk.clientHeight-40;rm.hidden=true}
   if(full&&!WIN.readme.open)return;
-  if(!WIN.readme.open)openWin('readme',r);else focusWin('readme',{bump:true});
+  /* Read Me opens as if its desktop icon had just been clicked: the icon is selected and dips, and the window zooms out of it */
+  const ric=$('#ic-readme');
+  if(WIN.readme.open)focusWin('readme',{bump:true});
+  else if(ric){selIcon(ric);if(!reduce){ric.classList.remove('press');void ric.offsetWidth;ric.classList.add('press');setTimeout(()=>ric.classList.remove('press'),400)}openWin('readme',ric)}
+  else openWin('readme',r);
   (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(decode,reduce?0:200));
 }
 function finishBoot(){
@@ -1632,7 +1822,7 @@ addEventListener('resize',()=>{for(const k in WIN)if(WIN[k].open)clampWin(WIN[k]
 let wsz='';new ResizeObserver(()=>{const k=desk.clientWidth+'x'+desk.clientHeight;if(k===wsz)return;wsz=k;clearTimeout(rzT);rzT=setTimeout(buildWall,wall.width?120:0)}).observe(desk);
 
 paintMarks();stage();renderStrip();updInd();runBoot();
-if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,makeHeap,sowHeap,dance,wither,get compost(){return compost},toCompost,trashDive,sproutFate,set80,show404,get v80on(){return v80on},plant,plants,sprout,bloom,eat,crumble,bubbleP:v=>{BUBBLE_P=v},get perch(){return perch},ditherIn,clearDither,get bubbles(){return speakN},dropBuddy,logoClick,discoveryClick,get logoN(){return logoN},get ST(){return ST},get endingDone(){return endingDone},plant:plant,showAlert,openWin,closeWin,setView,get seeds(){return seeds},get top(){return topId}};
+if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,makeHeap,sowHeap,dance,wither,get compost(){return compost},get bin(){return bin},binFeed,mawEat,get BS(){return BS},toCompost,trashDive,sproutFate,set80,show404,get v80on(){return v80on},plant,plants,sprout,bloom,eat,crumble,bubbleP:v=>{BUBBLE_P=v},get perch(){return perch},ditherIn,clearDither,get bubbles(){return speakN},dropBuddy,logoClick,discoveryClick,get logoN(){return logoN},get ST(){return ST},get endingDone(){return endingDone},plant:plant,showAlert,openWin,closeWin,setView,get seeds(){return seeds},get top(){return topId}};
 /* the site's old anchors still work: index.html#work, #about, #experience, #contact, and #<project-slug> open the matching window */
 const HASHWIN={work:'work',about:'about',experience:'career',career:'career',contact:'contacts',contacts:'contacts',approach:'how',skills:'how',how:'how',companies:'worked',unreleased:'trash',press:'view',view:'view'};
 function openHash(h){const id=HASHWIN[h]||SLUGID[h];if(id&&(WIN[id]||PB[id]))openWin(id)}
