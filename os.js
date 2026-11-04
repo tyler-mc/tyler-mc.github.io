@@ -242,7 +242,7 @@ function mountArt(root){$$('.art',root).forEach(a=>{ro.observe(a);renderArt(a)})
 const maskCache=[];
 function maskURL(L){if(maskCache[L])return maskCache[L];let r='';for(let y=0;y<4;y++)for(let x=0;x<4;x++)if(B4[y*4+x]<L)r+=`M${x*2} ${y*2}h2v2h-2z`;
   return maskCache[L]=uri(`<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" shape-rendering="crispEdges"><path d="${r}"/></svg>`)}
-function setLv(im,L){im._lv=L;im.parentNode.classList.toggle('clear',L>=16);if(L<=0){im.style.visibility='hidden';return}im.style.visibility='visible';const m=L>=16?'none':maskURL(L);im.style.webkitMaskImage=m;im.style.maskImage=m}
+function setLv(im,L){im._lv=L;if(!im.parentNode)return;im.parentNode.classList.toggle('clear',L>=16);if(L<=0){im.style.visibility='hidden';return}im.style.visibility='visible';const m=L>=16?'none':maskURL(L);im.style.webkitMaskImage=m;im.style.maskImage=m}
 function dissolve(im,to,ms){clearTimeout(im._t);const from=im._lv||0;if(reduce||!ms||from===to){setLv(im,to);return}
   const N=8;let i=0;const tick=()=>{i++;setLv(im,Math.round(from+(to-from)*i/N));if(i<N)im._t=setTimeout(tick,ms/N)};tick()}
 function reveal(host,on,ms){const im=host&&$('img.full',host);if(im)dissolve(im,on?16:0,ms??(on?240:160))}
@@ -515,8 +515,8 @@ makeWin({id:'trash',title:'Trash',x:420,y:110,w:420,h:300,
  body:`<div class="tr"><button class="item" data-open="unreleased" style="width:112px"><span class="app dk"><i></i><b class="gx"></b></span><span class="nm">Unreleased</span></button><button class="item" id="tr-compost" hidden style="width:112px"><span class="cmp" aria-hidden="true">${svg(ICON.compost,2)}</span><span class="nm">Compost</span></button></div>`,foot:'<span>1 item</span><span></span>',
  init(el){
    const gx=$('.gx',el);
-   [[2,'#FF3B3B',-2,0],[2,'#3BE0FF',2,0],[2,'#FFFFFF',0,0]].forEach(([i,c,dx,dy])=>{const cv=mk(i,c,40,{});cv.style.marginLeft=dx+'px';cv.style.marginTop=dy+'px';gx.appendChild(cv)});
-   $('.item',el).addEventListener('click',e=>{$$('.item',el).forEach(x=>x.classList.toggle('sel',x===e.currentTarget));openWin('unreleased',e.currentTarget)});
+   fillGx(gx);
+   $('[data-open="unreleased"]',el).addEventListener('click',e=>{$$('.item',el).forEach(x=>x.classList.toggle('sel',x===e.currentTarget));openWin('unreleased',e.currentTarget)});
    $('#tr-compost',el).addEventListener('click',e=>{$$('.item',el).forEach(x=>x.classList.toggle('sel',x===e.currentTarget))});
  },
  onclose(el){$$('.item',el).forEach(x=>x.classList.remove('sel'))}});
@@ -801,7 +801,7 @@ makeWin({id:'worked',title:"Who I've Worked With",x:340,y:120,w:560,grow:1,
  init(el){footInfo($('.wk',el),'.wl',t=>t.dataset.n)}});
 /* Work and Trash: what each project or item is, in the status bar */
 footInfo($('.wbody',WIN.work.el),'[data-p]',t=>{const p=P.find(x=>x.id===t.dataset.p);return p&&p.blurb?`${p.name}: ${p.blurb}`:''});
-footInfo($('.wbody',WIN.trash.el),'.item',t=>t.id==='tr-compost'?compostInfo():UNRL);
+footInfo($('.wbody',WIN.trash.el),'.item',t=>t.id==='tr-compost'?compostInfo():t.id==='tr-skull'?'Skull: it fits the mascot':UNRL);
 /* the Read Me tagline rotates through the four live lines: 5 s, stepped fade, paused while the pointer is over it, still when motion is calm */
 (function(){
   const el=WIN.readme.el,tg=$('.tag',el);if(!tg||TAGS.length<2)return;
@@ -931,6 +931,7 @@ makeWin({id:'cpanel',title:'Control Panel',x:380,y:96,w:300,
  body:`<div class="cp2"><div class="mi-in" role="group" aria-label="Control Panel">
   <div class="mt">Mascot</div>
   <button class="mi" role="checkbox" aria-checked="true" id="cp-m"><span class="tk" aria-hidden="true"></span><span>Show the mascot</span></button>
+  <button class="mi" role="checkbox" aria-checked="false" id="cp-mask" hidden><span class="tk" aria-hidden="true"></span><span>Skull mask</span></button>
   <div class="mt" id="cph">Hat</div><div role="radiogroup" aria-labelledby="cph">${HATS.map(([v,l])=>radio('hat',v,l,v===hat0)).join('')}</div>
   <div class="msep" role="separator"></div>
   <div class="mt" id="cps">Screen saver</div><div role="radiogroup" aria-labelledby="cps">${SAVERS.map(([v,l])=>radio('saver',v,l,v===saverK)).join('')}</div>
@@ -942,6 +943,7 @@ makeWin({id:'cpanel',title:'Control Panel',x:380,y:96,w:300,
    const m=$('#cp-m',el),set=(b,on)=>b.setAttribute('aria-checked',String(on)),prev=$('#cp-prev',el);
    const dim=()=>prev.setAttribute('aria-disabled',String(saverK==='none'));
    m.addEventListener('click',()=>setMascot(m.getAttribute('aria-checked')!=='true'));
+   $('#cp-mask',el).addEventListener('click',()=>setMask(!BS.mask));
    el.addEventListener('click',e=>{
      const b=e.target.closest('[data-g]');if(!b)return;
      $$('[data-g="'+b.dataset.g+'"]',el).forEach(x=>set(x,x===b));
@@ -1183,8 +1185,9 @@ function overTrash(pt){for(const n of document.elementsFromPoint(pt.clientX,pt.c
 const trashHot=on=>{$('#ic-trash').classList.toggle('hot',!!on);$('#w-trash').classList.toggle('hot',!!on)};
 function updCompost(){
   const n=compost.seed+compost.sprout+compost.flower,it=$('#tr-compost');if(!it)return;
-  it.hidden=!n;const cell=$('.wfoot span',WIN.trash.el);cell.textContent=n?'2 items':'1 item';cell.dataset.rest=cell.textContent;
+  it.hidden=!n;updTrashCount();
 }
+function updTrashCount(){const n=$$('.item:not([hidden])',WIN.trash.el).length,cell=$('.wfoot span',WIN.trash.el);cell.textContent=n+(n===1?' item':' items');cell.dataset.rest=cell.textContent}
 function compostInfo(){const a=[['seed','seed'],['sprout','sprout'],['flower','flower']].filter(([k])=>compost[k]).map(([k,w])=>compost[k]+' '+w+(compost[k]>1?'s':''));return 'Compost: '+(a.join(', ')||'empty')}
 function toCompost(p){
   const k=p.st==='bloom'||p.st==='glow'?'flower':p.st==='heap'?p.unit:p.st;dropPlant(p);compost[k]++;updCompost();
@@ -1236,8 +1239,25 @@ const BC={ink:INK,hi:'#FF9A8E',base:'#FF3333',tex:'#E2262C',sh:'#B3121B',eye:'#F
 const BS={f:'idle',blink:0,dir:[0,0],happy:0,stage:0,hop:0,sleep:0,hat:(h=>h==='none'?0:h)(PREF('tos_hat','none'))};
 const grid=(w,h)=>Array.from({length:h},()=>Array(w).fill('.'));
 function stamp(g,pat,ox,oy){pat.forEach((r,y)=>{for(let x=0;x<r.length;x++){const c=r[x];if(c!=='.'&&g[oy+y]&&g[oy+y][ox+x]!==undefined)g[oy+y][ox+x]=c}})}
-const MB={Y:'#F6B92B',k:INK,r:'#FF3333',p:'#FF9A9A',R:'#B01E23',w:'#ffffff',m:'#7A0A12',n:'#0B5A55',T:'#3FC2B5',o:'#FFD94A',h:'#00393B',c:'#FF7A7A',H:'#FF2E88'};
+const MB={B:'#F1E9D2',b:'#C9BFA5',Y:'#F6B92B',k:INK,r:'#FF3333',p:'#FF9A9A',R:'#B01E23',w:'#ffffff',m:'#7A0A12',n:'#0B5A55',T:'#3FC2B5',o:'#FFD94A',h:'#00393B',c:'#FF7A7A',H:'#FF2E88'};
+/* the old dead-Mac icon, still red: a little computer with a crossed-out face */
+function drawMac(ctx){
+  const W=32,H=48,g=grid(W,H),X0=6,Y0=16,BW=20,BH=26;
+  for(let y=44;y<48;y++)for(let x=4;x<28;x++){const dx=(x+.5-16)/12,dy=(y+.5-45.5)/2.4;if(dx*dx+dy*dy>1)continue;if(y%2===1&&(x%4===0))g[y][x]='h'}
+  for(let y=Y0;y<Y0+BH;y++)for(let x=X0;x<X0+BW;x++){
+    const edge=x===X0||x===X0+BW-1||y===Y0||y===Y0+BH-1,corner=(x===X0||x===X0+BW-1)&&(y===Y0||y===Y0+BH-1);if(corner)continue;
+    g[y][x]=edge?'k':(x===X0+1||y===Y0+1)?'p':(x===X0+BW-2||y===Y0+BH-2)?'R':'r'}
+  const SX=X0+3,SY=Y0+3,SW=14,SH=12;
+  for(let y=SY;y<SY+SH;y++)for(let x=SX;x<SX+SW;x++)g[y][x]=(x===SX||x===SX+SW-1||y===SY||y===SY+SH-1)?'k':'w';
+  stamp(g,["k.k",".k.","k.k"],SX+2,SY+3);stamp(g,["k.k",".k.","k.k"],SX+9,SY+3);
+  stamp(g,["..kkkk..",".k....k."],SX+3,SY+8);
+  for(let x=X0+4;x<X0+BW-4;x++)g[Y0+BH-7][x]='k';
+  for(let x=X0+13;x<X0+BW-3;x++)g[Y0+BH-4][x]='k';
+  ctx.clearRect(0,0,W,H);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const c=g[y][x];if(c!=='.'){ctx.fillStyle=MB[c];ctx.fillRect(x,y,1,1)}}
+}
 function drawBuddy(ctx,s){
+  if(s.mac){drawMac(ctx);return}
   const W=32,H=48,g=grid(W,H);
   const fr=s.hop>0?'hop':s.f==='squash2'?'land':s.f;
   const [rx,ry,oy]={idle:[11,11,0],breath:[11,10,1],squash:[13,8,3],stretch:[10,12,-2],hop:[10,12,-6],land:[12,10,1]}[fr]||[11,11,0];
@@ -1266,6 +1286,8 @@ function drawBuddy(ctx,s){
     if(s.face==='scared'){g[ey][ex-1]=g[ey+1][ex-1]='k'}
     else if(s.face==='love'){[".H.H.","HHHHH",".HHH.","..H.."].forEach((row,yy)=>{for(let xx=0;xx<5;xx++)if(row[xx]==='H')g[ey-1+yy][ex-2+xx]='H'})}
     else if(s.face==='awe'){for(let y=ey-2;y<=ey+2;y++)for(let x=ex-2;x<=ex+1;x++)g[y][x]='k';g[ey-2][ex-1]='w';g[ey-1][ex-1]='w'}
+    else if(s.pens){for(let x=ex-2;x<=ex+1;x++){g[ey-2][x]='r';g[ey-1][x]='r';g[ey][x]='k'}g[ey+1][ex-1]=g[ey+1][ex]='k';
+      const L=ex<cx;[[ex-2,L?ey-5:ey-6],[ex-1,L?ey-5:ey-6],[ex,L?ey-6:ey-5],[ex+1,L?ey-6:ey-5]].forEach(([a,b])=>{if(g[b])g[b][a]='k'})}
     else{for(let y=0;y<2;y++)for(let x=0;x<2;x++)g[ey-1+dy+y][ex-1+dx+x]='k'}
   }
   g[cy+1][cx-9]=g[cy+1][cx-8]='c';g[cy+1][cx+7]=g[cy+1][cx+8]='c';
@@ -1275,6 +1297,7 @@ function drawBuddy(ctx,s){
   else if(s.face==='yuck'){[[-3,1],[-2,0],[-1,1],[0,0],[1,1],[2,0]].forEach(([a,b])=>{g[my+b][cx+a]='k'});[[0,2],[1,2],[0,3]].forEach(([a,b])=>{g[my+b][cx+a]='T'});g[my+4]&&(g[my+4][cx]='k')}
   else if(s.face==='awe'){for(let yy=my-1;yy<=my+5;yy++)for(let xx=cx-3;xx<=cx+2;xx++){const e=yy===my-1||yy===my+5||xx===cx-3||xx===cx+2,c=(yy===my-1||yy===my+5)&&(xx===cx-3||xx===cx+2);if(c)continue;g[yy][xx]=e?'k':'m'}}
   else if(s.gape){const gw=Math.min(7,2+Math.round(s.gape*1.2)),gh=Math.min(6,1+Math.round(s.gape*1.2));for(let yy=my-1;yy<=my+gh+1;yy++)for(let xx=cx-gw-1;xx<=cx+gw;xx++){const e=yy===my-1||yy===my+gh+1||xx===cx-gw-1||xx===cx+gw;g[yy][xx]=e?'k':'m'}}
+  else if(s.pens&&!s.face){for(let k=-2;k<=1;k++)g[my+1][cx+k]='k';g[my][cx+2]='k'}
   else if(s.mouth){for(let yy=my-1;yy<=my+2;yy++)for(let xx=cx-2;xx<=cx+1;xx++)g[yy][xx]=(yy>=my&&yy<=my+1&&xx>=cx-1&&xx<=cx)?'m':'k'}
   else if(s.happy){g[my][cx-2]='k';g[my][cx-1]='m';g[my][cx]='m';g[my][cx+1]='k';g[my+1][cx-1]='k';g[my+1][cx]='k'}
   else{g[my][cx-1]=g[my][cx]='k'}
@@ -1284,6 +1307,12 @@ function drawBuddy(ctx,s){
     const by=Math.max(0,cy-ry-3-s.heart*3);hp(cx+8,by);hp(cx-11,by+6)}
   if(s.sweat){[[8,0],[9,0],[8,1],[9,1],[8,2],[9,2],[9,3]].forEach(([a,b])=>{const yy=cy-ry+2+b,xx=cx+a;if(g[yy]&&g[yy][xx]!==undefined)g[yy][xx]='T'})}
   if(s.q){[".XX.","X..X","..X.",".X..","....",".X.."].forEach((row,yy)=>{for(let xx=0;xx<4;xx++)if(row[xx]==='X'){const Y=Math.max(0,cy-ry-9)+yy,X=cx+7+xx;if(g[Y]&&g[Y][X]!==undefined)g[Y][X]='o'}})}
+  if(s.mask){
+    for(let y=ey-4;y<=cy+8;y++)for(let x=cx-10;x<=cx+9;x++){if(!ins(x,y)||!ins(x-1,y)||!ins(x+1,y)||!ins(x,y-1)||!ins(x,y+1))continue;g[y][x]=x>cx+3?'b':'B'}
+    for(const ex of [cx-5,cx+4])for(let y=ey-3;y<=ey+3;y++)for(let x=ex-3;x<=ex+2;x++){const a=(x+.5-ex+.5)/3.2,b=(y-ey)/3.6;if(a*a+b*b<=1)g[y][x]='k'}
+    for(const ex of [cx-5,cx+4]){g[ey-1][ex-1]='B'}
+    g[cy+1][cx-1]=g[cy+1][cx]='k';g[cy+2][cx-1]=g[cy+2][cx]='k';g[cy+3][cx-2]=g[cy+3][cx+1]='k';
+    for(let x=cx-5;x<=cx+4;x++)g[cy+5][x]='k';for(let x=cx-5;x<=cx+4;x+=2)for(let y=cy+6;y<=cy+7;y++)if(g[y][x]==='B'||g[y][x]==='b')g[y][x]='k'}
   if(s.hat==='party'||s.hat==='crown'){
     const topAt=xc=>{for(let y=0;y<H;y++)if(ins(xc,y))return y;return cy-ry};
     if(s.hat==='party')stamp(g,["....w....","...kok...","...kHk...","..kkokk..","..kHHHk..",".kkokokk.",".kHHHHHk.","kkkkkkkkk"],cx+1,topAt(cx+5)-6);
@@ -1348,6 +1377,7 @@ function dance(ms=5200){
 function setMascot(on){
   buddy.hidden=!on;store.set('buddyGone',on?'0':'1');syncMascotCP();
   if(!on){hideBub();return}
+  clearBye();nudgeLogo(false);
   requestAnimationFrame(()=>{clampBuddy();speak("I'm back!");
     play([[{f:'squash',happy:1},90],[{f:'stretch',hop:4,happy:1},110],[{f:'idle',hop:0,happy:1},110],[{f:'stretch',hop:4},110],[{f:'idle',hop:0,heart:1},700],[RESET,0]])});
 }
@@ -1358,7 +1388,26 @@ function scare(on){clearInterval(scT);scT=0;
   else{Object.assign(BS,RESET);bRender()}}
 bx.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.stopPropagation();holdX=true;scare(true);waitShown=speak('Wait, wait, wait!',60000,!waitSeen);waitSeen=true});
 ['pointerleave','pointercancel'].forEach(t=>bx.addEventListener(t,()=>{if(!holdX)return;holdX=false;scare(false);if(waitShown)speak('Phew!',1000,true);waitShown=false}));
-bx.addEventListener('click',()=>{holdX=false;waitShown=false;scare(false);setMascot(false)});
+bx.addEventListener('click',()=>{holdX=false;waitShown=false;scare(false);const at=buddy.getBoundingClientRect();setMascot(false);if(PREF('tos_bye','')!=='1'){PSET('tos_bye','1');goodbye(at)}});
+/* the first time the mascot is dismissed: his last line stays where he stood, and the seed logo blinks, because that is where Control Panel lives */
+const bye=document.createElement('div');bye.id='bye';bye.setAttribute('role','status');desk.appendChild(bye);let byeT=0,byeI=0,nudgeT=0;
+function clearBye(){clearTimeout(byeT);clearInterval(byeI);bye.className=''}
+function nudgeLogo(on){const lg=$('#logo');clearTimeout(nudgeT);lg.classList.toggle('nudge',on)}
+function goodbye(at){
+  const text='You turned me off? How could you!?';clearBye();
+  bye.innerHTML='<span class="bg"></span><span class="bt"></span>';const g=$('.bg',bye),t=$('.bt',bye);g.textContent=text;bye.className='on';
+  const dr=desk.getBoundingClientRect(),w=bye.offsetWidth,h=bye.offsetHeight,mid=at.left+at.width/2;
+  let dx=0;if(mid-w/2<dr.left+8)dx=dr.left+8-(mid-w/2);if(mid+w/2>dr.right-8)dx=dr.right-8-(mid+w/2);
+  bye.style.setProperty('--bx',Math.round(dx)+'px');bye.style.left=Math.round(mid-dr.left)+'px';
+  bye.style.top=Math.round(Math.max(at.top+at.height*.38-dr.top,h+30))+'px';
+  if(reduce)t.textContent=text;else{let i=0;byeI=setInterval(()=>{i+=2;t.textContent=text.slice(0,i);if(i>=text.length)clearInterval(byeI)},30)}
+  byeT=setTimeout(clearBye,6500+(reduce?0:text.length*30));
+  const lg=$('#logo');nudgeLogo(true);
+  const stop=()=>{nudgeLogo(false);lg.removeEventListener('pointerdown',stop);lg.removeEventListener('animationend',fin)};
+  const fin=e=>{if(e.target===lg)stop()};
+  lg.addEventListener('pointerdown',stop);
+  if(reduce)nudgeT=setTimeout(stop,10000);else lg.addEventListener('animationend',fin);
+}
 /* grab: hangs by its head from the cursor and swings; no ground shadow while it is in the air */
 let bdrag=null,carry=null,diving=false;
 function carryLoop(t){
@@ -1482,11 +1531,12 @@ async function trashDive(){
 }
 
 /* ================= an icon dragged out of a window into the Trash: the mascot rummages, then everything in there flies back out ================= */
-const bin={items:[],out:new Set(),ghosts:new Set(),run:false,until:0};
+const bin={items:[],out:new Set(),ghosts:new Set(),run:false,until:0,p:Promise.resolve()};
 const nextFrame=()=>new Promise(r=>requestAnimationFrame(r));
 function makeGhost(item){
   const r=item.getBoundingClientRect(),el=document.createElement('div');el.className='dgh item';
-  el.style.width=r.width+'px';el.style.setProperty('--k',(getComputedStyle(item).getPropertyValue('--k')||'1').trim()||'1');
+  /* an icon whose window has closed has no size, so it keeps the last one it had */
+  if(r.width)item._gw=r.width;el.style.width=(r.width||item._gw||200)+'px';el.style.setProperty('--k',(getComputedStyle(item).getPropertyValue('--k')||'1').trim()||'1');
   for(const n of item.children){if(!n.matches('.rl,.bl'))el.appendChild(n.cloneNode(true))}
   const a=item.querySelectorAll('canvas'),b=el.querySelectorAll('canvas');a.forEach((c,i)=>{try{b[i].getContext('2d').drawImage(c,0,0)}catch(_){}});
   document.body.appendChild(el);const G={el,w:el.offsetWidth,h:el.offsetHeight,cx:r.left+r.width/2,cy:r.top+r.height/2};G.s=Math.min(1,104/G.w);bin.ghosts.add(G);return G;
@@ -1503,7 +1553,7 @@ function binFeed(item,G,from){
   const t=trashPt();bin.until=Math.max(bin.until,performance.now()+1100);
   const ic=$('#ic-trash .ic');if(ic&&!reduce){ic.classList.remove('pop2');void ic.offsetWidth;ic.classList.add('pop2')}
   anim(reduce?1:240,k=>putGhost(G,lerp(from.cx,t.x,k),lerp(from.cy,t.y,k)-26*4*k*(1-k),lerp(from.sc,.25,k),from.rot*(1-k))).then(()=>dropGhost(G));
-  if(!bin.run)binRun();
+  if(!bin.run)bin.p=binRun();
 }
 async function binRun(){
   bin.run=true;
@@ -1586,30 +1636,56 @@ async function binFly(rec,i){
   dropGhost(G);bin.out.delete(rec);showItem(rec.item);
   if(!reduce){rec.item.classList.add('back');setTimeout(()=>rec.item.classList.remove('back'),320)}
 }
-/* picking an icon up out of any window except the Trash itself (mouse and pen: a finger drag scrolls the window) */
+/* picking an icon up out of any window except the Trash itself. A mouse or pen drags it; a finger grabs it with a sideways drag or a hold (up and down still scroll the window).
+   On a phone the windows cover the desktop, so they step aside while the icon is carried and the source window closes when the icon is dropped on the Trash or the mascot */
+let peekN=0;
+const peekOn=()=>{peekN++;document.body.classList.add('peek')};
+const peekOff=()=>{peekN=Math.max(0,peekN-1);if(!peekN)document.body.classList.remove('peek')};
 (function(){
-  let block=false;
+  let block=false,held=false,grabbing=false;
   desk.addEventListener('click',e=>{if(block){e.preventDefault();e.stopPropagation()}},true);
   desk.addEventListener('dragstart',e=>{if(e.target.closest&&e.target.closest('.win .item'))e.preventDefault()});
+  desk.addEventListener('contextmenu',e=>{if(held&&e.target.closest&&e.target.closest('.win .item'))e.preventDefault()});
+  /* once an icon is in hand the page must not scroll under the finger (needs a listener that is allowed to cancel) */
+  document.addEventListener('touchmove',e=>{if(grabbing&&e.cancelable)e.preventDefault()},{passive:false});
   desk.addEventListener('pointerdown',e=>{
-    if(e.button!==0||e.pointerType==='touch')return;
+    if(e.button!==0)return;
     const item=e.target.closest('.win .item');if(!item||item.closest('#w-trash'))return;
-    const sx=e.clientX,sy=e.clientY;let G=null,raf=0,t0=0,px=sx,py=sy,lpx=sx,rot=0,off=null,cur=null;
+    const touch=e.pointerType==='touch',pid=e.pointerId,sx=e.clientX,sy=e.clientY;
+    let G=null,raf=0,t0=0,px=sx,py=sy,lpx=sx,rot=0,off=null,cur=null,hold=0,armed=false,phone=false,srcWin=null;
     const draw=t=>{
       const sc=lerp(1,G.s,Math.min(1,(t-t0)/140));rot+=(Math.max(-10,Math.min(10,(px-lpx)*.7))-rot)*.25;lpx=px;
       cur={cx:px+off.x*sc,cy:py+off.y*sc,sc,rot};putGhost(G,cur.cx,cur.cy,sc,rot);raf=requestAnimationFrame(draw)};
-    const mv=ev=>{if(ev.buttons===0){end(ev,true);return}px=ev.clientX;py=ev.clientY;
-      if(!G){if(Math.hypot(px-sx,py-sy)<5)return;
-        G=makeGhost(item);off={x:G.cx-sx,y:G.cy-sy};item.classList.add('lifted');document.body.classList.add('dgdrag');t0=performance.now();raf=requestAnimationFrame(draw)}
+    const grab=()=>{
+      clearTimeout(hold);hold=0;armed=false;
+      G=makeGhost(item);off={x:G.cx-sx,y:G.cy-sy};item.classList.add('lifted');document.body.classList.add('dgdrag');t0=performance.now();raf=requestAnimationFrame(draw);
+      if(touch){grabbing=true;try{item.releasePointerCapture(pid)}catch(_){}if(navigator.vibrate)navigator.vibrate(12);
+        phone=isMobile();if(phone){srcWin=item.closest('.win');peekOn()}}};
+    const mv=ev=>{
+      if(ev.pointerId!==pid)return;
+      if(ev.buttons===0&&!touch){end(ev,true);return}
+      px=ev.clientX;py=ev.clientY;
+      if(!G){
+        const dx=px-sx,dy=py-sy,d=Math.hypot(dx,dy);
+        if(touch){if(d<8)return;
+          /* held first: it is grabbed once it moves. Otherwise mostly sideways is a grab and mostly vertical is the window scrolling */
+          if(armed||(Math.abs(dx)>=10&&Math.abs(dx)>Math.abs(dy)*1.3))grab();else{clearTimeout(hold);hold=0;return}}
+        else{if(d<5)return;grab()}}
       const ob=mawReady()&&overBuddy(ev);buddy.classList.toggle('hot',ob);trashHot(!ob&&overTrash(ev))};
     let done=false;
-    const end=async(ev,cancel)=>{if(done)return;done=true;
+    const end=async(ev,cancel)=>{if(done||(ev&&ev.pointerId!==undefined&&ev.pointerId!==pid&&ev.type!=='blur'))return;done=true;
+      clearTimeout(hold);held=false;grabbing=false;armed=false;
       removeEventListener('pointermove',mv);removeEventListener('pointerup',up);removeEventListener('pointercancel',cx);removeEventListener('blur',cx);cancelAnimationFrame(raf);
       if(!G)return;document.body.classList.remove('dgdrag');trashHot(false);buddy.classList.remove('hot');block=true;setTimeout(()=>{block=false},80);
-      if(!cancel&&mawReady()&&overBuddy(ev)){mawEat(item,G,cur);return}
-      if(!cancel&&overTrash(ev)){binFeed(item,G,cur);return}
+      /* dropped on a target: the window it came from closes, the others stay out of the way until the show is over */
+      const drop=()=>{if(!phone)return;const id=srcWin&&Object.keys(WIN).find(k=>WIN[k].el===srcWin);if(id)closeWin(id)};
+      if(!cancel&&mawReady()&&overBuddy(ev)){drop();const r=mawEat(item,G,cur);if(phone)r.finally(peekOff);return}
+      if(!cancel&&overTrash(ev)){drop();binFeed(item,G,cur);if(phone)bin.p.finally(peekOff);return}
+      if(phone)peekOff();
       const f=cur;await anim(reduce?1:160,k=>putGhost(G,lerp(f.cx,G.cx,k),lerp(f.cy,G.cy,k),lerp(f.sc,1,k),f.rot*(1-k)));dropGhost(G);item.classList.remove('lifted')};
     const up=ev=>end(ev,false),cx=ev=>end(ev,true);
+    /* a hold keeps the window from scrolling; the icon lifts when the finger then moves. A hold that is let go without moving is just a slow tap */
+    if(touch){held=true;hold=setTimeout(()=>{hold=0;if(!G&&!done){armed=true;grabbing=true}},500)}
     addEventListener('pointermove',mv);addEventListener('pointerup',up);addEventListener('pointercancel',cx);addEventListener('blur',cx);
   });
 })();
@@ -1655,11 +1731,280 @@ async function mawEat(item,G,from){
     pose({f:'stretch',gape:3,hold:0});await wait(90);pose({f:'squash',gape:0,mouth:0,happy:0});await wait(130);
     pose({f:'stretch',gape:0,happy:0});await wait(120);pose({f:'squash',happy:1});await wait(140);
     showItem(item);item.classList.add('back');setTimeout(()=>item.classList.remove('back'),320);
-    {const ir=item.getBoundingClientRect();burstAt(ir.left+ir.width/2,ir.top+ir.height/2,8)}
+    {const ir=item.getBoundingClientRect().width?item.getBoundingClientRect():buddy.getBoundingClientRect();burstAt(ir.left+ir.width/2,ir.top+ir.height/2,8)}
     pose({f:'idle',happy:1,hop:3});await wait(160);pose({hop:0});await wait(500);
   }finally{
     holding=false;dropGhost(G);showItem(item);Object.assign(BS,RESET);bRender();diving=false;
   }
+}
+
+/* ================= Unreleased pulled out of the Trash: it sits on the desktop, glitching, and the mascot does not like it ================= */
+const UNRL_LINE="Gee, I don't know if that's a good idea...";
+const unr={on:false,el:null,t:0};
+function fillGx(gx){[[2,'#FF3B3B',-2,0],[2,'#3BE0FF',2,0],[2,'#FFFFFF',0,0]].forEach(([i,c,dx,dy])=>{const cv=mk(i,c,40,{});cv.style.marginLeft=dx+'px';cv.style.marginTop=dy+'px';gx.appendChild(cv)})}
+const unrApp=()=>{const a=document.createElement('span');a.className='app dk';a.innerHTML='<i></i><b class="gx"></b>';fillGx($('.gx',a));return a};
+function shakeAll(power){if(reduce)return;const els=[$('#desk'),$('#mbar')];let n=0;const t=setInterval(()=>{n++;const end=n>10;els.forEach(d=>{d.style.transform=end?'':`translate(${Math.round((Math.random()*2-1)*power)}px,${Math.round((Math.random()*2-1)*power)}px)`});if(end)clearInterval(t)},38)}
+/* every 5 s a ring leaves the icon and rattles the whole screen */
+function unrPulse(){
+  if(!unr.on||reduce||!unr.el)return;
+  const r=unr.el.getBoundingClientRect();
+  [0,140].forEach((d,i)=>setTimeout(()=>{const w=document.createElement('i');w.className='pw'+(i?' pw2':'');w.style.left=(r.left+r.width/2)+'px';w.style.top=(r.top+r.height/2-8)+'px';document.body.appendChild(w);setTimeout(()=>w.remove(),1000)},d));
+  shakeAll(7);
+}
+function unrOut(x,y){
+  if(unr.on)return;unr.on=true;
+  const b=document.createElement('button');b.type='button';b.className='icon unrd';b.id='ic-unr';
+  b.appendChild(unrApp());b.insertAdjacentHTML('beforeend','<span class="lb">Unreleased</span>');
+  const dw=desk.clientWidth,dh=desk.clientHeight;
+  b.style.left=Math.round(Math.min(Math.max(x-48,4),dw-100))+'px';b.style.top=Math.round(Math.min(Math.max(y-40,36),dh-110))+'px';desk.appendChild(b);unr.el=b;
+  $('[data-open="unreleased"]',WIN.trash.el).hidden=true;updTrashCount();
+  stopDance();BS.pens=1;bRender();speak(UNRL_LINE,3400,true);
+  clearInterval(unr.t);unr.t=setInterval(unrPulse,5000);
+  let block=false;
+  b.addEventListener('click',()=>{if(!block)unrOpen()});
+  b.addEventListener('pointerdown',e=>{
+    if(e.button!==0||crash.on)return;const r0=b.getBoundingClientRect(),gx=e.clientX-r0.left,gy=e.clientY-r0.top,sx=e.clientX,sy=e.clientY;let moved=false;
+    const mv=ev=>{if(!moved){if(Math.hypot(ev.clientX-sx,ev.clientY-sy)<5)return;moved=true;b.classList.add('drag');b.style.pointerEvents='none';document.body.classList.add('dgdrag')}
+      const dr=desk.getBoundingClientRect();b.style.left=Math.round(Math.min(Math.max(ev.clientX-dr.left-gx,0),desk.clientWidth-96))+'px';b.style.top=Math.round(Math.min(Math.max(ev.clientY-dr.top-gy,0),desk.clientHeight-88))+'px';trashHot(overTrash(ev))};
+    const end=(ev,cancel)=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up);removeEventListener('pointercancel',cx);removeEventListener('blur',cx);
+      if(!moved)return;b.classList.remove('drag');b.style.pointerEvents='';document.body.classList.remove('dgdrag');trashHot(false);block=true;setTimeout(()=>{block=false},80);
+      if(!cancel&&overTrash(ev))unrIn()};
+    const up=ev=>end(ev,false),cx=ev=>end(ev,true);
+    addEventListener('pointermove',mv);addEventListener('pointerup',up);addEventListener('pointercancel',cx);addEventListener('blur',cx);
+  });
+}
+/* back in the Trash: it drops in, and he can breathe again */
+async function unrIn(){
+  if(!unr.on)return;const b=unr.el;clearInterval(unr.t);unr.t=0;unr.on=false;unr.el=null;
+  const t=trashPt(),r=b.getBoundingClientRect(),fx=r.left,fy=r.top;b.style.pointerEvents='none';
+  await anim(reduce?1:240,k=>{b.style.left=Math.round(lerp(fx-desk.getBoundingClientRect().left,t.x-48-desk.getBoundingClientRect().left,k))+'px';b.style.top=Math.round(lerp(fy-desk.getBoundingClientRect().top,t.y-60-desk.getBoundingClientRect().top,k))+'px';b.style.transform='scale('+(1-k*.8)+')'});
+  b.remove();
+  $('[data-open="unreleased"]',WIN.trash.el).hidden=false;updTrashCount();
+  const ic=$('#ic-trash .ic');if(ic&&!reduce){ic.classList.remove('pop2');void ic.offsetWidth;ic.classList.add('pop2')}
+  BS.pens=0;if(!buddy.hidden&&!diving&&!carry){play([[{f:'squash',happy:1},110],[{f:'stretch',hop:3,happy:1},140],[{f:'idle',hop:0,happy:1},500],[RESET,0]])}else bRender();
+  speak('Phew!',1800,true);
+}
+/* drag it out of the Trash window onto the empty desktop */
+(function(){
+  const it=$('[data-open="unreleased"]',WIN.trash.el);let block=false;
+  it.addEventListener('click',e=>{if(block){e.stopImmediatePropagation();e.preventDefault()}},true);
+  it.addEventListener('pointerdown',e=>{
+    if(e.button!==0||unr.on)return;const sx=e.clientX,sy=e.clientY;let ghost=null,phone=false;it.setPointerCapture(e.pointerId);
+    const mv=ev=>{if(!ghost){if(Math.hypot(ev.clientX-sx,ev.clientY-sy)<5)return;
+        ghost=document.createElement('div');ghost.className='cghost ug';ghost.appendChild(unrApp());document.body.appendChild(ghost);
+        if(isMobile()){phone=true;peekOn()}}
+      ghost.style.left=(ev.clientX-36)+'px';ghost.style.top=(ev.clientY-36)+'px'};
+    const up=ev=>{it.removeEventListener('pointermove',mv);it.removeEventListener('pointerup',up);it.removeEventListener('pointercancel',up);
+      if(!ghost)return;ghost.remove();block=true;setTimeout(()=>{block=false},80);
+      const t=document.elementsFromPoint(ev.clientX,ev.clientY).find(n=>!n.closest('.cghost'));
+      if(phone)peekOff();
+      if(t===desk){const dr=desk.getBoundingClientRect();unrOut(ev.clientX-dr.left,ev.clientY-dr.top);if(phone)closeWin('trash')}};
+    it.addEventListener('pointermove',mv);it.addEventListener('pointerup',up);it.addEventListener('pointercancel',up);
+  });
+})();
+
+/* ================= opening it from the desktop: the screen tears for a moment, then the application quits unexpectedly ================= */
+ICON.skull=art(32,32,({R,P,D,get})=>{
+  D(16,14,11,'k');D(16,14,10,'c');R(10,22,12,7,'k');R(11,22,10,6,'c');
+  for(let y=3;y<25;y++)for(let x=16;x<28;x++)if(get(x,y)==='c'&&(x-16)*(x-16)+(y-14)*(y-14)>70)P(x,y,'g');
+  D(11.5,15,3.2,'k');D(20.5,15,3.2,'k');P(10,14,'x');P(19,14,'x');
+  P(15,19,'k');P(16,19,'k');R(15,20,2,1,'k');
+  R(11,25,10,1,'k');for(let x=12;x<=20;x+=2)R(x,25,1,3,'k');R(11,28,10,1,'k');
+  R(15,0,2,3,'q');R(17,0,3,2,'T');R(12,1,3,1,'T')});
+ICON.bomb=art(32,32,({R,P,D})=>{D(14,19,10,'k');D(14,19,9,'x');D(11,16,4,'s');R(9,15,3,1,'w');R(10,14,2,1,'w');R(17,7,2,3,'k');R(19,5,3,2,'o');P(22,4,'y');P(23,3,'r');P(21,3,'y');P(24,5,'y')});
+makeWin({id:'crash',title:'Unreleased',x:0,y:0,w:400,
+ body:`<div class="crash"><span class="cr-ic" aria-hidden="true">${svg(ICON.bomb,2)}</span><div class="cr-tx"><p><b>Sorry, the application “Unreleased” has unexpectedly quit.</b></p><p>Ignore keeps the system running. Try again starts it over.</p></div><div class="cr-btns"><button class="btn bev" type="button" data-cr="ignore">Ignore</button><span class="ring"><button class="btn bev" type="button" data-cr="again">Try again</button></span></div></div>`,
+ init(el){el.addEventListener('click',e=>{const b=e.target.closest('[data-cr]');if(!b)return;if(b.dataset.cr==='ignore')closeWin('crash');else unrTryAgain()})},
+ onclose(){if(!crash.go)crashIgnored()}});
+const crash={on:false,go:false,hop:null};
+function screenGlitch(ms){
+  return new Promise(res=>{
+    if(!ms){res();return}
+    const cv=document.createElement('canvas');cv.className='glo';cv.width=Math.ceil(innerWidth/4);cv.height=Math.ceil(innerHeight/4);document.body.appendChild(cv);
+    const x=cv.getContext('2d'),W=cv.width,H=cv.height,els=[$('#desk'),$('#mbar')],PAL=['#0A1415','#0F5E60','#1E3A3C','#008080'],NZ=['#0A1415','#FF3333','#3BE0FF','#FFFFFF'],t0=performance.now();
+    let iv=0,lastB=-1e9;
+    const tick=()=>{const t=performance.now()-t0;
+      if(t>ms){clearInterval(iv);cv.remove();els.forEach(e=>{e.style.transform='';e.style.filter=''});res();return}
+      /* the wide bands change a few times a second at most; only the tearing and the specks move faster */
+      if(t-lastB>340){lastB=t;x.clearRect(0,0,W,H);for(let k=0,n=3+((Math.random()*6)|0);k<n;k++){x.globalAlpha=.5+Math.random()*.35;x.fillStyle=PAL[(Math.random()*PAL.length)|0];x.fillRect(0,(Math.random()*H)|0,W,1+((Math.random()*H*.07)|0))}}
+      x.globalAlpha=1;for(let k=0,n=W*H*.006;k<n;k++){x.fillStyle=NZ[(Math.random()*NZ.length)|0];x.fillRect((Math.random()*W)|0,(Math.random()*H)|0,1+((Math.random()*4)|0),1)}
+      els.forEach(e=>{e.style.transform=Math.random()<.6?`translate(${((Math.random()*2-1)*18)|0}px,${((Math.random()*2-1)*4)|0}px)`:'';e.style.filter=''})};
+    iv=setInterval(tick,70);tick();
+  });
+}
+async function unrOpen(){
+  if(!unr.on||crash.on||diving)return;
+  crash.on=true;crash.hop=null;clearInterval(unr.t);unr.t=0;
+  await screenGlitch(reduce?0:720);
+  const w=WIN.crash.el;w.style.left=Math.round((desk.clientWidth-400)/2)+'px';w.style.top=Math.round(Math.max(150,desk.clientHeight*.36-60))+'px';
+  openWin('crash',unr.el);
+  if(!buddy.hidden&&!carry&&!bdrag){
+    BS.pens=0;play([[{f:'stretch',face:'scared',sweat:1,happy:0},0]]);
+    crash.hop=hopOnto('crash');await crash.hop;if(!crash.on||crash.go)return;
+    play([[{f:'idle',face:'scared',sweat:1,happy:0},0]]);speak("Just ignore, don't do it again!",4600,true);
+  }
+}
+/* Ignore: the dialog goes, the icon stays out, and so does the pulse */
+function crashIgnored(){
+  crash.on=false;hideBub();
+  if(unr.on){clearInterval(unr.t);unr.t=setInterval(unrPulse,5000);BS.pens=1}
+  if(!buddy.hidden&&!diving)play([[RESET,0]]);bRender();
+}
+
+/* ================= Try again: the mascot dies, the screen is pulled into a black hole, and the system reboots ================= */
+const SKULL_KEY='tos_skull';
+const vxInline=el=>({el,attr:el.getAttribute('style')});
+function vxCollect(){
+  const out=[],hide=[],shards=[],wins=$$('.win:not([hidden])');
+  const inl=el=>getComputedStyle(el).display==='inline';
+  const leaf=(el,clipR)=>{
+    const r=el.getBoundingClientRect();if(r.width<1||r.height<1)return;
+    const cs=getComputedStyle(el);if(cs.display==='none'||cs.visibility==='hidden')return;
+    if(clipR&&(r.right<clipR.left||r.left>clipR.right||r.bottom<clipR.top||r.top>clipR.bottom)){hide.push(vxInline(el));return}
+    const kids=[...el.children].filter(k=>k.getBoundingClientRect().width>0),text=[...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim());
+    if(!kids.length||text||(r.width<=150&&r.height<=150)||kids.every(inl)||el.matches('svg,canvas,img')){out.push({...vxInline(el),x:r.left+r.width/2,y:r.top+r.height/2});return}
+    paint(el);kids.forEach(k=>leaf(k,clipR));
+  };
+  /* a container that paints something (a card, a scrollbar track) breaks into shards of its own colour so nothing is left hanging in the air */
+  const paint=el=>{
+    if(el.matches('.wf,.wbw,.wbody,.win,#mbar'))return;
+    const cs=getComputedStyle(el),bg=cs.backgroundColor,hasBg=bg&&!/^rgba\(0, 0, 0, 0\)$|^transparent$/.test(bg),bi=cs.backgroundImage!=='none',bd=parseFloat(cs.borderTopWidth)||parseFloat(cs.borderLeftWidth)||parseFloat(cs.borderBottomWidth)||parseFloat(cs.borderRightWidth);
+    if(!hasBg&&!bi&&!bd&&cs.boxShadow==='none')return;
+    const r=el.getBoundingClientRect();if(r.width<6||r.height<6||shards.length>380)return;
+    hide.push(vxInline(el));el.style.cssText+=';background:transparent!important;border-color:transparent!important;box-shadow:none!important';
+    const host=el.offsetParent||document.body,hr=host.getBoundingClientRect(),cols=Math.min(5,Math.ceil(r.width/120)),rows=Math.min(5,Math.ceil(r.height/120)),cw=r.width/cols,ch=r.height/rows;
+    for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
+      const d=document.createElement('i');d.className='vsh vsh2';const x=r.left+i*cw,y=r.top+j*ch;
+      d.style.cssText=`left:${(x-hr.left-host.clientLeft+host.scrollLeft).toFixed(1)}px;top:${(y-hr.top-host.clientTop+host.scrollTop).toFixed(1)}px;width:${(cw+.5).toFixed(1)}px;height:${(ch+.5).toFixed(1)}px;background:${hasBg?bg:'var(--plat)'}`;
+      host.appendChild(d);shards.push(d);out.push({el:d,attr:null,x:x+cw/2,y:y+ch/2})}
+  };
+  const shard=(host,r,cols,rows,paper)=>{
+    const hr=host.getBoundingClientRect(),cw=r.width/cols,ch=r.height/rows;
+    for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
+      const d=document.createElement('i');d.className='vsh';
+      const x=r.left+i*cw,y=r.top+j*ch;d.style.cssText=`left:${(x-hr.left).toFixed(1)}px;top:${(y-hr.top).toFixed(1)}px;width:${(cw+.5).toFixed(1)}px;height:${(ch+.5).toFixed(1)}px;background:var(--${paper&&paper(x+cw/2,y+ch/2)?'paper':'plat'})`;
+      host.appendChild(d);shards.push(d);out.push({el:d,attr:null,x:x+cw/2,y:y+ch/2})}
+  };
+  wins.forEach(w=>{const wr=w.getBoundingClientRect(),bw=$('.wbw',w),br=bw?bw.getBoundingClientRect():null;
+    shard(w,wr,4,3,(x,y)=>br&&x>br.left&&x<br.right&&y>br.top&&y<br.bottom);
+    [...$('.wf',w).children].forEach(k=>leaf(k,wr))});
+  const bar=$('#mbar');shard(bar,bar.getBoundingClientRect(),8,1);[...bar.querySelectorAll('.mb-l>*,.mb-r>*')].forEach(k=>leaf(k));
+  const st=$('#strip');if(st.getBoundingClientRect().width>0){const sin=$('.sin',st);paint(st);paint(sin);[...sin.children].forEach(k=>leaf(k))}
+  $$('#icons .icon,.unrd').forEach(i=>leaf(i));
+  $$('#seeds .pl,#glows .pl').forEach(i=>leaf(i));
+  return {pieces:out,hide,shards};
+}
+/* where a piece is at time t: it waits, shivers, then is pulled round and into the middle */
+function vxPlace(pc,C,t,fx){
+  const r0=Math.hypot(pc.x-C.x,pc.y-C.y),a0=Math.atan2(pc.y-C.y,pc.x-C.x);
+  if(!pc.d){pc.d=fx.d+Math.min(1000,r0*.9)+Math.random()*750;pc.D=1900+Math.random()*1500;pc.sg=Math.random()<.1?-1:1;pc.rj=Math.random()*360;pc.tw=(Math.random()-.5)*14}
+  let dx=0,dy=0,rot=0,sc=1;
+  if(t<pc.d){const rip=t>pc.d-320,m=rip?7:(t>200?2:0);dx=((Math.random()*2-1)*m);dy=((Math.random()*2-1)*m);rot=rip?pc.tw*(Math.random()<.5?1:0):0}
+  else{const p=Math.min(1,(t-pc.d)/pc.D),q=Math.pow(p,1.35),R=r0*(1-q),th=pc.sg*q*(2.2*Math.PI+r0/260),px=C.x+R*Math.cos(a0+th),py=C.y+R*Math.sin(a0+th);
+    dx=px-pc.x;dy=py-pc.y;rot=q*(540+pc.rj*.5)+pc.tw;sc=Math.max(.02,1-q*q*.98)}
+  pc.el.style.transform=`translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) rotate(${rot.toFixed(1)}deg) scale(${sc.toFixed(3)})`;
+  if(t>=pc.d+pc.D)pc.el.style.visibility='hidden';
+}
+async function unrTryAgain(){
+  if(crash.go||!crash.on)return;
+  crash.go=true;clearInterval(unr.t);unr.t=0;
+  const lock=document.createElement('div');lock.id='vxlock';document.body.appendChild(lock);
+  /* let a hop onto the dialog, a Trash rummage or a feed finish before the mascot is taken over */
+  try{await crash.hop}catch(_){}
+  while(diving||bin.run)await wait(100);
+  diving=true;stopDance();hideBub();
+  const mascot=!buddy.hidden,bSave=buddy.getAttribute('style'),dr=desk.getBoundingClientRect(),dbg=desk.style.background,bbg=document.body.style.background,wallOp=$('#wall').style.opacity;
+  let col=null,hole=null,black=null,flash=null,word=null;
+  try{
+    if(mascot){
+      const br=buddy.getBoundingClientRect();perch=null;buddy.classList.remove('falling');buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.zIndex='6';
+      buddy.style.left=Math.round(br.left-dr.left)+'px';buddy.style.top=Math.round(br.top-dr.top)+'px';
+      /* he pops into the old dead-Mac icon at once */
+      BS.pens=0;Object.assign(BS,RESET);BS.mac=1;bRender();
+    }
+    if(!reduce){
+      await wait(1000);
+      closeWin('crash');
+      if(mascot){
+        /* and drops to the bottom of the screen, tumbling onto his side */
+        const bh=buddy.offsetHeight,top0=parseFloat(buddy.style.top),land=dr.height-8-bh/2-bcv.offsetWidth/32*9.5;let vy=0,top=top0,last=performance.now(),rot=0,bounced=false;
+        buddy.style.transformOrigin='50% 50%';
+        await new Promise(res=>{const f=t=>{const dt=Math.min(.04,(t-last)/1000)||.016;last=t;vy+=3800*dt;top+=vy*dt;rot=Math.min(90,rot+dt*260);
+          if(top>=land){top=land;if(!bounced&&vy>500){bounced=true;vy=-vy*.25}else{buddy.style.top=Math.round(top)+'px';buddy.style.transform='rotate(90deg)';res();return}}
+          buddy.style.top=Math.round(top)+'px';buddy.style.transform='rotate('+rot+'deg)';requestAnimationFrame(f)};requestAnimationFrame(f)});
+        buddy.style.transform='rotate(90deg)';
+        await wait(500);
+      }
+      /* the vortex */
+      $('#desk').style.transform='';$('#mbar').style.transform='';
+      col=vxCollect();document.body.classList.add('vx');
+      hole=document.createElement('div');hole.id='bhole';hole.innerHTML='<div class="bh-t"></div><div class="bh-b"></div>';document.body.appendChild(hole);
+      const C={x:innerWidth/2,y:innerHeight/2},T=5200,t0=performance.now(),bp=mascot?(()=>{const r=buddy.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2,d:3500,D:1500,sg:1,rj:200,tw:0}})():null;
+      const mac=bp&&{el:buddy,...bp,base:'rotate(90deg)'};
+      await new Promise(res=>{
+        const f=now=>{const t=now-t0,k=Math.min(1,t/T);
+          const gw=Math.round(lerp(110,280,Math.min(1,t/3800))),gh=Math.round(gw*.76),m=((t/90)|0)%2?1:0;
+          hole.style.cssText=`width:${gw}px;height:${gh}px;left:${C.x-gw/2+(t<500?m*2:0)}px;top:${C.y-gh/2}px;opacity:${t<350?(((t/70)|0)%2?1:.4):1}`;
+          for(const pc of col.pieces)vxPlace(pc,C,t,{d:0});
+          if(mac){mac.dd=mac.d;const p=Math.max(0,Math.min(1,(t-mac.d)/mac.D)),q=Math.pow(p,1.35),r0=Math.hypot(mac.x-C.x,mac.y-C.y),a0=Math.atan2(mac.y-C.y,mac.x-C.x),R=r0*(1-q),th=q*(2.2*Math.PI+r0/260);
+            buddy.style.transform=`translate(${(C.x+R*Math.cos(a0+th)-mac.x).toFixed(1)}px,${(C.y+R*Math.sin(a0+th)-mac.y).toFixed(1)}px) rotate(${(90+q*720).toFixed(1)}deg) scale(${Math.max(.02,1-q*q*.98).toFixed(3)})`;if(p>=1)buddy.style.visibility='hidden'}
+          const dk=Math.min(1,Math.max(0,(t-1200)/3800));desk.style.background=document.body.style.background=`rgb(0,${Math.round(128*(1-dk))},${Math.round(128*(1-dk))})`;$('#wall').style.opacity=String(1-dk);
+          if(t<T)requestAnimationFrame(f);else res()};requestAnimationFrame(f)});
+    }
+    /* dark, then a flash of the mascot's skull */
+    black=document.createElement('div');black.id='vxblack';document.body.appendChild(black);
+    if(hole)hole.remove();
+    await wait(reduce?300:600);
+    if(!reduce){flash=document.createElement('div');flash.id='vxskull';flash.innerHTML=svg(ICON.skull,Math.max(6,Math.floor(Math.min(innerWidth,innerHeight)*.5/32)));document.body.appendChild(flash);await wait(420);flash.remove();flash=null;await wait(450)}
+    /* then three words, a second each, before the system comes back */
+    for(const w of ['I','design','experiences.']){word=document.createElement('div');word.id='vxword';word.textContent=w;document.body.appendChild(word);await wait(1000);word.remove();word=null;await wait(80)}
+  }finally{
+    /* put everything back exactly, behind the black, then reboot */
+    if(col){document.body.classList.remove('vx');col.shards.forEach(d=>d.remove());
+      [...col.pieces,...col.hide].forEach(o=>{if(!o.el.isConnected)return;if(o.attr===null||o.attr===undefined)o.el.removeAttribute('style');else o.el.setAttribute('style',o.attr)})}
+    if(hole)hole.remove();if(flash)flash.remove();if(word)word.remove();
+    desk.style.background=dbg;document.body.style.background=bbg;$('#wall').style.opacity=wallOp;
+    if(bSave===null)buddy.removeAttribute('style');else buddy.setAttribute('style',bSave);
+    BS.mac=0;BS.pens=0;Object.assign(BS,RESET);bRender();
+    unrReset();unlockSkull();
+    crash.on=false;crash.go=false;
+    restart();
+    lock.remove();if(black)black.remove();
+    diving=false;if(mascot){perch=null;dropBuddy()}
+  }
+}
+/* the program is back in the Trash after the reboot */
+function unrReset(){
+  clearInterval(unr.t);unr.t=0;if(unr.el)unr.el.remove();unr.el=null;unr.on=false;
+  $('[data-open="unreleased"]',WIN.trash.el).hidden=false;updTrashCount();
+}
+function unlockSkull(){PSET(SKULL_KEY,'1');syncSkull()}
+const MASK_KEY='tos_mask';
+function setMask(on,keep=true){
+  BS.mask=on?1:0;if(keep)PSET(MASK_KEY,on?'1':'0');bRender();syncSkull();
+}
+/* the skull lives in the Trash once the system has crashed; worn, it sits on the mascot and is off the Trash shelf */
+function syncSkull(){
+  const got=PREF(SKULL_KEY,'')==='1',row=$('#cp-mask');
+  if(row){row.hidden=!got;row.setAttribute('aria-checked',String(!!BS.mask))}
+  if(!got)return;
+  let it=$('#tr-skull');
+  if(!it){
+    it=document.createElement('button');it.id='tr-skull';it.type='button';it.className='item';it.style.width='112px';
+    it.innerHTML=`<span class="cmp" aria-hidden="true">${svg(ICON.skull,2)}</span><span class="nm">Skull</span>`;$('.tr',WIN.trash.el).appendChild(it);
+    let block=false;
+    it.addEventListener('click',e=>{if(block)return;$$('.item',WIN.trash.el).forEach(x=>x.classList.toggle('sel',x===it))});
+    it.addEventListener('pointerdown',e=>{
+      if(e.button!==0)return;const sx=e.clientX,sy=e.clientY;let ghost=null,phone=false;it.setPointerCapture(e.pointerId);
+      const mv=ev=>{if(!ghost){if(Math.hypot(ev.clientX-sx,ev.clientY-sy)<5)return;ghost=document.createElement('div');ghost.className='cghost';ghost.innerHTML=svg(ICON.skull,2);document.body.appendChild(ghost);if(isMobile()){phone=true;peekOn()}}
+        ghost.style.left=(ev.clientX-32)+'px';ghost.style.top=(ev.clientY-32)+'px';buddy.classList.toggle('hot',mawReady()&&overBuddy(ev))};
+      const up=ev=>{it.removeEventListener('pointermove',mv);it.removeEventListener('pointerup',up);it.removeEventListener('pointercancel',up);buddy.classList.remove('hot');
+        if(!ghost)return;ghost.remove();block=true;setTimeout(()=>{block=false},80);if(phone)peekOff();
+        if(mawReady()&&overBuddy(ev)){setMask(true);if(phone)closeWin('trash');if(!reduce){burstAt(ev.clientX,ev.clientY,10);play([[{f:'squash',happy:1},100],[{f:'stretch',hop:3,happy:1},140],[{f:'idle',hop:0,happy:1},400],[RESET,0]])}}};
+      it.addEventListener('pointermove',mv);it.addEventListener('pointerup',up);it.addEventListener('pointercancel',up);
+    });
+  }
+  it.hidden=!!BS.mask;updTrashCount();
 }
 
 if(buddy.style.left&&!buddy.hidden)setTimeout(()=>{if(!carry&&!perch)dropBuddy()},1700);
@@ -1754,6 +2099,7 @@ $('#alok').addEventListener('click',hideAlert);
 alertW.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();$('#alok').focus()}if(e.key==='Enter'){e.preventDefault();hideAlert()}});
 
 /* ================= keyboard ================= */
+addEventListener('keydown',e=>{if(crash.go){e.stopImmediatePropagation();e.preventDefault()}},true);
 document.addEventListener('keydown',e=>{
   if(bootOn){finishBoot();return}
   if(e.key==='Escape'){
@@ -1821,8 +2167,8 @@ let rzT=0;
 addEventListener('resize',()=>{for(const k in WIN)if(WIN[k].open)clampWin(WIN[k].el);fitCards()});
 let wsz='';new ResizeObserver(()=>{const k=desk.clientWidth+'x'+desk.clientHeight;if(k===wsz)return;wsz=k;clearTimeout(rzT);rzT=setTimeout(buildWall,wall.width?120:0)}).observe(desk);
 
-paintMarks();stage();renderStrip();updInd();runBoot();
-if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,makeHeap,sowHeap,dance,wither,get compost(){return compost},get bin(){return bin},binFeed,mawEat,get BS(){return BS},toCompost,trashDive,sproutFate,set80,show404,get v80on(){return v80on},plant,plants,sprout,bloom,eat,crumble,bubbleP:v=>{BUBBLE_P=v},get perch(){return perch},ditherIn,clearDither,get bubbles(){return speakN},dropBuddy,logoClick,discoveryClick,get logoN(){return logoN},get ST(){return ST},get endingDone(){return endingDone},plant:plant,showAlert,openWin,closeWin,setView,get seeds(){return seeds},get top(){return topId}};
+paintMarks();stage();renderStrip();updInd();BS.mask=PREF(MASK_KEY,'0')==='1'?1:0;bRender();syncSkull();runBoot();
+if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,makeHeap,sowHeap,dance,wither,get compost(){return compost},get bin(){return bin},get unr(){return unr},setMask,syncSkull,vxCollect,get crash(){return crash},unrOut,unrIn,unrOpen,unrTryAgain,binFeed,mawEat,get BS(){return BS},toCompost,trashDive,sproutFate,set80,show404,get v80on(){return v80on},plant,plants,sprout,bloom,eat,crumble,bubbleP:v=>{BUBBLE_P=v},get perch(){return perch},ditherIn,clearDither,get bubbles(){return speakN},dropBuddy,logoClick,discoveryClick,get logoN(){return logoN},get ST(){return ST},get endingDone(){return endingDone},plant:plant,showAlert,openWin,closeWin,setView,get seeds(){return seeds},get top(){return topId}};
 /* the site's old anchors still work: index.html#work, #about, #experience, #contact, and #<project-slug> open the matching window */
 const HASHWIN={work:'work',about:'about',experience:'career',career:'career',contact:'contacts',contacts:'contacts',approach:'how',skills:'how',how:'how',companies:'worked',unreleased:'trash',press:'view',view:'view'};
 function openHash(h){const id=HASHWIN[h]||SLUGID[h];if(id&&(WIN[id]||PB[id]))openWin(id)}
