@@ -2,7 +2,7 @@
    The world step (step, move, solid) touches no DOM, so it runs under node for tests. */
 import {T,VW,VH,MUTE_KEY,ASSIST_KEY,PIECES,DOOR,STUCK,PERCH,newState,snapshot,restore,save,load,clearSave,resume} from './state.js';
 import {ROOMS,ORDER,CHASES,NEXT,roomAtTile,perchOf} from './rooms/index.js';
-import {startChase,stepChase,resetChase,nearness} from './chases.js';
+import {startChase,stepChase,resetChase,nearness,progress} from './chases.js';
 import {DISC} from './door.js';
 import {stepPlayer,PW,PH,FEEL} from './player.js';
 import {spawnEnemies,stepEnemies,WRAP} from './enemies.js';
@@ -293,7 +293,8 @@ export const keyOf=c=>({ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'
 
 /* opts: dev, keyTarget, isActive(), look, assist (bool; default the tos_assist pref), onTorch({restored,warp}),
    onEvent(name,data): 'torch', 'item' {name}, 'piece' {biome}, 'place' {biome}, 'chase_start', 'chase_done', 'door' (all four set),
-   onFx(name,level): 'biome', 'moss', 'seed', 'shake' (0..1 in quarters while thorns chase him),
+   onFx(name,level): 'biome', 'moss', 'seed', 'shake' (0..1 in quarters while thorns or the eel chase him), 'flood' (in Flood:
+   how far the eel's tide has come, 0..1 in quarters, 0 once it is over),
    onDone({restored}): once, after the door has finished opening (or on mount when a save has it open already); the host
    runs the ending from there (os.js: finishGame). The game never fires onEvent('done') itself. */
 export function mount(el,opts={}){
@@ -409,6 +410,7 @@ export function mount(el,opts={}){
     if(S.items.root)fx('seed',1);
     if(bio==='roots')fx('moss',Math.round(Math.max(.2,RT.filter(k=>S.torches[k]).length/Math.max(1,RT.length))*20)/20);
     fx('shake',Math.round(nearness(S)*4)/4);   /* a chase trembles the desktop harder as the thorns close in (quarters, so os.js restarts rarely) */
+    if(bio==='flood')fx('flood',S.chase&&S.chase.id==='flood'?Math.round(progress(S)*4)/4:0);   /* the tide fills the desktop (os.js) */
   }
   function sound(){
     const R=ROOMS[S.room];

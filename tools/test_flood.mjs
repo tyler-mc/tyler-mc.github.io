@@ -305,7 +305,7 @@ function f2Run(S,rec){
 
 /* ---------------- the pre-board Flood rooms (b1-b7): the board is found only in f1, after them ---------------- */
 console.log('pre-board Flood (b1 to b7)');
-const {PERCH}=await import(G+'state.js'),{ORDER,perchOf}=await import(G+'rooms/index.js');
+const {PERCH,VW}=await import(G+'state.js'),{ORDER,perchOf}=await import(G+'rooms/index.js');
 const PRE=['b1','b2','b3','b4','b5','b6','b7'];
 /* go: hold dir with the jump held, pressed every k frames (0: once, at frame 1; -1: never) plus a second press r frames
    after each; stop as soon as target() holds (any frame, or only on the ground with any:false). First plan that works */
@@ -322,12 +322,18 @@ const ft=S=>S.p.y+PH,onPerch=S=>S.p.ground&&!!perchOf(ROOMS[S.room],S.p);
 const ROUTE={
   b1:(S,rec,perch)=>(!perch||Bot.go(S,rec,'r',S=>S.p.ground&&S.p.x>=33*T&&ft(S)<=13*T+.1,{any:false})&&Bot.perch(S,rec,36))&&Bot.go(S,rec,'r',S=>S.room==='b2'),
   b2:(S,rec)=>Bot.go(S,rec,'r',S=>S.room==='b3'),
-  b3:(S,rec)=>Bot.go(S,rec,'r',S=>S.room==='b4'),
+  /* b3: the current carries him east to the island; the tunnel takes him back west over the pool to the ledge; up onto the roof, east, down the stair */
+  b3:(S,rec)=>Bot.go(S,rec,'r',S=>S.room==='b3'&&S.p.ground&&S.p.x>=28*T&&ft(S)<=12*T+.1,{any:false})&&Bot.walk(S,rec,'',S=>S.p.ground&&!S.p.buf,60)&&Bot.walk(S,rec,'r',S=>S.p.x>=29.4*T,120)&&
+    Bot.plan(S,rec,'l',S=>S.p.ground&&ft(S)<=9*T+.1&&S.p.x<28*T,{jumps:[4,6,8,10,12],max:200})&&Bot.go(S,rec,'l',S=>S.p.ground&&ft(S)<=9*T+.1&&S.p.x<=11.5*T,{ks:[-1],any:false,max:600})&&
+    Bot.go(S,rec,'r',S=>S.p.ground&&ft(S)<=6*T+.1,{any:false,max:200})&&Bot.go(S,rec,'r',S=>S.room==='b4',{max:600}),
   b4:(S,rec)=>Bot.go(S,rec,'r',S=>S.room==='b5'),
-  b5:(S,rec,perch)=>(!perch||Bot.go(S,rec,'r',S=>S.p.ground&&S.p.x>=7*T&&ft(S)<=8*T+.1,{any:false})&&Bot.perch(S,rec,8))&&Bot.go(S,rec,'r',S=>S.room==='b6'),
+  /* b5: the seat is at the tunnel mouth (13,7), past the block; from it he goes back up onto the block, then the slab */
+  b5:(S,rec,perch)=>(!perch||Bot.go(S,rec,'r',S=>S.p.ground&&S.p.x>=11.5*T&&Math.abs(ft(S)-8*T)<.5,{any:false})&&Bot.walk(S,rec,'',S=>S.p.ground&&!S.p.buf,120)&&Bot.perch(S,rec,13)&&
+    Bot.go(S,rec,'l',S=>S.p.ground&&ft(S)<=6*T+.1,{any:false,max:300}))&&Bot.go(S,rec,'r',S=>S.room==='b6'),
   b6:(S,rec)=>Bot.go(S,rec,'r',S=>S.p.x>16*T)&&Bot.go(S,rec,'r',S=>ft(S)>=11*T-.1,{ks:[-1],any:false})&&Bot.go(S,rec,'l',S=>S.p.x<=8*T+1,{ks:[-1],max:600})&&
     Bot.go(S,rec,'l',S=>S.p.ground&&ft(S)<=13*T+.1,{ks:[0],rs:[2,4,6,8,10],max:120,any:false})&&Bot.go(S,rec,'l',S=>S.room==='b7',{ks:[-1],max:300}),
-  b7:(S,rec)=>Bot.go(S,rec,'l',S=>S.p.x<8*T,{ks:[-1],any:false})&&Bot.go(S,rec,'r',S=>S.p.x>=32*T&&ft(S)<=12*T+.1,{max:1500,any:false})&&
+  /* b7: the slab hangs low over the undertow from col 12, so he walks off the pit ledge into the water and swims it from there */
+  b7:(S,rec)=>Bot.go(S,rec,'l',S=>S.p.x<8*T,{ks:[-1],any:false})&&Bot.walk(S,rec,'r',S=>S.liq.wet,200)&&Bot.go(S,rec,'r',S=>S.p.x>=32*T&&ft(S)<=12*T+.1,{max:1500,any:false})&&
     Bot.go(S,rec,'r',S=>ft(S)<=9*T+.1,{any:false,hs:[9999,10,20,30]})&&Bot.go(S,rec,'r',S=>ft(S)<=5*T+.1,{any:false,hs:[9999,10,20,30]})&&Bot.go(S,rec,'r',S=>S.room==='f1'),
 };
 const stage=(id,f)=>{const ok=f();if(!ok)console.log('    route stuck in',id);return ok};
@@ -338,13 +344,13 @@ const stage=(id,f)=>{const ok=f();if(!ok)console.log('    route stuck in',id);re
   ok(ROOMS.b1.at[0]===ROOMS.hub.w&&ROOMS.b1.at[1]===0&&nb('b1','b2')&&nb('b2','b3')&&nb('b3','b4')&&nb('b4','b5')&&nb('b5','b6')&&ROOMS.b7.at[1]===ROOMS.b6.at[1]+ROOMS.b6.h&&nb('b7','f1')&&nb('f1','f2'),
     'b1 to b6 run east along the top from the hub, b7 lies under b5 and b6, f1 and f2 run east from b7 (not mirrored)');
   const fl=ORDER.filter(id=>ROOMS[id].biome==='flood');
-  ok(fl.every(id=>{const R=ROOMS[id];return R.at[0]>=24&&R.at[1]>=0&&R.at[0]+R.w-1<=370&&R.at[1]+R.h-1<=40}),`every Flood room lies in the Flood box of the world plan (x 24..370, y 0..40): ${fl.map(id=>id+' '+ROOMS[id].at).join(' ')}`);
+  ok(fl.every(id=>{const R=ROOMS[id];return R.at[0]>=24&&R.at[1]>=0&&R.at[0]+R.w-1<=470&&R.at[1]+R.h-1<=40}),`every Flood room lies in the Flood box of the world plan (x 24..470, y 0..40): ${fl.map(id=>id+' '+ROOMS[id].at).join(' ')}`);
   ok(PRE.every(id=>!ROOMS[id].items.length),'no item in b1 to b7 (the board waits in f1)');
   const H=ROOMS.hub,col=H.g.map(r=>r[23]).join('').slice(0,16);
   ok(!col.includes('=')&&col.slice(11,14)==='...'&&H.g[14][23]==='~'&&ROOMS.b1.g[14][0]==='~',`the hub's east exit has no rubble (rubble means sealed; the rubble below row 15 is the Molten funnel): an open way over a rock step with water sunk in its top, the tide that runs on into Tideshore (col 23, rows 0-15: ${col})`);
   ok(ROOMS.b1.perches.length===1&&ROOMS.b5.perches.length===1,'the calm rooms (b1 Tideshore, b5 Glass Reach) each have a seat');
   ok(ROOMS.b1.spawns.length===0&&!ROOMS.b1.plates.length,'Tideshore has nothing hostile');
-  for(const [id,tx,ty] of [['b1',36,12],['b5',8,7]]){const S=at(id,tx*T+T/2-PW/2,(ty+1)*T-PH,{root:1});run(S,PERCH.wait+PERCH.drift,I());ok(S.sit>=PERCH.drift-5&&onPerch(S),`${id}: standing still on the seat he sits (${S.sit} frames) and the camera drifts toward its look`)}
+  for(const [id,tx,ty] of [['b1',36,12],['b5',13,7]]){const S=at(id,tx*T+T/2-PW/2,(ty+1)*T-PH,{root:1});run(S,PERCH.wait+PERCH.drift,I());ok(S.sit>=PERCH.drift-5&&onPerch(S),`${id}: standing still on the seat he sits (${S.sit} frames) and the camera drifts toward its look`)}
 }
 const TIMES={};
 { // each room with the root and no board: from its way in to the next room, then replayed exactly
@@ -361,11 +367,39 @@ const TIMES={};
   const won=Bot.go(S,rec,'r',S=>S.room==='b1')&&ROUTE.b1(S,rec)&&ROUTE.b2(S,rec)&&ROUTE.b3(S,rec);
   ok(won&&S.room==='b4'&&!S.items.root,`no items: from the hub through Tideshore, Swim Steps and Current Run into b4 (${(rec.length/60).toFixed(1)} s)`);
   const back={b1:'hub',b2:'b1',b3:'b2',b4:'b3'};
-  const spots=[['b1',46*T,168-PH,'the far end'],['b1',10*T,13*T,'tide A'],['b1',27*T,13*T,'tide B'],['b2',34*T,144-PH,'the far end'],['b2',8*T,13*T,'pool 1'],['b2',22*T,11*T,'pool 2'],
-    ['b3',38*T,144-PH,'the far end'],['b3',10*T,11*T,'pool A'],['b3',27*T,11*T,'pool B'],['b4',34*T,144-PH,'the foot of the wall'],['b4',11*T,11*T,'pool 1'],['b4',25*T,11*T,'pool 2']];
+  const spots=[['b1',46*T,168-PH,'the far end'],['b1',10*T,13*T,'tide A'],['b1',27*T,13*T,'tide B'],['b2',34*T,144-PH,'the far end'],['b2',8*T,13*T,'pool 1'],['b2',15*T,13*T,'the stone pool'],['b2',21.5*T,13*T,'the slot by the stone'],['b2',28*T,11*T,'pool 3'],
+    ['b3',38*T,144-PH,'the far end'],['b3',10*T,11*T,'pool A'],['b3',29*T,144-PH,'the island'],['b3',15*T,9*T-PH,'the tunnel'],['b3',11.2*T,9*T-PH,'the ledge'],['b3',20*T,6*T-PH,'the roof'],['b4',34*T,144-PH,'the foot of the wall'],['b4',11*T,11*T,'pool 1'],['b4',25*T,11*T,'pool 2']];
   for(const [id,x,y,n] of spots){const S=playState(id,x,y,{});if(id==='b4')S.ens=[];run(S,60,I());const r=[];
     ok(Bot.go(S,r,'l',S=>S.room===back[id],{max:2400})&&!S.p.dead,`no items: from ${n} of ${id} he gets back west into ${back[id]} (${(r.length/60).toFixed(1)} s${id==='b4'?', fish removed: geometry only':''})`)}
   for(const x of [30,32,33,34.4]){const l=leak(at('b4',x*T,144-PH,{}),'r',S=>S.room!=='b4'||(S.p.ground&&ft(S)<=8*T+.1));ok(!l,`no root: from x ${x} under b4's wall (4 tiles) he never gets up to the way on${l?' LEAK '+JSON.stringify(l):''}`)}
+}
+{ // b2: the second pool's far bank is a wall three tiles above the water, so no stroke climbs it; the stone in the pool, flush with the water, is the one way up
+  const R=ROOMS.b2,top=S=>S.room==='b2'&&S.p.ground&&S.p.x+PW>23*T+2&&ft(S)<=11*T+.1,onStone=S=>S.p.ground&&Math.abs(ft(S)-14*T)<.5&&S.p.x+PW>19*T+2&&S.p.x<21*T-2;
+  ok([11,12,13].every(y=>R.g[y][23]==='#')&&R.g[10][23]!=='#'&&R.g[14][22]==='~'&&[14,15,16].every(y=>R.g[y].slice(19,21)==='##')&&R.g[13].slice(19,21)==='..'&&R.g[14][18]==='~'&&R.g[14][21]==='~',
+    "b2: the second pool (surface row 14) ends at a wall 3 tiles up (col 23, top row 11); a 2-wide stone flush with the water stands two tiles out from it (cols 19-20)");
+  ok(R.g[14][12]==='#'&&R.g[13][12]!=='#'&&R.g[14][3]==='#'&&R.g[14][11]==='#'&&R.g[12][24]==='#'&&R.g[11][24]!=='#'&&R.g[12][32]==='#'&&R.g[11][32]!=='#','b2: every other bank of the three pools is flush with its water (a stroke climbs out)');
+  ROOMS.b2ns=parse({id:'b2ns',name:'b2 without its stone',biome:'flood',at:[4200,4000],grid:R.g.map((r,y)=>y>=14&&y<=16?r.slice(0,19)+'~~'+r.slice(21):r),ents:[]});
+  for(const x of [15,18,21.5]){const l=leak(drop('b2ns',x*T,13*T,{root:1}),'r',top,{waits:[0,20]});ok(!l,`b2 without the stone: swimming at x ${x}, strokes + root never climb the wall${l?' LEAK '+JSON.stringify(l):''}`)}
+  for(const x of [11,12.4]){const l=leak(at('b2ns',x*T,14*T-PH,{root:1}),'r',top);ok(!l,`b2 without the stone: from the bank at x ${x} the low roof stops any jump at the wall${l?' LEAK '+JSON.stringify(l):''}`)}
+  { const S=drop('b2',15*T,13*T,{}),r=[];ok(Bot.go(S,r,'r',onStone,{max:600,any:false})&&Bot.go(S,r,'r',top,{max:300,any:false}),`b2: no items, from the water he strokes onto the stone and jumps up the wall (${(r.length/60).toFixed(1)} s)`)}
+  { const S=drop('b2',21.5*T,13*T,{}),r=[];ok(Bot.go(S,r,'l',onStone,{max:600,any:false})&&Bot.go(S,r,'r',top,{max:300,any:false}),`b2: no items, a jump that falls short lands in the slot by the wall; he strokes back onto the stone and tries again (${(r.length/60).toFixed(1)} s)`)}
+}
+{ // b3: the fish's pool is crossed twice: east in its water (the current carries him to an island walled off from the way on), then back west on a tunnel floor right over it, then the roof east
+  const R=ROOMS.b3,F0=playState('b3',1*T,144-PH).liq.flow,pool=[];for(let y=12;y<17;y++)for(let x=4;x<28;x++)pool.push(R.g[y][x]==='~'&&F0[y*R.w+x]>0);
+  const fish=R.spawns.find(s=>s.k==='C');
+  ok(pool.every(Boolean)&&R.g.join('').split('~').length-1===pool.length&&fish&&fish.left>=4&&fish.right<=27&&R.g[fish.ty][fish.tx]==='~',`b3: one pool (cols 4-27, rows 12-16) flowing east, the clownfish fenced inside it (${fish&&fish.left}-${fish&&fish.right}); no other water`);
+  const S=playState('b2',33*T,144-PH,{root:1});run(S,3,I());const rec=[],start=snapshot(S);const won=Bot.go(S,rec,'r',S=>S.room==='b3',{max:600})&&ROUTE.b3(S,rec);
+  restore(S,start);const legs=[];let cur=null;
+  for(const c of rec){E.step(S,dec(c),[]);if(S.room!=='b3')continue;const cx=(S.p.x+PW/2)/T,k=S.liq.wet?'water':S.p.ground&&Math.abs(ft(S)-9*T)<.5&&cx>11&&cx<28?'tunnel':S.p.ground&&Math.abs(ft(S)-6*T)<.5?'roof':null;
+    if(!k)continue;if(!cur||cur.k!==k){cur={k,a:cx,b:cx};legs.push(cur)}else cur.b=cx}
+  const water=legs.find(l=>l.k==='water'&&l.a<8&&l.b>26),tun=legs.find(l=>l.k==='tunnel'&&l.a>26&&l.b<13),roof=legs.find(l=>l.k==='roof'&&l.a<15&&l.b>31);
+  ok(won&&water&&tun&&roof&&legs.indexOf(water)<legs.indexOf(tun)&&legs.indexOf(tun)<legs.indexOf(roof),`b3: the route crosses the pool east in the water (cols ${water&&water.a.toFixed(0)}-${water&&water.b.toFixed(0)}), back west on the tunnel floor over it (${tun&&tun.a.toFixed(0)}-${tun&&tun.b.toFixed(0)}), then east on the roof (${roof&&roof.a.toFixed(0)}-${roof&&roof.b.toFixed(0)})`);
+  const up=S=>S.room==='b4'||(S.room==='b3'&&S.p.ground&&ft(S)<=9*T+.1);
+  for(const x of [1,2.4]){const l=leak(at('b3',x*T,144-PH,{root:1}),'r',up);ok(!l,`b3: from the door floor at x ${x} the low roof stops any jump: jump + root never reach the tunnel, the ledge or the roof${l?' LEAK '+JSON.stringify(l):''}`)}
+  for(const x of [6,9.5,20]){const l=leak(drop('b3',x*T,11*T,{root:1}),'r',up,{waits:[0,20]});ok(!l,`b3: swimming at x ${x}, strokes + root never climb to the tunnel or the ledge (3 tiles over the water)${l?' LEAK '+JSON.stringify(l):''}`)}
+  const out=S=>S.room==='b4'||(S.room==='b3'&&S.p.ground&&(ft(S)<=6*T+.1||S.p.x>=33*T));
+  for(const d of ['l','r']){const l=leak(at('b3',29.4*T,144-PH,{root:1}),d,out);ok(!l,`b3: from the island (holding ${d}) the roof and the stair are out of reach: it is walled off from the way on${l?' LEAK '+JSON.stringify(l):''}`)}
+  { const S=at('b3',11.2*T,9*T-PH,{}),r=[];ok(Bot.walk(S,r,'l',S=>S.liq.wet,200)&&Bot.go(S,r,'r',S=>S.p.ground&&S.p.x>=28*T&&ft(S)<=12*T+.1,{any:false,max:900}),`b3: no items, walking off the ledge drops him in the pool; the current carries him back to the island (${(r.length/60).toFixed(1)} s)`)}
 }
 { // b4: the stakes. Three knocks and the clownfish turns; its chomp glitches him out and he is back at a b4 torch
   const S=playState('b4',1*T,144-PH,{root:1});run(S,3,I());Bot.walk(S,[],'r',S=>S.p.x>=7*T,200);const f=S.ens.find(e=>e.k==='fish'&&e.fence[0]===6);
@@ -388,6 +422,9 @@ const TIMES={};
   let w=null;for(const d of [1,2,3,4])for(let j=20;j<160&&!w;j+=2)for(const r of [10,14,18,22,26]){const S=at('b5',17*T,96-PH,{root:1,board:1});let air=false,good=false;
     for(let i=1;i<300;i++){E.step(S,I({r:1,j:1,bp:i===d+8,jp:i===j||i===j+r}),[]);if(S.p.dead)break;if(!S.p.ground)air=true;else if(air&&i>12){good=shelf(S);break}}if(good){w={d,j,r};break}}
   ok(!!w,`b5: with the board and the root the shelf can be reached (a gate for later, not a wall)${w?' '+JSON.stringify(w):''}`);
+  { // the seat's view: standing at the tunnel mouth the crab is off screen; sitting, the camera drifts east until the pit, its still water and the crab's shelf (cols 19-34) are all in view
+    const S=at('b5',13*T+T/2-PW/2,8*T-PH,{root:1}),seen=S=>S.cam.x<=19*T&&S.cam.x+VW>=35*T,c0=S.cam.x+VW,stood=seen(S);run(S,PERCH.wait+PERCH.drift,I());
+    ok(!stood&&S.sit>0&&seen(S)&&ROOMS.b5.perches[0].tx===13,`b5: the seat at the tunnel mouth shows the pit and the crab only once he sits (view to col ${(c0/T).toFixed(1)} standing, cols ${(S.cam.x/T).toFixed(1)}-${((S.cam.x+VW)/T).toFixed(1)} sitting)`)}
 }
 { // b6: the root gets him out of the second pool, west; without it he swims back east and climbs out (no trap)
   const S=playState('b6',9*T,13*T,{});run(S,200,I({l:1}));const l=leak(snapshot(S),'l',S=>S.room==='b7'||(S.p.ground&&ft(S)<=13*T+.1),{waits:[0,20]});
@@ -402,6 +439,13 @@ const TIMES={};
   const past=S=>S.room==='f1'||(S.room==='b7'&&S.p.x>30*T+2&&ft(S)<=4*T+.1),fail=S=>S.room!=='b7'||ft(S)>5*T;
   for(const x of [16,19,22,24,27,29]){const l=leak(at('b7',x*T,48-PH,{root:1}),'r',past,{waits:[0,60,150],fail});ok(!l,`b7: no board, from x ${x} on the top lane he never gets past the gate${l?' LEAK '+JSON.stringify(l):''}`)}
   ok(Object.values(playState('b7',19*T,48-PH).liq.flow).every(v=>v<0),'b7: the undertow flows west, against him');
+  { // the slab hangs low over the undertow (rows 8-9 rock over cols 12-27, two tiles of air above the water): no jump carries him out over it
+    let far=0;for(const sx of [6,7,8,8.5])for(const r of [0,...R20.map(i=>i+1)])for(const j of [1,2,4,6]){const S=at('b7',sx*T,(sx<8?9:12)*T-PH,{root:1});
+      for(let i=1;i<400;i++){E.step(S,I({r:1,j:1,jp:i===j||i===j+r}),[]);if(S.liq.wet||ft(S)>12*T+2){far=Math.max(far,S.p.x/T);break}}}
+    ok(far<11.5&&[8,9].every(y=>ROOMS.b7.g[y].slice(12,28)==='#'.repeat(16))&&[10,11].every(y=>ROOMS.b7.g[y].slice(12,28)==='.'.repeat(16)),`b7: the slab hangs two tiles over the undertow from col 12 to 27, so jump + root from the pit's ledge or bank never get him further out than col ${far.toFixed(1)} before he is in the water`);
+    const S=playState('b6',3*T-3,204-PH-6,{root:1});run(S,3,I());const rec=[],st=snapshot(S);const won=Bot.go(S,rec,'',S=>S.room==='b7',{ks:[-1],max:600})&&ROUTE.b7(S,rec);
+    restore(S,st);let wet=0,x0=99,x1=0;for(const c of rec){E.step(S,dec(c),[]);if(S.room==='b7'&&S.liq.wet){wet++;x0=Math.min(x0,S.p.x/T);x1=Math.max(x1,S.p.x/T)}}
+    ok(won&&wet>=150&&x0<11&&x1>30,`b7: the root bot swims the undertow from col ${x0.toFixed(1)} to ${x1.toFixed(1)} (${wet} frames in the water)`)}
 }
 { // the whole slice by script: hub, the seven pre-board rooms (sitting on both seats), Shallows and its board, Hermit Cove
   const S=playState('hub',12*T,192-PH,{root:1});run(S,3,I());const rec=[],start=snapshot(S),enter={};

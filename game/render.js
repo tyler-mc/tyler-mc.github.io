@@ -9,6 +9,8 @@ import {drawFragment,fragCentre,ACCENT} from './door.js';   /* M1b: pedestal, fl
 import {DOOR as RITE,BOB,PIECES} from './state.js';
 import {WITHER} from './chases.js';
 import {waterBody,waterCrest,waterFront,boardItem,boardHud,boardUnder,drawCrab,drawFish} from './floodart.js';   /* M3: water, the board, crab and fish */
+import {tideBody,tideCrest,tideFront,lureAt,drawEel} from './floodart.js';   /* the Flood chase: its tide and eel */
+import {CHASES} from './rooms/index.js';
 import {createFx,stepFx,clearFx,radii,sprout} from './fx.js';   /* the body pulse, dust, skid and sprout lag, kept out of S */
 import {MAXF,FEEL} from './player.js';
 import {isLiq} from './liquid.js';
@@ -224,6 +226,7 @@ export function createRenderer(cv,{reduce=false}={}){
     ctx.drawImage(lay,-ox,-oy);
     const X=v=>Math.round(v)-ox,Y=v=>Math.round(v)-oy,vis=(x,y,m=24)=>x>ox-m&&x<ox+VW+m&&y>oy-m&&y<oy+VH+m;
     waterBody(ctx,S,R,ox,oy,t);   /* liquid surfaces from S.liq (game/floodart.js) */
+    tideBody(ctx,S,R,ox,oy);   /* a chase's tide (game/tide.js) */
     /* dynamic tiles */
     for(let ty=0;ty<R.h;ty++)for(let tx=0;tx<R.w;tx++){
       const c=R.g[ty][tx];if(c==='.'||c==='#')continue;
@@ -262,6 +265,7 @@ export function createRenderer(cv,{reduce=false}={}){
       for(const it of R.items)if(!S.items[it.id])addLight(L,it.tx*T+6-ox,it.ty*T+6-oy,26,.9);
       for(const f of R.pedestals)addLight(L,f.tx*T+6-ox,f.ty*T-6-oy,S.pieces[PIECES.indexOf(f.piece)]?18:44,.85);
       for(const q of R.perches)addLight(L,q.tx*T+6-ox,q.ty*T+2-oy,S.sit&&perchOf(R,S.p)===q?46:24,.7);   /* a seat is lit, so it reads as a place to stop */   /* a shaft of light on the shrine */
+      {const lu=lureAt(S,R,t,reduce);if(lu)addLight(L,lu.x-ox,lu.y-oy,lu.r,.8)}   /* the eel's lure, its one light */
       /* enemies and thorns give no light (Tyler): their red lives in the sprite art; enemies draw after this pass */
       lightPass(amb);
       /* the dark room's window edge: a faint dithered frame wherever the light comes near it */
@@ -275,6 +279,7 @@ export function createRenderer(cv,{reduce=false}={}){
     }
 
     waterCrest(ctx,S,ox,oy,t,amb<1?L:null,amb,reduce);   /* the surface line reads in the dark */
+    tideCrest(ctx,S,ox,oy,t,amb<1?L:null,amb,reduce);
     if(R.plates.length)links(ctx,S,R,ox,oy,t,reduce);
     /* the thorn that got him flashes white like an enemy would (steady under reduced motion) */
     const blinkOn=reduce||(t>>1)&1;
@@ -291,7 +296,8 @@ export function createRenderer(cv,{reduce=false}={}){
       else if(e.k==='puff'&&!reduce)spores(ctx,e,bx,by);
     });
     /* M1b: the thorn wall over everything but him; the fragment's ghost in its recess, its flight there, the slot's pulse */
-    if(S.chase)thornWall(ctx,S,R,ox,oy,t,reduce,p.dead&&S.flash==='chase'&&blinkOn);
+    if(S.chase&&!(CHASES[S.chase.id]&&CHASES[S.chase.id].tide))thornWall(ctx,S,R,ox,oy,t,reduce,p.dead&&S.flash==='chase'&&blinkOn);
+    else drawEel(ctx,S,R,ox,oy,t,reduce,p.dead&&S.flash==='chase'&&blinkOn);   /* Flood: the eel (asleep in its lair before the chase) */
     if(R.id==='hub')slotFx(ctx,S,ox,oy,t,reduce);
     /* root strands run from his shoes to their tips every frame */
     const st0=look(S),sx=Math.round(p.x)-7-ox,sy=Math.round(p.y)-20-oy,fr=FR[st0.f]||FR.idle,fy=sy+31+fr[2]+fr[1];
@@ -316,7 +322,7 @@ export function createRenderer(cv,{reduce=false}={}){
       ctx.drawImage(c,x,y);
       if(!k&&!st.mac)shoes(ctx,S,feet,fy,p.face);
       boardUnder(ctx,S,ox,oy,t,reduce);
-      if(!p.surf)waterFront(ctx,S,R,ox,oy,p);   /* swimming: the water in front of him */
+      if(!p.surf){waterFront(ctx,S,R,ox,oy,p);tideFront(ctx,S,ox,oy,p)}   /* swimming: the water in front of him */
       ctx.globalAlpha=1;
       if(S.mode==='dark'&&!p.dead&&S.match>0){
         const hx=Math.round(p.x+(p.face>0?20:-3))-ox,hy=Math.round(p.y+8)-oy,f=(t>>2)%3;

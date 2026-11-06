@@ -20,7 +20,8 @@ import R_b6 from './flood_b6.js';
 import R_b7 from './flood_b7.js';
 import R_f1 from './flood_f1.js';
 import R_f2 from './flood_f2.js';
-const LIST=[R_hub,R_r1,R_r2,R_r3,R_r4,R_r5,R_a1,R_a2,R_a3,R_a4,R_a5,R_b1,R_b2,R_b3,R_b4,R_b5,R_b6,R_b7,R_f1,R_f2];
+import R_b10 from './flood_b10.js';
+const LIST=[R_hub,R_r1,R_r2,R_r3,R_r4,R_r5,R_a1,R_a2,R_a3,R_a4,R_a5,R_b1,R_b2,R_b3,R_b4,R_b5,R_b6,R_b7,R_f1,R_f2,R_b10];
 /* rooms:end */
 
 export const ORDER=LIST.map(r=>r.id);
@@ -57,7 +58,7 @@ export function roomAtTile(wx,wy){
 }
 
 /* Chases (game/chases.js). Lifting a biome's fragment wakes its chase: a wall of thorns, its front a vertical line at a
-   world x, sweeping east. path: [world tile x, px per frame from there on], ending in a bare [x], the safe line; he
+   world x, sweeping east (dir:-1 sweeps west, and every rule below mirrors). path: [world tile x, px per frame from there on], ending in a bare [x], the safe line; he
    outruns it by crossing that. It waits `beat` frames at `from` (world tile x) before it moves. After a death it
    restarts `gap` px behind the torch he respawns at (never behind `from`); `at` can pin a torch's restart point
    ('room:tx,ty': world tile x). Assist slows it to 70% and widens the gap by half. */
@@ -70,6 +71,19 @@ export const CHASES={
      The torch on Deep Roots' mid ledge sends him back west, toward the thorns, so its restart is pinned 32 tiles behind it
      inside the Cathedral; the top torch restarts at the Cathedral's west end so the long zigzag below it starts with room to spare */
   roots:{from:-408,beat:60,gap:150,path:[[-408,.95],[-378,.85],[-342,.2],[-318,.8],[-282,.9],[-234]],at:{'r4:20,16':-354,'r4:4,5':-378}},
+  /* Flood (game/tide.js): dir -1, west. From the eel's lair at the foot of Eel Grotto (b10), up its steps and back through
+     Hermit Cove (f2) and Shallows (f1); safe at Shallows' west door (x 253), so Undertow's calm follows. For its 2 s beat the
+     tide swells over the lair's rim; then the eel's snout (S.chase.x) moves. tide: y0 the level it swells from, rise its px
+     per frame toward lv (by stretch: world tile x, world px y), drain its px per frame once outrun, lip how far the water
+     runs ahead of the snout, edge and drop the curve of its leading edge, reach how high over the water the eel strikes.
+     Each level is a shallow sheet 8 px over the floor where the snout is, so the water climbs Eel Grotto's steps behind
+     him, and his middle stays dry on any floor ahead of it (a step is never a trap); deep only over pools and pits. The eel
+     (px/frame) climbs the grotto at 1.3 and runs the cove and Shallows at 1.5 (his run is 1.6, a surf 2.8); a death restarts
+     it 300 px (about 3 s) east of his torch. With the board a clean bot run takes about 20 s, closest 3 s behind him; a bot
+     that waits 1 s in every room, or restarts at any torch on the way, still clears it; with the root alone it is about 27 s
+     and the eel comes within 1 s (tools/test_flood_chase.mjs) */
+  flood:{dir:-1,from:440,beat:120,gap:300,path:[[440,1.3],[378,1.5],[312,1.5],[253]],
+    tide:{y0:448,rise:.5,drain:1,lip:120,edge:24,drop:40,reach:60,lv:[[440,412],[422,388],[416,364],[406,328],[384,304],[378,280],[312,278]]}},
 };
 /* the stuck hint: after minutes without progress he looks toward the first goal here not yet met.
    need: 'item:<id>', 'piece:<biome>' (carried) or 'placed:<biome>' (in the door); tile is optional (room centre) */
@@ -77,4 +91,6 @@ export const NEXT=[
   {need:'item:root',room:'r1',tile:[23,15]},
   {need:'piece:roots',room:'r5',tile:[8,15]},
   {need:'placed:roots',room:'hub',tile:[12,10]},
+  {need:'item:board',room:'f1',tile:[8,15]},
+  {need:'piece:flood',room:'b10',tile:[64,26]},
 ];

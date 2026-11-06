@@ -25,10 +25,16 @@ export function newLiquid(R,ents=[]){
   return {s,flow,wet:0};
 }
 
-/* the surface whose x span holds room px x and whose rest line lies between y0 and y1, else null */
+/* a chase's tide (game/tide.js fills L.tide while one runs): its column at room px x, {i,top,bot} (room px), else null;
+   and whether room px (x,y) is in its water */
+export const tideCol=(L,x)=>{const D=L&&L.tide;if(!D)return null;const i=Math.floor(x/CW);return i>=0&&i<D.n&&D.top[i]>=0?{i,top:D.top[i],bot:D.bot[i]}:null};
+export const inTide=(L,x,y)=>{const q=tideCol(L,x);return !!q&&y>q.top&&y<q.bot};
+/* the surface whose x span holds room px x and whose rest line lies between y0 and y1, else null (a tide's first; a
+   pool under the tide has no surface of its own) */
 export function surfAt(L,x,y0,y1){
   if(!L)return null;
-  for(const s of L.s){const top=s.ty*T;if(top<y0||top>y1||x<s.tx*T||x>=s.tx*T+s.n*CW)continue;
+  const q=tideCol(L,x);if(q&&q.top>=y0&&q.top<=y1)return {s:L.tide,i:q.i,top:q.top,y:q.top+L.tide.h[q.i]};
+  for(const s of L.s){const top=s.ty*T;if(top<y0||top>y1||x<s.tx*T||x>=s.tx*T+s.n*CW||(q&&q.top<top))continue;
     const i=Math.min(s.n-1,Math.floor((x-s.tx*T)/CW));return {s,i,top,y:top+s.h[i]}}
   return null;
 }
@@ -54,7 +60,7 @@ function bodies(S,R,ev){
 export function stepLiquid(S,R,ev=[]){
   const L=S.liq;if(!L)return;
   bodies(S,R,ev);
-  for(const s of L.s){const h=s.h,v=s.v,n=s.n;
+  for(const s of L.tide?[...L.s,L.tide]:L.s){const h=s.h,v=s.v,n=s.n;
     for(let i=0;i<n;i++)v[i]+=-K*h[i]-D*v[i]+SP*((i?h[i-1]:h[i])+(i<n-1?h[i+1]:h[i])-2*h[i]);   /* ripples spread both ways */
     for(let i=0;i<n;i++){h[i]+=v[i];if(h[i]>MAXH)h[i]=MAXH;else if(h[i]<-MAXH)h[i]=-MAXH;if(Math.abs(h[i])<EPS&&Math.abs(v[i])<EPS){h[i]=0;v[i]=0}}
   }

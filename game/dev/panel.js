@@ -4,11 +4,12 @@ import {FEEL,ACC,DEC,AACC,ADEC,AREV,RUN,CORNER,HIT,LEAD,STRIDE} from '../player.
 const CSS=`.tg-dev{position:absolute;left:4px;bottom:4px;z-index:9;font:11px/1.4 ui-monospace,Menlo,monospace;color:#ddd}
 .tg-dev>button{font:inherit;padding:1px 6px;background:#222;color:#aaa;border:1px solid #444;opacity:.6;cursor:pointer}
 .tg-dev>button:hover{opacity:1}
-.tg-dev .b{display:none;margin-bottom:4px;padding:6px 8px;background:rgba(10,10,12,.92);border:1px solid #444;max-width:220px}
+.tg-dev .b{display:none;margin-bottom:4px;padding:6px 8px;background:rgba(10,10,12,.92);border:1px solid #444;max-width:220px;max-height:calc(100vh - 44px);overflow-y:auto;overscroll-behavior:contain}
 .tg-dev.open .b{display:block}
 .tg-dev .b button{font:inherit;margin:0 3px 3px 0;padding:1px 5px;background:#333;color:#eee;border:1px solid #555;cursor:pointer}
 .tg-dev .b button:hover{background:#555}
 .tg-dev h4{margin:4px 0 2px;font:inherit;color:#888;text-transform:uppercase;letter-spacing:.05em}
+.tg-dev .wl h5{margin:5px 0 2px;font:inherit;color:#7a9;letter-spacing:.04em}
 .tg-dev .f{display:flex;align-items:center;gap:4px;margin:0}
 .tg-dev .f span{width:3.8em}.tg-dev .f input{flex:1;min-width:0;margin:0}.tg-dev .f output{width:2.6em;text-align:right}
 .tg-dev label{margin-right:6px;white-space:nowrap}`;
@@ -18,7 +19,10 @@ export default function devPanel(root,api){
   if(!document.getElementById('tg-dev-css')){const s=document.createElement('style');s.id='tg-dev-css';s.textContent=CSS;document.head.appendChild(s)}
   const d=document.createElement('div');d.className='tg-dev';
   /* warp list read from the live registry each time the panel opens, so rooms the editor adds or renames show up */
-  const warps=()=>[['intro','Intro'],['dark','Dark'],['chase','Chase'],...ORDER.filter(id=>ROOMS[id]).map(id=>[id,`${ROOMS[id].name} · ${id}`])].map(([id,n])=>`<button data-w="${id}">${n}</button>`).join('');
+  /* grouped by biome in registry order (a new room lands under its biome with no code change); the panel scrolls, so a long list stays reachable */
+  const warps=()=>{const btn=([id,n])=>`<button data-w="${id}">${n}</button>`,groups=new Map([['story',[['intro','Intro'],['dark','Dark'],['chase','Chase']]]]);
+    for(const id of ORDER){const R=ROOMS[id];if(!R)continue;if(!groups.has(R.biome))groups.set(R.biome,[]);groups.get(R.biome).push([id,`${R.name} · ${id}`])}
+    return [...groups].map(([g,l])=>`<h5>${g}</h5>${l.map(btn).join('')}`).join('')};
   d.innerHTML=`<div class="b"><h4>Warp</h4><div class="wl">${warps()}</div>
 <h4>Items</h4><label><input type="checkbox" data-i="root"> root jump</label><label><input type="checkbox" data-i="board"> board</label>
 <h4>Pieces</h4>${PIECES.map((n,i)=>`<label><input type="checkbox" data-p="${i}"> ${n}</label>`).join('')}

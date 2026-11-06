@@ -2,7 +2,7 @@
 import {T} from './state.js';
 import {move,ov} from './engine.js';
 import {board,carry,under,wetC} from './board.js';
-import {flowAt} from './liquid.js';
+import {flowAt,tideCol,inTide} from './liquid.js';
 
 export const PW=18,PH=24,G=.26,GH=.15,MAXF=4.6,JV=4.6,RJV=4.1,CUT=2,COY=6,BUF=6;
 /* run and turn feel, read by stepPlayer on every step so the dev panel can tune it live. Not saved.
@@ -20,7 +20,7 @@ const rate=(F,ground,dir,vx)=>{const turn=dir*vx<0;return ground?(dir&&!turn?F.A
 export const SKID=.5;
 
 function jump(p,v,ev,name){p.vy=-v;p.jc=1;p.ground=0;p.coy=0;p.buf=0;p.on=-1;ev.push(name)}
-const wetAt=(R,p)=>{const tx=Math.floor((p.x+PW/2)/T),ty=Math.floor((p.y+PH/2)/T);return R.g[ty]&&R.g[ty][tx]==='~'};
+const wetAt=(S,R,p)=>{const tx=Math.floor((p.x+PW/2)/T),ty=Math.floor((p.y+PH/2)/T);return R.g[ty]&&R.g[ty][tx]==='~'||inTide(S.liq,p.x+PW/2,p.y+PH/2)};   /* a chase's tide too (game/tide.js) */
 /* falling with ground (or a wrapped enemy) within BUF frames below: a press then means "jump when I land", so it is
    buffered instead of spending the root, unless a live enemy sits in the burst's reach below him. Flood's soft ones (crab,
    fish) do not count: the burst slides off them. With the board out, liquid it would land on (board.js) counts as ground,
@@ -28,17 +28,21 @@ const wetAt=(R,p)=>{const tx=Math.floor((p.x+PW/2)/T),ty=Math.floor((p.y+PH/2)/T
 function landing(S,R,p,boxes){
   if(p.vy<=0||S.ens.some(e=>!e.wrap&&!e.soft&&ov({x:p.x-8,y:p.y+PH-4,w:PW+16,h:40},e)))return false;
   const q={x:p.x,y:p.y,w:p.w,h:p.h},out=S.items.board&&p.bo&&!p.surf;let v=p.vy;
-  for(let i=0;i<BUF;i++){v=Math.min(MAXF,v+G);if(move(S,R,q,0,v,boxes).hy>0||(out&&under(S,q)&&!wetC(R,q)))return true}
+  for(let i=0;i<BUF;i++){v=Math.min(MAXF,v+G);if(move(S,R,q,0,v,boxes).hy>0||(out&&under(S,q)&&!wetC(R,q,S)))return true}
   return false;
 }
 /* Flood: in deep water, off the floor, he floats (buoyancy lifts him till his head is out, the water damps him), a stroke
    toward a low bank climbs him onto it, and a current carries him. A pool one tile deep never lifts him (he stands). */
 const hardC=c=>c==='#'||c==='='||c==='G';
 function float(S,R,p,dir,stroke,boxes){
-  const cx=p.x+PW/2,tx=Math.floor(cx/T);let ty=Math.floor((p.y+PH/2)/T);
+  const cx=p.x+PW/2,tx=Math.floor(cx/T),q=tideCol(S.liq,cx);let ty=Math.floor((p.y+PH/2)/T);
+  const pool=R.g[ty]&&R.g[ty][tx]==='~';
   while(ty>0&&R.g[ty-1][tx]==='~')ty--;
-  if(!p.ground){const d=p.y+PH/2-(ty*T-2);if(d>0)p.vy-=Math.min(.3,d*.03);p.vy*=.92;
-    const bx=Math.floor((cx+dir*(PW/2+3))/T);if(stroke&&dir&&R.g[ty-2]&&hardC(R.g[ty][bx])&&!hardC(R.g[ty-1][bx])&&!hardC(R.g[ty-2][bx]))p.vy=-3.4}
+  /* the line he floats to: the pool's, or a chase's tide over it (then a bank up to a tile under that line counts too) */
+  let top=pool?ty*T:1e9;const tide=!!q&&q.top<top;if(tide){top=q.top;ty=Math.floor(top/T)}
+  if(!p.ground){const d=p.y+PH/2-(top-2);if(d>0)p.vy-=Math.min(.3,d*.03);p.vy*=.92;
+    const bx=Math.floor((cx+dir*(PW/2+3))/T),bank=r=>R.g[r-2]&&hardC(R.g[r][bx])&&!hardC(R.g[r-1][bx])&&!hardC(R.g[r-2][bx]);
+    if(stroke&&dir&&(bank(ty)||(tide&&bank(ty+1))))p.vy=-3.4}
   /* the current, in sub-moves of at most 6 px so a strong one cannot carry him through a one-tile wall */
   const fl=flowAt(S.liq,R,cx,p.y+PH/2);if(fl){const n=Math.ceil(Math.abs(fl)/6);for(let i=0;i<n;i++)if(move(S,R,p,fl/n,0,boxes).hx)break}
 }
@@ -46,7 +50,7 @@ function float(S,R,p,dir,stroke,boxes){
 /* inp: l r (held), j (jump held), jp (jump pressed since last step), b/bp (board held/pressed). boxes: solid wrapped enemies. */
 export function stepPlayer(S,R,inp,ev,boxes){
   if(board(S,R,inp,ev,boxes))return;   /* the board's dash and surf own the frame (game/board.js) */
-  const p=S.p,wet=wetAt(R,p),dir=(inp.r?1:0)-(inp.l?1:0),g0=p.ground,x0=p.x,f0=p.face;
+  const p=S.p,wet=wetAt(S,R,p),dir=(inp.r?1:0)-(inp.l?1:0),g0=p.ground,x0=p.x,f0=p.face;
   if(dir)p.face=dir;
   const F=FEEL;p.vx=appr(p.vx,dir*F.RUN*(wet?.6:1),rate(F,p.ground,dir,p.vx));
   if(p.mo)carry(p,dir);

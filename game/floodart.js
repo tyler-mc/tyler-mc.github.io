@@ -1,9 +1,12 @@
 /* Flood art, drawn in code: water (heightfield surface, depth dither, current streaks, droplets), the board (item, under
-   his feet, HUD), the hermit crab and its shell, the clownfish and the lantern piranha. Called from render.js. Fixed
-   meanings: yellow = pickup (the board), red only inside the piranha's mouth (danger); nothing here glows. */
-import {T,VW,VH} from './state.js';
+   his feet, HUD), the hermit crab and its shell, the clownfish and the lantern piranha, the chase's tide and its eel. Called
+   from render.js. Fixed meanings: yellow = pickup (the board), red only inside the piranha's and the eel's mouths (danger);
+   nothing here glows but the eel's pale lure. */
+import {T,VW,VH,PIECES} from './state.js';
 import {B4} from './mascot.js';
-import {CW,isLiq} from './liquid.js';
+import {CW,isLiq,tideCol} from './liquid.js';
+import {CHASES} from './rooms/index.js';
+import {WITHER} from './chases.js';
 import {CRAB,FISH} from './fish.js';
 import {BDEMO} from './board.js';
 
@@ -40,6 +43,7 @@ export function waterBody(ctx,S,R,ox,oy,t){
 export function waterCrest(ctx,S,ox,oy,t,L,amb,reduce){
   if(!S.liq)return;
   for(const s of S.liq.s)for(let i=0;i<s.n;i++){const x=s.tx*T+i*CW-ox;if(x<-CW||x>=VW)continue;const h=s.h[i],y=s.ty*T+Math.round(h)-oy;if(y<0||y>=VH)continue;
+    {const q=tideCol(S.liq,s.tx*T+i*CW);if(q&&q.top<s.ty*T)continue}   /* under a chase's tide: its line is the tide's */
     const lit=(L?L[y*VW+Math.max(0,Math.min(VW-1,x))]:1)+amb;
     ctx.fillStyle=lit>.55?W.crest:W.crestD;ctx.fillRect(x,y,CW,1);
     if(lit>.55&&((i+(t>>3))%9===0||h<-1.2)){ctx.fillStyle=W.hi;ctx.fillRect(x,y,1,1)}
@@ -134,4 +138,78 @@ export function drawFish(ctx,e,bx,by,t,k,reduce){
   const lx=cx+sh+f*Math.round(rx*.9),ly=cy-Math.round(ry+4)+(reduce?0:Math.round(Math.sin(t*.2))),sx=cx+sh+f*Math.round(rx*.15),sy=cy-Math.round(ry);
   ctx.fillStyle=PIR.stalk;for(let s=0;s<=6;s++){const u=s/6;ctx.fillRect(Math.round(sx+(lx-sx)*u),Math.round(sy+(ly-sy)*u-Math.sin(u*Math.PI)*2),1,1)}
   ctx.fillStyle=PIR.lure;ctx.fillRect(lx-1,ly-1,2,2);
+}
+
+/* ---------- the chase's tide and the eel (game/tide.js, game/chases.js) ----------
+   The tide is water like a pool's: the same depth colours under the light pass, its line over it (so it reads in the dark),
+   foam where its edge runs. The eel draws after the light, like the thorns, so it always reads: a near-black head with a
+   lighter rim, a giant red mouth and white teeth at the front (the snout is the line that glitches him out), its neck down
+   into the water (it strikes up to tide.reach px over the line), the humps of its back trailing behind. Its pale cyan lure
+   is the one light it gives (lureAt; render.js adds it to the light pass). Asleep in its lair before the chase, only the
+   lure glints. Reduced motion: no bob, no gape, no foam flicker. */
+const EEL={b:'#141a29',d:'#0b0f19',f:'#27324d',rim:'#4f5f80',eye:'#e8f6ff',m:'#7A0A12',M:'#B3121B',t:'#f2f2f2',lure:'#bff4ff',stalk:'#4b5a7a'};
+export function tideBody(ctx,S,R,ox,oy){
+  const D=S.liq&&S.liq.tide;if(!D)return;
+  const band=(x,a,b,c)=>{if(b>a){ctx.fillStyle=c;ctx.fillRect(x,a,CW,b-a)}};
+  for(let i=Math.max(0,Math.floor(ox/CW));i<=Math.min(D.n-1,Math.ceil((ox+VW)/CW));i++){const top=D.top[i];if(top<0)continue;
+    const x=i*CW-ox,y=Math.round(top+D.h[i])-oy,b=Math.min(VH,D.bot[i]-oy),y0=Math.max(0,y+1);
+    band(x,y0,Math.min(b,y+12),W.top);band(x,Math.max(y0,y+12),Math.min(b,y+24),W.deep);band(x,Math.max(y0,y+24),b,W.abyss)}
+}
+export function tideCrest(ctx,S,ox,oy,t,L,amb,reduce){
+  const D=S.liq&&S.liq.tide;if(!D)return;
+  for(let i=Math.max(0,Math.floor(ox/CW));i<=Math.min(D.n-1,Math.ceil((ox+VW)/CW));i++){const top=D.top[i];if(top<0)continue;
+    const x=i*CW-ox,y=Math.round(top+D.h[i])-oy;if(y<1||y>=VH||x<0||x>=VW)continue;
+    const lit=(L?L[y*VW+x]:1)+amb,edge=(i>0&&D.top[i-1]<0)||(i<D.n-1&&D.top[i+1]<0);
+    ctx.fillStyle=lit>.55?W.crest:W.crestD;ctx.fillRect(x,y,CW,1);
+    if(edge){ctx.fillStyle=W.hi;ctx.fillRect(x,y-1-(reduce?0:((t>>2)+i)&1),CW,1)}   /* foam where it runs or laps */
+    else if(lit>.55&&(i+(t>>3))%9===0){ctx.fillStyle=W.hi;ctx.fillRect(x,y,1,1)}}
+}
+/* over him: the tide in front of his feet (waterFront's dither) */
+export function tideFront(ctx,S,ox,oy,b){
+  const D=S.liq&&S.liq.tide;if(!D)return;
+  for(let x=Math.floor(b.x)-2;x<=Math.ceil(b.x+b.w)+2;x++){const i=Math.floor(x/CW),sx=x-ox;if(i<0||i>=D.n||D.top[i]<0||sx<0||sx>=VW)continue;
+    const top=Math.round(D.top[i]+D.h[i]);if(top>b.y+b.h+2||top<b.y-4)continue;
+    for(let y=top+1;y<=Math.min(b.y+b.h+2,D.bot[i]-1);y++){const sy=y-oy;if(sy>=0&&sy<VH&&(sx+sy)&1){ctx.fillStyle=y-top<3?W.crestD:W.top;ctx.fillRect(sx,sy,1,1)}}
+    ctx.fillStyle=W.crest;ctx.fillRect(sx,top-oy,1,1)}
+}
+/* where the lure hangs (room px) and its light's radius, or null */
+export function lureAt(S,R,t,reduce){
+  const c=S.chase,C=c?CHASES[c.id]:CHASES[R.biome];if(!C||!C.tide)return null;
+  const b=-(C.dir||1),ax=R.at[0]*T,ay=R.at[1]*T,bob=reduce?0:Math.round(Math.sin(t*.2)*1.5);
+  if(!c){const k=PIECES.indexOf(R.biome);if(k<0||S.pieces[k]||!R.pedestals.length)return null;   /* asleep in its lair */
+    const x=C.from*T-ax,y=C.tide.lv[0][1]-ay+30;return x<0||x>=R.w*T?null:{x:x-b*6,y:y+Math.round(bob*.7),r:16,sleep:1}}
+  const g=eelPose(c,C),sx=c.x-ax;return {x:sx-b*10,y:g.top-ay+6+bob,r:32};
+}
+/* the head's top (world px y), from the level, the strike reach, the rise out of the lair (the beat) and the sinking once outrun */
+function eelPose(c,C){const D=C.tide,rise=c.on&&c.t<0?Math.min(1,-c.t/C.beat):0,wk=c.on?0:Math.min(1,c.w/WITHER);return {top:c.y-D.reach+Math.round((rise+wk)*(D.reach+24)),wk}}
+export function drawEel(ctx,S,R,ox,oy,t,reduce,flash){
+  const lu=lureAt(S,R,t,reduce);if(!lu)return;
+  const c=S.chase,C=c?CHASES[c.id]:CHASES[R.biome],f=C.dir||1,b=-f,ax=R.at[0]*T,ay=R.at[1]*T,tt=reduce?0:t;
+  const lure=()=>{const x=Math.round(lu.x)-ox,y=Math.round(lu.y)-oy;ctx.fillStyle=flash?'#fff':EEL.lure;ctx.fillRect(x-1,y-1,3,3);ctx.fillStyle='#fff';ctx.fillRect(x,y,1,1)};
+  if(lu.sleep){   /* a dark shape deep in the lair, the lure glinting before it */
+    const cx=Math.round(lu.x+b*16)-ox,cy=Math.round(lu.y+4)-oy;
+    for(let j=-5;j<=5;j++)for(let i=-14;i<=14;i++)if((i*i)/196+(j*j)/25<=1&&bay(cx+i,cy+j)<.45){ctx.fillStyle=EEL.d;ctx.fillRect(cx+i,cy+j,1,1)}
+    if(!reduce&&(t%150)<6)return;lure();return}
+  const g=eelPose(c,C),sx=Math.round(c.x-ax)-ox,top=Math.round(g.top-ay)-oy,wy=Math.round(c.y-ay)-oy,wk=g.wk;
+  if(sx+b*140<-20&&sx<-20||sx+b*140>VW+20&&sx>VW+20)return;
+  const put=(x,y,col)=>{if(x<0||y<0||x>=VW||y>=VH||(wk&&bay(x+3,y+1)<wk))return;ctx.fillStyle=flash?'#fff':col;ctx.fillRect(x,y,1,1)};
+  /* the humps of its back behind it, rising out of the water */
+  for(let k=2;k>=0;k--){const u=48+k*30,w=12-k*2,h=Math.round((20-k*6)*(1+(reduce?0:.15*Math.sin(tt*.06+k*1.7)))*(1-wk)),cx=sx+b*u;
+    for(let j=-h;j<=1;j++)for(let i=-w;i<=w;i++){const q=(i*i)/(w*w)+(j*j)/Math.max(1,h*h);if(q>1)continue;put(cx+i,wy+j,q>.7&&j<0?EEL.rim:j>-3?EEL.d:EEL.b)}}
+  /* the neck, from under the head down into the water; a paler throat at the front, a row of fin spines at the back */
+  for(let y=top+16;y<=wy+3;y++){const k=y-top,wav=reduce?0:Math.round(1.5*Math.sin(k*.09+tt*.05)),x0=6+wav,x1=31+wav;
+    for(let u=x0;u<=x1;u++)put(sx+b*u,y,u===x0?EEL.rim:u<x0+4?EEL.f:u>x1-2?EEL.d:EEL.b);
+    if((k>>2)%2===0&&y<wy-2)put(sx+b*(x1+1+((k>>1)&1)),y,EEL.f)}
+  /* the head: lower jaw gaping (red inside, white teeth), an eye with a white rim, the rim of its brow */
+  const rx=19,ry=12,hx=sx+b*19,hy=top+13,o=reduce?.5:.45+.25*Math.sin(tt*.07);
+  for(let j=-ry;j<=ry;j++)for(let i=-rx;i<=rx;i++){const q=(i*i)/(rx*rx)+(j*j)/(ry*ry);if(q>1)continue;
+    const a=i*f+rx*.1,mouth=a>0&&j>-o*ry*(a/rx)*.6&&j<o*ry*(a/rx)*1.1+1;
+    if(mouth){if(q<.93&&a<rx*.92)put(hx+i,hy+j,Math.abs(j-1)<2?EEL.M:EEL.m);continue}
+    put(hx+i,hy+j,q>.8?(j<0?EEL.rim:EEL.d):j>ry*.4?EEL.f:EEL.b)}
+  for(let a=3;a<rx*.85;a+=3){const x=hx+f*Math.round(a-rx*.1),ju=Math.round(-o*ry*(a/rx)*.6),jl=Math.round(o*ry*(a/rx)*1.1);put(x,hy+ju,EEL.t);put(x,hy+ju+1,EEL.t);put(x,hy+jl,EEL.t);put(x,hy+jl-1,EEL.t)}
+  const ex=hx-f*3,ey=hy-6;for(const [i,j] of [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]])put(ex+i,ey+j,EEL.eye);put(ex,ey,'#1A1716');
+  /* the lure on its stalk, arching forward from the brow */
+  const lx=Math.round(lu.x)-ox,ly=Math.round(lu.y)-oy,bx=hx+b*4,by=top+1;
+  for(let s=0;s<=8;s++){const u=s/8;put(Math.round(bx+(lx-bx)*u),Math.round(by+(ly-by)*u-Math.sin(u*Math.PI)*6),EEL.stalk)}
+  if(!wk)lure();
 }

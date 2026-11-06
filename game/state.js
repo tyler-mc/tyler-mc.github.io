@@ -20,7 +20,8 @@ export const newPlayer=(x=0,y=0)=>({x,y,w:18,h:24,vx:0,vy:0,face:1,ground:0,coy:
 export const newState=()=>({v:VER,mode:'intro',t:0,room:'hub',lit:0,litT:0,match:0,idle:0,
   items:{root:0,board:0},pieces:[0,0,0,0],torches:{},cp:null,latch:{},
   /* placed: fragments set into the door (same order as pieces); door: 1 once all four are in; seen: rooms entered.
-     chase: null or {id,on,x (wall front, world px),t,w (withering frames once outrun)}; slot: the fragment flying in.
+     chase: null or {id,on,x (wall front, world px),t,w (withering frames once outrun)}, plus y and l for a tide (its level,
+     world px y, and how far it runs ahead, game/tide.js); slot: the fragment flying in.
      assist: the visitor's Assist preference (slower chases, wider checkpoints), set by the host, never saved.
      stuck: frames without progress (the stuck hint), hint: where he looks then (world px).
      liq: the room's liquid surfaces and currents (game/liquid.js), rebuilt on entry, never saved */

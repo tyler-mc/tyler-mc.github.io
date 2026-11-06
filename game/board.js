@@ -5,14 +5,14 @@
    dc dash charge, dt dash frames left, dd dash direction, db dash buffer, bo board out, surf, mo speed kept in the air. */
 import {T} from './state.js';
 import {move} from './engine.js';
-import {surfAt,disturb,flowAt,isLiq} from './liquid.js';
+import {surfAt,disturb,flowAt,isLiq,inTide} from './liquid.js';
 
 /* dash: frames x px per frame (54 px, three of his widths). surf: steady speed, its pick-up and coast-down per frame,
    the speed under which a coasting board sinks, how much of a current it rides */
 export const DASH={n:10,v:5.4},SURF={v:2.8,acc:.2,dec:.035,min:.9,flow:.5},DBUF=6;
 const PW=18,PH=24,JV=4.6;   /* player.js's PW, PH, JV (a cycle-free copy) */
 const appr=(v,t,a)=>v<t?Math.min(t,v+a):Math.max(t,v-a);
-export const wetC=(R,p)=>{const r=R.g[Math.floor((p.y+PH/2)/T)];return !!r&&isLiq(r[Math.floor((p.x+PW/2)/T)])};
+export const wetC=(R,p,S)=>{const r=R.g[Math.floor((p.y+PH/2)/T)];return !!r&&isLiq(r[Math.floor((p.x+PW/2)/T)])||!!S&&inTide(S.liq,p.x+PW/2,p.y+PH/2)};   /* S: a chase's tide counts too */
 /* the liquid under his feet: its line between 2 px above them and 10 below (player.js landing() reads both) */
 export const under=(S,p)=>surfAt(S.liq,p.x+PW/2,p.y+PH-10,p.y+PH+2);
 
@@ -52,7 +52,7 @@ export function board(S,R,inp,ev,boxes){
   if(p.ground){p.dc=1;p.bo=0;p.mo=0}
   const dir=(inp.r?1:0)-(inp.l?1:0);
   if(inp.bp)p.db=DBUF;
-  if(p.db>0&&p.dc&&!p.dt&&!wetC(R,p)){
+  if(p.db>0&&p.dc&&!p.dt&&!wetC(R,p,S)){
     p.dc=0;p.db=0;p.dt=DASH.n;p.dd=dir||p.face;p.face=p.dd;p.bo=1;p.surf=0;p.mo=0;p.vy=0;p.jc=0;p.ground=0;p.coy=0;p.on=-1;ev.push('dash');
   }else if(p.db>0&&!inp.bp)p.db--;   /* pressed early, it waits DBUF frames for a landing */
   if(p.dt>0){   /* the dash: a straight line, no gravity, cut short by a wall */
@@ -64,7 +64,7 @@ export function board(S,R,inp,ev,boxes){
     return true;
   }
   if(!p.surf){
-    if(p.bo&&!p.ground&&p.vy>=0){const w=under(S,p);if(w&&!wetC(R,p)){p.y=w.top-PH;surfStart(S,p,ev)}}
+    if(p.bo&&!p.ground&&p.vy>=0){const w=under(S,p);if(w&&!wetC(R,p,S)){p.y=w.top-PH;surfStart(S,p,ev)}}
     if(!p.surf)return false;
   }
   /* surfing: feet on the line, riding its waves a little */

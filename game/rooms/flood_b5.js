@@ -1,4 +1,4 @@
-/* Glass Reach (B5): the calm breather. A seat by a still pool looks east along the long slab. Below the slab, a low tunnel ends at a pit like the one in Shallows, with a hermit crab on the shelf beyond it: a gap he cannot cross yet. Falling in costs a swim and the stair. The way on is the low passage on top of the slab. */
+/* Glass Reach (B5): the calm breather. He wades a long still pool, hops the block, and finds a seat at the mouth of the low tunnel under the slab. Sitting there, the camera drifts east along the tunnel, over the still water at the foot of the pit, to the hermit crab on its far shelf: a dash-sized gap he cannot cross yet. Falling in costs a swim and the stair. The way on is back over the block and up onto the slab, then its low passage east. */
 export default {
   id:'b5',name:'Glass Reach',biome:'flood',at:[192,0],
   grid:[
@@ -9,8 +9,8 @@ export default {
     '..............######################',
     '...................................#',
     '..........##.......................#',
-    '.T......B.##.....................H.#',
-    '###~~~~~###########............#####',
+    '.T........##.B...................H.#',
+    '##~~~~~~~##########............#####',
     '###################............#####',
     '####################...........#####',
     '####################...........#####',
@@ -21,5 +21,5 @@ export default {
     '####################################',
     '####################################',
   ],
-  ents:[{at:[8,7],lookx:10,looky:3},{at:[33,7],left:31,right:34}],
+  ents:[{at:[13,7],lookx:14,looky:0},{at:[33,7],left:31,right:34}],
 };
