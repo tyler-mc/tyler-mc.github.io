@@ -1,6 +1,6 @@
 /* World state: one plain, JSON-safe object. Everything that changes lives here (no class instances, no hidden
    module state), so snapshot() serves both save/resume and the later Undo ring buffer. */
-export const T=12,VW=288,VH=216,VER=3,SAVE_KEY='tos_game',MUTE_KEY='tos_game_mute',ASSIST_KEY='tos_assist';
+export const T=12,VW=288,VH=216,VER=4,SAVE_KEY='tos_game',MUTE_KEY='tos_game_mute',ASSIST_KEY='tos_assist';
 /* door pieces, in quarter order (index into S.pieces / S.placed): 0 roots NW, 1 flood NE, 2 molten SE, 3 crystals SW */
 export const PIECES=['roots','flood','molten','crystals'];
 /* the door ritual (engine door(), render): zone: px either side of the disc's centre where a press sets a carried
@@ -9,25 +9,31 @@ export const PIECES=['roots','flood','molten','crystals'];
 export const DOOR={zone:26,dwell:45,fly:36,pulse:90,open:150};
 /* the stuck hint: frames without progress before he looks toward what's next, and between his little bobs */
 export const STUCK=3*60*60,BOB=20*60;
+/* the perch (engine perch()): frames standing still on it before he sits, then frames sitting before the camera has drifted
+   all the way to its look and the hush has swelled */
+export const PERCH={wait:40,drift:90,hush:150};
 
+/* lv: the fall speed of the last landing (stepPlayer). The board (game/board.js): dc dash charge, dt dash frames, dd its direction, db dash buffer, bo board out, surf, mo speed kept, bd its pickup demo (frames; board.js boardDemo) */
 export const newPlayer=(x=0,y=0)=>({x,y,w:18,h:24,vx:0,vy:0,face:1,ground:0,coy:0,buf:0,root:0,jc:0,on:-1,
-  carry:0,dead:0,rez:0,inv:0,gl:0,mac:0,hide:0,land:0,walk:0,demo:0,jq:0});
+  carry:0,dead:0,rez:0,inv:0,gl:0,mac:0,hide:0,land:0,lv:0,walk:0,demo:0,jq:0,dc:0,dt:0,dd:1,db:0,bo:0,surf:0,mo:0,bd:0});
 
 export const newState=()=>({v:VER,mode:'intro',t:0,room:'hub',lit:0,litT:0,match:0,idle:0,
-  items:{root:0},pieces:[0,0,0,0],torches:{},cp:null,latch:{},
+  items:{root:0,board:0},pieces:[0,0,0,0],torches:{},cp:null,latch:{},
   /* placed: fragments set into the door (same order as pieces); door: 1 once all four are in; seen: rooms entered.
      chase: null or {id,on,x (wall front, world px),t,w (withering frames once outrun)}; slot: the fragment flying in.
      assist: the visitor's Assist preference (slower chases, wider checkpoints), set by the host, never saved.
-     stuck: frames without progress (the stuck hint), hint: where he looks then (world px) */
+     stuck: frames without progress (the stuck hint), hint: where he looks then (world px).
+     liq: the room's liquid surfaces and currents (game/liquid.js), rebuilt on entry, never saved */
   placed:[0,0,0,0],door:0,doorT:0,seen:{},chase:null,slot:null,dwell:0,assist:0,stuck:0,hint:null,
-  p:newPlayer(VW/2-9,VH/2-12),ens:[],roots:[],gate:0,plate:0,hit:0,flash:-1,say:null,
+  sit:0,still:0,p:newPlayer(VW/2-9,VH/2-12),ens:[],roots:[],liq:null,gate:0,plate:0,hit:0,flash:-1,say:null,
   cam:{x:0,y:0,sh:0},intro:{t:0,land:-1}});
 
 export const snapshot=S=>JSON.parse(JSON.stringify(S));
 export function restore(S,snap){for(const k of Object.keys(S))delete S[k];return Object.assign(S,snapshot(snap))}
 
 /* the saved subset: torch lit, items, last checkpoint, door pieces, gates latched open (v2), and since v3 the placed
-   fragments, the open door, rooms seen and a running chase (a v1/v2 save loads with none of these) */
+   fragments, the open door, rooms seen and a running chase (a v1/v2 save loads with none of these). v4: items.board
+   (a v1-v3 save loads without it) */
 export const persist=S=>({v:VER,lit:S.lit,items:{...S.items},pieces:S.pieces.slice(),torches:{...S.torches},cp:S.cp&&{...S.cp},latch:{...S.latch},
   placed:S.placed.slice(),door:S.door,seen:{...S.seen},chase:S.chase&&S.chase.on?{id:S.chase.id,on:1,x:S.chase.x}:null});
 export function save(S,ls=globalThis.localStorage){try{ls.setItem(SAVE_KEY,JSON.stringify(persist(S)))}catch(_){}}

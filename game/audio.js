@@ -1,6 +1,6 @@
 /* Synthesized Web Audio only. Nothing plays until unlock() runs inside a user gesture. */
 export function createAudio(muteKey){
-  let ac=null,master=null,sfxBus=null,crk=null,rmb=null,rst=null,ambs={},cur=null,muted=false,drip=0;
+  let ac=null,master=null,sfxBus=null,crk=null,rmb=null,rst=null,hush=null,ambs={},cur=null,muted=false,drip=0;
   try{muted=localStorage.getItem(muteKey)==='1'}catch(_){}
   const now=()=>ac.currentTime;
   function buf(sec,fill){const b=ac.createBuffer(1,Math.floor(ac.sampleRate*sec),ac.sampleRate),d=b.getChannelData(0);fill(d,ac.sampleRate);return b}
@@ -37,6 +37,10 @@ export function createAudio(muteKey){
         const c=src(cb,true),cf2=ac.createBiquadFilter();cf2.type='bandpass';cf2.frequency.value=1800;cf2.Q.value=.7;rst=ac.createGain();rst.gain.value=0;
         const tr=ac.createGain();tr.gain.value=.6;const lo=ac.createOscillator(),lg=ac.createGain();lo.frequency.value=7;lg.gain.value=.4;lo.connect(lg).connect(tr.gain);
         c.connect(cf2).connect(tr).connect(rst);rst.connect(master);c.start();lo.start()}
+      /* the hush: three sines (open fifths) with slow swells, silent until he sits on a perch (hush(v)) */
+      {const hg=ac.createGain();hg.gain.value=0;hg.connect(master);
+        [98,147,196].forEach((f,i)=>{const o=ac.createOscillator(),og=ac.createGain(),l=ac.createOscillator(),lg=ac.createGain();o.type='sine';o.frequency.value=f*(1+i*.002);og.gain.value=.5/(i+1);
+          l.frequency.value=.07+i*.03;lg.gain.value=.25/(i+1);l.connect(lg).connect(og.gain);o.connect(og).connect(hg);o.start();l.start()});hush=hg}
       /* ambiences: cave = brown rumble + low drone; moss = soft band of air with a slow swell */
       const brown=buf(4,d=>{let l=0;for(let i=0;i<d.length;i++){l=(l+.02*(Math.random()*2-1))/1.02;d[i]=l*3.5}});
       const mk=(nodes)=>{const g=ac.createGain();g.gain.value=0;g.connect(master);nodes(g);return g};
@@ -46,11 +50,17 @@ export function createAudio(muteKey){
       ambs.moss=mk(g=>{const s=src(NB,true),f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=700;f.Q.value=.4;const sg=ac.createGain();sg.gain.value=.12;
         s.connect(f).connect(sg).connect(g);s.start();const l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=.13;lg.gain.value=.07;l.connect(lg).connect(sg.gain);l.start();
         const b=src(brown,true),bf=ac.createBiquadFilter();bf.type='lowpass';bf.frequency.value=180;const bg=ac.createGain();bg.gain.value=.5;b.connect(bf).connect(bg).connect(g);b.start()});
+      /* tide (Flood): low lapping water, a slow swell of filtered noise under a soft brown floor */
+      ambs.tide=mk(g=>{const s=src(NB,true),f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=520;const sg=ac.createGain();sg.gain.value=.16;
+        s.connect(f).connect(sg).connect(g);s.start();const l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=.19;lg.gain.value=.12;l.connect(lg).connect(sg.gain);l.start();
+        const b=src(brown,true),bf=ac.createBiquadFilter();bf.type='lowpass';bf.frequency.value=140;const bg=ac.createGain();bg.gain.value=.45;b.connect(bf).connect(bg).connect(g);b.start()});
     }
     if(ac.state==='suspended')ac.resume();
   }
+  /* o: {lv, reduce} from tick(). vary: a random pitch factor within +-a (none under reduced motion, A12) */
+  const vary=(o,a)=>o&&o.reduce?1:1+(Math.random()*2-1)*a;
   const FX={
-    jump:()=>tone('square',260,520,.09,.08),
+    jump:o=>{const k=vary(o,.06);tone('square',260*k,520*k,.09,.08)},   /* A9: +-6% */
     root:()=>{noise(.28,.35,'lowpass',1400,120,1.5);tone('sine',110,40,.25,.35)},
     stun:()=>{tone('triangle',700,140,.16,.2);noise(.05,.15,'highpass',3000,2000)},
     unwrap:()=>noise(.18,.08,'bandpass',900,400,2),
@@ -64,7 +74,12 @@ export function createAudio(muteKey){
     fall:()=>tone('sine',600,180,.7,.04),
     glitch:()=>{const t=now();for(let i=0;i<10;i++)tone('square',100+Math.random()*1800,100+Math.random()*900,.03,.06,t+i*.05)},
     match:()=>{noise(.12,.25,'highpass',2000,5000);const t=now()+.12;noise(.5,.18,'bandpass',600,1500,.8,t)},
-    land:()=>noise(.06,.1,'lowpass',800,200),
+    /* A9: by fall speed. Up to 2.2 (the old threshold) a short soft tap; above, the old sound, growing louder, brighter and
+       longer toward MAXF, with a low thump on the hardest */
+    land:o=>{const lv=o&&Number.isFinite(o.lv)?o.lv:2.3;
+      if(lv<=2.2){const u=Math.max(0,(lv-1)/1.2);noise(.03+.015*u,.025+.04*u,'lowpass',500+250*u,180);return}
+      const u=Math.min(1,(lv-2.2)/2.4);noise(.06+.04*u,.1+.06*u,'lowpass',800+500*u,200);if(u>.5)tone('sine',100,40,.1,(u-.5)*.2)},
+    footstep:o=>{const k=vary(o,.08);noise(.03,.035,'bandpass',1400*k,600*k,1.4)},   /* A10: +-8%, under the jump */
     swim:()=>noise(.15,.08,'bandpass',500,1200,2),
     plate:()=>tone('square',120,90,.08,.1),
     gateOpen:()=>{noise(.35,.15,'lowpass',500,150);tone('square',80,60,.3,.06)},
@@ -79,13 +94,29 @@ export function createAudio(muteKey){
       for(let i=0;i<3;i++){const o=ac.createOscillator(),o2=ac.createOscillator(),g=ac.createGain(),a=t+.12+i*.5;o.type='sine';o2.type='sine';o.frequency.value=110;o2.frequency.value=165.5;
         g.gain.setValueAtTime(0,a);g.gain.linearRampToValueAtTime(.16-i*.04,a+.12);g.gain.exponentialRampToValueAtTime(.0001,a+.75);o.connect(g);o2.connect(g);g.connect(sfxBus);o.start(a);o2.start(a);o.stop(a+.8);o2.stop(a+.8)}},
     door:()=>{const t=now();tone('sine',55,40,2.5,.5,t);noise(2.4,.35,'lowpass',400,60,1,t)},
+    /* Flood: the board's whoosh, a wave as it lands on water, a splash in; the crab's shell clack and pinch; the fish's
+       bump, its swelling turn, the lunge and the calm after */
+    dash:()=>{noise(.18,.22,'bandpass',900,3200,1.2);tone('sine',180,320,.12,.05)},
+    surf:()=>{noise(.45,.3,'lowpass',1400,300,1);tone('sine',120,70,.3,.12)},
+    splash:()=>noise(.3,.22,'lowpass',1800,250,1),
+    shell:()=>{tone('square',520,260,.06,.12);tone('triangle',180,120,.12,.15)},
+    emerge:()=>tone('triangle',300,500,.12,.07),
+    pinch:()=>{tone('square',900,700,.03,.06);tone('square',1100,800,.03,.06,now()+.05)},
+    ram:()=>noise(.15,.15,'bandpass',600,300,2),
+    knock:()=>{tone('sine',420,300,.12,.12);noise(.08,.1,'lowpass',700,200)},
+    turn:()=>{tone('sine',140,90,.5,.25);tone('square',70,55,.5,.08)},
+    hunt:()=>noise(.4,.15,'lowpass',500,900,1),
+    lunge:()=>{tone('square',200,60,.18,.18);noise(.12,.25,'lowpass',1200,200)},
+    calm:()=>tone('sine',500,700,.15,.06),
   };
   return {
     unlock,
     muted:()=>muted,
     setMute(v){muted=v;try{localStorage.setItem(muteKey,v?'1':'0')}catch(_){}if(master)master.gain.setTargetAtTime(v?0:.6,now(),.02)},
-    sfx(n){if(!ac||ac.state!=='running'||muted)return;const f=FX[n];f&&f()},
+    sfx(n,o){if(!ac||ac.state!=='running'||muted)return;const f=FX[n];f&&f(o)},
     crackle(v){if(crk)crk.gain.setTargetAtTime(v*.9,now(),.1)},
+    /* v: how far the hush has swelled, 0..1 (0 = silent) */
+    hush(v){if(hush)hush.gain.setTargetAtTime(v*.16,now(),.8)},
     /* v: the thorn wall's nearness 0..1 (0 = silent) */
     rumble(v){if(!rmb)return;rmb.gain.setTargetAtTime(v*.9,now(),.15);rst.gain.setTargetAtTime(v*v*.5,now(),.1)},
     amb(name){

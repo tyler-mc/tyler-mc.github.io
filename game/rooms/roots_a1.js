@@ -1,4 +1,4 @@
-/* Seedbed: the calm arrival after the hub. Nothing here is hostile. A pool sunk into the floor slows him a little, and the ceiling opens up as he walks in. */
+/* Seedbed: the calm arrival after the hub. Nothing here is hostile. A seat by the torch: stand still on it and he sits, looking back across the pool. A ledge hangs over the pool, 5 tiles up with a torch and a second seat on it: out of reach until the root jump (Rootway gives it), so it is a gate he sees on the way in and a prize on the way home. A pool sunk into the floor slows him a little, and the ceiling opens up as he walks in. */
 export default {
   id:'a1',name:'Seedbed',biome:'roots',at:[-48,0],
   grid:[
@@ -12,14 +12,14 @@ export default {
     '####........................................####',
     '####........................................####',
     '#..............................................#',
-    '#..............................................#',
-    '................................................',
+    '#.....................B..T.....................#',
+    '....................########....................',
     '................................................',
     '................................................',
     '.................................####...........',
-    '........###......................####...T.......',
+    '........###......................####.B.T.......',
     '################~~~~~~~~~~~~~###################',
     '################################################',
   ],
-  ents:[],
+  ents:[{at:[22,10],lookx:-10,looky:0},{at:[38,15],lookx:-8,looky:0}],
 };

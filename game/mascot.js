@@ -34,11 +34,12 @@ function drawBuddy(ctx,s){
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(!ins(x,y))continue;
     if(!ins(x-1,y)||!ins(x+1,y)||!ins(x,y-1)||!ins(x,y+1)){g[y][x]='k';continue}
     const nx=(x+.5-cx)/rx,ny=(y+.5-cy)/ry;g[y][x]=Math.hypot(nx+.42,ny+.46)<.3?'p':Math.hypot(nx+.2,ny+.24)>.98?'R':'r'}
-  /* sprout: grows once he carries the root seed */
-  const st=s.stage|0,len=[0,3,5,7,8][st],top=cy-ry;
-  for(let i=1;i<=len;i++)g[top-i]&&(g[top-i][cx]='n');
-  if(st>=1)stamp(g,["kk...","kTTk.",".kTTk"],cx-5,top-3);
-  if(st>=2)stamp(g,["...kk",".kTTk","kTTk."],cx+1,top-5);
+  /* sprout: grows once he carries the root seed. sp (A11): its lag in px; each row above his top leans k/3 of it */
+  const st=s.stage|0,len=[0,3,5,7,8][st],top=cy-ry,sp=s.sp|0,ln=y=>Math.round(sp*Math.min(1,(top-y)/3));
+  const lean=(pat,ox,oy)=>pat.forEach((r,j)=>stamp(g,[r],ox+ln(oy+j),oy+j));
+  for(let i=1;i<=len;i++)g[top-i]&&(g[top-i][cx+ln(top-i)]='n');
+  if(st>=1)lean(["kk...","kTTk.",".kTTk"],cx-5,top-3);
+  if(st>=2)lean(["...kk",".kTTk","kTTk."],cx+1,top-5);
   /* eyes snap to 8 directions */
   const ey=cy-3,[dx,dy]=s.dir||[0,0];
   for(const ex of [cx-5,cx+4]){
@@ -77,9 +78,9 @@ function drawBuddy(ctx,s){
 
 const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
 const cache=new Map();
-/* a cached 32x48 canvas for a look {f,dir,blink,face,happy,mouth,mac,dx,stage} */
+/* a cached 32x48 canvas for a look {f,dir,blink,face,happy,mouth,mac,dx,stage,sp} */
 export function sprite(s){
-  const k=s.mac?'mac':[s.f,s.dir&&s.dir.join(),s.blink|0,s.face||'',s.happy|0,s.mouth|0,s.dx|0,s.stage|0,s.hat||'',s.mask|0].join('|');
+  const k=s.mac?'mac':[s.f,s.dir&&s.dir.join(),s.blink|0,s.face||'',s.happy|0,s.mouth|0,s.dx|0,s.stage|0,s.hat||'',s.mask|0,s.sp|0].join('|');
   let c=cache.get(k);
   if(!c){c=mk(32,48);drawBuddy(c.getContext('2d',{willReadFrequently:true}),s);   /* glitch() reads these back */if(cache.size>300)cache.clear();cache.set(k,c)}
   return c;

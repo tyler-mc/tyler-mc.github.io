@@ -11,30 +11,44 @@ import R_a2 from './roots_a2.js';
 import R_a3 from './roots_a3.js';
 import R_a4 from './roots_a4.js';
 import R_a5 from './roots_a5.js';
-const LIST=[R_hub,R_r1,R_r2,R_r3,R_r4,R_r5,R_a1,R_a2,R_a3,R_a4,R_a5];
+import R_b1 from './flood_b1.js';
+import R_b2 from './flood_b2.js';
+import R_b3 from './flood_b3.js';
+import R_b4 from './flood_b4.js';
+import R_b5 from './flood_b5.js';
+import R_b6 from './flood_b6.js';
+import R_b7 from './flood_b7.js';
+import R_f1 from './flood_f1.js';
+import R_f2 from './flood_f2.js';
+const LIST=[R_hub,R_r1,R_r2,R_r3,R_r4,R_r5,R_a1,R_a2,R_a3,R_a4,R_a5,R_b1,R_b2,R_b3,R_b4,R_b5,R_b6,R_b7,R_f1,R_f2];
 /* rooms:end */
 
 export const ORDER=LIST.map(r=>r.id);
-export const AMB={hub:1,roots:.4};
+export const AMB={hub:1,roots:.4,flood:.45};
 export const ROOMS={};
 
 export function parse(src){
   const R={id:src.id,name:src.name,biome:src.biome,at:src.at.slice(),w:src.grid[0].length,h:src.grid.length,
-    g:src.grid.slice(),spawns:[],torches:[],plates:[],gates:[],items:[],pedestals:[],start:null};
+    g:src.grid.slice(),spawns:[],torches:[],plates:[],gates:[],items:[],pedestals:[],perches:[],start:null};
   const ent=(tx,ty)=>(src.ents||[]).find(e=>e.at[0]===tx&&e.at[1]===ty)||{};
   R.g.forEach((row,ty)=>[...row].forEach((c,tx)=>{
     const e=ent(tx,ty);
-    if(c==='M'||c==='O')R.spawns.push({k:c,tx,ty,...e,at:undefined});
+    if(c==='M'||c==='O'||c==='H'||(c==='~'&&e.fish))R.spawns.push({k:c==='~'?'C':c,tx,ty,...e,at:undefined});   /* H hermit crab; a clownfish is an ent on water */
     else if(c==='T')R.torches.push({tx,ty});
     else if(c==='P')R.plates.push({tx,ty});
     else if(c==='G')R.gates.push({tx,ty});
     else if(c==='I')R.items.push({tx,ty,id:e.item||'root'});
+    else if(c==='B')R.perches.push({tx,ty,lookx:e.lookx||0,looky:e.looky||0});   /* a seat: stand still on it and he sits, the camera drifts toward its look */
     else if(c==='S')R.start={tx,ty};
     else if(c==='F')R.pedestals.push({tx,ty,piece:src.biome});   /* holds its biome's fragment */
   }));
+  R.flows=(src.ents||[]).filter(e=>e.flow).map(e=>({at:e.at.slice(),flow:e.flow}));   /* currents (game/liquid.js) */
   return R;
 }
 for(const r of LIST)ROOMS[r.id]=parse(r);
+
+/* the seat under his feet (a perch tile in his cell), or undefined */
+export const perchOf=(R,p)=>{const tx=Math.floor((p.x+p.w/2)/12),ty=Math.floor((p.y+p.h-1)/12);return R.perches.find(q=>q.tx===tx&&q.ty===ty)};
 
 /* the room whose region holds world tile (wx,wy) */
 export function roomAtTile(wx,wy){
@@ -48,11 +62,14 @@ export function roomAtTile(wx,wy){
    restarts `gap` px behind the torch he respawns at (never behind `from`); `at` can pin a torch's restart point
    ('room:tx,ty': world tile x). Assist slows it to 70% and widens the gap by half. */
 export const CHASES={
-  /* from the shrine (r5) through the Root Cathedral, down Deep Roots and up out of Spore Gate's pit; safe once he reaches
-     Puff Drift (its west border, x -282). .95 px/frame (~4.7 tiles/s): a bot that hesitates 1 s in every room still clears
-     it (tools/test_game.mjs). The torch on Deep Roots' mid ledge sends him back west, toward the thorns, so its restart
-     is pinned 32 tiles behind it, inside the Cathedral */
-  roots:{from:-408,beat:60,gap:150,path:[[-408,.95],[-282]],at:{'r4:20,17':-354}},
+  /* from the shrine (r5) through the Root Cathedral, down Deep Roots, across Spore Gate and through Puff Drift's pits; safe
+     once he reaches Mossy Hush (Puff Drift's east border, x -234). The wall's speed changes by stretch (px/frame, ~4.7
+     tiles/s is .95): the descent of Deep Roots zigzags back west on every left ledge, so the sweep must crawl there (.2), and
+     the pits of Puff Drift cost a puff wait each, so the wall is quicker there once he is ahead. A clean run takes about 31 s;
+     a bot that hesitates 1 s in every room, or respawns at any torch on the path, still clears it (tools/test_game.mjs).
+     The torch on Deep Roots' mid ledge sends him back west, toward the thorns, so its restart is pinned 32 tiles behind it
+     inside the Cathedral; the top torch restarts at the Cathedral's west end so the long zigzag below it starts with room to spare */
+  roots:{from:-408,beat:60,gap:150,path:[[-408,.95],[-378,.85],[-342,.2],[-318,.8],[-282,.9],[-234]],at:{'r4:20,16':-354,'r4:4,5':-378}},
 };
 /* the stuck hint: after minutes without progress he looks toward the first goal here not yet met.
    need: 'item:<id>', 'piece:<biome>' (carried) or 'placed:<biome>' (in the door); tile is optional (room centre) */

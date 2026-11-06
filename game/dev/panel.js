@@ -1,6 +1,6 @@
 /* Debug panel (localhost or ?qa only): warp, item and piece grants, reset save, room editor. */
 import {ROOMS,ORDER} from '../rooms/index.js';
-import {FEEL,ACC,DEC,AACC,ADEC,RUN} from '../player.js';
+import {FEEL,ACC,DEC,AACC,ADEC,AREV,RUN,CORNER,HIT,LEAD,STRIDE} from '../player.js';
 const CSS=`.tg-dev{position:absolute;left:4px;bottom:4px;z-index:9;font:11px/1.4 ui-monospace,Menlo,monospace;color:#ddd}
 .tg-dev>button{font:inherit;padding:1px 6px;background:#222;color:#aaa;border:1px solid #444;opacity:.6;cursor:pointer}
 .tg-dev>button:hover{opacity:1}
@@ -10,7 +10,7 @@ const CSS=`.tg-dev{position:absolute;left:4px;bottom:4px;z-index:9;font:11px/1.4
 .tg-dev .b button:hover{background:#555}
 .tg-dev h4{margin:4px 0 2px;font:inherit;color:#888;text-transform:uppercase;letter-spacing:.05em}
 .tg-dev .f{display:flex;align-items:center;gap:4px;margin:0}
-.tg-dev .f span{width:3.2em}.tg-dev .f input{flex:1;min-width:0;margin:0}.tg-dev .f output{width:2.6em;text-align:right}
+.tg-dev .f span{width:3.8em}.tg-dev .f input{flex:1;min-width:0;margin:0}.tg-dev .f output{width:2.6em;text-align:right}
 .tg-dev label{margin-right:6px;white-space:nowrap}`;
 const PIECES=['Roots','Flood','Molten','Crystals'];
 
@@ -20,7 +20,7 @@ export default function devPanel(root,api){
   /* warp list read from the live registry each time the panel opens, so rooms the editor adds or renames show up */
   const warps=()=>[['intro','Intro'],['dark','Dark'],['chase','Chase'],...ORDER.filter(id=>ROOMS[id]).map(id=>[id,`${ROOMS[id].name} · ${id}`])].map(([id,n])=>`<button data-w="${id}">${n}</button>`).join('');
   d.innerHTML=`<div class="b"><h4>Warp</h4><div class="wl">${warps()}</div>
-<h4>Items</h4><label><input type="checkbox" data-i="root"> root jump</label>
+<h4>Items</h4><label><input type="checkbox" data-i="root"> root jump</label><label><input type="checkbox" data-i="board"> board</label>
 <h4>Pieces</h4>${PIECES.map((n,i)=>`<label><input type="checkbox" data-p="${i}"> ${n}</label>`).join('')}
 <h4>In the door</h4>${PIECES.map((n,i)=>`<label><input type="checkbox" data-d="${i}"> ${n}</label>`).join('')}
 <h4>Fairness</h4><label><input type="checkbox" data-a> Assist (slower chases)</label><button data-s>Stuck hint now</button>
@@ -44,9 +44,10 @@ export default function devPanel(root,api){
   });
   d.addEventListener('change',e=>{const c=e.target;if(c.dataset.i)api.grant(c.dataset.i,c.checked);if(c.dataset.p)api.piece(+c.dataset.p,c.checked);
     if(c.dataset.d)api.place(+c.dataset.d,c.checked);if(c.dataset.a!==undefined)api.assist(c.checked);sync()});
-  /* Feel: live sliders for the run and turn numbers in player.js FEEL. A change writes FEEL at once, so it applies on the
-     next step; nothing is saved. Reset puts back the defaults; Copy values gives the object as text for player.js. */
-  const FK={ACC:[.05,.6,.01,ACC],DEC:[.05,.8,.01,DEC],AACC:[.02,.4,.01,AACC],ADEC:[.01,.4,.01,ADEC],RUN:[.8,3,.05,RUN]};
+  /* Feel: live sliders for the run, turn, corner, hit-stop, camera-lead and walk-stride numbers in player.js FEEL. A change writes FEEL at once,
+     so it applies on the next step; nothing is saved. Reset puts back the defaults; Copy values gives the object as text
+     for player.js. */
+  const FK={ACC:[.05,.6,.01,ACC],DEC:[.05,.8,.01,DEC],AACC:[.02,.4,.01,AACC],ADEC:[.01,.4,.01,ADEC],AREV:[.02,.4,.01,AREV],RUN:[.8,3,.05,RUN],CORNER:[0,6,1,CORNER],HIT:[0,8,1,HIT],LEAD:[0,1,1,LEAD],STRIDE:[3,12,1,STRIDE]};
   d.querySelector('.b').insertAdjacentHTML('beforeend',`<h4>Feel</h4>${Object.entries(FK).map(([k,[a,b,s]])=>`<label class="f"><span>${k}</span><input type="range" data-f="${k}" min="${a}" max="${b}" step="${s}"><output></output></label>`).join('')}<button data-fr>Reset</button><button data-fc>Copy values</button>`);
   const fnum=v=>String(+v.toFixed(3)).replace(/^(-?)0\./,'$1.');
   const fsync=()=>d.querySelectorAll('[data-f]').forEach(c=>{c.value=FEEL[c.dataset.f];c.nextElementSibling.textContent=fnum(FEEL[c.dataset.f])});fsync();

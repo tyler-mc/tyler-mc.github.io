@@ -29,7 +29,7 @@ NAME_RE = re.compile(r"^[A-Za-z0-9 .,!?:;()&-]{1,40}$")
 KEY_RE = re.compile(r'^[a-z][A-Za-z]{0,11}$')
 STR_RE = re.compile(r'^[A-Za-z0-9_-]{1,24}$')
 BIOMES = ('hub', 'roots', 'flood', 'molten', 'crystals')
-GLYPHS = set('#=.~^STPGIMOF')
+GLYPHS = set('#=.~^STPGIMOFBH')
 MAX_BODY = 256 * 1024
 LOCK = threading.Lock()
 
@@ -86,7 +86,7 @@ def clean(r, file):
                 if not STR_RE.match(v):
                     raise Bad(400, 'bad ent value for ' + k)
             else:
-                num(v, -9999, 9999, 'ent ' + k)
+                num(v, -1000, 1000, 'ent ' + k)   # a current of more than ~12 px a frame would skip a wall (liquid.js)
             item[k] = v
         out.append(item)
     return {'id': rid, 'name': name, 'biome': biome, 'at': at, 'grid': grid, 'ents': out}

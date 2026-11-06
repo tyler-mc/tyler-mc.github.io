@@ -1,4 +1,4 @@
-/* Spore Gate: wrap the puff so it sinks onto the plate; the gate stays open only while the plate is held. */
+/* Spore Gate: wrap the puff so it sinks onto the plate; the gate stays open only while the plate is held. A torch by the gate keeps a miss close. */
 export default {
   id:'r3',name:'Spore Gate',biome:'roots',at:[-318,0],
   grid:[
@@ -17,7 +17,7 @@ export default {
     '....G.............##################',
     '....G.............##################',
     '....G.............##################',
-    '....G..........P..##################',
+    '....G.T........P..##################',
     '####################################',
     '####################################',
   ],

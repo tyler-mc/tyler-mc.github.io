@@ -1,8 +1,8 @@
 /* Room file format and level checks for the editor. No DOM, so tools/test_rooms.mjs runs it under node.
    serialize() writes byte-for-byte what tools/dev_server.py writes; check() mirrors the server's limits;
    problems() is the editor's live validation list. */
-export const GLYPHS='#=.~^STPGIMOF',BIOMES=['hub','roots','flood','molten','crystals'],MAXG=128;
-export const NAMES={'#':'Rock','=':'Rubble','.':'Air','~':'Water','^':'Thorns',S:'Start',T:'Torch',P:'Pressure plate',G:'Gate',I:'Item',M:'Mossback',O:'Spore puff',F:'Fragment pedestal'};
+export const GLYPHS='#=.~^STPGIMOFBH',BIOMES=['hub','roots','flood','molten','crystals'],MAXG=128;
+export const NAMES={'#':'Rock','=':'Rubble','.':'Air','~':'Water','^':'Thorns',S:'Start',T:'Torch',P:'Pressure plate',G:'Gate',I:'Item',M:'Mossback',O:'Spore puff',F:'Fragment pedestal',B:'Perch',H:'Hermit crab'};
 export const RE={file:/^[a-z][a-z0-9_-]{0,31}$/,id:/^[a-z][a-z0-9]{0,15}$/,name:/^[A-Za-z0-9 .,!?:;()&-]{1,40}$/,key:/^[a-z][A-Za-z]{0,11}$/,str:/^[A-Za-z0-9_-]{1,24}$/};
 const isInt=(v,lo,hi)=>Number.isInteger(v)&&v>=lo&&v<=hi;
 
@@ -29,7 +29,7 @@ export function check(r,comment=''){
   if((r.ents||[]).length>64)return 'at most 64 ents';
   for(const e of r.ents||[]){
     if(!e.at||!isInt(e.at[0],0,w-1)||!isInt(e.at[1],0,g.length-1))return 'an ent sits outside the grid';
-    for(const [k,v] of Object.entries(e))if(k!=='at'&&(!RE.key.test(k)||(typeof v==='string'?!RE.str.test(v):!isInt(v,-9999,9999))))return `ent field ${k} must be a whole number or a short word`;
+    for(const [k,v] of Object.entries(e))if(k!=='at'&&(!RE.key.test(k)||(typeof v==='string'?!RE.str.test(v):!isInt(v,-1000,1000))))return `ent field ${k} must be a whole number or a short word`;
   }
   if(comment&&(comment.length>800||/\/\*|\*\//.test(comment)||/[^\n\x20-\x7e]/.test(comment)))return 'comment must be plain ASCII under 800 characters, without comment markers';
   return '';
@@ -57,6 +57,9 @@ export function problems(rooms){
       if(ch==='M'&&![[0,1],[0,-1],[1,0],[-1,0]].some(([a,b])=>solid(c(x+a,y+b))||c(x+a,y+b)==='^'))add('warn',r,x,y,'Mossback has no surface to crawl on');
       if(ch==='P'&&!solid(c(x,y+1)))add('warn',r,x,y,'Pressure plate floats: no floor under it');
       if(ch==='F'&&!solid(c(x,y+1)))add('warn',r,x,y,'Fragment pedestal floats: no floor under it');
+      if(ch==='B'&&!solid(c(x,y+1)))add('warn',r,x,y,'Perch floats: no floor under it');
+      if(ch==='H'&&!solid(c(x,y+1)))add('warn',r,x,y,'Hermit crab floats: no floor under it');
+      if(ch==='B'&&solid(c(x,y-1)))add('warn',r,x,y,'Perch is under a ceiling (the mascot is 2 tiles tall)');
       if(ch==='F'&&!BIOMES.slice(1).includes(r.biome))add('warn',r,x,y,'Fragment pedestal outside a biome: it holds that biome\'s fragment');
       if(ch==='O'){const e=(r.ents||[]).find(e=>e.at[0]===x&&e.at[1]===y),amp=e&&Number.isInteger(e.amp)?e.amp:12;
         for(let yy=Math.floor((y*12-amp)/12);yy<=Math.floor((y*12+11+amp)/12);yy++)if(solid(c(x,yy))){add('warn',r,x,y,`Spore puff bobs into rock (amp ${amp})`);break}}
@@ -67,7 +70,7 @@ export function problems(rooms){
     if(!count.T)add('err',r,null,null,'Torch missing: warps and respawns need one');
     if(count.G&&!count.P)add('err',r,null,null,'Gate without a pressure plate: it never opens');
     if(count.P&&!count.G)add('warn',r,null,null,'Pressure plate without a gate');
-    for(const e of r.ents||[]){const ch=c(e.at[0],e.at[1]);if(!'MOI'.includes(ch))add('warn',r,e.at[0],e.at[1],`Ent data on a '${ch}' tile does nothing`)}
+    for(const e of r.ents||[]){const ch=c(e.at[0],e.at[1]);if(!'MOIBH~'.includes(ch))add('warn',r,e.at[0],e.at[1],`Ent data on a '${ch}' tile does nothing`)}
     /* edges: every open edge tile must meet an open tile in the room next door */
     const b=box(r),bad={},touch=new Set(),note=(side,k,n,v)=>{const key=side+'|'+k+'|'+(n?n.id:'');(bad[key]=bad[key]||{side,k,n,v:[]}).v.push(v)};
     const edge=(side,tx,ty,wx,wy,v)=>{const ch=g[ty][tx],[n,nc]=at(wx,wy);if(n)touch.add(n.id);if(!open(ch))return;

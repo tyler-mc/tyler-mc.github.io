@@ -1,17 +1,23 @@
 /* Renderer: 288x216 canvas. Room tiles are pre-painted once per room; then dynamic bits, then a Bayer-dithered
    light pass (4 brightness steps); the mascot, enemies and plate/gate marks go on top so they always read. */
 import {T,VW,VH} from './state.js';
-import {AMB,ROOMS} from './rooms/index.js';
+import {AMB,ROOMS,perchOf} from './rooms/index.js';
 import {sprite,glitch,B4,FR} from './mascot.js';
 import {SLACK,GRACE} from './enemies.js';
 import {paintDoor,drawFragments,drawHudPieces} from './door.js';
 import {drawFragment,fragCentre,ACCENT} from './door.js';   /* M1b: pedestal, fly-in, slot pulse */
 import {DOOR as RITE,BOB,PIECES} from './state.js';
 import {WITHER} from './chases.js';
+import {waterBody,waterCrest,waterFront,boardItem,boardHud,boardUnder,drawCrab,drawFish} from './floodart.js';   /* M3: water, the board, crab and fish */
+import {createFx,stepFx,clearFx,radii,sprout} from './fx.js';   /* the body pulse, dust, skid and sprout lag, kept out of S */
+import {MAXF,FEEL} from './player.js';
+import {isLiq} from './liquid.js';
+import {solid,tile} from './engine.js';   /* the edge pose's ground is collision's own (a cycle, used only at draw time) */
 
 const PAL={
   hub:{bg:'#121118',bg2:'#1b1a23',rock:'#3b3843',rockL:'#5a5668',rockD:'#27252e',out:'#09080c',top:'#6e6984',topL:'#8b86a0',strand:'#1f1d26'},
   roots:{bg:'#0a120c',bg2:'#112016',rock:'#3a2a1d',rockL:'#56402c',rockD:'#251a11',out:'#070805',top:'#3f6b2a',topL:'#6a9a3c',strand:'#24190f'},
+  flood:{bg:'#07111a',bg2:'#0e1f2c',rock:'#33475a',rockL:'#557089',rockD:'#202d38',out:'#05080b',top:'#5a8f99',topL:'#86c0c4',strand:'#15212a'},   /* wet slate, sea-green lips */
 };
 const RUB={rub:'#5c544c',rubL:'#80766a',rubD:'#3a342f'};
 const DOOR={st:'#6a6676',stL:'#8a8698',stD:'#47444f',gr:'#24222b',fr:'#34313c'};
@@ -151,12 +157,18 @@ export function createRenderer(cv,{reduce=false}={}){
   function look(S){
     const p=S.p,t=S.t,s={f:'idle',dir:[0,0],blink:(t%197)<6?1:0,face:0,happy:0,mouth:0,dx:0,stage:S.items.root?1:0};
     if(p.mac)return {mac:1};
-    if(p.land>0)s.f='squash';
-    else if(!p.ground&&S.mode!=='intro')s.f=p.vy<0?'stretch':'idle';
-    else if(p.walk)s.f=(p.walk>>3)&1?'breath':'idle';
+    const seat=S.sit>=14&&S.mode==='play'?perchOf(ROOMS[S.room],p):null;
+    if(seat){s.f=(t>>6)&1?'land':'squash';s.dir=[Math.sign(seat.lookx)||p.face,seat.looky<0?-1:0]}   /* sitting: low, looking where the camera drifts, a slow breath */
+    else if(!p.ground&&S.mode!=='intro')s.f='idle';   /* the jump stretch and the landing squash come from the pulse below */
+    else if(p.walk)s.f=!reduce&&Math.floor(p.x/FEEL.STRIDE)&1?'breath':'idle';   /* A8: a stride frame per STRIDE px walked, as Mossback */
     else if(((t>>5)&3)===0)s.f='breath';
     if(S.mode!=='intro')s.dir=[p.face,p.vy<-1?-1:p.vy>2?1:0];
     else{const k=S.intro.t-S.intro.land;if(S.intro.land>=0&&k>225&&k<370)s.dir=[(k>>5)&1?1:-1,0]}
+    /* A7: skidding, squat and lean 1 px into the slide, eyes already the new way */
+    if(!seat&&p.ground&&live(S)&&fx.sk){s.f='land';s.dx=Math.sign(p.vx)}
+    /* A13: still on a ledge with neither foot over ground, he looks down at the drop. Hit-stop, a seat, a hint and begging come
+       first; never on a wrapped enemy, on the board (or during its pickup demo, board.js) or in liquid */
+    else if(!seat&&S.mode!=='intro'&&p.ground&&p.on<0&&!p.surf&&!p.bd&&!p.walk&&!p.dead&&!S.hit&&!S.hint&&Math.abs(p.vx)<.05){const e=ledge(S,p);if(e){s.dir=[e,1];if(!S.say)s.face='huh'}}
     if(S.mode==='dark'&&S.idle>720){const tt=hubTorch();s.dir=[Math.sign(tt.x-p.x-9),Math.sign(tt.y-p.y-12)]}
     /* the stuck hint (engine stuck()): standing still, his eyes go toward what's next, then his head leans after them;
        a beat later, and every BOB frames after, a tiny bob that way */
@@ -169,8 +181,37 @@ export function createRenderer(cv,{reduce=false}={}){
     if(S.say&&S.say.n<S.say.text.length*2)s.mouth=(S.say.n>>2)&1;
     if(p.land>0&&S.mode==='intro')s.face='huh';
     if(S.say&&S.say.pose==='beg'){const n=S.say.n;s.face='beg';s.blink=0;s.dir=[0,0];s.dx=reduce?0:((n>>4)&1?1:-1);s.f=reduce?'idle':(n>>2)&1?'breath':'idle'}   /* begging: rocks and bobs for the line */
+    if(s.stage&&live(S)){const o=sprout(fx);if(o)s.sp=o}   /* A11: the sprout trails his speed (only drawn from stage 1) */
     if(LOOK.hat&&LOOK.hat!=='none')s.hat=LOOK.hat;if(LOOK.mask)s.mask=1;   /* the OS Control Panel's hat and skull mask */
+    /* the pulse (A1-A4) scales a rest frame to whole-pixel radii; the face keeps its size. Each shape is an FR entry named
+       by its radii (drawBuddy reads FR[s.f]), so the sprite key holds them and the feet stay on row 42 (oy = 11 - ry) */
+    if(fx.k&&live(S)&&(s.f==='idle'||s.f==='breath')){const b=FR[s.f],r=radii(fx,b);
+      if(r.rx!==b[0]||r.ry!==b[1]){const n='p'+r.rx+'x'+r.ry;if(!FR[n])FR[n]=[r.rx,r.ry,r.oy];s.f=n}}
     return s;
+  }
+  /* pulse and dust (game/fx.js): one fixed step per world step, from tick(). Not in S, so Undo and saves never hold them.
+     A new room, or an S.t that does not follow the last step (warp, reset, restore()), clears them; draw() shows them only
+     while S is still at the step they were made for. frozen: the world spent this step on hit-stop. */
+  const fx=createFx(),at={room:null,t:NaN};
+  const live=S=>S.room===at.room&&S.t===at.t;
+  function step(S,ev,frozen){
+    const p=S.p,R=ROOMS[S.room];
+    if(S.room!==at.room||S.t!==at.t+1)clearFx(fx);
+    at.room=S.room;at.t=S.t;
+    const fx0=p.x+p.w/2,fy0=p.y+p.h,wet=R&&R.g[Math.floor((fy0-1)/T)]&&isLiq(R.g[Math.floor((fy0-1)/T)][Math.floor(fx0/T)]);
+    /* a jump has already moved him up by vy this step, so its dust goes where his feet left the ground; no dust under water */
+    stepFx(fx,wet?ev.filter(e=>e!=='land'):ev,{hit:frozen??S.hit>0,reduce,lv:p.lv,MAXF,feetX:fx0,feetY:fy0-(ev.includes('jump')?p.vy:0),
+      ground:!!p.ground,skid:!!p.ground&&p.face*p.vx<-.2,vx:p.dead||p.carry?0:p.vx});
+  }
+  /* a ledge under only the box's outer px (his feet are at x+2..5 and x+12..15): the side of the drop, 1 or -1, else 0.
+     Ground is what collision stands him on (engine solid(): rock, rubble, a shut gate, past the edge the next room) plus a
+     wrapped enemy's box; liquid in his cell or under his feet is never a ledge (he floats, or the board holds him) */
+  function ledge(S,p){
+    const R=ROOMS[S.room],fy=p.y+p.h,ty=Math.floor(fy/T),x=Math.round(p.x),liq=(a,y)=>isLiq(tile(R,Math.floor(a/T),Math.floor(y/T)));
+    if(liq(x+9,fy-1)||liq(x+9,fy))return 0;
+    const on=a=>solid(S,R,Math.floor(a/T),ty)||S.ens.some(e=>e.wrap>0&&!e.pass&&a>=e.x&&a<e.x+e.w&&Math.abs(e.y-fy)<1);
+    if(on(x+2)||on(x+5)||on(x+12)||on(x+15))return 0;
+    return on(x)||on(x+1)?1:on(x+16)||on(x+17)?-1:0;
   }
   const hubTorch=()=>{const h=ROOMS.hub.torches[0];return {x:h.tx*T+6,y:h.ty*T+6}};
   let LOOK={};
@@ -182,11 +223,12 @@ export function createRenderer(cv,{reduce=false}={}){
     ctx.fillStyle='#000';ctx.fillRect(0,0,VW,VH);
     ctx.drawImage(lay,-ox,-oy);
     const X=v=>Math.round(v)-ox,Y=v=>Math.round(v)-oy,vis=(x,y,m=24)=>x>ox-m&&x<ox+VW+m&&y>oy-m&&y<oy+VH+m;
+    waterBody(ctx,S,R,ox,oy,t);   /* liquid surfaces from S.liq (game/floodart.js) */
     /* dynamic tiles */
     for(let ty=0;ty<R.h;ty++)for(let tx=0;tx<R.w;tx++){
       const c=R.g[ty][tx];if(c==='.'||c==='#')continue;
       const x=tx*T-ox,y=ty*T-oy;if(x<-T||y<-T||x>VW||y>VH)continue;
-      if(c==='~'){ctx.fillStyle='#1d4f8a';ctx.fillRect(x,y,T,T);if(R.g[ty-1]&&R.g[ty-1][tx]!=='~'){ctx.fillStyle='#6fb3ff';for(let i=0;i<T;i++)ctx.fillRect(x+i,y+Math.round(1+Math.sin((tx*T+i)*.5+t*.08)),1,1)}}
+      if(c==='~'){}   /* drawn above by waterBody */
       else if(c==='G'){const hgt=Math.round(T*(1-S.gate));if(hgt>0){for(const bx of [1,5,9]){ctx.fillStyle='#6b4a2b';ctx.fillRect(x+bx,y,2,hgt);ctx.fillStyle='#8a6440';ctx.fillRect(x+bx,y,1,hgt)}ctx.fillStyle='#3a2a1d';if(hgt>6)ctx.fillRect(x,y+4,T,2)}}
       else if(c==='P'){const down=S.plate;ctx.fillStyle='#47444f';ctx.fillRect(x,y+T-2,T,2);ctx.fillStyle='#8a8698';ctx.fillRect(x+1,y+(down?T-3:T-5),T-2,down?1:3);if(!down){ctx.fillStyle='#6a6676';ctx.fillRect(x+1,y+T-4,T-2,2)}ctx.fillStyle=down?'#dff7ff':'#5b6a70';ctx.fillRect(x+5,y+(down?T-3:T-5),2,1)}
       else if(c==='T'){
@@ -195,7 +237,11 @@ export function createRenderer(cv,{reduce=false}={}){
         if(lit||(R.id==='hub'&&S.lit)){const f=(t>>2)%3;ctx.fillStyle='#F08A2A';ctx.fillRect(x+4,y+1-f%2,4,4);ctx.fillStyle=YEL;ctx.fillRect(x+5,y+(f===1?0:1),2,3);ctx.fillStyle='#fff6c8';ctx.fillRect(x+5+(f&1),y+3,1,1)}
         else if(!dark){ctx.fillStyle=(t>>4)&1?'#8a3a10':'#6e2c0c';ctx.fillRect(x+5,y+3,2,1)}
       }
-      else if(c==='I'){const it=R.items.find(o=>o.tx===tx&&o.ty===ty);if(it&&!S.items[it.id]){const b=Math.round(Math.sin(t*.06)*1.5);blit(ctx,SEED,x+2,y+2+b,SEED_P);if((t>>3)%5===0){ctx.fillStyle='#fff';ctx.fillRect(x+1+((t>>3)%3)*4,y-1+b,1,1)}}}
+      else if(c==='B'){   /* a perch: a flat root slab set in the floor, moss on its lip */
+        ctx.fillStyle='#4a3322';ctx.fillRect(x,y+8,T,4);ctx.fillStyle='#7a5a3a';ctx.fillRect(x,y+8,T,1);ctx.fillStyle='#2e1f14';ctx.fillRect(x+1,y+11,T-2,1);
+        ctx.fillStyle='#3f7a3a';ctx.fillRect(x+2,y+7,3,1);ctx.fillRect(x+8,y+7,2,1);ctx.fillRect(x+3,y+6,1,1);
+      }
+      else if(c==='I'){const it=R.items.find(o=>o.tx===tx&&o.ty===ty);if(it&&it.id==='board'&&!S.items.board)boardItem(ctx,x,y,t);else if(it&&!S.items[it.id]){const b=Math.round(Math.sin(t*.06)*1.5);blit(ctx,SEED,x+2,y+2+b,SEED_P);if((t>>3)%5===0){ctx.fillStyle='#fff';ctx.fillRect(x+1+((t>>3)%3)*4,y-1+b,1,1)}}}
     }
     /* the shrine's carved pedestal (F), its biome's fragment standing on it until he lifts it */
     for(const f of R.pedestals){const cx=f.tx*T+T/2-ox,fy=(f.ty+1)*T-oy;if(cx<-40||cx>VW+40||fy<-60||fy>VH+20)continue;
@@ -214,7 +260,8 @@ export function createRenderer(cv,{reduce=false}={}){
       }else addLight(L,pcx,pcy,58,1);
       for(const tt of R.torches){const lit=torchKey(tt)||(R.id==='hub'&&S.lit),x=tt.tx*T+6-ox,y=tt.ty*T+4-oy;if(lit)addLight(L,x,y,86+Math.sin(t*.21)*2,1);else if(!(R.id==='hub'))addLight(L,x,y,12,.6)}
       for(const it of R.items)if(!S.items[it.id])addLight(L,it.tx*T+6-ox,it.ty*T+6-oy,26,.9);
-      for(const f of R.pedestals)addLight(L,f.tx*T+6-ox,f.ty*T-6-oy,S.pieces[PIECES.indexOf(f.piece)]?18:44,.85);   /* a shaft of light on the shrine */
+      for(const f of R.pedestals)addLight(L,f.tx*T+6-ox,f.ty*T-6-oy,S.pieces[PIECES.indexOf(f.piece)]?18:44,.85);
+      for(const q of R.perches)addLight(L,q.tx*T+6-ox,q.ty*T+2-oy,S.sit&&perchOf(R,S.p)===q?46:24,.7);   /* a seat is lit, so it reads as a place to stop */   /* a shaft of light on the shrine */
       /* enemies and thorns give no light (Tyler): their red lives in the sprite art; enemies draw after this pass */
       lightPass(amb);
       /* the dark room's window edge: a faint dithered frame wherever the light comes near it */
@@ -227,6 +274,7 @@ export function createRenderer(cv,{reduce=false}={}){
       }
     }
 
+    waterCrest(ctx,S,ox,oy,t,amb<1?L:null,amb,reduce);   /* the surface line reads in the dark */
     if(R.plates.length)links(ctx,S,R,ox,oy,t,reduce);
     /* the thorn that got him flashes white like an enemy would (steady under reduced motion) */
     const blinkOn=reduce||(t>>1)&1;
@@ -235,6 +283,7 @@ export function createRenderer(cv,{reduce=false}={}){
     S.ens.forEach((e,i)=>{
       if(!vis(e.x,e.y))return;
       const fl=p.dead&&S.flash===i&&blinkOn,jit=e.grace&&!reduce?((t>>1)&1?1:-1):0,bx=X(e.x)+jit,by=Y(e.y);
+      if(e.soft)return (e.k==='crab'?drawCrab:drawFish)(ctx,e,bx,by,t,fl?-1:1,reduce);   /* Flood (game/floodart.js) */
       const k=fl?-1:!e.wrap?1:e.wrap<SLACK?1-e.wrap/SLACK:0,M=(e.k==='moss'?drawMoss:drawPuff)(ctx,e,bx,by,t,k);
       if(fl)return;
       if(e.wrap)wrapped(ctx,M,e,t,reduce);
@@ -247,6 +296,10 @@ export function createRenderer(cv,{reduce=false}={}){
     /* root strands run from his shoes to their tips every frame */
     const st0=look(S),sx=Math.round(p.x)-7-ox,sy=Math.round(p.y)-20-oy,fr=FR[st0.f]||FR.idle,fy=sy+31+fr[2]+fr[1];
     const feet=[[sx+10,fy+2],[sx+20,fy+2]];
+    /* dust at his feet (A5, A6), behind him: specks in the room's light rock tones, a 3 px one rounded, dithering away with age */
+    if(live(S)&&fx.puffs.length){const P=PAL[R.biome]||PAL.roots;
+      for(const q of fx.puffs){const x=X(q.x-q.w/2),y=Y(q.y)-q.w,a=q.t/q.life;if(bay(x,y)<a)continue;ctx.fillStyle=a<.4?P.topL:P.rockL;
+        if(q.w>2){ctx.fillRect(x+1,y,1,3);ctx.fillRect(x,y+1,3,1)}else ctx.fillRect(x,y,q.w,q.w)}}
     if(!p.dead&&!p.hide)strands(ctx,S,R,feet,ox,oy,t);
 
     /* the mascot */
@@ -262,6 +315,8 @@ export function createRenderer(cv,{reduce=false}={}){
       else c=sprite(st);
       ctx.drawImage(c,x,y);
       if(!k&&!st.mac)shoes(ctx,S,feet,fy,p.face);
+      boardUnder(ctx,S,ox,oy,t,reduce);
+      if(!p.surf)waterFront(ctx,S,R,ox,oy,p);   /* swimming: the water in front of him */
       ctx.globalAlpha=1;
       if(S.mode==='dark'&&!p.dead&&S.match>0){
         const hx=Math.round(p.x+(p.face>0?20:-3))-ox,hy=Math.round(p.y+8)-oy,f=(t>>2)%3;
@@ -272,10 +327,11 @@ export function createRenderer(cv,{reduce=false}={}){
     if(S.lit){
       let hx=4;
       if(S.items.root){blit(ctx,SEED,hx,4,SEED_P);hx+=11}
+      if(S.items.board){boardHud(ctx,hx,6);hx+=12}
       drawHudPieces(ctx,S.pieces,hx,3,mk);   /* quarter-disc fragments, hollow until carried (game/door.js) */
     }
   }
-  return {draw,setLook(l){LOOK={...(l||{})}}};
+  return {draw,step,look,setLook(l){LOOK={...(l||{})}}};   /* look: for node tests */
 }
 
 /* plate -> gate: the same cyan marks on the plate, on a socket over the gate, and on a vein through the floor between

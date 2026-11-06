@@ -1,14 +1,17 @@
 /* Wake Up: engine. Fixed 60 Hz step, tile collision, camera, input, save. mount(el, opts) embeds the game anywhere.
    The world step (step, move, solid) touches no DOM, so it runs under node for tests. */
-import {T,VW,VH,MUTE_KEY,ASSIST_KEY,PIECES,DOOR,STUCK,newState,snapshot,restore,save,load,clearSave,resume} from './state.js';
-import {ROOMS,ORDER,CHASES,NEXT,roomAtTile} from './rooms/index.js';
+import {T,VW,VH,MUTE_KEY,ASSIST_KEY,PIECES,DOOR,STUCK,PERCH,newState,snapshot,restore,save,load,clearSave,resume} from './state.js';
+import {ROOMS,ORDER,CHASES,NEXT,roomAtTile,perchOf} from './rooms/index.js';
 import {startChase,stepChase,resetChase,nearness} from './chases.js';
 import {DISC} from './door.js';
-import {stepPlayer,PW,PH} from './player.js';
+import {stepPlayer,PW,PH,FEEL} from './player.js';
 import {spawnEnemies,stepEnemies,WRAP} from './enemies.js';
 import {createRenderer} from './render.js';
 import {createAudio} from './audio.js';
 import {bumpStep} from './bump.js';
+import {newLiquid,stepLiquid} from './liquid.js';
+import {floodTouch} from './fish.js';
+import {DBUF,BDEMO,boardDemo} from './board.js';
 export {T,VW,VH};
 
 const STEP=1000/60,clamp=(v,a,b)=>v<a?a:v>b?b:v;
@@ -35,13 +38,16 @@ function hits(S,R,b,boxes){
   for(const q of boxes)if(q!==b&&ov(b,q))o.push(q);
   return o;
 }
-/* axis-separated move; returns which sides hit and the wrapped-enemy index stood on */
-export function move(S,R,b,dx,dy,boxes=[]){
+/* axis-separated move; returns which sides hit and the wrapped-enemy index stood on.
+   corner (the player's own move only): a head bump slides up to that many px round a ceiling corner, left if dx <= 0,
+   then right if dx >= 0, 1 px above the contact; it then counts as no hit, so vy is kept */
+export function move(S,R,b,dx,dy,boxes=[],corner=0){
   const r={hx:0,hy:0,on:-1};
   if(dx){b.x+=dx;const h=hits(S,R,b,boxes);if(h.length){r.hx=Math.sign(dx);b.x=dx>0?Math.min(...h.map(o=>o.x))-b.w:Math.max(...h.map(o=>o.x+o.w))}}
   if(dy){b.y+=dy;const h=hits(S,R,b,boxes);if(h.length){r.hy=Math.sign(dy);
     if(dy>0){const top=Math.min(...h.map(o=>o.y));b.y=top-b.h;const q=h.find(o=>o.y===top&&o.i!==undefined);if(q)r.on=q.i}
-    else b.y=Math.max(...h.map(o=>o.y+o.h))}}
+    else{b.y=Math.max(...h.map(o=>o.y+o.h));
+      for(let k=1;k<=corner&&r.hy;k++)for(const s of [dx<=0?-k:0,dx>=0?k:0])if(s&&r.hy&&!hits(S,R,{x:b.x+s,y:b.y-1,w:b.w,h:b.h},boxes).length){b.x+=s;b.y--;r.hy=0}}}}
   return r;
 }
 const solids=S=>S.ens.map((e,i)=>e.wrap>0&&!e.pass?{x:e.x,y:e.y,w:e.w,h:e.h,i}:null).filter(Boolean);
@@ -56,7 +62,7 @@ export function spot(S,R,tx,ty){
 }
 export function enterRoom(S,id,pos){
   const R=ROOMS[id],p=S.p;
-  S.room=id;S.ens=spawnEnemies(R);S.gate=S.latch&&S.latch[id]?1:0;S.plate=0;S.roots=[];S.flash=-1;
+  S.room=id;S.ens=spawnEnemies(R);S.liq=newLiquid(R,R.flows);S.gate=S.latch&&S.latch[id]?1:0;S.plate=0;S.roots=[];S.flash=-1;S.sit=0;S.still=0;
   if(pos){p.x=pos.x;p.y=pos.y;p.vx=0;p.vy=0}
   p.on=-1;camera(S,R,1);
 }
@@ -64,13 +70,32 @@ const hubTorch=()=>{const t=ROOMS.hub.torches[0];return {room:'hub',tx:t.tx,ty:t
 function respawn(S,ev){
   const cp=S.cp||hubTorch(),R=ROOMS[cp.room],p=S.p;
   enterRoom(S,cp.room,spot(S,R,cp.tx,cp.ty));
-  p.dead=0;p.rez=12;p.inv=45;p.ground=0;p.coy=0;p.buf=0;p.carry=0;p.demo=0;p.jq=0;ev.push('rez');
+  p.dead=0;p.rez=12;p.inv=45;p.ground=0;p.coy=0;p.buf=0;p.carry=0;p.demo=0;p.jq=0;p.dt=0;p.surf=0;p.bo=0;p.mo=0;p.db=0;p.bd=0;ev.push('rez');   /* no dash, surf or board demo carries over */
   resetChase(S);   /* a running chase restarts a fair gap behind this torch (game/chases.js) */
 }
 function die(S,ev,src){const p=S.p;if(p.dead||p.inv)return;p.dead=18;p.gl=18;p.vx=0;p.vy=0;S.flash=src;ev.push('die')}
+/* the camera follows him; sitting on a perch it drifts slowly (4% a frame) toward the perch's look, PERCH.drift frames in.
+   Vertically it aims at c.gy, his ground height, not at him (C1, C2). c.gt counts frames on the ground. */
 function camera(S,R,snap){
-  const p=S.p,c=S.cam,tx=clamp(p.x+PW/2-VW/2+p.face*12,0,R.w*T-VW),ty=clamp(p.y+PH/2-VH/2-8,0,R.h*T-VH);
-  if(snap){c.x=tx;c.y=ty}else{c.x+=(tx-c.x)*.12;c.y+=(ty-c.y)*.12}
+  const p=S.p,c=S.cam,q=S.sit?perchOf(R,p):null,k=q?Math.min(1,S.sit/PERCH.drift):0;
+  /* window: his top from c.gy up to 44 px above it (a full jump is 39) holds still; lower (any fall) follows him as before,
+     higher pushes the window's top. One continuous value, so a new higher ground is reached by easing, never by a jump.
+     Feet in water: he floats and never lands, so it follows him as before */
+  if(snap||c.gy==null){c.gy=p.y;c.gt=0}
+  else{const wet=tile(R,Math.floor((p.x+PW/2)/T),Math.floor((p.y+PH-1)/T))==='~';
+    c.gy=wet||p.y>c.gy?p.y:Math.min(c.gy,p.y+44);c.gt=p.ground?Math.min(c.gt+1,7):0;
+    if(c.gt>6)c.gy=Math.abs(p.y-c.gy)<.5?p.y:c.gy+(p.y-c.gy)*.06}   /* 6 frames on the ground, then ease 6% a frame to him */
+  const lead=FEEL.LEAD?clamp(p.vx*8,-16,16):p.face*12,
+    tx=clamp(p.x+PW/2-VW/2+lead+(q?q.lookx*T*k:0),0,R.w*T-VW),ty=clamp(c.gy+PH/2-VH/2-8+(q?q.looky*T*k:0),0,R.h*T-VH),e=q?.04:.12;
+  if(snap){c.x=tx;c.y=ty}else{c.x+=(tx-c.x)*e;c.y+=(ty-c.y)*e}
+}
+/* the perch: stand still on a seat for PERCH.wait frames and he sits (S.sit counts the frames sitting); any input, a
+   chase, a death or leaving the seat stands him up. Nothing makes him sit and nothing keeps him there. */
+function perch(S,R,inp,ev){
+  const p=S.p,q=S.mode==='play'&&p.ground&&!p.dead&&!(S.chase&&S.chase.on)&&Math.abs(p.vx)<.05?perchOf(R,p):null;
+  const idle=!(inp.l||inp.r||inp.u||inp.d||inp.j||inp.jp||inp.b||inp.bp||inp.drag);
+  if(q&&idle){if(S.still<PERCH.wait)S.still++;else{if(!S.sit)ev.push('sit');S.sit++}}
+  else{if(S.sit)ev.push('stand');S.still=0;S.sit=0}
 }
 const say=(S,text,t)=>{S.say={text,t,n:0}};
 
@@ -94,8 +119,8 @@ function burst(S,ev){
     b.t++;if(S.p.ground)b.g++;   /* g: frames since landing, only so the strands can draw back into the shoes */
     if(b.t>10)continue;
     const hw=8+b.t*.9,box={x:b.x-hw,y:b.y-4,w:hw*2,h:6+b.t*3};
-    S.ens.forEach((e,i)=>{if(b.hit.includes(i)||!ov(box,e))return;b.hit.push(i);
-      e.wrap=WRAP;e.grace=0;e.vy=0;e.ret=0;if(ov(e,S.p))e.pass=1;S.hit=3;S.cam.sh=3;ev.push('stun')});
+    S.ens.forEach((e,i)=>{if(e.soft||b.hit.includes(i)||!ov(box,e))return;b.hit.push(i);   /* roots slide off Flood's shells and scales */
+      e.wrap=WRAP;e.grace=0;e.vy=0;e.ret=0;if(ov(e,S.p))e.pass=1;S.hit=Math.round(FEEL.HIT);S.cam.sh=3;ev.push('stun')});
   }
   S.roots=S.roots.filter(b=>b.t<30);
 }
@@ -120,12 +145,12 @@ function touch(S,R,ev){
     if(!S.torches[key]){S.torches[key]=1;ev.push('light')}
     if(!S.cp||S.cp.room!==R.id||S.cp.tx!==t.tx||S.cp.ty!==t.ty){S.cp={room:R.id,tx:t.tx,ty:t.ty};ev.push('cp')}
   }
-  for(const it of R.items)if(!S.items[it.id]&&ov(p,trect(it.tx,it.ty))){S.items[it.id]=1;p.root=1;p.demo=1;ev.push('item')}
+  for(const it of R.items)if(!S.items[it.id]&&ov(p,trect(it.tx,it.ty))){S.items[it.id]=1;if(it.id==='root'){p.root=1;p.demo=1}else{p.dc=1;if(it.id==='board')p.bd=1}ev.push('item')}   /* each shows its move (demo(), board.js boardDemo) */
   /* a fragment on its pedestal (it rests above the tile): walking into it lifts it, and its biome's chase wakes */
   for(const f of R.pedestals){const k=PIECES.indexOf(f.piece);if(k<0||S.pieces[k]||!ov(p,pedRect(f)))continue;
     S.pieces[k]=1;S.cam.sh=3;ev.push('piece');if(CHASES[f.piece]&&!(S.chase&&S.chase.on))startChase(S,f.piece,ev)}
   if(R.plates.length){
-    const held=R.plates.some(({tx,ty})=>{const r={x:tx*T+1,y:ty*T+8,w:T-2,h:4};return ov(p,r)||S.ens.some(e=>e.wrap>0&&ov(e,r))});
+    const held=R.plates.some(({tx,ty})=>{const r={x:tx*T+1,y:ty*T+8,w:T-2,h:4};return ov(p,r)||S.ens.some(e=>e.wrap>0&&e.tz!==2&&ov(e,r))});   /* not a teasing crab's shell (fish.js) */
     if(held&&!S.plate)ev.push('plate');
     S.plate=held?1:0;
     /* a gate he has walked through latches open for good (saved), so the far side can never trap him */
@@ -137,7 +162,7 @@ function touch(S,R,ev){
   }
   if(p.inv)return;
   const hb=ins(p,3);
-  S.ens.forEach((e,i)=>{if(!e.wrap&&!e.grace&&ov(hb,ins(e,1)))die(S,ev,i)});
+  S.ens.forEach((e,i)=>{if(!e.soft&&!e.wrap&&!e.grace&&ov(hb,ins(e,1)))die(S,ev,i)});   /* Flood's soft ones: floodTouch */
   if(p.dead)return;
   const x0=Math.floor(p.x/T),x1=Math.floor((p.x+p.w)/T),y0=Math.floor(p.y/T),y1=Math.floor((p.y+p.h)/T);
   for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++)if(R.g[ty]&&R.g[ty][tx]==='^'&&ov(ins(p,2),spikeRect(R,tx,ty)))return die(S,ev,[tx,ty]);
@@ -194,7 +219,7 @@ export function step(S,inp,ev=[]){
   if(S.say){S.say.n++;if(--S.say.t<=0)S.say=null}
   if(S.cam.sh>0)S.cam.sh=Math.max(0,S.cam.sh-.25);
   if(S.mode==='intro'){intro(S,R,ev);return ev}
-  if(S.hit>0){S.hit--;if(inp.jp)p.jq=1;return ev}   /* hit-stop: a jump pressed now still counts after it */
+  if(S.hit>0){S.hit--;if(inp.jp)p.jq=1;if(inp.bp)p.db=DBUF;return ev}   /* hit-stop: a jump (or dash) pressed now still counts after it */
   if(S.match<1)S.match=Math.min(1,S.match+1/30);
   if(S.lit&&S.litT<60)S.litT++;
   if(p.gl>0)p.gl--;
@@ -213,13 +238,16 @@ export function step(S,inp,ev=[]){
     bumpStep(S,bh&&Math.hypot(inp.drag.x-p.x,inp.drag.y-p.y)>3,'drag',ev);   /* dragged into a wall or the window's edge (game/bump.js) */
   }else{
     if(p.carry){p.carry=0;p.vx=0;p.vy=0}
-    stepPlayer(S,R,p.demo?demo(p):p.jq&&!inp.jp?{...inp,jp:1}:inp,ev,solids(S));
-    {const wd=inp.l&&!inp.r?-1:inp.r&&!inp.l?1:0;bumpStep(S,!!(wd&&p.ground&&!p.dead&&!p.demo&&hits(S,R,{x:p.x+wd,y:p.y,w:p.w,h:p.h},[]).length),'walk',ev)}   /* walked into one */
+    stepPlayer(S,R,p.demo?demo(p):p.bd?boardDemo(p):p.jq&&!inp.jp?{...inp,jp:1}:inp,ev,solids(S));
+    {const wd=inp.l&&!inp.r?-1:inp.r&&!inp.l?1:0;bumpStep(S,!!(wd&&p.ground&&!p.dead&&!p.demo&&!p.bd&&hits(S,R,{x:p.x+wd,y:p.y,w:p.w,h:p.h},[]).length),'walk',ev)}   /* walked into one */
   }
   p.jq=0;
+  perch(S,R,inp,ev);
   burst(S,ev);
   if(S.mode==='dark')S.idle=inp.any||inp.drag?0:S.idle+1;
+  {const c=floodTouch(S,R,inp,ev);if(c>=0)die(S,ev,c)}   /* rams, pinches, knocks, a piranha's chomp, shell pushes (game/fish.js) */
   touch(S,R,ev);
+  stepLiquid(S,R,ev);   /* ripples (game/liquid.js) */
   if(!p.dead)transition(S,R);
   if(S.mode==='play'&&!S.seen[S.room]){S.seen[S.room]=1;ev.push('room')}
   if(stepChase(S,ev))die(S,ev,'chase');   /* game/chases.js */
@@ -253,13 +281,15 @@ const CSS=`
 .tg-band .gp{display:flex;gap:12px}
 .tg-band button{width:60px;height:56px;min-width:48px;padding:0;border:3px solid #808080;background:#C0C0C0;color:#1A1716;touch-action:none;clip-path:polygon(0 2px,1px 2px,1px 1px,2px 1px,2px 0,calc(100% - 2px) 0,calc(100% - 2px) 1px,calc(100% - 1px) 1px,calc(100% - 1px) 2px,100% 2px,100% calc(100% - 2px),calc(100% - 1px) calc(100% - 2px),calc(100% - 1px) calc(100% - 1px),calc(100% - 2px) calc(100% - 1px),calc(100% - 2px) 100%,2px 100%,2px calc(100% - 1px),1px calc(100% - 1px),1px calc(100% - 2px),0 calc(100% - 2px))}
 .tg-band button[aria-pressed="true"]{background:#A4A4A4}
+.tg-band button[hidden]{display:none}
 .tg-band svg{display:block;margin:auto;image-rendering:pixelated}
 `;
 const px=(d,w=14)=>`<svg width="${w*2}" height="${w*2}" viewBox="0 0 ${w} ${w}" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="${d}"/></svg>`;
 const ICON={l:px('M3 7h1V6h1V5h1V4h1V3h1v8H7v-1H6V9H5V8H4V7z'),r:px('M6 3h1v1h1v1h1v1h1v1h1v1h-1v1H9v1H8v1H7v1H6z'),
-  j:px('M7 2h1v1h1v1h1v1h1v1H9v6H6V6H4V5h1V4h1V3h1z'),
+  j:px('M7 2h1v1h1v1h1v1h1v1H9v6H6V6H4V5h1V4h1V3h1z'),b:px('M1 3h4v1H1zM2 5h3v1H2zM3 9h8v-1h2v1h1v1h-1v1h-1v1H3v-1H2v-2h1z'),
   on:px('M2 5h2l3-3h1v10H7L4 9H2zM10 4h1v1h1v4h-1v1h-1V9h1V5h-1z'),off:px('M2 5h2l3-3h1v10H7L4 9H2zM9 5h1v1h1V5h1v1h-1v1h1v1h-1v1h-1V8H9V7h1V6H9z')};
-const keyOf=c=>({ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d',Space:'j'})[c];
+/* the board: Shift, X or K (L and M are kept for Undo and the map) */
+export const keyOf=c=>({ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d',Space:'j',ShiftLeft:'b',ShiftRight:'b',KeyX:'b',KeyK:'b'})[c];
 
 /* opts: dev, keyTarget, isActive(), look, assist (bool; default the tos_assist pref), onTorch({restored,warp}),
    onEvent(name,data): 'torch', 'item' {name}, 'piece' {biome}, 'place' {biome}, 'chase_start', 'chase_done', 'door' (all four set),
@@ -272,9 +302,9 @@ export function mount(el,opts={}){
   if(!document.getElementById('tg-css')){const s=document.createElement('style');s.id='tg-css';s.textContent=CSS;document.head.appendChild(s)}
   const root=document.createElement('div');root.className='tg';root.tabIndex=0;root.setAttribute('aria-label','Wake Up (game)');
   root.innerHTML=`<div class="tg-view"><canvas width="${VW}" height="${VH}"></canvas><div class="tg-bub"><span class="bg"></span><span class="bt"></span></div><button class="tg-mute" type="button"></button></div>
-<div class="tg-band"><div class="gp"><button type="button" data-k="l" aria-label="Left">${ICON.l}</button><button type="button" data-k="r" aria-label="Right">${ICON.r}</button></div><button type="button" data-k="j" aria-label="Jump">${ICON.j}</button></div>`;
+<div class="tg-band"><div class="gp"><button type="button" data-k="l" aria-label="Left">${ICON.l}</button><button type="button" data-k="r" aria-label="Right">${ICON.r}</button></div><div class="gp"><button type="button" data-k="b" aria-label="Board" hidden>${ICON.b}</button><button type="button" data-k="j" aria-label="Jump">${ICON.j}</button></div></div>`;
   el.appendChild(root);
-  const $=s=>root.querySelector(s),cv=$('canvas'),view=$('.tg-view'),bub=$('.tg-bub'),band=$('.tg-band'),muteB=$('.tg-mute');
+  const $=s=>root.querySelector(s),cv=$('canvas'),view=$('.tg-view'),bub=$('.tg-bub'),band=$('.tg-band'),muteB=$('.tg-mute'),boardB=$('[data-k="b"]');
   const rend=createRenderer(cv,{reduce}),au=createAudio(MUTE_KEY);
   /* his look (hat, skull mask) is the OS Control Panel's preference (tos_hat, tos_mask), never part of the save */
   const prefLook=()=>{try{return {hat:localStorage.getItem('tos_hat')||'none',mask:localStorage.getItem('tos_mask')==='1'?1:0}}catch(_){return {}}};
@@ -297,10 +327,10 @@ export function mount(el,opts={}){
   }
 
   /* input */
-  const K={l:0,r:0,u:0,d:0,j:0},B={l:0,r:0,j:0};let jq=0,drag=null,touchUI=matchMedia('(pointer:coarse)').matches||/[?&]touch\b/.test(location.search);
+  const K={l:0,r:0,u:0,d:0,j:0,b:0},B={l:0,r:0,j:0,b:0};let jq=0,bq=0,drag=null,touchUI=matchMedia('(pointer:coarse)').matches||/[?&]touch\b/.test(location.search);
   const active=()=>!opts.isActive||opts.isActive();
   const gesture=()=>au.unlock();
-  const kd=e=>{const k=keyOf(e.code);if(!k||e.metaKey||e.ctrlKey||e.altKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||!active())return;e.preventDefault();gesture();if(k==='j'&&!K.j&&!e.repeat)jq=1;if(k==='u'&&!K.u&&!e.repeat)jq=1;K[k]=1};
+  const kd=e=>{const k=keyOf(e.code);if(!k||e.metaKey||e.ctrlKey||e.altKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||!active())return;e.preventDefault();gesture();if(k==='j'&&!K.j&&!e.repeat)jq=1;if(k==='u'&&!K.u&&!e.repeat)jq=1;if(k==='b'&&!K.b&&!e.repeat)bq=1;K[k]=1};
   const ku=e=>{const k=keyOf(e.code);if(k)K[k]=0};
   const clearKeys=()=>{for(const k in K)K[k]=0;for(const k in B)B[k]=0;drag=null;ptr.clear();paintBand()};
   /* opts.keyTarget (the OS passes window) lets keys reach the game wherever focus sits; opts.isActive then decides */
@@ -323,7 +353,7 @@ export function mount(el,opts={}){
   /* touch band: each finger maps to the button under it, so move + jump work together and a finger can slide L<->R */
   const ptr=new Map();
   const under=e=>{const t=document.elementFromPoint(e.clientX,e.clientY);return t&&band.contains(t)&&t.closest('[data-k]')?t.closest('[data-k]').dataset.k:null};
-  function paintBand(){const n={l:0,r:0,j:0};for(const k of ptr.values())if(k)n[k]=1;if(n.j&&!B.j)jq=1;Object.assign(B,n);
+  function paintBand(){const n={l:0,r:0,j:0,b:0};for(const k of ptr.values())if(k)n[k]=1;if(n.j&&!B.j)jq=1;if(n.b&&!B.b)bq=1;Object.assign(B,n);
     band.querySelectorAll('[data-k]').forEach(b=>b.setAttribute('aria-pressed',B[b.dataset.k]?'true':'false'))}
   band.addEventListener('pointerdown',e=>{e.preventDefault();gesture();band.setPointerCapture(e.pointerId);ptr.set(e.pointerId,under(e));paintBand()});
   band.addEventListener('pointermove',e=>{if(ptr.has(e.pointerId)){ptr.set(e.pointerId,under(e));paintBand()}});
@@ -349,13 +379,15 @@ export function mount(el,opts={}){
   const ro=new ResizeObserver(fit);ro.observe(root);fit();
 
   /* loop */
-  let raf=0,last=0,acc=0,userPaused=false,hidden=document.hidden,lastBub='';
+  let raf=0,last=0,acc=0,userPaused=false,hidden=document.hidden,lastBub='',bHid=null,bDem=false;
   function tick(){
-    const inp={l:K.l||B.l,r:K.r||B.r,u:K.u,d:K.d,j:K.j||K.u||B.j,jp:jq,drag:drag&&{x:drag.x,y:drag.y,cap:drag.cap},any:0};
-    inp.any=inp.l||inp.r||inp.u||inp.d||inp.j||jq;jq=0;
-    const lit0=S.lit,ev=step(S,inp,[]);
+    const inp={l:K.l||B.l,r:K.r||B.r,u:K.u,d:K.d,j:K.j||K.u||B.j,jp:jq,b:K.b||B.b,bp:bq,drag:drag&&{x:drag.x,y:drag.y,cap:drag.cap},any:0};
+    inp.any=inp.l||inp.r||inp.u||inp.d||inp.j||jq||inp.b||bq;jq=0;bq=0;
+    /* frozen: step() spends this frame on hit-stop, so the renderer's pulse and dust hold too (read before step() counts it down) */
+    const lit0=S.lit,frozen=S.hit>0&&S.mode!=='intro',ev=step(S,inp,[]);
+    if(rend.step)rend.step(S,ev,frozen);   /* one fixed step of pulse and dust (render.js); draw() only reads them */
     for(const e of ev){
-      au.sfx(e);
+      au.sfx(e,{lv:S.p.lv,reduce});   /* lv: the land sound scales with the fall (A9); reduce: no pitch variation (A12) */
       if(e==='cp'||e==='item'||e==='torch'||e==='latch'||e==='piece'||e==='place'||e==='chase_start'||e==='chase_done'||e==='room')save(S);
       if(e==='torch'&&!lit0){opts.onTorch&&opts.onTorch({restored:false});emit('torch')}
       if(e==='chase_start'||e==='chase_done'||e==='door')emit(e,{});
@@ -380,7 +412,8 @@ export function mount(el,opts={}){
   }
   function sound(){
     const R=ROOMS[S.room];
-    au.amb(S.mode==='intro'||!S.lit?null:R.biome==='hub'?'cave':'moss');
+    au.amb(S.mode==='intro'||!S.lit?null:R.biome==='hub'?'cave':R.biome==='flood'?'tide':'moss');
+    au.hush(S.sit?clamp((S.sit-20)/PERCH.hush,0,1):0);   /* sitting on a perch: a soft pad of open fifths swells in */
     let v=0;const p=S.p,cx=p.x+PW/2,cy=p.y+PH/2;
     for(const t of R.torches){const lit=S.torches[R.id+':'+t.tx+','+t.ty],dd=Math.hypot(t.tx*T+6-cx,t.ty*T+6-cy);
       if(S.mode==='dark')v=Math.max(v,Math.pow(clamp(1-dd/300,0,1),1.6));else if(lit)v=Math.max(v,.3*clamp(1-dd/160,0,1))}
@@ -407,6 +440,9 @@ export function mount(el,opts={}){
     if(n>=5)acc=0;
     rend.draw(S,ROOMS[S.room]);
     band.classList.toggle('on',!!S.lit);
+    {const h=!S.items.board;if(h!==bHid){bHid=h;boardB.hidden=h}}   /* the band shows only tools he owns (written on change) */
+    /* the board's pickup demo dash: its button shows pressed, so a phone player sees which one does that */
+    {const d=S.p.bd>=BDEMO.go&&S.p.dt>0;if(d!==bDem){bDem=d;boardB.setAttribute('aria-pressed',d||B.b?'true':'false')}}
     bubble();sound();hooks();
   }
   raf=requestAnimationFrame(frame);
@@ -429,7 +465,7 @@ export function mount(el,opts={}){
       const R=ROOMS[id],t=R.torches[R.torches.length-1];enterRoom(S,id,spot(S,R,t.tx,t.ty));
       if(!lit0&&opts.onTorch)opts.onTorch({restored:false,warp:true});
     },
-    grant(k,v){S.items[k]=v?1:0;if(v)S.p.root=1;save(S)},
+    grant(k,v){S.items[k]=v?1:0;if(v&&k==='root')S.p.root=1;if(v&&k==='board')S.p.dc=1;save(S)},   /* the item's charge: the root jump, the dash */
     piece(i,v){S.pieces[i]=v?1:0;if(!v)S.placed[i]=0;save(S)},
     place(i,v){S.placed[i]=v?1:0;if(v)S.pieces[i]=1;S.door=S.placed.every(Boolean)?1:0;S.doorT=S.door?999:0;save(S)},
     assist(v){setAssist(v)},
