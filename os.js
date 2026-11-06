@@ -143,7 +143,8 @@ const box=g=>art(13,13,({R,P})=>{R(0,0,13,13,'k');R(1,1,11,11,'f');R(1,1,10,1,'h
 const WB={
  close:box((R,P)=>{for(let i=0;i<5;i++){P(4+i,4+i,'a');P(8-i,4+i,'a')}}),
  zoom:box(R=>{R(3,3,7,1,'a');R(3,9,7,1,'a');R(3,3,1,7,'a');R(9,3,1,7,'a');R(3,6,4,1,'a');R(6,3,1,4,'a')}),
- shade:box(R=>{R(3,5,7,1,'a');R(3,7,7,1,'a')})
+ shade:box(R=>{R(3,5,7,1,'a');R(3,7,7,1,'a')}),
+ min:box(R=>{R(3,8,7,2,'a')})
 };
 const wb=k=>svg(WB[k],1,{classes:true});
 
@@ -169,6 +170,10 @@ function cv(w,h,fn){const c=document.createElement('canvas');c.width=w;c.height=
 const BLEED=svgU(art(128,4,({P})=>{for(let y=0;y<4;y++)for(let x=0;x<128;x++)if(B4[(y&3)*4+(x&3)]<Math.pow(1-x/128,1.3)*16)P(x,y,'k')}));
 const DIAG=svgU(art(64,64,({P})=>{for(let y=0;y<64;y++)for(let x=0;x<64;x++)if(B4[(y&3)*4+(x&3)]<(1-(x+y)/76)*8)P(x,y,'k')}));
 const GRAIN=cv(64,64,(d,w,h)=>{for(let i=0;i<w*h;i++){const r=rnd();if(r<.075){d[i*4]=0xE6;d[i*4+1]=0xE3;d[i*4+2]=0xD6;d[i*4+3]=255}else if(r<.09){d[i*4]=0xD8;d[i*4+1]=0xD3;d[i*4+2]=0xC4;d[i*4+3]=255}}});
+/* the crumbled Unreleased (once Wake Up is unlocked): eaten away from the bottom, cracked through */
+const CRUMB=svgU(art(24,24,({P})=>{for(let y=0;y<24;y++)for(let x=0;x<24;x++){const f=(y-9)/14+(x-12)/40;if(x-y<19&&B4[(y&3)*4+(x&3)]>=f*16)P(x,y,'k')}}));
+const CRACK=svgU(art(24,24,({P})=>{const L=(a,b,c,d)=>{const n=Math.max(Math.abs(c-a),Math.abs(d-b));for(let i=0;i<=n;i++)P(a+(c-a)*i/n,b+(d-b)*i/n,'c')};
+  L(13,0,11,4);L(11,4,14,8);L(14,8,10,13);L(10,13,12,18);L(14,8,20,11);L(10,13,4,15)}));
 const sb='.wbody::-webkit-scrollbar';
 document.head.insertAdjacentHTML('beforeend',`<style id="gen">
 .bev{border-image:${svgU(BV_UP)} 3 / 3px stretch}
@@ -199,6 +204,8 @@ input[type=range]:active::-webkit-slider-thumb{transform:translateY(1px)}
 .rm{background-image:url(${GRAIN})}
 .grooves::before{-webkit-mask:${BLEED} 0 0/128px 4px repeat-y;mask:${BLEED} 0 0/128px 4px repeat-y}
 .ico::before{-webkit-mask:${DIAG} 0 0/64px 64px no-repeat;mask:${DIAG} 0 0/64px 64px no-repeat}
+.item.crumbled .app{-webkit-mask:${CRUMB} 0 0/100% 100% no-repeat;mask:${CRUMB} 0 0/100% 100% no-repeat}
+.item.crumbled .app::after{background:${CRACK} 0 0/100% 100% no-repeat}
 .pj-ban .wv::before{opacity:.35;-webkit-mask:${BLEED} 0 0/256px 8px repeat-y;mask:${BLEED} 0 0/256px 8px repeat-y}
 #desk{cursor:default}
 </style>`);
@@ -292,22 +299,22 @@ function mountSb(el){
 
 function makeWin(o){
   const el=document.createElement('section');
-  el.className='win';el.id='w-'+o.id;el.hidden=true;el.tabIndex=-1;
+  el.className='win'+(o.noClose?' noclose':'')+(o.noResize?' norz':'');el.id='w-'+o.id;el.hidden=true;el.tabIndex=-1;
   el.setAttribute('role','dialog');el.setAttribute('aria-label',o.title);
-  el.innerHTML=`<div class="wf"><div class="tbar"><div class="tab"><button class="wbtn wclose" data-act="close" aria-label="Close">${wb('close')}</button><span class="ttl">${esc(o.title)}</span></div><div class="grooves"></div><button class="wbtn" data-act="zoom" aria-label="Zoom">${wb('zoom')}</button><button class="wbtn wx" data-act="close" aria-label="Close window">${wb('close')}</button></div>`+
-   `<div class="backbar"><button class="back bev" data-act="close">${gl('back')}Back</button><span class="bt">${esc(o.title)}</span></div>`+
+  el.innerHTML=`<div class="wf"><div class="tbar"><div class="tab"><button class="wbtn wclose" data-act="close" aria-label="Close">${wb('close')}</button><span class="ttl">${esc(o.title)}</span></div><div class="grooves"></div>${o.minimizable?`<button class="wbtn wmin" data-act="min" aria-label="Minimize">${wb('min')}</button>`:''}<button class="wbtn" data-act="zoom" aria-label="Zoom">${wb('zoom')}</button><button class="wbtn wx" data-act="close" aria-label="Close window">${wb('close')}</button></div>`+
+   `<div class="backbar"><button class="back bev" data-act="close">${gl('back')}Back</button>${o.minimizable?`<button class="back bev bmin" data-act="min">${gl('down')}Minimize</button>`:''}<span class="bt">${esc(o.title)}</span></div>`+
    (o.tool?`<div class="wtool">${o.tool}</div>`:'')+`<div class="wbw"><div class="wbody">${o.body}</div><div class="vsb" aria-hidden="true"><button class="sa up" tabindex="-1" aria-hidden="true"></button><div class="trk"><div class="thm"></div></div><button class="sa dn" tabindex="-1" aria-hidden="true"></button></div></div>`+(o.foot!=null?`<div class="wfoot">${o.foot}</div>`:'')+'<div class="grow" data-d="br" aria-hidden="true"></div><i class="rz r" data-d="r"></i><i class="rz l" data-d="l"></i><i class="rz b" data-d="b"></i><i class="rz bl" data-d="bl"></i>'+`</div>`;
   Object.assign(el.style,{left:o.x+'px',top:o.y+'px',width:o.w+'px'});if(o.h)el.style.height=o.h+'px';
   el.style.setProperty('--acc',o.acc||RED);el.style.setProperty('--acc-ink',o.ink||INK);
   desk.insertBefore(el,$('#strip'));
-  const w=WIN[o.id]={id:o.id,el,title:o.title,acc:o.acc||RED,ink:o.ink||INK,base:[o.acc||RED,o.ink||INK],open:false,opener:null,onopen:o.onopen,onshown:o.onshown,onclose:o.onclose};
+  const w=WIN[o.id]={id:o.id,el,title:o.title,acc:o.acc||RED,ink:o.ink||INK,base:[o.acc||RED,o.ink||INK],open:false,opener:null,onopen:o.onopen,onshown:o.onshown,onclose:o.onclose,keep:!!o.noClose,min:false,onmin:o.onmin,onrestore:o.onrestore};
   wire(w);if(o.init)o.init(el);mountArt(el);mountSb(el);return w;
 }
 function setAccent(id,acc,ink){const w=WIN[id];if(!w)return;w.acc=acc;w.ink=ink;w.el.style.setProperty('--acc',acc);w.el.style.setProperty('--acc-ink',ink);renderStrip()}
 function resetAccent(id){const w=WIN[id];if(w)setAccent(id,w.base[0],w.base[1])}
 function thunk(el){if(reduce)return;el.classList.remove('thunk');void el.offsetWidth;el.classList.add('thunk')}
 function focusWin(id,{bump=false,focusEl=true}={}){
-  const w=WIN[id];if(!w||!w.open)return;
+  const w=WIN[id];if(!w||!w.open||w.min)return;
   if(topId!==id||w.el.style.zIndex==='')w.el.style.zIndex=++Z;
   topId=id;for(const k in WIN)WIN[k].el.classList.toggle('focused',k===id);
   readSync();
@@ -336,7 +343,7 @@ function openWin(id,src){
   if(!WIN[id]){if(PB[id])projWin(PB[id]);else return}
   const w=WIN[id],el=w.el;
   if(el.classList.contains('shaded'))shade(id,false);
-  if(w.open){focusWin(id,{bump:true});return}
+  if(w.open){if(w.min)restoreWin(id,src);else focusWin(id,{bump:true});return}
   w.open=true;w.opener=src&&src.focus?src:null;el.hidden=false;order.push(id);clampWin(el);
   TK.open(PB[id]?'/projects/'+PB[id].slug+'.html':'/os/'+id,w.title,id,viaOf(src));
   if(id==='trash')TK.discover('trash-open',{},'crash_trash_open');
@@ -349,16 +356,37 @@ function openWin(id,src){
   else{if(w.onshown)w.onshown(el);shown()}
   updInd();
 }
+/* the front-most window that is open and not minimized */
+function nextWin(){let next=null,z=-1;for(const k in WIN){const o=WIN[k];if(o.open&&!o.min&&+o.el.style.zIndex>z){z=+o.el.style.zIndex;next=k}}return next}
 function closeWin(id){
-  const w=WIN[id];if(!w||!w.open)return;
-  w.open=false;w.el.hidden=true;if(w.onclose)w.onclose(w.el);w.el.classList.remove('focused');order.splice(order.indexOf(id),1);
-  let next=null,z=-1;for(const k in WIN){const o=WIN[k];if(o.open&&+o.el.style.zIndex>z){z=+o.el.style.zIndex;next=k}}
+  const w=WIN[id];if(!w||!w.open||w.keep)return;
+  w.open=false;w.min=false;w.el.hidden=true;if(w.onclose)w.onclose(w.el);w.el.classList.remove('focused');order.splice(order.indexOf(id),1);
+  const next=nextWin();
   topId=null;
   if(next)focusWin(next);else if(w.opener&&document.contains(w.opener))w.opener.focus({preventScroll:true});
   renderStrip();updInd();
 }
+/* a kept window (noClose) can only be closed after this */
+function releaseWin(id){const w=WIN[id];if(!w)return;w.keep=false;w.el.classList.remove('noclose')}
+/* minimize: the window stays open and in the strip (dimmed), but is hidden until its tab, its icon or openWin brings it back */
+function minimizeWin(id){
+  const w=WIN[id];if(!w||!w.open||w.min||w.el.classList.contains('gdark'))return;
+  const a=w.el.getBoundingClientRect();
+  w.min=true;w.el.hidden=true;w.el.classList.remove('focused');if(w.onmin)w.onmin(w.el);
+  if(topId===id){topId=null;const next=nextWin();if(next)focusWin(next);else{if(w.el.contains(document.activeElement))document.activeElement.blur();renderStrip()}}else renderStrip();
+  /* the outlines fly to its strip tab; with the strip collapsed, to its desktop icon (or the one that opened it), else the strip's grip */
+  const vis=e=>e&&document.contains(e)&&e.getBoundingClientRect().width>0,to=[$(`.stab[data-id="${id}"]`),id==='game'&&$('#ic-wake .ic'),w.opener,$('#sgrip')].find(vis);
+  if(to&&!isMobile())zoomRects(a,to.getBoundingClientRect());
+}
+function restoreWin(id,src){
+  const w=WIN[id];if(!w||!w.min)return;
+  w.min=false;w.el.hidden=false;clampWin(w.el);w.el.style.zIndex=++Z;if(w.onrestore)w.onrestore(w.el);
+  const r=src&&src.getBoundingClientRect?src.getBoundingClientRect():null;
+  if(r&&!isMobile())zoomRects(r,w.el.getBoundingClientRect());
+  focusWin(id,{bump:true});
+}
 function zoomWin(id){
-  const el=WIN[id].el;if(isMobile())return;
+  const el=WIN[id].el;if(isMobile()||el.classList.contains('norz'))return;
   const a=el.getBoundingClientRect();
   if(el.dataset.prev){const p=JSON.parse(el.dataset.prev);Object.assign(el.style,p);delete el.dataset.prev}
   else{el.dataset.prev=JSON.stringify({left:el.style.left,top:el.style.top,width:el.style.width,height:el.style.height});
@@ -366,7 +394,7 @@ function zoomWin(id){
   zoomRects(a,el.getBoundingClientRect());thunk(el);
 }
 function shade(id,force){
-  const w=WIN[id],el=w.el;const on=force??!el.classList.contains('shaded');
+  const w=WIN[id],el=w.el;if(el.classList.contains('norz')&&force!==false)return;const on=force??!el.classList.contains('shaded');
   el.classList.toggle('shaded',on);const sbt=$('[data-act=shade]',el);if(sbt)sbt.setAttribute('aria-expanded',String(!on));renderStrip();
 }
 function wire(w){
@@ -375,7 +403,7 @@ function wire(w){
   el.addEventListener('focusin',()=>{if(topId!==id)focusWin(id,{focusEl:false})});
   el.addEventListener('animationend',e=>{if(e.target===el)el.classList.remove('thunk')});
   el.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||!el.contains(b))return;
-    const a=b.dataset.act;if(a==='close')closeWin(id);else if(a==='zoom')zoomWin(id);else if(a==='shade')shade(id)});
+    const a=b.dataset.act;if(a==='close')closeWin(id);else if(a==='zoom')zoomWin(id);else if(a==='shade')shade(id);else if(a==='min')minimizeWin(id)});
   const tb=$('.tbar',el);
   tb.addEventListener('dblclick',e=>{if(!e.target.closest('button'))shade(id)});
   tb.addEventListener('pointerdown',e=>{
@@ -403,9 +431,9 @@ function wire(w){
 
 /* ================= control strip + indicators ================= */
 function renderStrip(){
-  $('#stabs').innerHTML=order.map(id=>{const w=WIN[id];return `<button class="stab bev${id===topId?' on':''}${w.el.classList.contains('shaded')?' shaded':''}" data-id="${id}" style="--a:${w.acc};--ai:${w.ink}" aria-pressed="${id===topId}"><i class="sw"></i><span class="stt">${esc(w.title)}</span></button>`}).join('');
+  $('#stabs').innerHTML=order.map(id=>{const w=WIN[id];return `<button class="stab bev${id===topId?' on':''}${w.el.classList.contains('shaded')?' shaded':''}${w.min?' min':''}" data-id="${id}" style="--a:${w.acc};--ai:${w.ink}" aria-pressed="${id===topId}"><i class="sw"></i><span class="stt">${esc(w.title)}</span></button>`}).join('');
 }
-$('#stabs').addEventListener('click',e=>{const b=e.target.closest('.stab');if(!b)return;const id=b.dataset.id;if(WIN[id].el.classList.contains('shaded'))shade(id,false);focusWin(id,{bump:true});WIN[id].el.focus({preventScroll:true})});
+$('#stabs').addEventListener('click',e=>{const b=e.target.closest('.stab');if(!b)return;const id=b.dataset.id;if(WIN[id].min){restoreWin(id,b);return}if(WIN[id].el.classList.contains('shaded'))shade(id,false);focusWin(id,{bump:true});WIN[id].el.focus({preventScroll:true})});
 function updInd(){$('#nw').textContent=order.length}
 
 function setStrip(c){const st=$('#strip');st.classList.toggle('collapsed',c);['#sgrip','#scap'].forEach(q=>{const b=$(q);b.setAttribute('aria-expanded',String(!c));b.setAttribute('aria-label',c?'Show the open windows list':'Collapse the open windows list')});store.set('stripC',c?'1':'0')}
@@ -529,12 +557,12 @@ function ditherIn(el){
 const GLY='#%&@$*+=?<>/|{}~^;:';
 const rg=()=>GLY[(Math.random()*GLY.length)|0];
 makeWin({id:'trash',title:'Trash',x:420,y:110,w:420,h:300,
- body:`<div class="tr"><button class="item" data-open="unreleased" style="width:112px"><span class="app dk"><i></i><b class="gx"></b></span><span class="nm">Unreleased</span></button><button class="item" id="tr-compost" hidden style="width:112px"><span class="cmp" aria-hidden="true">${svg(ICON.compost,2)}</span><span class="nm">Compost</span></button></div>`,foot:'<span>1 item</span><span></span>',
+ body:`<div class="tr"><button class="item" data-open="unreleased" style="width:112px"><span class="app dk"><i></i><b class="gx"></b></span><span class="nm">Unreleased</span></button><button class="item" id="tr-compost" hidden style="width:112px"><span class="cmp" aria-hidden="true">${svg(ICON.compost,2)}</span><span class="nm">Compost</span></button><button class="item" id="tr-sprout" hidden style="width:112px"><span class="cmp" aria-hidden="true"><canvas class="spr" width="16" height="22"></canvas></span><span class="nm">Sprout</span></button></div>`,foot:'<span>1 item</span><span></span>',
  init(el){
    const gx=$('.gx',el);
    fillGx(gx);
-   $('[data-open="unreleased"]',el).addEventListener('click',e=>{$$('.item',el).forEach(x=>x.classList.toggle('sel',x===e.currentTarget));openWin('unreleased',e.currentTarget)});
-   $('#tr-compost',el).addEventListener('click',e=>{$$('.item',el).forEach(x=>x.classList.toggle('sel',x===e.currentTarget))});
+   $('[data-open="unreleased"]',el).addEventListener('click',e=>{if(gameOn())return;$$('.item',el).forEach(x=>x.classList.toggle('sel',x===e.currentTarget));openWin('unreleased',e.currentTarget)});
+   $$('#tr-compost,#tr-sprout',el).forEach(b=>b.addEventListener('click',e=>{$$('.item',el).forEach(x=>x.classList.toggle('sel',x===e.currentTarget))}));
  },
  onclose(el){$$('.item',el).forEach(x=>x.classList.remove('sel'))}});
 makeWin({id:'unreleased',title:'Unreleased',x:360,y:60,w:640,h:560,grow:1,
@@ -904,7 +932,7 @@ function show404(){showAlert(`<span class="a1">${NF_TITLE}</span><span class="a2
 function PREF(k,d){try{return localStorage.getItem(k)||d}catch(_){return d}}
 function PSET(k,v){try{localStorage.setItem(k,v)}catch(_){}}
 let syncMascotCP=()=>{};
-function setHat(h,keep=true){if(keep&&h!=='none')TK.discover('hat:'+h);BS.hat=h==='none'?0:h;if(keep)PSET('tos_hat',h);bRender()}
+function setHat(h,keep=true){if(keep&&h!=='none')TK.discover('hat:'+h);BS.hat=h==='none'?0:h;if(keep)PSET('tos_hat',h);bRender();gameLookSync()}
 function setWall(k,keep=true){if(keep)TK.discover('wall:'+k);WALLK=k;if(keep)PSET('tos_wall',k);buildWall()}
 /* other wallpapers: night garden (dithered sky, stars that twinkle), paper grid, plain teal */
 let twT=0,stars=[];
@@ -913,6 +941,7 @@ function altWall(){
   wall.width=Wd;wall.height=Hd;wall.style.width=Wd+'px';wall.style.height=Hd+'px';
   const x=wall.getContext('2d');clearInterval(twT);twT=0;stars=[];
   if(WALLK==='plain'){x.fillStyle='#008080';x.fillRect(0,0,Wd,Hd);return}
+  if(WALLK==='medallion'){medWall(x,Wd,Hd);return}
   if(WALLK==='paper'){x.fillStyle='#F1EEE2';x.fillRect(0,0,Wd,Hd);
     for(let gx=0;gx<Wd;gx+=24){x.fillStyle=gx%120===0?'#A9BBD6':'#D6DDE7';x.fillRect(gx,0,1,Hd)}
     for(let gy=0;gy<Hd;gy+=24){x.fillStyle=gy%120===0?'#A9BBD6':'#D6DDE7';x.fillRect(0,gy,Wd,1)}return}
@@ -924,6 +953,88 @@ function altWall(){
   /* a small pixel moon */
   const mx=Math.round(Wd*.14),my=Math.round(Hd*.2);for(let yy=-16;yy<=16;yy++)for(let xx=-16;xx<=16;xx++){if(xx*xx+yy*yy>256)continue;if((xx+7)*(xx+7)+(yy-3)*(yy-3)<190)continue;x.fillStyle='#FFF3C0';x.fillRect(mx+xx,my+yy,1,1)}
   if(!reduce)twT=setInterval(()=>{for(let i=0;i<6;i++){const s=stars[(Math.random()*stars.length)|0];if(!s)continue;const on=Math.random()<.5;x.fillStyle=on?'#FFFFFF':'#2C3E86';x.fillRect(s[0],s[1],s[2]?2:1,s[2]?2:1)}},700);
+}
+/* Runic medallion (the Wake Up ending): the stone door's disc, completed, carved in teal stone at 2x pixels. Rings, a band of runes,
+   notches cut through the rim, a cross boss, and the four fragments the door took, set back together: the disc is split along the
+   vertical and horizontal axes into interlocking quarters (each with one knob into the next, clockwise), its seams visible, each
+   fragment with a thin inlay line in its biome's colour (NW roots, NE flood, SE molten, SW crystals; same split as game/door.js frag) */
+const RUNE=[[[1.5,0,1.5,6],[0,1,1.5,2.5],[3,1,1.5,2.5]],[[0,0,0,6],[0,0,3,1.5],[3,1.5,0,3],[0,3,3,4.5],[3,4.5,0,6]],[[3,0,0,3],[0,3,3,6]],
+  [[0,0,0,6],[3,0,3,6],[0,0,3,6],[3,0,0,6]],[[0,0,0,6],[0,1,3,2.5],[3,2.5,0,4]],[[0,0,3,6],[3,0,0,6]],[[0,0,0,6],[3,0,3,6],[0,2,3,4]],
+  [[0,6,1.5,0],[1.5,0,3,6],[.75,3,2.25,3]],[[0,0,0,6],[0,0,3,2]],[[0,0,0,6],[3,0,3,6],[0,0,3,3],[3,0,0,3]],[[1.5,0,1.5,6],[0,1.5,3,4.5]],
+  [[1.5,0,3,2],[3,2,1.5,4],[1.5,4,0,2],[0,2,1.5,0],[0,6,1.5,4],[3,6,1.5,4]],[[1.5,0,1.5,6],[0,2,1.5,0],[3,2,1.5,0]],[[0,0,0,6],[0,0,3,0],[0,3,2,3]]];
+const STONE=[[8,26,27],[20,52,52],[36,80,77],[58,110,103],[94,148,135],[160,200,184]],BGT=[[3,20,22],[5,30,33],[7,41,44],[9,52,54],[14,70,71]];
+const INLAY=[['#2F4D17','#7FC044','#C2EC86'],['#1B4677','#4A9BE6','#A6D2FA'],['#86390C','#F08A34','#FFC488'],['#553286','#B58AF0','#E0CCFF']].map(g=>g.map(h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]));
+/* which fragment a point belongs to (dx,dy from the centre, disc radius R): 0 NW, 1 NE, 2 SE, 3 SW; knobs on the seams at half radius */
+function discFrag(dx,dy,R){const a=R*.5,o=R*.09,kr=R*.135;
+  if(Math.hypot(dx-o,dy+a)<kr)return 0;if(Math.hypot(dx-a,dy-o)<kr)return 1;if(Math.hypot(dx+o,dy-a)<kr)return 2;if(Math.hypot(dx+a,dy+o)<kr)return 3;
+  return dy<0?(dx<0?0:1):(dx<0?3:2)}
+function medWall(x,Wd,Hd){
+  const w=Math.ceil(Wd/2),h=Math.ceil(Hd/2),id=x.createImageData(Wd,Hd),d=id.data,mob=isMobile();
+  const cx=mob?w/2:(w-60)/2,cy=mob?h*.64:h/2-4,R=Math.max(48,Math.min(mob?w*.44:(w-150)*.5,h*.42,190)),TAU=Math.PI*2,SEG=TAU/24;
+  const hs=(i,j)=>{let q=Math.imul(i|0,374761393)+Math.imul(j|0,668265263)|0;q=Math.imul(q^(q>>>13),1274126177);return((q^(q>>>16))>>>0)/4294967296};
+  /* runes are line segments in a 3x6 box, scaled to each ring; strokes are a distance test along the ring's curve */
+  const ring=(r0,r1,n,skip)=>{const gh=(r1-r0)*R*.64,gw=gh*.56,sc=RUNE.map(g=>g.map(([a,b,c,e])=>[a*gw/3-gw/2,b*gh/6-gh/2,c*gw/3-gw/2,e*gh/6-gh/2]));
+    return {m:(r0+r1)/2*R,n,skip,sc,hw:Math.max(.7,gh*.06),seq:Array.from({length:n},(_,i)=>(hs(i*7+n,n)*RUNE.length)|0)}};
+  const outer=ring(.70,.885,24,6),inner=R>=110?ring(.405,.515,16,4):null;
+  const sd=(px,py,s)=>{const vx=s[2]-s[0],vy=s[3]-s[1],t=Math.max(0,Math.min(1,((px-s[0])*vx+(py-s[1])*vy)/(vx*vx+vy*vy||1))),qx=s[0]+vx*t-px,qy=s[1]+vy*t-py;return qx*qx+qy*qy};
+  const glyph=(rg,r,a)=>{const k=rg.n,f=((a+Math.PI/2)/TAU*k%k+k)%k,seg=Math.round(f)%k,u=(f-Math.round(f))*TAU/k*r,v=rg.m-r;
+    if(seg%rg.skip===0)return false;
+    if(Math.abs(Math.abs(f-Math.round(f))-.5)*TAU/k*r<.9&&Math.abs(v)<.9)return true;
+    const g=rg.sc[rg.seq[seg]];for(const s of g)if(sd(u,-v,s)<rg.hw*rg.hw)return true;return false};
+  const NW=Math.max(2.4,R*.034),FR=R*.885;
+  /* a seam (2px): a pixel with a 4-neighbour in another fragment */
+  const seam=(dx,dy)=>{const q=discFrag(dx,dy,FR);return q!==discFrag(dx+1,dy,FR)||q!==discFrag(dx,dy+1,FR)||q!==discFrag(dx-1,dy,FR)||q!==discFrag(dx,dy-1,FR)};
+  const zig=(r,rn,a)=>{const t=((a/TAU*20)%1+1)%1,z=.535+.125*Math.abs(t*2-1),sl=.125*2*20*R/(TAU*r);return Math.abs(rn-z)*R/Math.hypot(1,sl)<.6};
+  const near=(a,k)=>{let q=((a+Math.PI/2)/(Math.PI/2))%4;q=(q+4)%4;const i=Math.round(q)%4;return [i,(q-Math.round(q))*Math.PI/2]};
+  /* engraved lines: ring grooves, rune strokes, spokes, a zigzag of rays, the notch walls, the slot outlines, the boss cross */
+  const engr=(X,Y)=>{const dx=X+.5-cx,dy=Y+.5-cy,r=Math.hypot(dx,dy),rn=r/R,a=Math.atan2(dy,dx);if(rn>.99)return false;
+    for(const q of [.885,.70,.675,.52,.395,.215,.13])if(Math.abs(r-q*R)<.6)return !(q===.885&&Math.abs(near(a)[1]*r)<NW);
+    const [k,da]=near(a);
+    if(rn>.13&&rn<.885&&seam(dx,dy))return true;
+    if(rn>.885&&Math.abs(Math.abs(da*r)-NW)<.6)return true;
+    if(rn>.70&&rn<.885)return glyph(outer,r,a);
+    if(inner&&rn>.405&&rn<.515)return glyph(inner,r,a);
+    if(rn>.215&&rn<(inner?.395:.52)){const f=(a/(TAU/8)%1+1)%1;return Math.min(f,1-f)*TAU/8*r<.6}
+    if(rn>.52&&rn<.675)return zig(r,rn,a);
+    if(rn<.13)return Math.abs(dx)<.6||Math.abs(dy)<.6;
+    return false};
+  const lt=(ux,uy)=>-(.6*ux+.8*uy);
+  for(let Y=0;Y<h;Y++)for(let X=0;X<w;X++){
+    const dx=X+.5-cx,dy=Y+.5-cy,r=Math.hypot(dx,dy),rn=r/R,ux=dx/(r||1),uy=dy/(r||1),ol=lt(ux,uy),th=(B4[(Y&3)*4+(X&3)]+.5)/16;let c;
+    if(rn>=.995){
+      /* ground: dark teal, vignetted, a soft dithered halo, faint ripples, the medallion's drop shadow */
+      const vg=Math.hypot((X-w/2)/w,(Y-h/2)/h)*1.7;let t=3-vg*1.3;
+      if(rn<1.24)t+=(1-(rn-1)/.24)*.9;
+      if(rn>1.3){const m=((r-R*1.3)%22+22)%22;if(m<1.2)t+=Math.max(0,.9-(rn-1.3)*.5)}
+      if(Math.hypot(dx-3,dy-4)<R)t=.6;
+      t=Math.max(0,Math.min(4,t));const lo=Math.floor(t);c=BGT[Math.min(4,lo+(t-lo>th?1:0))];
+    }else{
+      const [k,da]=near(Math.atan2(dy,dx)),q=discFrag(dx,dy,FR);
+      {
+        let t;
+        if(rn>.885&&Math.abs(da*r)<NW)t=.9+(rn>.95?.3:0);
+        else if(rn>.955){const e=(rn-.955)/.04;t=3+(e>.5?ol*(e-.5)*3:-ol*(.5-e)*3);if(rn>.985)t=.5}
+        else if(rn>.93){const ab=(Math.floor(Math.atan2(dy,dx)/TAU*72)+.5)*TAU/72,bx=dx-Math.cos(ab)*.9425*R,by=dy-Math.sin(ab)*.9425*R,br=Math.max(1.4,R*.012);
+          t=Math.hypot(bx,by)<br?3+lt(bx/br,by/br)*1.8:1.2}
+        else if(rn>.885)t=2.7;
+        else if(rn>.70)t=1.9;
+        else if(rn>.675)t=2.7;
+        else if(rn>.215)t=2.35+(((r|0)%5===0)?-.3:0)+(rn<.3?.25:0);
+        else if(rn>.13){const e=(rn-.13)/.085;t=3+(e>.5?ol*(e-.5)*2.6:-ol*(.5-e)*2.6)}
+        else t=3.2+ol*1.3*rn/.13+(rn<.035?1.4:0);
+        if(rn>.13&&rn<.885)t+=[.14,-.05,.07,-.14][q];   /* four stones, each its own shade */
+        t+=(hs(X,Y)-.5)*.45;if(hs(Y+91,X)<.008)t=.6;
+        const eg=engr(X,Y);
+        if(eg)t=.25;else if(engr(X-1,Y-1))t=Math.min(5,t+1.5);else if(engr(X+1,Y+1))t-=.8;
+        t=Math.max(0,Math.min(5,t));const lo=Math.floor(t);c=STONE[Math.min(5,lo+(t-lo>th?1:0))];
+        /* the inlay: the zigzag groove is filled with the fragment's colour, stopping short of the seams */
+        if(eg&&rn>.52&&rn<.675&&zig(r,rn,Math.atan2(dy,dx))){let ok=true;for(let j=-3;j<=3&&ok;j++)for(let i=-3;i<=3;i++)if(seam(dx+i,dy+j)){ok=false;break}
+          if(ok){const g=INLAY[q],s=dx*.6+dy*.8;c=hs(X,Y)<.18?g[2]:s<0?g[1]:(th<.5?g[1]:g[0])}}
+      }
+    }
+    for(let j=0;j<2;j++){const yy=Y*2+j;if(yy>=Hd)break;for(let i=0;i<2;i++){const xx=X*2+i;if(xx>=Wd)break;const q=(yy*Wd+xx)*4;d[q]=c[0];d[q+1]=c[1];d[q+2]=c[2];d[q+3]=255}}
+  }
+  x.putImageData(id,0,0);
 }
 /* screen saver: flying winged seeds, or a nap with a dimmed screen. Starts after a minute idle; Preview starts it now. */
 let saverK=PREF('tos_saver','none'),ssOn=null,ssAt=0,ssRaf=0,ssT=0,nzT=0,napBr=0,lastXY=[0,0];
@@ -968,10 +1079,10 @@ let lastAct=performance.now();
   if(e.type==='pointerdown'||e.type==='keydown'){e.stopPropagation();e.preventDefault()}
   ssStop();
 },true));
-setInterval(()=>{if(!ssOn&&saverK!=='none'&&!document.hidden&&performance.now()-lastAct>60000)ssStart()},1000);
+setInterval(()=>{if(!ssOn&&saverK!=='none'&&!document.hidden&&!gameFront()&&performance.now()-lastAct>60000)ssStart()},1000);
 
 const radio=(g,v,label,on)=>`<button class="mi" role="radio" aria-checked="${on}" data-g="${g}" data-v="${v}"><span class="tk" aria-hidden="true"></span><span>${label}</span></button>`;
-const HATS=[['none','None'],['party','Party hat'],['crown','Tiny crown'],['shades','Sunglasses']],SAVERS=[['none','None'],['seeds','Flying seeds'],['nap','Nap']],WALLS=[['teal','Teal rings'],['night','Night garden'],['paper','Paper grid'],['plain','Plain teal']];
+const HATS=[['none','None'],['party','Party hat'],['crown','Tiny crown'],['shades','Sunglasses']],SAVERS=[['none','None'],['seeds','Flying seeds'],['nap','Nap']],WALLS=[['teal','Teal rings'],['night','Night garden'],['paper','Paper grid'],['plain','Plain teal'],['medallion','Runic medallion']];
 const hat0=PREF('tos_hat','none'),wall0=PREF('tos_wall','teal');
 makeWin({id:'cpanel',title:'Control Panel',x:380,y:96,w:300,
  body:`<div class="cp2"><div class="mi-in" role="group" aria-label="Control Panel">
@@ -998,7 +1109,7 @@ makeWin({id:'cpanel',title:'Control Panel',x:380,y:96,w:300,
      else{saverK=b.dataset.v;PSET('tos_saver',saverK);if(saverK!=='none')TK.discover('saver:'+saverK);dim()}});
    prev.addEventListener('click',()=>{if(saverK!=='none')ssStart()});
    dim();
-   syncMascotCP=()=>set(m,!buddy.hidden);
+   syncMascotCP=()=>set(m,store.get('buddyGone')!=='1');
    if(store.get('buddyGone')==='1')set(m,false);
  }});
 /* ================= D6: Simple view: the plain-page fallback, with the press kit folded in ================= */
@@ -1372,7 +1483,9 @@ function drawBuddy(ctx,s){
   ctx.clearRect(0,0,W,H);
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){const c=g[y][x];if(c!=='.'){ctx.fillStyle=MB[c];ctx.fillRect(x,y,1,1)}}
 }
-let gone=store.get('buddyGone')==='1';if(gone)buddy.hidden=true;
+/* Wake Up: once he has been pulled into the game (tos_wake_in) he stays out of the OS until the ending's "Home." */
+let trapped=PREF('tos_wake_in','')==='1'&&PREF('tos_wake','')==='on';
+let gone=store.get('buddyGone')==='1';if(gone||trapped)buddy.hidden=true;
 const bRender=()=>drawBuddy(bctx,BS);
 function stage(){BS.stage=seeds>=100?4:seeds>=40?3:seeds>=10?2:seeds>=1?1:0;bRender()}
 let seq=[],seqT=0;
@@ -1426,8 +1539,8 @@ function dance(ms=5200){
 }
 /* re-enabled: happy for a moment */
 function setMascot(on){
-  buddy.hidden=!on;store.set('buddyGone',on?'0':'1');syncMascotCP();
-  if(!on){hideBub();return}
+  buddy.hidden=!on||trapped;store.set('buddyGone',on?'0':'1');syncMascotCP();
+  if(!on||trapped){hideBub();return}
   clearBye();nudgeLogo(false);
   requestAnimationFrame(()=>{clampBuddy();speak("I'm back!");
     play([[{f:'squash',happy:1},90],[{f:'stretch',hop:4,happy:1},110],[{f:'idle',hop:0,happy:1},110],[{f:'stretch',hop:4},110],[{f:'idle',hop:0,heart:1},700],[RESET,0]])});
@@ -1477,7 +1590,7 @@ let perch=null,fallStart=0;
 const FEET=()=>buddy.offsetHeight*43/48;
 function ledges(cx,feetY){
   const dr=desk.getBoundingClientRect(),out=[];
-  if(!isMobile())order.forEach(id=>{const w=WIN[id];if(!w||!w.open)return;const el=w.el,r=el.getBoundingClientRect();
+  if(!isMobile())order.forEach(id=>{const w=WIN[id];if(!w||!w.open||w.min)return;const el=w.el,r=el.getBoundingClientRect();
     if(!(cx>r.left-dr.left&&cx<r.right-dr.left))return;
     out.push({y:r.top-dr.top,host:id,kind:'top',x0:r.left-dr.left});
     if(!el.classList.contains('shaded')){const f=$('.wfoot',el);out.push({y:(f?f.getBoundingClientRect().top:r.bottom-10)-dr.top,host:id,kind:'foot',x0:r.left-dr.left})}});
@@ -1487,7 +1600,7 @@ function ledges(cx,feetY){
 function ledgeNow(p){
   const dr=desk.getBoundingClientRect();
   if(p.host==='strip'){const sr=$('#strip').getBoundingClientRect();return {y:sr.top-dr.top,x0:sr.left-dr.left,w:sr.width,z:''}}
-  const w=WIN[p.host];if(!w||!w.open)return null;const el=w.el,r=el.getBoundingClientRect();
+  const w=WIN[p.host];if(!w||!w.open||w.min)return null;const el=w.el,r=el.getBoundingClientRect();
   if(p.kind==='foot'){if(el.classList.contains('shaded'))return null;const f=$('.wfoot',el);return {y:(f?f.getBoundingClientRect().top:r.bottom-10)-dr.top,x0:r.left-dr.left,w:r.width,z:(+el.style.zIndex||20)+1}}
   return {y:r.top-dr.top,x0:r.left-dr.left,w:r.width,z:(+el.style.zIndex||20)+1};
 }
@@ -1505,6 +1618,7 @@ function perchTick(){
 requestAnimationFrame(perchTick);
 /* let go: no swinging on, it drops at once and lands on the highest thing under it */
 function dropBuddy(){
+  if(buddy.hidden)return;
   const dr=desk.getBoundingClientRect(),bw=buddy.offsetWidth,bh=buddy.offsetHeight,fo=FEET();
   let top=parseFloat(buddy.style.top)||0;const cx=(parseFloat(buddy.style.left)||0)+bw/2,from=top;
   let floor=dr.height-8-bh+fo,target=null;
@@ -1536,7 +1650,7 @@ async function hopOnto(id){
   await wait(90);
   await anim(520,k=>{if(carry||bdrag)return;const e=k*k*(3-2*k);buddy.style.left=Math.round(lerp(sx,tx,e))+'px';buddy.style.top=Math.round(lerp(sy,ty,e)-96*4*k*(1-k))+'px'});
   if(carry||bdrag){buddy.classList.remove('falling');return false}
-  if(!w.open){dropBuddy();return true}
+  if(!w.open||w.min){dropBuddy();return true}
   stand();return true;
 }
 bcv.addEventListener('pointerdown',e=>{if(e.button!==0||diving)return;e.preventDefault();bcv.setPointerCapture(e.pointerId);bdrag={sx:e.clientX,sy:e.clientY,moved:false}});
@@ -1557,7 +1671,7 @@ addEventListener('resize',()=>{if(!carry)clampBuddy()});
 /* dragged into the Trash: it drops in, the lid lifts, two eyes peek out and blink, then it hops back out */
 const lerp=(a,b,k)=>a+(b-a)*k,wait=ms=>new Promise(r=>setTimeout(r,ms));
 const anim=(ms,fn)=>new Promise(res=>{const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
-const trashFrame=k=>{const ic=$('#ic-trash .ic');if(ic)ic.innerHTML=svg(ICON[k],2)+svg(ICON[k],2,{fill:'url(#ck)',cls:'selov'})};
+const trashFrame=k=>{const ic=$('#ic-trash .ic');if(!ic)return;const m=$('canvas.moss',ic);ic.innerHTML=svg(ICON[k],2)+svg(ICON[k],2,{fill:'url(#ck)',cls:'selov'});if(m)ic.appendChild(m)};
 async function trashDive(){
   TK.discover('mascot-trash');
   if(reduce){dropBuddy();return}
@@ -1806,7 +1920,7 @@ function unrPulse(){
   shakeAll(7);
 }
 function unrOut(x,y){
-  if(unr.on)return;unr.on=true;TK.discover('unreleased-out',{},'crash_unreleased_out');
+  if(unr.on||gameOn())return;unr.on=true;TK.discover('unreleased-out',{},'crash_unreleased_out');
   const b=document.createElement('button');b.type='button';b.className='icon unrd';b.id='ic-unr';
   b.appendChild(unrApp());b.insertAdjacentHTML('beforeend','<span class="lb">Unreleased</span>');
   const dw=desk.clientWidth,dh=desk.clientHeight;
@@ -1833,7 +1947,7 @@ async function unrIn(){
   const t=trashPt(),r=b.getBoundingClientRect(),fx=r.left,fy=r.top;b.style.pointerEvents='none';
   await anim(reduce?1:240,k=>{b.style.left=Math.round(lerp(fx-desk.getBoundingClientRect().left,t.x-48-desk.getBoundingClientRect().left,k))+'px';b.style.top=Math.round(lerp(fy-desk.getBoundingClientRect().top,t.y-60-desk.getBoundingClientRect().top,k))+'px';b.style.transform='scale('+(1-k*.8)+')'});
   b.remove();
-  $('[data-open="unreleased"]',WIN.trash.el).hidden=false;updTrashCount();
+  $('[data-open="unreleased"]',WIN.trash.el).hidden=false;crumbleUnr();updTrashCount();
   const ic=$('#ic-trash .ic');if(ic&&!reduce){ic.classList.remove('pop2');void ic.offsetWidth;ic.classList.add('pop2')}
   BS.pens=0;if(!buddy.hidden&&!diving&&!carry){play([[{f:'squash',happy:1},110],[{f:'stretch',hop:3,happy:1},140],[{f:'idle',hop:0,happy:1},500],[RESET,0]])}else bRender();
   speak('Phew!',1800,true);
@@ -1843,7 +1957,7 @@ async function unrIn(){
   const it=$('[data-open="unreleased"]',WIN.trash.el);let block=false;
   it.addEventListener('click',e=>{if(block){e.stopImmediatePropagation();e.preventDefault()}},true);
   it.addEventListener('pointerdown',e=>{
-    if(e.button!==0||unr.on)return;const sx=e.clientX,sy=e.clientY;let ghost=null,phone=false;it.setPointerCapture(e.pointerId);
+    if(e.button!==0||unr.on||gameOn())return;const sx=e.clientX,sy=e.clientY;let ghost=null,phone=false;it.setPointerCapture(e.pointerId);
     const mv=ev=>{if(!ghost){if(Math.hypot(ev.clientX-sx,ev.clientY-sy)<5)return;
         ghost=document.createElement('div');ghost.className='cghost ug';ghost.appendChild(unrApp());document.body.appendChild(ghost);
         if(isMobile()){phone=true;peekOn()}}
@@ -1887,7 +2001,7 @@ function screenGlitch(ms){
   });
 }
 async function unrOpen(){
-  if(!unr.on||crash.on||diving)return;
+  if(!unr.on||crash.on||diving||gameOn())return;
   crash.on=true;crash.hop=null;clearInterval(unr.t);unr.t=0;TK.discover('crash-open',{},'crash_open');
   await screenGlitch(reduce?0:720);
   const w=WIN.crash.el;w.style.left=Math.round((desk.clientWidth-400)/2)+'px';w.style.top=Math.round(Math.max(150,desk.clientHeight*.36-60))+'px';
@@ -1961,7 +2075,7 @@ function vxPlace(pc,C,t,fx){
   if(t>=pc.d+pc.D)pc.el.style.visibility='hidden';
 }
 async function unrTryAgain(){
-  if(crash.go||!crash.on)return;
+  if(crash.go||!crash.on||gameOn())return;
   crash.go=true;TK.discover('crash-retry',{},'crash_retry');clearInterval(unr.t);unr.t=0;
   const lock=document.createElement('div');lock.id='vxlock';document.body.appendChild(lock);
   /* let a hop onto the dialog, a Trash rummage or a feed finish before the mascot is taken over */
@@ -2022,6 +2136,8 @@ async function unrTryAgain(){
     desk.style.background=dbg;document.body.style.background=bbg;$('#wall').style.opacity=wallOp;
     if(bSave===null)buddy.removeAttribute('style');else buddy.setAttribute('style',bSave);
     BS.mac=0;BS.pens=0;Object.assign(BS,RESET);bRender();
+    /* the dead Mac is left behind on the desktop as Wake Up; it is first seen when the reboot finishes */
+    if(!gameOn())PSET(GAME_KEY,'on');addWakeIcon(true);
     unrReset();unlockSkull();
     crash.on=false;crash.go=false;
     restart();
@@ -2032,13 +2148,13 @@ async function unrTryAgain(){
 /* the program is back in the Trash after the reboot */
 function unrReset(){
   clearInterval(unr.t);unr.t=0;if(unr.el)unr.el.remove();unr.el=null;unr.on=false;
-  $('[data-open="unreleased"]',WIN.trash.el).hidden=false;updTrashCount();
+  $('[data-open="unreleased"]',WIN.trash.el).hidden=false;crumbleUnr();updTrashCount();
 }
 function unlockSkull(){TK.discover('skull',{},'crash_skull');PSET(SKULL_KEY,'1');syncSkull()}
 const MASK_KEY='tos_mask';
 function setMask(on,keep=true){
   if(on&&keep)TK.discover('mask');
-  BS.mask=on?1:0;if(keep)PSET(MASK_KEY,on?'1':'0');bRender();syncSkull();
+  BS.mask=on?1:0;if(keep)PSET(MASK_KEY,on?'1':'0');bRender();syncSkull();gameLookSync();
 }
 /* the skull lives in the Trash once the system has crashed; worn, it sits on the mascot and is off the Trash shelf */
 function syncSkull(){
@@ -2063,6 +2179,258 @@ function syncSkull(){
   }
   it.hidden=!!BS.mask;updTrashCount();
 }
+
+/* ================= Wake Up: the crash leaves the dead Mac on the desktop; it opens the hidden game ================= */
+const GAME_KEY='tos_wake',SEED_KEY='tos_wake_seed';   /* '' none, 'on' icon unlocked, 'done' finished. The engine keeps its own save in tos_game */
+const gameState=()=>PREF(GAME_KEY,'');
+function gameOn(){return gameState()!==''}
+/* once the game is unlocked the Unreleased program is left crumbled in the Trash: no opening it, no dragging it out */
+function crumbleUnr(){if(!gameOn())return;const it=$('[data-open="unreleased"]',WIN.trash.el);it.classList.add('crumbled');it.disabled=true;it.classList.remove('sel')}
+ICON.wake=art(32,32,({R,P})=>{
+  const X=6,Y=3,W=20,H=26,SX=X+3,SY=Y+3,st=(pat,ox,oy)=>pat.forEach((r,y)=>[...r].forEach((c,x)=>{if(c!=='.')P(ox+x,oy+y,c)}));
+  R(X+1,Y,W-2,1,'k');R(X+1,Y+H-1,W-2,1,'k');R(X,Y+1,1,H-2,'k');R(X+W-1,Y+1,1,H-2,'k');
+  R(X+1,Y+1,W-2,H-2,'r');R(X+W-2,Y+2,1,H-3,'R');R(X+2,Y+H-2,W-3,1,'R');R(X+1,Y+1,W-2,1,'p');R(X+1,Y+1,1,H-2,'p');
+  R(SX,SY,14,12,'k');R(SX+1,SY+1,12,10,'w');
+  st(['k.k','.k.','k.k'],SX+2,SY+3);st(['k.k','.k.','k.k'],SX+9,SY+3);st(['..kkkk..','.k....k.'],SX+3,SY+8);
+  R(X+4,Y+H-7,W-8,1,'k');R(X+13,Y+H-4,W-16,1,'k')});
+let wakeNew=false;
+function addWakeIcon(fresh){
+  let b=$('#ic-wake');
+  if(!b){
+    b=document.createElement('button');b.type='button';b.className='icon';b.id='ic-wake';
+    b.innerHTML=`<span class="ic">${svg(ICON.wake,2)+svg(ICON.wake,2,{fill:'url(#ck)',cls:'selov'})}</span><span class="lb">Wake Up</span>`;
+    $('#icons').insertBefore(b,$('#ic-trash'));
+    b.addEventListener('click',()=>{selIcon(b);openGame(b)});
+  }
+  if(fresh)wakeNew=true;
+  return b;
+}
+/* the first time it is seen (after the reboot): it glitches twice and sends out one ring */
+function wakePulse(){
+  const b=$('#ic-wake');if(!b||reduce)return;
+  b.classList.remove('wk-new');void b.offsetWidth;b.classList.add('wk-new');setTimeout(()=>b.classList.remove('wk-new'),1700);
+  setTimeout(()=>{const r=$('.ic',b).getBoundingClientRect();const w=document.createElement('i');w.className='pw';w.style.left=(r.left+r.width/2)+'px';w.style.top=(r.top+r.height/2)+'px';document.body.appendChild(w);setTimeout(()=>w.remove(),1000)},200);
+}
+function syncWake(){
+  if(gameState()==='on'){addWakeIcon(false);if(gameLit()){gameWin(true);if(!trapped)trapNow()}}
+  const s=PREF(SEED_KEY,'');if(s)showSprout(s==='2');
+  crumbleUnr();syncWallCP();
+}
+/* the game window: un-closable, fixed size, minimizable, and black until the torch is lit. The engine loads on first open */
+const GMW=288,GMH=216,QA=/[?&]qa\b/.test(location.search);
+let game=null,gload=null,gdk=null,homeNew=false;
+const gameSrc=()=>import('/game/engine.js');
+/* the engine's own save (tos_game): a lit torch means a reload resumes in the light */
+function gameLit(){try{const d=JSON.parse(localStorage.getItem('tos_game'));return !!(d&&d.lit)}catch(_){return false}}
+function gameScale(){return isMobile()?1:Math.max(1,Math.min(3,Math.floor((desk.clientWidth-40)/GMW),Math.floor((desk.clientHeight-96)/GMH)))}
+function gameFront(){const w=WIN.game;return !!(w&&w.open&&!w.min&&topId==='game')}
+/* keys go to the game only while its window is in front and nothing else wants them (menu, alert, boot, saver, Simple view, its own buttons) */
+function gameKeys(){if(!gameFront()||bootOn||ssOn||curMenu||!alertW.hidden||!sv.hidden)return false;const a=document.activeElement;return !(a&&a.closest&&a.closest('input,textarea,select,#w-game [data-act]'))}
+function gameFit(el){
+  const k=gameScale(),gm=$('#gm',el);el.style.width='';el.style.height='';
+  if(isMobile()){gm.style.width=gm.style.height='';return k}
+  gm.style.width=GMW*k+'px';gm.style.height=GMH*k+'px';
+  el.style.left=Math.max(8,Math.round((desk.clientWidth-el.offsetWidth)/2))+'px';el.style.top=Math.max(16,Math.round((desk.clientHeight-el.offsetHeight)/2-16))+'px';
+  return k;
+}
+function gameMount(el){
+  if(game||gload)return;
+  gload=gameSrc().then(m=>{gload=null;
+    game=m.mount($('#gm',el),{dev:QA,keyTarget:window,isActive:gameKeys,onTorch:gameTorch,onEvent:gameEvent,onFx:(n,v)=>osFx.set(n,v),look:gameLook()});
+    if(!WIN.game.open||WIN.game.min)game.pause();else if(PREF(BEG_KEY,'')==='1')begSoon()}).catch(err=>{gload=null;console.error(err)});
+}
+function gameWin(parked){
+  if(!WIN.game){
+    makeWin({id:'game',title:'Wake Up',x:40,y:32,w:GMW*3,noClose:true,noResize:true,minimizable:true,acc:INK,ink:'#FFFFFF',
+      body:'<div class="gm" id="gm"></div>',
+      onopen(el){gameFit(el);if(!gameLit())gameDark();gameMount(el)},
+      onmin(){if(game)game.pause();osFx.suspend();if(PREF(MIN_KEY,'')===''){PSET(MIN_KEY,'1');PSET(BEG_KEY,'1');setTimeout(heyBub,reduce?0:380)}},
+      onrestore(el){hideGBub();if(!game&&!gload){gameFit(el);gameMount(el)}else if(game){game.resume();if(PREF(BEG_KEY,'')==='1')begSoon()}osFx.resume()}});
+    /* focus that lands on the window (a strip tab, a window closing) goes on to the game */
+    WIN.game.el.addEventListener('focus',()=>{const r=$('.tg',WIN.game.el);if(r&&gameFront())r.focus({preventScroll:true})});
+  }
+  const w=WIN.game;
+  /* after a reload with the torch lit, the window is back in the strip, minimized; the game loads when it is restored */
+  if(parked&&!w.open){w.open=true;w.min=true;w.el.hidden=true;order.push('game');renderStrip();updInd()}
+  return w;
+}
+function openGame(src){
+  if(gameState()==='done'||suckGo)return;
+  /* the first launch: the OS mascot is pulled into the icon first, then the window opens black */
+  if(!trapped&&!buddy.hidden){suckGo=true;suckIn(src).then(()=>{suckGo=false;openGame(src)});return}
+  if(!trapped)trapNow();
+  TK.trackOnce('game_wake');gameWin();openWin('game',src);
+}
+/* ---- the trapped mascot: tos_wake_in keeps him out of the OS (reload, minimize, every OS event) until finishGame's "Home." ---- */
+const TRAP_KEY='tos_wake_in',MIN_KEY='tos_wake_min',BEG_KEY='tos_wake_beg';   /* BEG_KEY: '1' owed after the first minimize, '2' said */
+let suckGo=false,suckMs=1000;
+function trapNow(){trapped=true;PSET(TRAP_KEY,'1');stopDance();hideBub();perch=null;buddy.hidden=true;if(ssOn&&ssEl.classList.contains('nap'))ssStop()}
+function untrap(){trapped=false;PSET(TRAP_KEY,'');buddy.hidden=store.get('buddyGone')==='1'}
+/* the vortex idiom from unrTryAgain, small: he spirals into the Wake Up icon (or the window's centre) and shrinks away */
+async function suckIn(src){
+  PSET(TRAP_KEY,'1');   /* a reload mid-spiral keeps him in */
+  for(let n=0;n<40&&(diving||bin.run||carry||bdrag||buddy.classList.contains('falling'));n++)await wait(100);
+  if(reduce||buddy.hidden){trapNow();return}
+  diving=true;stopDance();hideBub();perch=null;
+  const bSave=buddy.getAttribute('style'),dr=desk.getBoundingClientRect(),br=buddy.getBoundingClientRect();
+  buddy.classList.remove('falling','talk');buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.zIndex='6';
+  buddy.style.left=Math.round(br.left-dr.left)+'px';buddy.style.top=Math.round(br.top-dr.top)+'px';buddy.style.transformOrigin='50% 50%';
+  const ic=src&&src.getBoundingClientRect?($('.ic',src)||src).getBoundingClientRect():null;
+  const C=ic&&ic.width?{x:ic.left+ic.width/2,y:ic.top+ic.height/2}:{x:innerWidth/2,y:innerHeight/2},m={x:br.left+br.width/2,y:br.top+br.height/2};
+  const r0=Math.hypot(m.x-C.x,m.y-C.y),a0=Math.atan2(m.y-C.y,m.x-C.x),T=suckMs;
+  Object.assign(BS,RESET,{f:'stretch',face:'scared',sweat:1,air:1});bRender();
+  try{
+    /* a beat of resisting (pulled toward it, wobbling), then the spiral */
+    await anim(T*.18,k=>{buddy.style.transform=`translate(${(Math.cos(a0+Math.PI)*-6*k).toFixed(1)}px,${(Math.sin(a0+Math.PI)*-6*k).toFixed(1)}px) rotate(${(Math.sin(k*28)*8).toFixed(1)}deg)`});
+    /* drawn in along the line to it, whirling round it in a tightening loop, spinning and shrinking (kept on screen) */
+    const ro=Math.min(90,r0*.3),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+    await anim(T*.82,k=>{const q=Math.pow(k,1.25),bx=C.x+(m.x-C.x)*Math.pow(1-q,1.3),by=C.y+(m.y-C.y)*Math.pow(1-q,1.3),rr=ro*Math.sin(Math.PI*Math.min(1,q*1.15)),ph=a0+q*3*Math.PI;
+      const px=cl(bx+rr*Math.cos(ph),16,innerWidth-16),py=cl(by+rr*Math.sin(ph),40,innerHeight-16);
+      buddy.style.transform=`translate(${(px-m.x).toFixed(1)}px,${(py-m.y).toFixed(1)}px) rotate(${(q*720).toFixed(1)}deg) scale(${Math.max(.02,1-q*q*.98).toFixed(3)})`});
+    if(src&&src.classList&&!reduce){src.classList.remove('press');void src.offsetWidth;src.classList.add('press');setTimeout(()=>src.classList.remove('press'),400)}
+  }finally{
+    if(bSave===null)buddy.removeAttribute('style');else buddy.setAttribute('style',bSave);
+    Object.assign(BS,RESET);bRender();diving=false;trapNow();
+  }
+}
+/* his look (hat, skull mask) follows him into the game */
+const gameLook=()=>({hat:BS.hat||'none',mask:BS.mask?1:0});
+function gameLookSync(){if(game&&game.setLook)game.setLook(gameLook())}
+/* the first minimize: a "hey!" from the strip tab (on phones, where the strip is hidden, from the Wake Up icon); said once */
+const gbub=document.createElement('div');gbub.id='gbub';gbub.setAttribute('role','status');gbub.innerHTML='<span class="bg"></span><span class="bt"></span>';document.body.appendChild(gbub);let gbT=0;
+function hideGBub(){clearTimeout(gbT);gbub.className=''}
+function heyBub(){
+  const vis=e=>e&&e.getBoundingClientRect().width>0,a=[$('.stab[data-id="game"]'),$('#ic-wake .ic')].find(vis);if(!a)return;
+  const r=a.getBoundingClientRect(),t='hey!';$('.bg',gbub).textContent=t;$('.bt',gbub).textContent=reduce?t:'';gbub.className='on';
+  const w=gbub.offsetWidth,mid=r.left+r.width/2;let dx=0;if(mid-w/2<8)dx=8-(mid-w/2);if(mid+w/2>innerWidth-8)dx=innerWidth-8-(mid+w/2);
+  gbub.style.left=Math.round(mid)+'px';gbub.style.top=Math.round(r.top+4)+'px';gbub.style.setProperty('--bx',Math.round(dx)+'px');
+  if(!reduce){let i=0;const ty=setInterval(()=>{i++;$('.bt',gbub).textContent=t.slice(0,i);if(i>=t.length)clearInterval(ty)},45)}
+  clearTimeout(gbT);gbT=setTimeout(hideGBub,2500);
+}
+addEventListener('pointerdown',()=>{if(gbub.className)hideGBub()},true);
+/* the first restore after that: he begs, inside the game (only when lit and past the intro; the engine says whether it could) */
+let begT=0;
+function begSoon(){clearTimeout(begT);begT=setTimeout(()=>{if(PREF(BEG_KEY,'')==='1'&&game&&game.say&&gameFront()&&game.say('You gotta help me escape',{pose:'beg'}))PSET(BEG_KEY,'2')},reduce?60:520)}
+/* the dark: until the torch is lit the OS is covered (desktop and menu bar), the game window's chrome is black, and only the match shows */
+function gameDark(){
+  if(gdk)return;WIN.game.el.classList.add('gdark','gtop');
+  gdk=[document.createElement('canvas'),document.createElement('canvas')];gdk.forEach(c=>c.setAttribute('aria-hidden','true'));
+  gdk[0].className='gdk';desk.appendChild(gdk[0]);gdk[1].className='gdk gdk-mb';document.body.appendChild(gdk[1]);
+}
+/* the torch: the dark burns back from the game window in Bayer steps over a second, an ember edge leading */
+function gameReveal(fade){
+  const g=gdk,el=WIN.game&&WIN.game.el;gdk=null;if(!g)return;
+  if(el)el.classList.remove('gdark');
+  const end=()=>{g.forEach(c=>c.remove());if(el)el.classList.remove('gtop')};
+  if(!fade||reduce||!el){end();return}
+  const r=el.getBoundingClientRect(),ox=r.left+r.width/2,oy=r.top+r.height/2,D=Math.hypot(Math.max(ox,innerWidth-ox),Math.max(oy,innerHeight-oy)),B=.24;
+  const cs=g.map(c=>{const b=c.getBoundingClientRect(),w=Math.max(1,Math.ceil(b.width/2)),h=Math.max(1,Math.ceil(b.height/2));c.width=w;c.height=h;c.style.background='none';
+    const x=c.getContext('2d'),im=x.createImageData(w,h);return {x,im,u:new Uint32Array(im.data.buffer),w,h,l:b.left,t:b.top}});
+  const t0=performance.now();
+  const f=t=>{const k=Math.min(1,(t-t0)/1000),fr=(1-(1-k)*(1-k))*(1+B);
+    for(const c of cs){const{u,w,h}=c;for(let y=0;y<h;y++){const dy=c.t+y*2+1-oy;for(let x=0;x<w;x++){const v=(Math.hypot(c.l+x*2+1-ox,dy)/D-fr+B)/B*16,th=B4[(y&3)*4+(x&3)]+.5;u[y*w+x]=v>th?(v-th<2.5&&v<16?0xFF08142A:0xFF000000):0}}c.x.putImageData(c.im,0,0)}
+    if(k<1)requestAnimationFrame(f);else end()};
+  requestAnimationFrame(f);
+}
+function gameTorch(i){gameReveal(!i.restored);if(!i.restored&&!i.warp)TK.trackOnce('game_torch')}
+function gameEvent(n,d={}){
+  if(n==='torch')TK.trackOnce('game_torch');
+  else if(n==='item')TK.trackOnce('game_item_'+d.name);
+  else if(n==='piece')TK.trackOnce('game_piece_'+d.biome);
+  else if(n==='done')finishGame();
+}
+
+/* ================= Wake Up: the OS reacts to the game. The engine calls onFx(name, level 0..1); a new biome clears the last one's ================= */
+const FX={moss:mossFx,seed:seedFx,shake:shakeFx,slosh:NOP,flood:NOP,glow:NOP,shimmer:NOP,scorch:NOP,erase:NOP,crystal:NOP};
+const fxLv={};let fxBio='';
+const osFx={
+  set(n,v){if(n==='biome'){if(v!==fxBio){osFx.clear();fxBio=v}return}if(!FX[n])return;v=+v||0;if(fxLv[n]===v)return;fxLv[n]=v;if(n==='seed'||!(WIN.game&&WIN.game.min))FX[n](v)},
+  clear(){for(const n in fxLv)if(n!=='seed'){if(fxLv[n])FX[n](0);delete fxLv[n]}fxBio=''},
+  suspend(){for(const n in fxLv)if(n!=='seed'&&fxLv[n])FX[n](0)},
+  resume(){for(const n in fxLv)if(n!=='seed'&&fxLv[n])FX[n](fxLv[n])}
+};
+/* Roots: moss creeps up the desktop icons, on the icon's own pixels, bottom and edges first, spilling 1-2px past the outline,
+   with tufts on top edges, highlight specks and strands hanging below. The engine's level (0.2 at the first torch .. 1) is
+   remapped so even the first torch shows clearly; the interior stays mostly clear so every icon still reads */
+const MOSS=['#0C2209','#173F11','#25601A','#3A8526','#62B13A','#A6E05C','#E4F79A'];
+function mossFx(v){
+  const e=v?.42+.58*Math.min(1,v):0,P=2,N=32+P*2;
+  $$('#icons .icon').forEach((b,n)=>{
+    const ic=$('.ic',b);let c=$('canvas.moss',ic);
+    if(!v){if(c)c.remove();return}
+    const rows=ICON[ic.dataset.ic||(b.id==='ic-wake'?'wake':'')];if(!rows)return;
+    if(!c){c=document.createElement('canvas');c.className='moss';c.width=N;c.height=N;c.setAttribute('aria-hidden','true');ic.appendChild(c)}
+    const x=c.getContext('2d');x.clearRect(0,0,N,N);
+    const H=(i,j)=>{let h=Math.imul(i*31+n*977,374761393)+Math.imul(j+n,668265263)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296};
+    const on=(i,j)=>i>=0&&j>=0&&i<32&&j<32&&rows[j][i]!=='.';
+    let top=32,bot=0;for(let j=0;j<32;j++)for(let i=0;i<32;i++)if(on(i,j)){top=Math.min(top,j);bot=Math.max(bot,j)}
+    const ht=Math.max(1,bot-top);
+    const edge=(i,j)=>{for(let b=-2;b<=2;b++)for(let a=-2;a<=2;a++)if(Math.abs(a)+Math.abs(b)<=2&&!on(i+a,j+b))return true;return false};
+    /* the mask (canvas coords): 1 moss on the icon, 2 moss spilling past it */
+    const M=new Uint8Array(N*N),at=(i,j)=>i<0||j<0||i>=N||j>=N?0:M[j*N+i];
+    for(let j=0;j<32;j++)for(let i=0;i<32;i++){if(!on(i,j))continue;
+      const y=(bot-j)/ht,ed=edge(i,j),g=e*(ed?1.25:.56)-y*(ed?1:1.15)+(H(i,j)-.5)*.42;
+      if(g>0&&H(j+40,i)<(ed?.97:.34+.22*e-y*.25))M[(j+P)*N+i+P]=1}
+    for(let j=0;j<N;j++)for(let i=0;i<N;i++){if(M[j*N+i]||on(i-P,j-P))continue;
+      const nb=(at(i-1,j)===1)+(at(i+1,j)===1)+(at(i,j-1)===1)+(at(i,j+1)===1);
+      if(nb&&H(i+3,j+11)<.3+.45*e)M[j*N+i]=2}
+    const C=(i,j,k)=>{x.fillStyle=MOSS[k];x.fillRect(i,j,1,1)};
+    for(let j=0;j<N;j++)for(let i=0;i<N;i++){const m=at(i,j);if(!m)continue;const h=H(i+7,j+3),up=!at(i,j-1),dn=!at(i,j+1),up2=!at(i,j-2);
+      let k=up?(h<.55?5:4):up2?4:h<.12?1:h<.7?2:3;
+      if(dn)k=Math.min(k,1);if(!at(i-1,j)&&!up)k=Math.min(6,k+1);if(m===2)k=up?3:dn?0:1;
+      C(i,j,k);
+      /* tufts: little blades standing on top edges, a bright tip */
+      if(up&&!on(i-P,j-P-1)&&H(i,j+29)<.3+.4*e){const L=1+(H(j,i+5)*(1+2*e)|0);for(let t=1;t<=L;t++)if(j-t>=0&&!at(i,j-t))C(i,j-t,t===L?(H(i,t)<.5?6:5):4)}
+      /* strands hanging off the bottom */
+      if(dn&&!on(i-P,j-P+1)&&H(i,j+9)<.25+.35*e){const L=1+(H(i,j+5)*(2+3*e)|0);for(let t=1;t<=L&&j+t<N;t++)C(i,j+t,t===L?3:0)}
+      /* specks of light */
+      if(!up&&!dn&&H(j+77,i)<.035+.05*e)C(i,j,6)}
+  });
+}
+/* Roots: the root jump plants a seed on the Trash shelf; it sprouts while the Trash is open (now or later), and stays */
+function showSprout(grown){const it=$('#tr-sprout',WIN.trash.el);it.hidden=false;updTrashCount();drawPlant($('canvas',it),grown?'sprout':'seed',grown?3:4,null,false)}
+function growSprout(){
+  if(PREF(SEED_KEY,'')!=='1')return;PSET(SEED_KEY,'2');const cv=$('#tr-sprout canvas',WIN.trash.el);
+  if(reduce){drawPlant(cv,'sprout',3);return}
+  let f=0;const t=setInterval(()=>{drawPlant(cv,'sprout',f);if(++f>3)clearInterval(t)},280);
+}
+WIN.trash.onshown=()=>setTimeout(growSprout,350);
+function seedFx(v){if(!v||PREF(SEED_KEY,''))return;PSET(SEED_KEY,'1');showSprout(false);if(WIN.trash.open&&!WIN.trash.min)setTimeout(growSprout,500)}
+/* Roots: the thorn chase trembles the desktop in short pulses and flickers the game's strip tab */
+let shkT=0;
+function shakeFx(v){
+  clearInterval(shkT);shkT=0;const els=[$('#wall'),$('#icons'),$('#mbar'),buddy];els.forEach(e=>e.style.translate='');$('#strip').classList.remove('flk');
+  if(!v||reduce)return;
+  const p=Math.max(1,Math.round(v*3));let n=0;
+  shkT=setInterval(()=>{n=(n+1)%14;const on=n<4,j=()=>Math.round((Math.random()*2-1)*p);els.forEach(e=>e.style.translate=on?j()+'px '+j()+'px':'');$('#strip').classList.toggle('flk',on&&!(n&1))},45);
+}
+
+/* ================= Wake Up: the ending. The window finally closes, the OS reboots home, the icon goes, the door's medallion is the wallpaper ================= */
+function finishGame(){
+  if(gameState()!=='on')return;
+  TK.trackOnce('game_done');osFx.clear();
+  if(game){game.destroy();game=null}
+  gameReveal(false);
+  PSET(GAME_KEY,'done');const ic=$('#ic-wake');if(ic)ic.remove();
+  /* he is out: visible again (unless he was switched off) for homeLand's "Home." */
+  untrap();PSET(MIN_KEY,'');PSET(BEG_KEY,'');hideGBub();
+  if(WIN.game&&WIN.game.open){releaseWin('game');closeWin('game')}
+  closeWin('readme');setWall('medallion',false);PSET('tos_wall','medallion');syncWallCP();
+  homeNew=true;restart();
+}
+/* home: after the boot logo the mascot drifts down to the middle of the desktop and lands softly */
+function homeLand(){
+  if(buddy.hidden)return;
+  perch=null;buddy.style.zIndex='';
+  const dw=desk.clientWidth,dh=desk.clientHeight,bw=buddy.offsetWidth,bh=buddy.offsetHeight,y1=dh-8-bh,y0=-bh-20;
+  buddy.style.left=Math.round((dw-bw)/2)+'px';
+  const land=()=>{buddy.style.top=y1+'px';buddy.classList.remove('falling');BS.air=0;bRender();saveBuddy();
+    play([[{f:'squash',happy:1},140],[{f:'stretch',hop:2,happy:1},160],[{f:'idle',hop:0,happy:1},900],[RESET,0]]);setTimeout(()=>speak('Home.',2600,true),reduce?0:450)};
+  if(reduce){land();return}
+  buddy.style.top=y0+'px';buddy.classList.add('falling');BS.air=1;bRender();
+  anim(1500,k=>{buddy.style.top=Math.round(y0+(y1-y0)*(1-Math.pow(1-k,3)))+'px'}).then(land);
+}
+function syncWallCP(){const el=WIN.cpanel.el,md=$('[data-g="wall"][data-v="medallion"]',el);if(md)md.hidden=gameState()!=='done';$$('[data-g="wall"]',el).forEach(b=>b.setAttribute('aria-checked',String(b.dataset.v===WALLK)))}
 
 if(buddy.style.left&&!buddy.hidden)setTimeout(()=>{if(!carry&&!perch)dropBuddy()},1700);
 
@@ -2114,9 +2482,9 @@ function cycleLogo(){logoIdx=(logoIdx+1)%12;paintMarks();const l=$('#logo');if(!
 const menuEl=$('#menu');let curMenu=null;
 const MENUS={
  seed:()=>[['About J Tyler McCulloch',()=>openWin('about',$('#logo'))],'-',['Read Me',()=>openWin('readme',$('#logo'))],['Contacts',()=>openWin('contacts',$('#logo'))],'-',['Control Panel',()=>openWin('cpanel',$('#logo'))],...(endingDone?[['Achievements',()=>openWin('achv',$('#logo'))]]:[]),'-',['View',()=>openWin('view',$('#logo'))],['Restart',restart]],
- file:()=>[['Read Me',()=>openWin('readme')],['Work',()=>openWin('work')],['Career',()=>openWin('career')],['How I Work',()=>openWin('how')],["Who I've Worked With",()=>openWin('worked')],'-',['Close Window',()=>topId&&closeWin(topId),'Esc',!topId]],
+ file:()=>[['Read Me',()=>openWin('readme')],['Work',()=>openWin('work')],['Career',()=>openWin('career')],['How I Work',()=>openWin('how')],["Who I've Worked With",()=>openWin('worked')],'-',['Close Window',()=>topId&&closeWin(topId),'Esc',!topId||WIN[topId].keep]],
  view:()=>[['as Icons',()=>{setView('icons');openWin('work')},null,false,view==='icons'],['as List',()=>{setView('list');openWin('work')},null,false,view==='list'],'-',['Simple view',openSimple],['80s version',()=>set80(!v80on),null,false,v80on]],
- window:()=>order.length?order.map(id=>[WIN[id].title,()=>{shade(id,false);focusWin(id,{bump:true})},null,false,id===topId]):[['Read Me',()=>openWin('readme')]],
+ window:()=>order.length?order.map(id=>[WIN[id].title,()=>{if(WIN[id].min){restoreWin(id);return}shade(id,false);focusWin(id,{bump:true})},null,false,id===topId]):[['Read Me',()=>openWin('readme')]],
  special:()=>[['Clear Seeds',clearSeeds,null,seeds===0],['Preview 100 seeds',showAlert,'C'],['Preview 404',show404]]
 };
 function openMenu(btn,focusFirst){
@@ -2157,6 +2525,9 @@ alertW.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();$('#a
 
 /* ================= keyboard ================= */
 addEventListener('keydown',e=>{if(crash.go){e.stopImmediatePropagation();e.preventDefault()}},true);
+/* with the game in front, a game key pressed while focus sits elsewhere (an icon, the menu bar) moves focus into the game first */
+const GKEY=/^(Arrow(Left|Right|Up|Down)|Key[WASD]|Space)$/;
+addEventListener('keydown',e=>{if(GKEY.test(e.code)&&gameKeys()&&!WIN.game.el.contains(document.activeElement)){const r=$('.tg',WIN.game.el);if(r)r.focus({preventScroll:true})}},true);
 document.addEventListener('keydown',e=>{
   if(bootOn){finishBoot();return}
   if(e.key==='Escape'){
@@ -2164,7 +2535,7 @@ document.addEventListener('keydown',e=>{
     if(curMenu){closeMenu(true);return}
     if(topId){closeWin(topId);return}
   }
-  if(!alertW.hidden)return;
+  if(!alertW.hidden||gameFront())return;
   if((e.key==='c'||e.key==='C')&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName))showAlert();
 });
 
@@ -2193,6 +2564,8 @@ if(!canHover&&'IntersectionObserver' in window){
 /* ================= boot ================= */
 const boot=$('#boot');let bootOn=false,bootTimers=[];
 function startDesktop(fromBoot){
+  if(wakeNew){wakeNew=false;wakePulse()}
+  if(homeNew){homeNew=false;fitCards();homeLand();return}
   const r=fromBoot?$('#bootm').getBoundingClientRect():null;
   fitCards();
   /* on a phone, or where Read Me would fill the whole screen, the desktop shows first and Read Me waits for a tap */
@@ -2221,11 +2594,16 @@ boot.addEventListener('pointerdown',finishBoot);
 function restart(){for(const k in WIN)if(WIN[k].open&&k!=='readme')closeWin(k);runBoot()}
 
 let rzT=0;
-addEventListener('resize',()=>{for(const k in WIN)if(WIN[k].open)clampWin(WIN[k].el);fitCards()});
+addEventListener('resize',()=>{for(const k in WIN)if(WIN[k].open&&!WIN[k].min)clampWin(WIN[k].el);fitCards()});
 let wsz='';new ResizeObserver(()=>{const k=desk.clientWidth+'x'+desk.clientHeight;if(k===wsz)return;wsz=k;clearTimeout(rzT);rzT=setTimeout(buildWall,wall.width?120:0)}).observe(desk);
 
-paintMarks();stage();renderStrip();updInd();BS.mask=PREF(MASK_KEY,'0')==='1'?1:0;bRender();syncSkull();runBoot();
-if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,makeHeap,sowHeap,dance,wither,get compost(){return compost},get bin(){return bin},get unr(){return unr},setMask,syncSkull,vxCollect,get crash(){return crash},unrOut,unrIn,unrOpen,unrTryAgain,binFeed,mawEat,get BS(){return BS},toCompost,trashDive,sproutFate,set80,show404,get v80on(){return v80on},plant,plants,sprout,bloom,eat,crumble,bubbleP:v=>{BUBBLE_P=v},get perch(){return perch},ditherIn,clearDither,get bubbles(){return speakN},dropBuddy,logoClick,discoveryClick,get logoN(){return logoN},get ST(){return ST},get endingDone(){return endingDone},plant:plant,showAlert,openWin,closeWin,setView,get seeds(){return seeds},get top(){return topId}};
+paintMarks();stage();renderStrip();updInd();BS.mask=PREF(MASK_KEY,'0')==='1'?1:0;bRender();syncSkull();syncWake();runBoot();
+if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,makeHeap,sowHeap,dance,wither,get compost(){return compost},get bin(){return bin},get unr(){return unr},setMask,syncSkull,vxCollect,get crash(){return crash},unrOut,unrIn,unrOpen,unrTryAgain,binFeed,mawEat,get BS(){return BS},toCompost,trashDive,sproutFate,set80,show404,get v80on(){return v80on},plant,plants,sprout,bloom,eat,crumble,bubbleP:v=>{BUBBLE_P=v},get perch(){return perch},ditherIn,clearDither,get bubbles(){return speakN},dropBuddy,logoClick,discoveryClick,get logoN(){return logoN},get ST(){return ST},get endingDone(){return endingDone},plant:plant,showAlert,openWin,closeWin,setView,get seeds(){return seeds},get top(){return topId},
+  /* Wake Up: unlock the icon without the crash, let the game window be closed, or forget the unlock (reload after) */
+  wake(){if(unr.on)unrReset();if(WIN.crash.open)closeWin('crash');if(PREF(GAME_KEY,'')==='')PSET(GAME_KEY,'on');addWakeIcon(true);crumbleUnr();wakeNew=false;wakePulse()},
+  releaseGame:()=>releaseWin('game'),unwake:()=>{PSET(GAME_KEY,'');PSET(SEED_KEY,'');PSET(TRAP_KEY,'');PSET(MIN_KEY,'');PSET(BEG_KEY,'')},openGame,
+  untrap(){untrap();syncMascotCP();if(!buddy.hidden){clampBuddy();dropBuddy()}},get trapped(){return trapped},set suckMs(v){suckMs=v},heyBub,
+  begNow(){PSET(BEG_KEY,'1');begSoon()},finishGame,osFx,gameReveal,get gdk(){return gdk},minimizeWin,restoreWin,releaseWin,restart,get WIN(){return WIN},get game(){return game}};
 /* the site's old anchors still work: index.html#work, #about, #experience, #contact, and #<project-slug> open the matching window */
 const HASHWIN={work:'work',about:'about',experience:'career',career:'career',contact:'contacts',contacts:'contacts',approach:'how',skills:'how',how:'how',companies:'worked',unreleased:'trash',press:'view',view:'view'};
 function openHash(h){const id=HASHWIN[h]||SLUGID[h];if(id&&(WIN[id]||PB[id]))openWin(id)}

@@ -435,14 +435,16 @@ button.grip:focus-visible,button.cap-end:focus-visible{outline:2px solid var(--h
 
 /* ===== D5c: bubbles, control panel as an OS menu ===== */
 #buddy.carried,#buddy.falling,#buddy.talk{z-index:4999}
-#bub,#bye{position:absolute;left:50%;top:38%;transform:translate(calc(-50% + var(--bx,0px)),calc(-100% - 14px));display:none;width:max-content;max-width:210px;padding:8px 10px;background:#fff;color:var(--ink);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);pointer-events:none;z-index:7;
+#bub,#bye,#gbub{position:absolute;left:50%;top:38%;transform:translate(calc(-50% + var(--bx,0px)),calc(-100% - 14px));display:none;width:max-content;max-width:210px;padding:8px 10px;background:#fff;color:var(--ink);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);pointer-events:none;z-index:7;
   font-family:var(--chrome);font-size:16px;line-height:16px;font-weight:400;font-synthesis:none;-webkit-font-smoothing:none;letter-spacing:0}
-#bub.on,#bye.on{display:block}
+#bub.on,#bye.on,#gbub.on{display:block}
 #bye{z-index:4998}
-#bub .bg,#bye .bg{display:block;visibility:hidden}
-#bub .bt,#bye .bt{position:absolute;left:10px;top:8px;right:10px}
-#bub::after,#bye::after{content:"";position:absolute;left:calc(50% - var(--bx,0px) - 7px);bottom:-9px;border:7px solid transparent;border-top:8px solid var(--ink);border-bottom:0}
-#bub::before,#bye::before{content:"";position:absolute;left:calc(50% - var(--bx,0px) - 5px);bottom:-6px;border:5px solid transparent;border-top:7px solid #fff;border-bottom:0;z-index:1}
+/* Wake Up: the trapped mascot's voice from the game's strip tab (or its desktop icon on phones) */
+#gbub{position:fixed;z-index:9200;pointer-events:none}
+#bub .bg,#bye .bg,#gbub .bg{display:block;visibility:hidden}
+#bub .bt,#bye .bt,#gbub .bt{position:absolute;left:10px;top:8px;right:10px}
+#bub::after,#bye::after,#gbub::after{content:"";position:absolute;left:calc(50% - var(--bx,0px) - 7px);bottom:-9px;border:7px solid transparent;border-top:8px solid var(--ink);border-bottom:0}
+#bub::before,#bye::before,#gbub::before{content:"";position:absolute;left:calc(50% - var(--bx,0px) - 5px);bottom:-6px;border:5px solid transparent;border-top:7px solid #fff;border-bottom:0;z-index:1}
 #bub.below{top:100%;transform:translate(calc(-50% + var(--bx,0px)),6px)}
 #bub.below::after{bottom:auto;top:-9px;border-top:0;border-bottom:8px solid var(--ink)}
 #bub.below::before{bottom:auto;top:-6px;border-top:0;border-bottom:7px solid #fff}
@@ -602,6 +604,41 @@ body.dgdrag,body.dgdrag *{cursor:grabbing!important;user-select:none;-webkit-use
 .cr-ic{display:block}.cr-ic svg{display:block}
 .crash p{margin:0 0 8px;font:400 15px/22px var(--sans)}.crash p b{font-weight:600}
 .cr-btns{grid-column:1/-1;display:flex;justify-content:flex-end;align-items:center;gap:12px}
+/* ===== Wake Up: kept (noclose), fixed-size (norz) and minimized windows, the game window, the dead-Mac icon, the crumbled Unreleased ===== */
+.win.noclose .wclose,.win.noclose .wx,.win.noclose .back[data-act="close"]{display:none}
+.win.norz .rz,.win.norz .grow,.win.norz [data-act="zoom"]{display:none}
+.win.noclose.norz .wmin{margin-right:2px}
+.stab.min{color:var(--plat-d)}
+.stab.min .sw{background:transparent}
+#w-game .vsb{display:none}
+#w-game .wbody{overflow:hidden;background:#000}
+.gm{position:relative;display:grid;place-items:center;overflow:hidden;background:#000;color:#fff}
+/* the dark before the torch: the game window sits over a black cover (desktop + menu bar) with its own chrome blacked out */
+.gdk{position:absolute;left:0;top:0;width:100%;height:100%;z-index:9500;background:#000;image-rendering:pixelated;touch-action:none}
+.gdk-mb{position:fixed;height:var(--mb);z-index:9100}
+#w-game.gtop{z-index:9600!important}
+#w-game.gdark::before{display:none}
+#w-game.gdark .wf,#w-game.gdark .wbw{background:#000;border-color:#000;box-shadow:none}
+#w-game.gdark .tbar,#w-game.gdark .backbar,#w-game.gdark .grooves::before{visibility:hidden!important}
+#w-game.gdark .backbar{background:#000;border-color:#000}
+@media (max-width:700px){
+  #w-game .wbody{display:flex}
+  #w-game .gm{width:100%!important;height:100%!important}
+  #w-game .tg.touch{justify-content:flex-start}
+  #w-game .tg.touch .tg-band{margin:auto 0}
+}
+/* Roots effects: moss on the icons, the sprout on the Trash shelf, the strip tab flickering in the thorn chase */
+.ic canvas.moss{position:absolute;left:-4px;top:-4px;width:72px;height:72px;image-rendering:pixelated;pointer-events:none}
+.cmp canvas.spr{display:block;width:48px;height:66px;image-rendering:pixelated}
+#strip.flk .stab[data-id="game"]{filter:invert(1)}
+.icon.wk-new .ic{animation:wkg .8s steps(1,end) 2}
+.icon.wk-new .lb{animation:unrl .8s steps(1,end) 2}
+@keyframes wkg{0%,100%{transform:none;filter:none}15%{transform:translate(-3px,1px);filter:hue-rotate(90deg) contrast(1.5)}30%{transform:translate(3px,-1px) skewX(10deg)}45%{transform:translate(-2px,0);filter:invert(1)}60%{transform:none;filter:none}75%{transform:translate(2px,2px) skewX(-8deg);filter:hue-rotate(200deg)}90%{transform:none;filter:none}}
+@media (prefers-reduced-motion:reduce){.icon.wk-new .ic,.icon.wk-new .lb{animation:none}}
+#w-trash .item.crumbled{cursor:default;color:inherit}
+.item.crumbled .app,.item.crumbled:hover .app,.item.crumbled:active .app{filter:grayscale(1) brightness(.8) drop-shadow(2px 2px 0 var(--ink));transform:translateY(4px) rotate(-5deg)}
+.item.crumbled .app::after{left:0;top:0;right:0;bottom:0;height:auto;z-index:2}
+.item.crumbled .nm{color:var(--mute)}
 .vx *,.vx *::before,.vx *::after{animation:none!important;transition:none!important}
 .vx .win,.vx .wf,.vx .wbw,.vx .wbody{overflow:visible!important;clip-path:none!important}
 .vx .win::before{display:none}

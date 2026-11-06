@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Wake Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Tiny5&display=swap">
+  <style>html,body{margin:0;height:100%;background:#000;overflow:hidden;overscroll-behavior:none}#game{position:fixed;inset:0}</style>
+</head>
+<body>
+  <div id="game"></div>
+  <script type="module">
+    import {mount} from './engine.js';
+    mount(document.getElementById('game'),{onTorch:e=>console.info('[game] torch',JSON.stringify(e)),onEvent:(n,d)=>console.info('[game] event',n,JSON.stringify(d)),onFx:(n,v)=>console.info('[game] fx',n,v),onDone:e=>console.info('[game] done',JSON.stringify(e))});
+  </script>
+</body>
+</html>
