@@ -1320,7 +1320,7 @@ const clampBuddy=()=>{if(!buddy.style.left)return;const dw=desk.clientWidth,dh=d
   buddy.style.left=Math.round(Math.min(Math.max(parseFloat(buddy.style.left),-bw*.3),dw-bw*.7))+'px';buddy.style.top=Math.round(Math.min(Math.max(parseFloat(buddy.style.top),24),dh-bh*.6))+'px'};
 const saveBuddy=()=>store.set('buddyPos',JSON.stringify({l:buddy.style.left,t:buddy.style.top}));
 try{const bp=JSON.parse(store.get('buddyPos')||'null');if(bp){buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.left=bp.l;buddy.style.top=bp.t;clampBuddy()}}catch(_){}
-const RESET={face:0,dx:0,heart:0,happy:0,hop:0,mouth:0,q:0,sweat:0,air:0,hold:0,gape:0,f:'idle'};
+const RESET={face:0,dx:0,heart:0,happy:0,hop:0,mouth:0,q:0,sweat:0,air:0,hold:0,gape:0,lv:0,ft:0,f:'idle'};
 /* clicked, not dragged */
 function huh(){
   bump('clicks');const said=discoveryClick();const now=performance.now();
@@ -1447,14 +1447,26 @@ async function hopOnto(id){
   const dr=desk.getBoundingClientRect(),br=buddy.getBoundingClientRect(),sx=br.left-dr.left,sy=br.top-dr.top;
   const cx=Math.min(Math.max(sx+bw/2,L.x0+bw/2+24),L.x0+L.w-bw/2-24),tx=cx-bw/2,ty=L.y-fo;
   stopDance();hideBub();perch=null;buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.left=Math.round(sx)+'px';buddy.style.top=Math.round(sy)+'px';
+  const d0=[...BS.dir],sc=bcv.offsetWidth/32,snap=v=>Math.round(v/sc)*sc;  /* the art is drawn sc screen px per art px: move in whole art pixels */
   const stand=()=>{perch={host:id,kind:'top',dx:cx-L.x0};buddy.classList.remove('falling');saveBuddy();
-    play([[{f:'squash',happy:1,hop:0,air:0},110],[{f:'idle',happy:1},300],[RESET,0]])};
+    if(reduce){play([[{f:'squash',happy:1,hop:0,air:0},110],[{f:'idle',happy:1},300],[RESET,0]]);return}
+    play([[{lv:'S3',ft:'splay',bv:0,dir:[0,0],happy:1,air:0},90],[{lv:'S1',ft:'stand',bv:0},70],[{lv:0,ft:0,f:'idle',dir:d0},300],[RESET,0]])};
   if(reduce){buddy.style.left=Math.round(tx)+'px';buddy.style.top=Math.round(ty)+'px';stand();return true}
-  buddy.classList.add('falling');play([[{f:'squash',happy:1},90],[{f:'stretch',air:0,hop:3,happy:1},900],[RESET,0]]);
+  /* a ballistic hop: up to a peak 56 px above the higher of the two spots, then down onto the ledge. The rise and the fall each ease like gravity (out, then in),
+     so the speed is zero at the peak and the top is held there; the time split follows the two distances (t ~ sqrt(distance)), and a longer climb takes longer.
+     It is posed by phase (mascot/feet.js, mascot/body.js): crouch, push off, rise, hold at the top, fall, reach, then the landing in stand(). */
+  const peak=Math.min(sy,ty)-56,rise=sy-peak,fall=ty-peak,kp=Math.sqrt(rise)/(Math.sqrt(rise)+Math.sqrt(fall)),dur=Math.round(Math.min(900,Math.max(480,260+20*Math.sqrt(rise+fall))));
+  const POSES=[{lv:'T2',ft:'together',dir:[0,-1]},{lv:'T3',ft:'tuck',dir:[0,-1]},{lv:'rest',ft:'loose',dir:[0,0]},{lv:'T1',ft:'spread',dir:[0,1]},{lv:'T2',ft:'spread',dir:[0,1]}];
+  const phase=k=>{if(k<kp){const u=k/kp;return u<.12?0:u<.80?1:2}const q=(k-kp)/(1-kp);return q<.18?2:q<.72?3:4};
+  let pi=-1;
+  buddy.classList.add('falling');play([[{lv:'S2',ft:'stand',bv:0,dir:[0,-1],happy:1,air:0},90]]);
   await wait(90);
-  await anim(520,k=>{if(carry||bdrag)return;const e=k*k*(3-2*k);buddy.style.left=Math.round(lerp(sx,tx,e))+'px';buddy.style.top=Math.round(lerp(sy,ty,e)-96*4*k*(1-k))+'px'});
-  if(carry||bdrag){buddy.classList.remove('falling');return false}
-  if(!w.open){dropBuddy();return true}
+  await anim(dur,k=>{if(carry||bdrag)return;
+    const i=phase(k);if(i!==pi){pi=i;Object.assign(BS,POSES[i],{bv:0,air:1,happy:1});bRender()}
+    const y=k<kp?lerp(sy,peak,1-(1-k/kp)**2):lerp(peak,ty,((k-kp)/(1-kp))**2),x=lerp(sx,tx,k*k*(3-2*k));
+    if(k>=1){buddy.style.left=Math.round(tx)+'px';buddy.style.top=Math.round(ty)+'px'}else{buddy.style.left=snap(x)+'px';buddy.style.top=snap(y)+'px'}});
+  if(carry||bdrag){buddy.classList.remove('falling');Object.assign(BS,{lv:0,ft:0,dir:d0});return false}
+  if(!w.open){Object.assign(BS,{lv:0,ft:0,dir:d0});dropBuddy();return true}
   stand();return true;
 }
 bcv.addEventListener('pointerdown',e=>{if(e.button!==0||diving)return;e.preventDefault();bcv.setPointerCapture(e.pointerId);bdrag={sx:e.clientX,sy:e.clientY,moved:false}});
@@ -2006,7 +2018,8 @@ function mascotWelcome(id){
 
 
 if(!reduce){
-  setInterval(()=>{if(seq.length||buddy.hidden)return;BS.f=BS.f==='idle'?'breath':'idle';bRender()},640);
+  /* idle: breathe in and out, and step through the body's boil variants so the lumpy outline sloshes (mascot/body.js) */
+  setInterval(()=>{if(seq.length||buddy.hidden||buddy.classList.contains('falling'))return;BS.f=BS.f==='idle'?'breath':'idle';BS.bv=((BS.bv|0)+1)%3;bRender()},640);
   (function blink(){setTimeout(()=>{BS.blink=1;bRender();setTimeout(()=>{BS.blink=0;bRender();blink()},120)},2400+Math.random()*3000)})();
 }
 let mx=0,my=0,raf=0;
@@ -2143,7 +2156,7 @@ addEventListener('resize',()=>{for(const k in WIN)if(WIN[k].open)clampWin(WIN[k]
 let wsz='';new ResizeObserver(()=>{const k=desk.clientWidth+'x'+desk.clientHeight;if(k===wsz)return;wsz=k;clearTimeout(rzT);rzT=setTimeout(buildWall,wall.width?120:0)}).observe(desk);
 
 paintMarks();stage();renderStrip();updInd();BS.mask=PREF(MASK_KEY,'0')==='1'?1:0;bRender();syncSkull();runBoot();
-if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,makeHeap,sowHeap,dance,wither,get compost(){return compost},get bin(){return bin},get unr(){return unr},setMask,syncSkull,vxCollect,get crash(){return crash},unrOut,unrIn,unrOpen,unrTryAgain,binFeed,mawEat,get BS(){return BS},toCompost,trashDive,sproutFate,set80,show404,get v80on(){return v80on},plant,plants,sprout,bloom,eat,crumble,bubbleP:v=>{BUBBLE_P=v},get perch(){return perch},ditherIn,clearDither,get bubbles(){return speakN},dropBuddy,logoClick,discoveryClick,get logoN(){return logoN},get ST(){return ST},get endingDone(){return endingDone},plant:plant,showAlert,openWin,closeWin,setView,get seeds(){return seeds},get top(){return topId}};
+if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,makeHeap,sowHeap,dance,wither,get compost(){return compost},get bin(){return bin},get unr(){return unr},setMask,syncSkull,vxCollect,get crash(){return crash},unrOut,unrIn,unrOpen,unrTryAgain,binFeed,mawEat,get BS(){return BS},toCompost,trashDive,sproutFate,set80,show404,get v80on(){return v80on},plant,plants,sprout,bloom,eat,crumble,bubbleP:v=>{BUBBLE_P=v},get perch(){return perch},ditherIn,clearDither,get bubbles(){return speakN},dropBuddy,hopOnto,logoClick,discoveryClick,get logoN(){return logoN},get ST(){return ST},get endingDone(){return endingDone},plant:plant,showAlert,openWin,closeWin,setView,get seeds(){return seeds},get top(){return topId}};
 /* the site's old anchors still work: index.html#work, #about, #experience, #contact, and #<project-slug> open the matching window */
 const HASHWIN={work:'work',about:'about',experience:'career',career:'career',contact:'contacts',contacts:'contacts',approach:'how',skills:'how',how:'how',companies:'worked',unreleased:'trash',press:'view',view:'view'};
 function openHash(h){const id=HASHWIN[h]||SLUGID[h];if(id&&(WIN[id]||PB[id]))openWin(id)}

@@ -2,8 +2,11 @@
    One 32x48 cell, one char per pixel ('.' clear, colours in MB). compose(look) returns the grid and touches no DOM, so node can test it;
    paint(ctx, grid) draws one. This is the OS drawBuddy moved out of os.js with no pixel changed (tools/test_mascot.mjs holds the proof).
    After editing, run: python3 tools/build_mascot.py */
+import {BODY} from './body.js';
+import {FEET} from './feet.js';
 export const INK='#1A1716';
 export const W=32,H=48;
+const LVMAP={idle:'rest',breath:'breath',squash:'S3',stretch:'T2',land:'S1',hop:'T3'};
 export const grid=(w,h)=>Array.from({length:h},()=>Array(w).fill('.'));
 export function stamp(g,pat,ox,oy){pat.forEach((r,y)=>{for(let x=0;x<r.length;x++){const c=r[x];if(c!=='.'&&g[oy+y]&&g[oy+y][ox+x]!==undefined)g[oy+y][ox+x]=c}})}
 export const MB={B:'#F1E9D2',b:'#C9BFA5',Y:'#F6B92B',k:INK,r:'#FF3333',p:'#FF9A9A',R:'#B01E23',w:'#ffffff',m:'#7A0A12',n:'#0B5A55',T:'#3FC2B5',o:'#FFD94A',h:'#00393B',c:'#FF7A7A',H:'#FF2E88'};
@@ -26,14 +29,22 @@ export function compose(s){
   if(s.mac)return composeMac();
   const W=32,H=48,g=grid(W,H);
   const fr=s.hop>0?'hop':s.f==='squash2'?'land':s.f;
-  const [rx,ry,oy]={idle:[11,11,0],breath:[11,10,1],squash:[13,8,3],stretch:[10,12,-2],hop:[10,12,-6],land:[12,10,1]}[fr]||[11,11,0];
-  const cx=16+(s.dx|0),cy=31+oy,ph=fr==='breath'?1.6:.5;
+  /* the body is an authored one from mascot/body.js (grounded: its last row is row 41): s.lv names it, else the old pose name f picks one (LVMAP), s.bv picks the boil variant.
+     s.old forces the old computed ellipse (kept for tools/test_mascot.mjs, which proves the extraction against it). A 'hop' pose floats 6 px up with its feet hidden, as before. */
+  const lk=s.old?null:(s.lv||LVMAP[fr]||'rest'),lv=lk&&BODY[lk],rows=lv&&lv.v[(s.bv|0)%lv.v.length],bw=rows?rows[0].length:0,bh=rows?rows.length:0,up=lv&&!s.lv&&fr==='hop'?6:0,by=42-bh-up;
+  const [rx,ry,oy]=lv?[bw/2,lv.cy-up-by,0]:{idle:[11,11,0],breath:[11,10,1],squash:[13,8,3],stretch:[10,12,-2],hop:[10,12,-6],land:[12,10,1]}[fr]||[11,11,0];
+  const cx=16+(s.dx|0),cy=lv?lv.cy-up:31+oy,ph=fr==='breath'?1.6:.5,bx=cx-bw/2;
   if(!s.air)for(let y=43;y<48;y++)for(let x=3;x<29;x++){const dx=(x+.5-16)/12,dy=(y+.5-45.5)/2.4,e=dx*dx+dy*dy;if(e>1)continue;
     const p2=(y>>1)&1?2:0;if(y%2===1&&((x+p2)%4===0||(e<.5&&(x+p2)%4===1)))g[y][x]='h'}
-  const fy=cy+ry;if(fr!=='hop')for(const fx of [cx-7,cx+3])for(let i=0;i<4;i++)for(let j=0;j<2;j++)if(g[fy+j])g[fy+j][fx+i]='k';
+  /* feet: s.ft names an authored pose in mascot/feet.js (rows of 'k' per foot, x from cx, y from the row under the body); without it the two fixed 4x2 blocks */
+  const fy=lv?by+bh:cy+ry,fp=s.ft&&FEET[s.ft];
+  if(fp)for(const [fx,fo,rows] of fp)rows.forEach((r,j)=>{for(let i=0;i<r.length;i++)if(r[i]==='k'&&g[fy+fo+j]&&g[fy+fo+j][cx+fx+i]!==undefined)g[fy+fo+j][cx+fx+i]='k'});
+  else if(fr!=='hop')for(const fx of [cx-7,cx+3])for(let i=0;i<4;i++)for(let j=0;j<2;j++)if(g[fy+j])g[fy+j][fx+i]='k';
   /* wobbly outline: the radius ripples with angle, and the ripple shifts each breath so the line boils */
-  const ins=(x,y)=>{const dx=(x+.5-cx)/rx,dy=(y+.5-cy)/ry,r=1+.05*Math.sin(9*Math.atan2(dy,dx)+ph);return dx*dx+dy*dy<=r*r};
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(!ins(x,y))continue;
+  const ins=lv?(x,y)=>{const r=rows[y-by];return !!r&&r[x-bx]!==undefined&&r[x-bx]!=='.'}
+    :(x,y)=>{const dx=(x+.5-cx)/rx,dy=(y+.5-cy)/ry,r=1+.05*Math.sin(9*Math.atan2(dy,dx)+ph);return dx*dx+dy*dy<=r*r};
+  if(lv)rows.forEach((r,y)=>{for(let x=0;x<bw;x++)if(r[x]!=='.'&&g[by+y]&&g[by+y][bx+x]!==undefined)g[by+y][bx+x]=r[x]});
+  else for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(!ins(x,y))continue;
     if(!ins(x-1,y)||!ins(x+1,y)||!ins(x,y-1)||!ins(x,y+1)){g[y][x]='k';continue}
     const nx=(x+.5-cx)/rx,ny=(y+.5-cy)/ry;g[y][x]=Math.hypot(nx+.42,ny+.46)<.3?'p':Math.hypot(nx+.2,ny+.24)>.98?'R':'r'}
   /* sprout grows with seeds planted */
@@ -51,7 +62,8 @@ export function compose(s){
     for(let y=ey-3;y<=ey+3;y++)for(let x=ex-3;x<=ex+2;x++){const edge=y===ey-3||y===ey+3||x===ex-3||x===ex+2;const corner=(y===ey-3||y===ey+3)&&(x===ex-3||x===ex+2);if(corner)continue;g[y][x]=edge?'k':'w'}
     if(s.face==='scared'){g[ey][ex-1]=g[ey+1][ex-1]='k'}
     else if(s.face==='love'){[".H.H.","HHHHH",".HHH.","..H.."].forEach((row,yy)=>{for(let xx=0;xx<5;xx++)if(row[xx]==='H')g[ey-1+yy][ex-2+xx]='H'})}
-    else if(s.face==='awe'){for(let y=ey-2;y<=ey+2;y++)for(let x=ex-2;x<=ex+1;x++)g[y][x]='k';g[ey-2][ex-1]='w';g[ey-1][ex-1]='w'}
+    else if(s.face==='awe'){/* enlarged pupils, not black eyes: the normal 2x2 pupil grown to 2x3 inside a white eye (the 4x5 white interior cannot hold a wider one without merging into the ink border) */
+      for(let y=0;y<3;y++)for(let x=0;x<2;x++)g[ey-1+dy+y][ex-1+dx+x]='k'}
     else if(s.pens){for(let x=ex-2;x<=ex+1;x++){g[ey-2][x]='r';g[ey-1][x]='r';g[ey][x]='k'}g[ey+1][ex-1]=g[ey+1][ex]='k';
       const L=ex<cx;[[ex-2,L?ey-5:ey-6],[ex-1,L?ey-5:ey-6],[ex,L?ey-6:ey-5],[ex+1,L?ey-6:ey-5]].forEach(([a,b])=>{if(g[b])g[b][a]='k'})}
     else{for(let y=0;y<2;y++)for(let x=0;x<2;x++)g[ey-1+dy+y][ex-1+dx+x]='k'}
@@ -61,13 +73,20 @@ export function compose(s){
   if(s.face==='scared'){for(let yy=my-1;yy<=my+3;yy++)for(let xx=cx-3;xx<=cx+2;xx++)g[yy][xx]=(yy>my-1&&yy<my+3&&xx>cx-3&&xx<cx+2)?'m':'k'}
   else if(s.face==='huh'){g[my][cx-1]=g[my][cx]=g[my+1][cx-1]=g[my+1][cx]='k'}
   else if(s.face==='yuck'){[[-3,1],[-2,0],[-1,1],[0,0],[1,1],[2,0]].forEach(([a,b])=>{g[my+b][cx+a]='k'});[[0,2],[1,2],[0,3]].forEach(([a,b])=>{g[my+b][cx+a]='T'});g[my+4]&&(g[my+4][cx]='k')}
-  else if(s.face==='awe'){for(let yy=my-1;yy<=my+5;yy++)for(let xx=cx-3;xx<=cx+2;xx++){const e=yy===my-1||yy===my+5||xx===cx-3||xx===cx+2,c=(yy===my-1||yy===my+5)&&(xx===cx-3||xx===cx+2);if(c)continue;g[yy][xx]=e?'k':'m'}}
-  else if(s.gape){const gw=Math.min(7,2+Math.round(s.gape*1.2)),gh=Math.min(6,1+Math.round(s.gape*1.2));for(let yy=my-1;yy<=my+gh+1;yy++)for(let xx=cx-gw-1;xx<=cx+gw;xx++){const e=yy===my-1||yy===my+gh+1||xx===cx-gw-1||xx===cx+gw;g[yy][xx]=e?'k':'m'}}
+  else if(s.face==='awe'){let bot=my+5;
+    /* on a squashed authored body the tall mouth would reach the outline: shorten it until its whole box is body colour */
+    if(lv)while(bot>my+2&&!(()=>{for(let yy=my-1;yy<=bot;yy++)for(let xx=cx-3;xx<=cx+2;xx++){if((yy===my-1||yy===bot)&&(xx===cx-3||xx===cx+2))continue;if(!g[yy]||!'rpR'.includes(g[yy][xx]))return false}return true})())bot--;
+    for(let yy=my-1;yy<=bot;yy++)for(let xx=cx-3;xx<=cx+2;xx++){const e=yy===my-1||yy===bot||xx===cx-3||xx===cx+2,c=(yy===my-1||yy===bot)&&(xx===cx-3||xx===cx+2);if(c)continue;g[yy][xx]=e?'k':'m'}}
+  else if(s.gape){let gw=Math.min(7,2+Math.round(s.gape*1.2)),gh=Math.min(6,1+Math.round(s.gape*1.2));
+    /* an authored body is smaller and rounder than the ellipse: shrink the mouth until its box sits in body colour with the ink edge on it */
+    if(lv){const fits=()=>{for(let yy=my-1;yy<=my+gh+1;yy++)for(let xx=cx-gw-1;xx<=cx+gw;xx++)if(!g[yy]||!'rpR'.includes(g[yy][xx]))return false;return true};
+      while(!fits()&&(gh>1||gw>2))gh>1&&(gh>=gw-1||gw<=2)?gh--:gw--}
+    for(let yy=my-1;yy<=my+gh+1;yy++)for(let xx=cx-gw-1;xx<=cx+gw;xx++){const e=yy===my-1||yy===my+gh+1||xx===cx-gw-1||xx===cx+gw;g[yy][xx]=e?'k':'m'}}
   else if(s.pens&&!s.face){for(let k=-2;k<=1;k++)g[my+1][cx+k]='k';g[my][cx+2]='k'}
   else if(s.mouth){for(let yy=my-1;yy<=my+2;yy++)for(let xx=cx-2;xx<=cx+1;xx++)g[yy][xx]=(yy>=my&&yy<=my+1&&xx>=cx-1&&xx<=cx)?'m':'k'}
   else if(s.happy){g[my][cx-2]='k';g[my][cx-1]='m';g[my][cx]='m';g[my][cx+1]='k';g[my+1][cx-1]='k';g[my+1][cx]='k'}
   else{g[my][cx-1]=g[my][cx]='k'}
-  if(s.hold)stamp(g,["kkkkk","krrrk","kkkkk"],s.hold>0?cx+rx-2:cx-rx-2,cy-2);
+  if(s.hold)stamp(g,["kkkkk","krrrk","kkkkk"],(h=>lv?Math.max(0,Math.min(27,h)):h)(s.hold>0?cx+rx-2:cx-rx-2),cy-2);
   if(s.face==='love'){g[cy+2][cx-9]=g[cy+2][cx-8]=g[cy+2][cx+7]=g[cy+2][cx+8]='c'}
   if(s.heart){const hp=(hx,hy)=>["H.H","HHH",".H."].forEach((row,yy)=>{for(let xx=0;xx<3;xx++)if(row[xx]==='H'&&g[hy+yy]&&g[hy+yy][hx+xx]!==undefined)g[hy+yy][hx+xx]='H'});
     const by=Math.max(0,cy-ry-3-s.heart*3);hp(cx+8,by);hp(cx-11,by+6)}
