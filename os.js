@@ -1355,6 +1355,15 @@ const finalFrame=p=>p.st==='bloom'?2:p.st==='seed'?4:p.st==='heap'?0:3;
 /* what is under the pointer: the Trash icon or an open Trash window (not the thing being dragged) */
 function overTrash(pt){for(const n of document.elementsFromPoint(pt.clientX,pt.clientY)){if(n.closest('.pl,#buddy,#bub'))continue;return n.closest('#ic-trash,#w-trash')}return null}
 const trashHot=on=>{$('#ic-trash').classList.toggle('hot',!!on);$('#w-trash').classList.toggle('hot',!!on)};
+/* the dragged mascot's drawn body (any opaque pixel of his canvas) against the Trash icon and an open Trash window: the Trash it touches, or null */
+function bodyOverTrash(){
+  const rs=[$('#ic-trash .ic').getBoundingClientRect()],w=WIN.trash;if(w&&w.open&&!w.min)rs.push(w.el.getBoundingClientRect());
+  const r=bcv.getBoundingClientRect(),k=r.width/bcv.width,d=bctx.getImageData(0,0,bcv.width,bcv.height).data;
+  for(const t of rs){let n=0,sx=0,sy=0;
+    for(let y=0;y<bcv.height;y++)for(let x=0;x<bcv.width;x++){if(d[(y*bcv.width+x)*4+3]<128)continue;
+      const px=r.left+(x+.5)*k,py=r.top+(y+.5)*k;if(px>=t.left&&px<=t.right&&py>=t.top&&py<=t.bottom){n++;sx+=px;sy+=py}}
+    if(n){const o=overTrash({clientX:sx/n,clientY:sy/n});if(o)return o}}
+  return null}
 function updCompost(){
   const n=compost.seed+compost.sprout+compost.flower,it=$('#tr-compost');if(!it)return;
   it.hidden=!n;updTrashCount();
@@ -1526,7 +1535,7 @@ function carryLoop(t){
   c.ax=c.ax*.6+Math.max(-12000,Math.min(12000,(vx-c.vx)/Math.max(dt,.001)))*.28;c.vx=vx;c.px=nx;c.py=ny;
   let rem=dt;while(rem>0){const h=Math.min(rem,.008);c.sw.step(h,c.ax);rem-=h}
   const n=reduce||window.MASCOT.ANIM_LEAN.frames.length<3?0:leanFor(c.sw.th,c.lean);   /* no swing under reduced motion: the upright hang only */if(n!==c.lean){c.lean=n;carryPose(n)}
-  carryPlace(c,dr);
+  carryPlace(c,dr);trashHot(bodyOverTrash()||overTrash({clientX:c.cx,clientY:c.cy-4}));
   c.raf=requestAnimationFrame(carryLoop);
 }
 /* standing: on a window's top edge, on the status bar at a window's foot, on the bottom bar, or on the floor */
@@ -1619,12 +1628,12 @@ bcv.addEventListener('pointermove',e=>{if(!bdrag)return;
     buddy.style.left=Math.round(r.left-dr0.left)+'px';buddy.style.top=Math.round(r.top-dr0.top)+'px';buddy.style.right='auto';buddy.style.bottom='auto';
     carry={px:r.left+TIPX*(r.width/CELL_W),py:r.top+(TIPROW+.5)*(r.width/CELL_W),cx:e.clientX,cy:e.clientY+4,vx:0,ax:0,tp,lean:0,sw:Swing(112,2.2,.85),last:performance.now(),raf:0};
     play([[{lv:'T3',ft:'dangle',arms:undefined,pose:0,flip:0,lean:0,bv:0,happy:0,mouth:0,hop:0,face:0,air:1},0]]);carry.raf=requestAnimationFrame(carryLoop)}
-  carry.cx=e.clientX;carry.cy=e.clientY+4;const ot=overTrash(e);trashHot(ot)});
+  carry.cx=e.clientX;carry.cy=e.clientY+4});
 const endDrag=()=>{if(!bdrag)return;const m=bdrag.moved,px0=bdrag.sx;bdrag=null;
   if(m&&carry){bump('drops');TK.discover('mascot-drag');const pt={clientX:carry.cx,clientY:carry.cy-4};cancelAnimationFrame(carry.raf);
     carry.lean=0;carryPlace(carry,desk.getBoundingClientRect());Object.assign(BS,{lean:0,pose:0,flip:0,lv:'T3',ft:'dangle',arms:undefined,f:'stretch',air:1});bRender();   /* upright again with the neck where it was held: no jump */
     carry=null;buddy.classList.remove('carried');buddy.style.transform='';buddy.style.transformOrigin='';
-    const ot=overTrash(pt);trashHot(false);if(ot)trashDive();else dropBuddy()}
+    const ot=bodyOverTrash()||overTrash(pt);trashHot(false);if(ot)trashDive();else dropBuddy()}
   else huh(px0)};
 bcv.addEventListener('pointerup',endDrag);bcv.addEventListener('pointercancel',endDrag);bcv.addEventListener('lostpointercapture',endDrag);
 addEventListener('pointerup',endDrag,true);addEventListener('blur',endDrag);addEventListener('pointermove',e=>{if(bdrag&&bdrag.moved&&e.buttons===0)endDrag()},true);
