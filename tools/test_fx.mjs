@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-/* Tests for game/fx.js, the renderer-side body pulse and dust (character-feel-plan.md Stage 2).
-   Pure module, no browser. Run: node tools/test_fx.mjs */
+/* Tests for game/fx.js, the renderer-side body pulse and dust (character-feel-plan.md Stage 2), and for engine.js
+   fxLevels, the OS's fourth-wall levels sent through mount's onFx (os.js draws them).
+   No browser. Run: node tools/test_fx.mjs */
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import {fileURLToPath,pathToFileURL} from 'node:url';
@@ -170,6 +171,57 @@ test('sprout lag: whole px in -2..2, trails vx, springs back, frozen by hit-stop
   for(let i=0;i<9;i++)stepFx(fx,[],O({vx:-9}));assert.equal(FX.sprout(fx),2,'clamped');
   clearFx(fx);assert.equal(FX.sprout(fx),0);
   stepFx(fx,[],O({vx:1.6}));stepFx(fx,['skid'],O({vx:1.6,reduce:true,ground:true,skid:true}));assert.equal(fx.so,0);assert.equal(fx.sk,0);
+});
+
+/* ---- the OS's fourth-wall levels (engine.js fxLevels, sent through mount's onFx): which keys each biome sends, and when ---- */
+console.log('\nOS effects (engine.js fxLevels)');
+const G=pathToFileURL(path.join(ROOT,'game')+'/').href;
+const E=await import(G+'engine.js'),{newState,T}=await import(G+'state.js'),{ROOMS,parse}=await import(G+'rooms/index.js');
+const CH=await import(G+'chases.js'),{PW,PH}=await import(G+'player.js');
+const I=(o={})=>({l:0,r:0,u:0,d:0,j:0,jp:0,b:0,bp:0,drag:null,any:0,...o});
+const play=(room,x,y,items={})=>{const S=newState();Object.assign(S,{lit:1,litT:60,match:1,mode:'play'});Object.assign(S.items,items);E.enterRoom(S,room,{x,y});return S};
+const FLOODK=['wet','slosh','flood'],MOLTK=['heat','shimmer','glow'];
+/* fxLevels may not read the clock either (Math.random is stubbed above) */
+const lv=S=>{const dn=Date.now,pn=performance.now;Date.now=performance.now=()=>{throw new Error('fxLevels read the clock')};try{return E.fxLevels(S)}finally{Date.now=dn;performance.now=pn}};
+/* a test pool: floor at row 12, deep water x 6..34 rows 12..15 */
+const pg=['#'.repeat(46),...Array(11).fill('#'+'.'.repeat(44)+'#'),...Array(4).fill('######'+'~'.repeat(29)+'###########'),'#'.repeat(46),'#'.repeat(46)];
+ROOMS.fxpool=parse({id:'fxpool',name:'Fx pool',biome:'flood',at:[5000,5000],grid:pg,ents:[]});
+
+test('fxLevels: biome is the first key, and hub and Roots send no Flood or Molten keys',()=>{
+  for(const id of ['hub','r1']){const S=play(id,...(id==='hub'?[200,100]:[40,100]));const L=lv(S);
+    assert.equal(Object.keys(L)[0],'biome');assert.equal(L.biome,ROOMS[id].biome);
+    for(const k of [...FLOODK,...MOLTK])assert.ok(!(k in L),`${id} sends no ${k}`)}
+  assert.ok('moss' in lv(play('r1',40,100)),'Roots still sends moss');
+});
+test('fxLevels Flood: wet from the first room, slosh 0 on dry ground, flood 0 with no chase',()=>{
+  const S=play('fxpool',2*T,12*T-PH);E.step(S,I(),[]);const L=lv(S);
+  assert.deepEqual([L.wet,L.slosh,L.flood],[1,0,0]);for(const k of MOLTK)assert.ok(!(k in L),'no '+k);
+  const B=play('b1',40,40);assert.equal(lv(B).wet,1,'b1 (Tideshore) is wet');
+});
+test('fxLevels Flood: slosh 1 while he is in the water (wading at the line or deep under it) and while he surfs',()=>{
+  const S=play('fxpool',20*T,12*T-PH+8);for(let i=0;i<4;i++)E.step(S,I(),[]);assert.equal(lv(S).slosh,1,'wading at the line');
+  const D=play('fxpool',20*T,14*T);for(let i=0;i<2;i++)E.step(D,I(),[]);assert.equal(lv(D).slosh,1,'deep under the surface');
+  const W=play('fxpool',2*T,12*T-PH);E.step(W,I(),[]);assert.equal(lv(W).slosh,0);W.p.surf=1;assert.equal(lv(W).slosh,1,'surfing');
+  const out=play('fxpool',20*T,12*T-PH+8);E.step(out,I(),[]);out.p.x=2*T;out.p.y=12*T-PH;E.step(out,I(),[]);assert.equal(lv(out).slosh,0,'out of the water again');
+});
+test('fxLevels Flood: the tide level grows in quarters during the eel chase, the tide sloshes him, 0 outside it',()=>{
+  const B=ROOMS.b10,t=B.torches[B.torches.length-1],S=newState();Object.assign(S,{lit:1,litT:60,match:1,mode:'play'});Object.assign(S.items,{root:1,board:1});
+  S.pieces[1]=1;S.chase={id:'flood',on:1,x:0,t:0,w:0};S.cp={room:'b10',tx:t.tx,ty:t.ty};E.enterRoom(S,'b10',E.spot(S,B,t.tx,t.ty));CH.resetChase(S);
+  /* he stands by his torch (invulnerable) while the tide comes up over him */
+  let prev=0,sl=0;for(let i=0;i<1500;i++){S.p.inv=1e9;E.step(S,I(),[]);if(!S.chase)break;const L=lv(S),v=L.flood;
+    assert.ok(v>=prev&&v<=1&&v*4===Math.round(v*4),'a growing quarter: '+v);prev=v;sl=Math.max(sl,L.slosh)}
+  assert.ok(prev>=.5,'the tide came on ('+prev+')');assert.equal(sl,1,'standing in the tide sloshes');
+  S.chase=null;assert.equal(lv(S).flood,0);
+});
+test('fxLevels Molten: heat 1 from the first room, shimmer 0 outside the chase, glow 1 only while a vent erupts',()=>{
+  const S=play('m1',40,40);const L=lv(S);
+  assert.deepEqual([L.heat,L.shimmer,L.glow],[1,0,0]);for(const k of FLOODK)assert.ok(!(k in L),'no '+k);
+  const v=S.ens.find(e=>e.k==='vent');assert.ok(v,'m1 has a vent');const st=v.st;
+  v.st=2;assert.equal(lv(S).glow,1);v.st=st===2?0:st;assert.equal(lv(S).glow,0);
+});
+test('fxLevels is a pure function of the state: same state, same levels, nothing in it changes',()=>{
+  const S=play('m10',40,40);for(let i=0;i<90;i++)E.step(S,I({r:i%2}),[]);const snap=JSON.stringify(S);
+  assert.deepEqual(lv(S),lv(S));assert.equal(JSON.stringify(S),snap);
 });
 
 Math.random=rand;

@@ -24,7 +24,7 @@ export default function devPanel(root,api){
     for(const id of ORDER){const R=ROOMS[id];if(!R)continue;if(!groups.has(R.biome))groups.set(R.biome,[]);groups.get(R.biome).push([id,`${R.name} · ${id}`])}
     return [...groups].map(([g,l])=>`<h5>${g}</h5>${l.map(btn).join('')}`).join('')};
   d.innerHTML=`<div class="b"><h4>Warp</h4><div class="wl">${warps()}</div>
-<h4>Items</h4><label><input type="checkbox" data-i="root"> root jump</label><label><input type="checkbox" data-i="board"> board</label>
+<h4>Items</h4><label><input type="checkbox" data-i="root"> root jump</label><label><input type="checkbox" data-i="board"> board</label><label><input type="checkbox" data-i="forged"> forged board</label><label><input type="checkbox" data-i="claws"> vine claws</label>
 <h4>Pieces</h4>${PIECES.map((n,i)=>`<label><input type="checkbox" data-p="${i}"> ${n}</label>`).join('')}
 <h4>In the door</h4>${PIECES.map((n,i)=>`<label><input type="checkbox" data-d="${i}"> ${n}</label>`).join('')}
 <h4>Fairness</h4><label><input type="checkbox" data-a> Assist (slower chases)</label><button data-s>Stuck hint now</button>

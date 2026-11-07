@@ -18,23 +18,35 @@ import R_b4 from './flood_b4.js';
 import R_b5 from './flood_b5.js';
 import R_b6 from './flood_b6.js';
 import R_b7 from './flood_b7.js';
+import R_m1 from './molten_m1.js';
+import R_m2 from './molten_m2.js';
+import R_m3 from './molten_m3.js';
+import R_m4 from './molten_m4.js';
+import R_m5 from './molten_m5.js';
+import R_m6 from './molten_m6.js';
+import R_m7 from './molten_m7.js';
+import R_m8 from './molten_m8.js';
+import R_m9 from './molten_m9.js';
+import R_m10 from './molten_m10.js';
+import R_m11 from './molten_m11.js';
 import R_f1 from './flood_f1.js';
 import R_f2 from './flood_f2.js';
 import R_b10 from './flood_b10.js';
-const LIST=[R_hub,R_r1,R_r2,R_r3,R_r4,R_r5,R_a1,R_a2,R_a3,R_a4,R_a5,R_b1,R_b2,R_b3,R_b4,R_b5,R_b6,R_b7,R_f1,R_f2,R_b10];
+const LIST=[R_hub,R_r1,R_r2,R_r3,R_r4,R_r5,R_a1,R_a2,R_a3,R_a4,R_a5,R_b1,R_b2,R_b3,R_b4,R_b5,R_b6,R_b7,R_m1,R_m2,R_m3,R_m4,R_m5,R_m6,R_m7,R_m8,R_m9,R_m10,R_m11,R_f1,R_f2,R_b10];
 /* rooms:end */
 
 export const ORDER=LIST.map(r=>r.id);
-export const AMB={hub:1,roots:.4,flood:.45};
+export const AMB={hub:1,roots:.4,flood:.45,molten:.35};   /* Molten is darker: the lava crest, the embers and his own light carry it */
 export const ROOMS={};
 
 export function parse(src){
   const R={id:src.id,name:src.name,biome:src.biome,at:src.at.slice(),w:src.grid[0].length,h:src.grid.length,
-    g:src.grid.slice(),spawns:[],torches:[],plates:[],gates:[],items:[],pedestals:[],perches:[],start:null};
+    g:src.grid.slice(),spawns:[],torches:[],plates:[],gates:[],items:[],pedestals:[],perches:[],vents:[],start:null};
   const ent=(tx,ty)=>(src.ents||[]).find(e=>e.at[0]===tx&&e.at[1]===ty)||{};
   R.g.forEach((row,ty)=>[...row].forEach((c,tx)=>{
     const e=ent(tx,ty);
-    if(c==='M'||c==='O'||c==='H'||(c==='~'&&e.fish))R.spawns.push({k:c==='~'?'C':c,tx,ty,...e,at:undefined});   /* H hermit crab; a clownfish is an ent on water */
+    if(c==='M'||c==='O'||c==='H'||c==='E'||c==='K'||(c==='~'&&e.fish))R.spawns.push({k:c==='~'?'C':c,tx,ty,...e,at:undefined});   /* H hermit crab; a clownfish is an ent on water; E ember sprite, K slag beetle (game/cinders.js) */
+    else if(c==='V')R.vents.push({tx,ty,...e,at:undefined});   /* a geyser vent on a floor: height, period, phase, live (game/geysers.js) */
     else if(c==='T')R.torches.push({tx,ty});
     else if(c==='P')R.plates.push({tx,ty});
     else if(c==='G')R.gates.push({tx,ty});
@@ -44,6 +56,9 @@ export function parse(src){
     else if(c==='F')R.pedestals.push({tx,ty,piece:src.biome});   /* holds its biome's fragment */
   }));
   R.flows=(src.ents||[]).filter(e=>e.flow).map(e=>({at:e.at.slice(),flow:e.flow}));   /* currents (game/liquid.js) */
+  /* seals: rubble (=) with ent opens:<biome> is solid until that biome's fragment is set in the door (engine solid(),
+     sealOpen()). 'tx,ty' -> that biome; null when the room has none */
+  R.seals=null;for(const e of src.ents||[])if(typeof e.opens==='string'&&(src.grid[e.at[1]]||'')[e.at[0]]==='=')(R.seals||(R.seals={}))[e.at[0]+','+e.at[1]]=e.opens
   return R;
 }
 for(const r of LIST)ROOMS[r.id]=parse(r);
@@ -84,6 +99,15 @@ export const CHASES={
      and the eel comes within 1 s (tools/test_flood_chase.mjs) */
   flood:{dir:-1,from:440,beat:120,gap:300,path:[[440,1.3],[378,1.5],[312,1.5],[253]],
     tide:{y0:448,rise:.5,drain:1,lip:120,edge:24,drop:40,reach:60,lv:[[440,412],[422,388],[416,364],[406,328],[384,304],[378,280],[312,278]]}},
+  /* Molten (game/geysers.js), kind 'geyser': no front that kills, but waves of eruptions. From the pedestal at the west end
+     of Geyser Core (m11, world x -164) east through the core and the vent field of Cinder Hush (m10); safe once past its
+     last vent, at world x -92, before the seat, so the hush's calm half follows (R18). It only wakes when the molten
+     pedestal is lifted. The first wave starts at `from` (world tile x) after `beat` frames and runs along `path` ([world
+     tile x, px per clock frame], ending in the bare safe x) at 3 px/frame (he runs 1.6, so each wave overtakes him); a new
+     wave every `every` frames. A vent in the span cracks and steams for `tel` frames, then erupts for `erupt`. After a death
+     the first wave restarts `gap` px behind his torch. Assist: the clock runs at 70% and the telegraph is 1.5 times as long
+     (clock frames). Timings in tools/test_molten.mjs */
+  molten:{kind:'geyser',dir:1,from:-164,beat:60,every:180,tel:48,erupt:54,gap:150,path:[[-164,3],[-92]]},
 };
 /* the stuck hint: after minutes without progress he looks toward the first goal here not yet met.
    need: 'item:<id>', 'piece:<biome>' (carried) or 'placed:<biome>' (in the door); tile is optional (room centre) */
@@ -93,4 +117,9 @@ export const NEXT=[
   {need:'placed:roots',room:'hub',tile:[12,10]},
   {need:'item:board',room:'f1',tile:[8,15]},
   {need:'piece:flood',room:'b10',tile:[64,26]},
+  {need:'placed:flood',room:'hub',tile:[12,10]},   /* setting it opens the way down to Molten (the funnel's seal) */
+  /* Molten: the heat-forged board on the bank of Steam Lake's lane, the claws at the bottom of Cinder Pit, the fragment in Geyser Core */
+  {need:'item:forged',room:'m3',tile:[22,9]},
+  {need:'item:claws',room:'m6',tile:[20,16]},
+  {need:'piece:molten',room:'m11',tile:[4,9]},
 ];

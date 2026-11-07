@@ -1,8 +1,8 @@
 /* Room file format and level checks for the editor. No DOM, so tools/test_rooms.mjs runs it under node.
    serialize() writes byte-for-byte what tools/dev_server.py writes; check() mirrors the server's limits;
    problems() is the editor's live validation list. */
-export const GLYPHS='#=.~^STPGIMOFBH',BIOMES=['hub','roots','flood','molten','crystals'],MAXG=128;
-export const NAMES={'#':'Rock','=':'Rubble','.':'Air','~':'Water','^':'Thorns',S:'Start',T:'Torch',P:'Pressure plate',G:'Gate',I:'Item',M:'Mossback',O:'Spore puff',F:'Fragment pedestal',B:'Perch',H:'Hermit crab'};
+export const GLYPHS='#=.~^STPGIMOFBHLXVEK',BIOMES=['hub','roots','flood','molten','crystals'],MAXG=128;
+export const NAMES={'#':'Rock','=':'Rubble','.':'Air','~':'Water','^':'Thorns',S:'Start',T:'Torch',P:'Pressure plate',G:'Gate',I:'Item',M:'Mossback',O:'Spore puff',F:'Fragment pedestal',B:'Perch',H:'Hermit crab',L:'Lava',X:'Cracked rock',V:'Geyser vent',E:'Ember sprite',K:'Slag beetle'};
 export const RE={file:/^[a-z][a-z0-9_-]{0,31}$/,id:/^[a-z][a-z0-9]{0,15}$/,name:/^[A-Za-z0-9 .,!?:;()&-]{1,40}$/,key:/^[a-z][A-Za-z]{0,11}$/,str:/^[A-Za-z0-9_-]{1,24}$/};
 const isInt=(v,lo,hi)=>Number.isInteger(v)&&v>=lo&&v<=hi;
 
@@ -36,8 +36,8 @@ export function check(r,comment=''){
 }
 
 /* ---------- live validation ---------- */
-const open=c=>c!=='#'&&c!=='=';
-const solid=c=>c==='#'||c==='='||c==='G';
+const open=c=>c!=='#'&&c!=='='&&c!=='X';
+const solid=c=>c==='#'||c==='='||c==='G'||c==='X';   /* X: cracked rock, solid till the claws drill it (game/claws.js) */
 const runs=xs=>{const o=[];for(const x of xs.sort((a,b)=>a-b)){const l=o[o.length-1];if(l&&x===l[1]+1)l[1]=x;else o.push([x,x])}return o};
 const span=([a,b])=>a===b?`${a}`:`${a}-${b}`;
 /* rooms: [{id,name,biome,at,grid,ents}] in registry order. Returns [{lv:'err'|'warn',id,tx,ty,msg}] (tx,ty room-local) */
@@ -53,12 +53,24 @@ export function problems(rooms){
     const g=r.grid,H=g.length,W=g[0].length,c=(x,y)=>x<0||y<0||x>=W||y>=H?'#':g[y][x],count={};
     for(let y=0;y<H;y++)for(let x=0;x<W;x++){const ch=g[y][x];count[ch]=(count[ch]||0)+1;
       if(ch==='S'&&solid(c(x,y-1)))add('warn',r,x,y,'Start is under a ceiling (the mascot is 2 tiles tall)');
+      /* Molten: lava lies in the ground like a pool; cracked rock must not hold up anything a drill would leave floating */
+      if(ch==='L'&&(!'#L'.includes(c(x,y+1))||!'#L'.includes(c(x-1,y))||!'#L'.includes(c(x+1,y))))add('warn',r,x,y,'Lava is not inset: rock (or lava) must lie under it and beside it');
+      if(ch==='X'&&(x===0||y===0||x===W-1||y===H-1))add('warn',r,x,y,'Cracked rock on a room edge: drilled, it would open onto the next room');
+      if(ch==='X'&&[[0,1],[-1,0],[1,0],[0,-1]].some(([a,b])=>'~L'.includes(c(x+a,y+b))))add('warn',r,x,y,'Cracked rock beside water or lava: drilled, it would leave the liquid hanging');
+      if(ch==='X'&&[[0,-1],[0,1],[-1,0],[1,0]].some(([a,b])=>c(x+a,y+b)==='^'))add('warn',r,x,y,'Thorns grow on cracked rock: drilled, they would float');
+      if(ch==='X'&&'PFBHI'.includes(c(x,y-1)))add('warn',r,x,y,`${NAMES[c(x,y-1)]} stands on cracked rock: drilled, it would float`);
       if(ch==='T'&&solid(c(x,y-1))&&solid(c(x,y+1))&&solid(c(x-1,y))&&solid(c(x+1,y)))add('warn',r,x,y,'Torch is walled in: nowhere to respawn');
       if(ch==='M'&&![[0,1],[0,-1],[1,0],[-1,0]].some(([a,b])=>solid(c(x+a,y+b))||c(x+a,y+b)==='^'))add('warn',r,x,y,'Mossback has no surface to crawl on');
       if(ch==='P'&&!solid(c(x,y+1)))add('warn',r,x,y,'Pressure plate floats: no floor under it');
       if(ch==='F'&&!solid(c(x,y+1)))add('warn',r,x,y,'Fragment pedestal floats: no floor under it');
       if(ch==='B'&&!solid(c(x,y+1)))add('warn',r,x,y,'Perch floats: no floor under it');
       if(ch==='H'&&!solid(c(x,y+1)))add('warn',r,x,y,'Hermit crab floats: no floor under it');
+      if(ch==='V'&&!solid(c(x,y+1)))add('warn',r,x,y,'Geyser vent floats: no floor under it');
+      if(ch==='V'&&c(x,y+1)==='X')add('warn',r,x,y,'Geyser vent stands on cracked rock: drilled, it would float');
+      if(ch==='K'&&![[0,1],[-1,0],[1,0],[0,-1]].some(([a,b])=>c(x+a,y+b)==='X'))add('warn',r,x,y,'Slag beetle has no cracked rock (X) beside it to live in');
+      if(ch==='E'){const e=(r.ents||[]).find(e=>e.at[0]===x&&e.at[1]===y)||{},amp=Number.isInteger(e.amp)?Math.abs(e.amp):6,dr=Number.isInteger(e.drift)?Math.abs(e.drift):12,ox=Number.isInteger(e.ox)?e.ox:0,oy=Number.isInteger(e.oy)?e.oy:0;   /* its figure-eight (game/cinders.js), ox/oy px off the tile */
+        let hit=0;for(let yy=Math.floor((y*12+1+oy-amp)/12);yy<=Math.floor((y*12+10+oy+amp)/12)&&!hit;yy++)for(let xx=Math.floor((x*12+1+ox-dr)/12);xx<=Math.floor((x*12+10+ox+dr)/12);xx++)if(solid(c(xx,yy))||c(xx,yy)==='X'){hit=1;break}
+        if(hit)add('warn',r,x,y,`Ember sprite drifts into rock (drift ${dr}, amp ${amp})`)}
       if(ch==='B'&&solid(c(x,y-1)))add('warn',r,x,y,'Perch is under a ceiling (the mascot is 2 tiles tall)');
       if(ch==='F'&&!BIOMES.slice(1).includes(r.biome))add('warn',r,x,y,'Fragment pedestal outside a biome: it holds that biome\'s fragment');
       if(ch==='O'){const e=(r.ents||[]).find(e=>e.at[0]===x&&e.at[1]===y),amp=e&&Number.isInteger(e.amp)?e.amp:12;
@@ -70,7 +82,9 @@ export function problems(rooms){
     if(!count.T)add('err',r,null,null,'Torch missing: warps and respawns need one');
     if(count.G&&!count.P)add('err',r,null,null,'Gate without a pressure plate: it never opens');
     if(count.P&&!count.G)add('warn',r,null,null,'Pressure plate without a gate');
-    for(const e of r.ents||[]){const ch=c(e.at[0],e.at[1]);if(!'MOIBH~'.includes(ch))add('warn',r,e.at[0],e.at[1],`Ent data on a '${ch}' tile does nothing`)}
+    for(const e of r.ents||[]){const ch=c(e.at[0],e.at[1]);if(!'MOIBH~VEK'.includes(ch)&&!(ch==='='&&'opens' in e))add('warn',r,e.at[0],e.at[1],`Ent data on a '${ch}' tile does nothing`);
+      if('opens' in e&&ch!=='=')add('warn',r,e.at[0],e.at[1],`opens works only on rubble (=)`);
+      if('opens' in e&&!BIOMES.slice(1).includes(e.opens))add('warn',r,e.at[0],e.at[1],`opens names no fragment (roots, flood, molten or crystals)`)}   /* a seal: rubble that crumbles once that fragment is in the door */
     /* edges: every open edge tile must meet an open tile in the room next door */
     const b=box(r),bad={},touch=new Set(),note=(side,k,n,v)=>{const key=side+'|'+k+'|'+(n?n.id:'');(bad[key]=bad[key]||{side,k,n,v:[]}).v.push(v)};
     const edge=(side,tx,ty,wx,wy,v)=>{const ch=g[ty][tx],[n,nc]=at(wx,wy);if(n)touch.add(n.id);if(!open(ch))return;

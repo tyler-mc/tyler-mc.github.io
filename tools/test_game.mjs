@@ -27,16 +27,16 @@ const r4toLip=(S,rec,dir,lip,l,run=30)=>{const back=dir==='r'?'l':'r',near=dir==
 console.log('rooms');
 for(const id of ORDER){const R=ROOMS[id];
   ok(R.g.every(r=>r.length===R.w),`${id}: all rows ${R.w} wide`);
-  for(const s of R.spawns.filter(s=>s.k==='M')){const n=[[0,1],[-1,0],[1,0],[0,-1]].some(([a,b])=>'#=G^'.includes(E.tile(R,s.tx+a,s.ty+b)??'#'));ok(n,`${id}: Mossback at ${s.tx},${s.ty} touches a surface`)}
+  for(const s of R.spawns.filter(s=>s.k==='M')){const n=[[0,1],[-1,0],[1,0],[0,-1]].some(([a,b])=>'#=G^X'.includes(E.tile(R,s.tx+a,s.ty+b)??'#'));ok(n,`${id}: Mossback at ${s.tx},${s.ty} touches a surface`)}
   ok(R.torches.length>0,`${id}: has a torch checkpoint`);
 }
 for(const id of ORDER){const R=ROOMS[id];
   const sides=[];for(let y=0;y<R.h;y++){sides.push([-1,y,0,y]);sides.push([R.w,y,R.w-1,y])}for(let x=0;x<R.w;x++){sides.push([x,-1,x,0]);sides.push([x,R.h,x,R.h-1])}
   let bad=0;for(const [ox,oy,ix,iy] of sides){const N=roomAtTile(R.at[0]+ox,R.at[1]+oy),inside=R.g[iy][ix];
-    const insideOpen=!'#=G'.includes(inside);if(insideOpen&&!N&&id!=='hub'){bad++;console.log('    opening to nowhere',id,ix,iy)}
-    if(N){const nc=N.g[R.at[1]+oy-N.at[1]][R.at[0]+ox-N.at[0]];if(insideOpen!==!'#=G'.includes(nc)){bad++;console.log('    mismatch',id,ix,iy,'vs',N.id,nc)}}}
+    const insideOpen=!'#=GX'.includes(inside);if(insideOpen&&!N&&id!=='hub'){bad++;console.log('    opening to nowhere',id,ix,iy)}
+    if(N){const nc=N.g[R.at[1]+oy-N.at[1]][R.at[0]+ox-N.at[0]];if(insideOpen!==!'#=GX'.includes(nc)){bad++;console.log('    mismatch',id,ix,iy,'vs',N.id,nc)}}}
   ok(!bad,`${id}: edges match neighbours`);
-  for(const [side,len,get] of [['left',R.h,i=>R.g[i][0]],['right',R.h,i=>R.g[i][R.w-1]]]){let run=0,min=99;for(let i=0;i<=len;i++){const o=i<len&&!'#=G'.includes(get(i));if(o)run++;else{if(run)min=Math.min(min,run);run=0}}if(min<99)ok(min>=3,`${id}: ${side} openings >= 3 tiles (min ${min})`)}
+  for(const [side,len,get] of [['left',R.h,i=>R.g[i][0]],['right',R.h,i=>R.g[i][R.w-1]]]){let run=0,min=99;for(let i=0;i<=len;i++){const o=i<len&&!'#=GX'.includes(get(i));if(o)run++;else{if(run)min=Math.min(min,run);run=0}}if(min<99)ok(min>=3,`${id}: ${side} openings >= 3 tiles (min ${min})`)}
 }
 ok(!!ROOMS.hub.start,'hub has a start tile');
 
@@ -670,11 +670,11 @@ console.log('the paced Roots rooms (a1 to a5)');
   for(const f of files)srcs.push((await import(dir.href+f)).default);
   const list=ORDER.map(id=>srcs.find(r=>r.id===id)),out=problems(list);
   ok(list.every(Boolean)&&!out.length,`the editor's checks find nothing in any room (${out.length} findings${out.length?': '+out.slice(0,3).map(o=>o.id+' '+o.msg).join('; '):''})`);
-  { // water sits inside the ground like a pool: rock under every water tile, and rock (or more water) at both ends of each stretch
-    const bad=[];for(const r of list)r.grid.forEach((row,y)=>[...row].forEach((c,x)=>{if(c!=='~')return;
+  { // water and lava sit inside the ground like a pool: rock under every such tile, and rock (or more of the liquid) at both ends of each stretch
+    const bad=[];for(const r of list)r.grid.forEach((row,y)=>[...row].forEach((c,x)=>{if(c!=='~'&&c!=='L')return;
       const below=(r.grid[y+1]||'#')[x],left=row[x-1]??'#',right=row[x+1]??'#';
-      if(!'#~'.includes(below)||!'#~'.includes(left)||!'#~'.includes(right))bad.push(`${r.id}:${x},${y}`)}));
-    ok(!bad.length,`every water tile is inset in the ground (rock below, rock or water beside)${bad.length?': '+bad.slice(0,4).join(' '):''}`)}
+      if(!'#~L'.includes(below)||!'#~L'.includes(left)||!'#~L'.includes(right))bad.push(`${r.id}:${x},${y}`)}));
+    ok(!bad.length,`every water or lava tile is inset in the ground (rock below, rock or liquid beside)${bad.length?': '+bad.slice(0,4).join(' '):''}`)}
   const BOX=[-430,-40,0,23],inBox=r=>r.biome!=='roots'||(r.at[0]>=BOX[0]&&r.at[1]>=BOX[1]&&r.at[0]+r.grid[0].length-1<=BOX[2]&&r.at[1]+r.grid.length-1<=BOX[3]);
   ok(list.every(inBox),'every Roots room lies inside the Roots box of the world plan (x -430..0, y -40..23)');
 }

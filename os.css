@@ -631,6 +631,38 @@ body.dgdrag,body.dgdrag *{cursor:grabbing!important;user-select:none;-webkit-use
 .ic canvas.moss{position:absolute;left:-4px;top:-4px;width:72px;height:72px;image-rendering:pixelated;pointer-events:none}
 .cmp canvas.spr{display:block;width:48px;height:66px;image-rendering:pixelated}
 #strip.flk .stab[data-id="game"]{filter:invert(1)}
+/* Flood and Molten effects (os.js, after shakeFx). The strip's tabs (on phones the game window's back bar) hold water
+   (.fxw, --fxw of their height, sloshing out of step along the strip); the game's tab holds heat (.fxh, --fxh; .fxg while
+   a vent erupts). Both sit behind the title */
+.fxw #strip .stab,.fxh #strip .stab[data-id="game"],.fxw #w-game .backbar,.fxh #w-game .backbar{position:relative;isolation:isolate}
+.fxw #strip .stab::after,.fxh #strip .stab[data-id="game"]::after,.fxw #w-game .backbar::after,.fxh #w-game .backbar::after{content:"";position:absolute;left:0;right:0;bottom:0;z-index:-1;pointer-events:none;image-rendering:pixelated}
+.fxw #strip .stab::after,.fxw #w-game .backbar::after{height:calc(var(--fxw)*100%);background:var(--fxww) 0 0/32px 16px repeat-x,linear-gradient(var(--fxwb) 0 0) 0 16px/100% 100% no-repeat;transition:height .5s steps(5,end);animation:fxsl 1.5s steps(8,end) infinite alternate}
+.fxw #strip .stab:nth-child(2n)::after{animation-delay:-.5s}.fxw #strip .stab:nth-child(3n)::after{animation-delay:-1s}
+@keyframes fxsl{from{background-position:0 0,0 16px}to{background-position:32px 1px,0 16px}}
+.fxh #strip .stab[data-id="game"]::after,.fxh #w-game .backbar::after{height:calc(var(--fxh)*100%);background:var(--fxht) 0 0/32px 32px repeat,var(--fxhg) 0 100%/32px 64px repeat-x;animation:fxrise 1.4s steps(16,end) infinite}
+.fxg #strip .stab[data-id="game"]::after,.fxg #w-game .backbar::after{filter:brightness(1.3) saturate(1.2)}
+@keyframes fxrise{to{background-position:0 -32px,0 100%}}
+/* the title keeps its own ground over the water and the heat: a chip on a strip tab, a 1px halo on the back bar */
+.fxw #strip .stab .stt,.fxh #strip .stab[data-id="game"] .stt{background:inherit;padding:0 2px;margin:0 -2px}
+.fxw #w-game .backbar .bt,.fxh #w-game .backbar .bt{text-shadow:1px 0 var(--plat),-1px 0 var(--plat),0 1px var(--plat),0 -1px var(--plat),1px 1px var(--plat),-1px -1px var(--plat),1px -1px var(--plat),-1px 1px var(--plat)}
+/* the desktop's tide and heat haze: one canvas over the wallpaper, under the icons and windows */
+.fxd{position:absolute;left:0;bottom:0;pointer-events:none;image-rendering:pixelated}
+/* icons the tide is over float; a vent's glow rings each icon; the Trash icon holds water */
+.icon.fl .ic{animation:fxbob 1.3s steps(3,end) infinite alternate}
+.icon.fl:nth-child(2n) .ic{animation-delay:-.65s}.icon.fl:nth-child(3n) .ic{animation-duration:1.1s}
+@keyframes fxbob{to{translate:0 -3px}}
+.ic canvas.glow,.ic canvas.wet{position:absolute;left:-4px;top:-4px;width:72px;height:72px;image-rendering:pixelated;pointer-events:none}
+.ic canvas.glow{animation:fxgl .7s steps(1,end) infinite}
+@keyframes fxgl{50%{opacity:.6}}
+/* the Trash window fills with water from its items' middle down, and they bob at the surface */
+#w-trash.wet .wbody{background-image:var(--fxtw),linear-gradient(var(--fxtb) 0 0);background-size:32px 16px,100% 100%;background-position:0 58px,0 74px;background-repeat:repeat-x,no-repeat;animation:fxtw 3.2s steps(16,end) infinite}
+@keyframes fxtw{to{background-position:32px 58px,0 74px}}
+#w-trash.wet .item{animation:fxbob 1.5s steps(3,end) infinite alternate}
+#w-trash.wet .item:nth-child(2n){animation-delay:-.75s}
+@media (prefers-reduced-motion:reduce){
+  .fxw #strip .stab::after,.fxh #strip .stab[data-id="game"]::after,.fxw #w-game .backbar::after,.fxh #w-game .backbar::after,
+  .icon.fl .ic,.ic canvas.glow,#w-trash.wet .wbody,#w-trash.wet .item{animation:none;transition:none}
+}
 .icon.wk-new .ic{animation:wkg .8s steps(1,end) 2}
 .icon.wk-new .lb{animation:unrl .8s steps(1,end) 2}
 @keyframes wkg{0%,100%{transform:none;filter:none}15%{transform:translate(-3px,1px);filter:hue-rotate(90deg) contrast(1.5)}30%{transform:translate(3px,-1px) skewX(10deg)}45%{transform:translate(-2px,0);filter:invert(1)}60%{transform:none;filter:none}75%{transform:translate(2px,2px) skewX(-8deg);filter:hue-rotate(200deg)}90%{transform:none;filter:none}}

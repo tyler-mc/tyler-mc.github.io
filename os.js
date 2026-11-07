@@ -2341,7 +2341,8 @@ function gameEvent(n,d={}){
 }
 
 /* ================= Wake Up: the OS reacts to the game. The engine calls onFx(name, level 0..1); a new biome clears the last one's ================= */
-const FX={moss:mossFx,seed:seedFx,shake:shakeFx,slosh:NOP,flood:NOP,glow:NOP,shimmer:NOP,scorch:NOP,erase:NOP,crystal:NOP};
+const FX={moss:mossFx,seed:seedFx,shake:shakeFx,wet:wetFx,slosh:sloshFx,flood:floodFx,
+  heat:v=>hazeFx('heat',v),shimmer:v=>hazeFx('shimmer',v),glow:v=>{glowFx(v);hazeFx('glow',v)},scorch:NOP,erase:NOP,crystal:NOP};
 const fxLv={};let fxBio='';
 const osFx={
   set(n,v){if(n==='biome'){if(v!==fxBio){osFx.clear();fxBio=v}return}if(!FX[n])return;v=+v||0;if(fxLv[n]===v)return;fxLv[n]=v;if(n==='seed'||!(WIN.game&&WIN.game.min))FX[n](v)},
@@ -2403,6 +2404,138 @@ function shakeFx(v){
   if(!v||reduce)return;
   const p=Math.max(1,Math.round(v*3));let n=0;
   shkT=setInterval(()=>{n=(n+1)%14;const on=n<4,j=()=>Math.round((Math.random()*2-1)*p);els.forEach(e=>e.style.translate=on?j()+'px '+j()+'px':'');$('#strip').classList.toggle('flk',on&&!(n&1))},45);
+}
+/* ---- Flood and Molten. The game's tab (the strip tab; on phones, where the strip is hidden, the game window's back bar)
+   holds water or heat behind its title; the desktop takes the tide or the heat haze on one canvas between the wallpaper
+   and the icons; icons and the Trash react on their own pixels. FXL is what shows (all 0 while the game is minimized).
+   Nothing here takes a pointer or covers an icon, a label or a window. Reduced motion: the same pictures, held still. ---- */
+const FXL={wet:0,slosh:0,flood:0,heat:0,shimmer:0,glow:0};
+const WTR={crest:'#8fd2ff',crestD:'#3f80b8',top:'#123e69',deep:'#0b2a4a',abyss:'#081d35',streak:'#2b6aa3',hi:'#d6f1ff',pale:'#bfe6ff'};   /* the game's water (game/floodart.js) */
+const HOT={rust:'#7a3f22',emb:'#c8742e',embL:'#e3a15c',crest:'#ffb04a',pop:'#ffe7a8'};   /* Molten's embers and lava crest (game/moltenart.js, lavaart.js) */
+const fxHash=(a,b)=>{let h=Math.imul(a|0,374761393)+Math.imul(b|0,668265263)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296};
+/* the CSS tiles, drawn once in code at 1x and shown at 2x: a water crest (line, light, dither into the body) for the tab and
+   for the Trash window (paler, under ink labels), and the heat: a dithered warm glow, dense at the bottom, and rising sparks */
+let fxTl=0;
+function fxTiles(){
+  if(fxTl)return;fxTl=1;const r=document.documentElement.style;
+  const mk=(w,h,f)=>{const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');f((i,j,col)=>{x.fillStyle=col;x.fillRect(i,j,1,1)});return `url(${c.toDataURL()})`};
+  const wave=(P,body)=>mk(16,8,p=>{for(let i=0;i<16;i++){const s=Math.round(1.5+1.5*Math.sin(i/16*Math.PI*2));
+    for(let j=s;j<8;j++){const d=j-s;p(i,j,d===0?P[0]:d===1?P[1]:d<4&&(i+j)&1?P[1]:body)}if(i===3||i===4)p(i,s,P[2])}});
+  r.setProperty('--fxww',wave([WTR.crest,WTR.crestD,WTR.hi],WTR.top));r.setProperty('--fxwb',WTR.top);
+  r.setProperty('--fxtw',wave([WTR.crestD,WTR.crest,'#FFFFFF'],WTR.pale));r.setProperty('--fxtb',WTR.pale);
+  r.setProperty('--fxhg',mk(16,32,p=>{for(let j=0;j<32;j++)for(let i=0;i<16;i++){const v=j/31;if(v*v*.9>(B4[(j&3)*4+(i&3)]+.5)/16)p(i,j,v>.85?HOT.embL:v>.6?HOT.emb:HOT.rust)}}));
+  r.setProperty('--fxht',mk(16,16,p=>{for(let k=0;k<4;k++){const i=(k*5+2)%16,j=(k*9+3)%16;p(i,j,HOT.crest);p(i,(j+1)%16,HOT.emb)}}));
+}
+/* the haze's strength: a faint floor while he is in Molten, rising with the geyser chase, flaring while a vent erupts */
+function hazeLv(){const b=Math.max(FXL.heat?.35:0,FXL.shimmer?.35+.65*FXL.shimmer:0);return b?Math.min(1,b+(FXL.glow?.35:0)):0}
+/* the tabs: water to slosh in (in the water or surfing), filled by the tide; or heat rising from the game tab's foot */
+function tabSync(){
+  const r=document.documentElement,w=Math.max(FXL.slosh?.5:0,FXL.flood?.4+.4*FXL.flood:0),hz=hazeLv(),h=hz&&!w?.3+.45*hz:0;
+  if(w||h)fxTiles();
+  r.classList.toggle('fxw',w>0);r.style.setProperty('--fxw',w.toFixed(2));
+  r.classList.toggle('fxh',h>0);r.style.setProperty('--fxh',h.toFixed(2));r.classList.toggle('fxg',!!(h&&FXL.glow));
+}
+/* the engine says 0 the moment his feet clear the line, so the water lingers a beat before it drains; a clear or a
+   minimize (osFx still holds the level when it calls with 0) drains it at once */
+let slT=0;
+function sloshFx(v){clearTimeout(slT);if(v||fxLv.slosh){FXL.slosh=v?1:0;tabSync();return}slT=setTimeout(()=>{FXL.slosh=0;tabSync()},600)}
+/* Flood: the eel's tide fills the desktop from the bottom (behind the icons, which float once it is over them) and the tab */
+function floodFx(v){if(!v&&fxLv.flood)tideH=0;   /* cleared or minimized: gone at once (the chase ending drains it) */
+  FXL.flood=v;tabSync();deskFx();tideFloat(reduce?tideTo():tideH);
+}
+/* the icons the tide's surface is over float (re-checked as it rises or drains past them) */
+let flH=-1;
+function tideFloat(h){if(Math.abs(h-flH)<6&&h)return;flH=h;const lim=desk.getBoundingClientRect().bottom-h;
+  $$('#icons .icon').forEach(b=>{const q=b.getBoundingClientRect();b.classList.toggle('fl',h>0&&!isMobile()&&q.height>0&&q.top+q.height*.45>lim)})}
+const tideTo=()=>FXL.flood>0?Math.round(desk.clientHeight*(.12+.5*FXL.flood)):0;
+/* Molten: the heat haze (heat, shimmer and glow all feed it) */
+function hazeFx(n,v){FXL[n]=v;tabSync();deskFx()}
+/* the desktop canvas: tide and haze, 12 frames a second while either shows; none on phones, where windows cover the desktop */
+let fxC=null,fxRaf=0,fxT0=0,fxLast=0,tideH=0,hzImg=null;
+function deskFx(){
+  const on=FXL.flood>0||hazeLv()>0||tideH>=1;
+  if(!on||isMobile()){if(fxC){fxC.remove();fxC=null}cancelAnimationFrame(fxRaf);fxRaf=0;tideH=0;return}
+  if(!fxC){fxC=document.createElement('canvas');fxC.className='fxd';fxC.setAttribute('aria-hidden','true');wall.after(fxC)}
+  if(reduce){deskDraw(0);return}
+  if(!fxRaf){fxT0=performance.now();fxRaf=requestAnimationFrame(deskTick)}
+}
+function deskTick(t){fxRaf=0;if(!fxC)return;if(isMobile()){deskFx();return}if(t-fxLast>=80){fxLast=t;if(!deskDraw((t-fxT0)/1000))return}fxRaf=requestAnimationFrame(deskTick)}
+function deskDraw(t){
+  const W=desk.clientWidth,Hd=desk.clientHeight,hz=hazeLv(),to=tideTo();
+  const d=to-tideH;tideH=reduce||Math.abs(d)<3?to:tideH+(d<0?Math.min(-3,Math.max(-10,d*.1)):Math.max(1,Math.min(6,d*.1)));   /* the tide comes in slowly, drains faster */
+  const bh=hz?Math.round(Hd*(.16+.44*hz)):0,H=Math.max(tideH>=1?Math.ceil(tideH)+8:0,bh);
+  if(!H||!W){if(fxC){fxC.remove();fxC=null}tideH=0;tideFloat(0);return false}
+  if(fxC.width!==W||fxC.height!==H){fxC.width=W;fxC.height=H;fxC.style.width=W+'px';fxC.style.height=H+'px'}
+  const x=fxC.getContext('2d');x.clearRect(0,0,W,H);
+  if(bh)hazeDraw(x,W,H,Hd,bh,hz,t);
+  if(tideH>=1)tideDraw(x,W,H,tideH,t);
+  tideFloat(tideH>=1?tideH:0);
+  return true;
+}
+/* the tide: a stepped surface of two travelling waves in 2px pixels, the crest line, a dithered band, the body darkening with depth */
+let tidePat=null;
+function tideDraw(x,W,H,h,t){
+  const top=H-h,n=Math.ceil(W/2)+1,sy=new Int16Array(n);
+  for(let i=0;i<n;i++)sy[i]=Math.round((top+(reduce?0:2.5*Math.sin(i*.09+t*2.4)+1.5*Math.sin(i*.031-t*1.3)))/2)*2;
+  const fill=(off,st)=>{x.fillStyle=st;x.beginPath();x.moveTo(0,H);for(let i=0;i<n;i++){x.lineTo(i*2,sy[i]+off);x.lineTo(i*2+2,sy[i]+off)}x.lineTo(W,H);x.closePath();x.fill()};
+  if(!tidePat||tidePat.h!==H){const c=document.createElement('canvas');c.width=4;c.height=H;const g=c.getContext('2d');
+    for(let j=0;j<H;j+=2)for(let i=0;i<4;i+=2){const v=j/H,th=(B4[((j>>1)&3)*4+((i>>1)&3)]+.5)/16;g.fillStyle=v>.66?(v-.66)*3>th?WTR.abyss:WTR.deep:v*1.5>th?WTR.deep:WTR.top;g.fillRect(i,j,2,2)}
+    const k=document.createElement('canvas');k.width=k.height=4;const kg=k.getContext('2d');kg.fillStyle=WTR.crestD;kg.fillRect(0,0,4,4);kg.fillStyle=WTR.top;kg.fillRect(0,0,2,2);kg.fillRect(2,2,2,2);
+    tidePat={h:H,body:x.createPattern(c,'repeat-x'),band:x.createPattern(k,'repeat')}}
+  fill(0,WTR.crest);fill(2,tidePat.band);fill(6,tidePat.body);
+  x.fillStyle=WTR.hi;const k=reduce?0:Math.floor(t*3);for(let i=0;i<n;i++)if(fxHash(i,k)<.03)x.fillRect(i*2,sy[i],2,2);
+  /* streaks drifting in the body */
+  x.fillStyle=WTR.streak;for(let s=0;s<Math.round(W/90);s++){const yy=top+12+fxHash(s,7)*(h-20),xx=((fxHash(s,9)*W+(reduce?0:t*(10+fxHash(s,3)*14)))%(W+12))-6;if(yy<H-4)x.fillRect(Math.round(xx/2)*2,Math.round(yy/2)*2,6,2)}
+}
+/* the haze: the wallpaper's bottom rows wobble sideways (real refraction of what is there), a dithered warm glow rises from
+   the bottom edge, and sparks drift up through it */
+function hazeDraw(x,W,H,Hd,bh,hz,t){
+  const y0=H-bh,A=reduce?0:1+2*hz;
+  if(A&&wall.width===W&&wall.height===Hd)for(let y=0;y<bh;y+=2){const f=y/bh,dx=Math.round(A*Math.pow(f,.8)*Math.sin((Hd-bh+y)*.13+t*3.3+Math.sin(y*.037-t*1.1)*2));
+    if(dx)x.drawImage(wall,0,Hd-bh+y,W,2,dx,y0+y,W,2)}
+  const key=W+','+bh+','+Math.round(hz*8);
+  if(!hzImg||hzImg.key!==key){const c=document.createElement('canvas');c.width=W;c.height=bh;const g=c.getContext('2d'),id=g.createImageData(W,bh),u=new Uint32Array(id.data.buffer);
+    const col=[HOT.rust,HOT.emb,HOT.embL,HOT.crest].map(h=>{const n=parseInt(h.slice(1),16);return 0xFF000000|(n&0xFF)<<16|(n&0xFF00)|(n>>16)});
+    for(let j=0;j<bh;j+=2){const f=Math.pow(j/bh,2.2),g=Math.sqrt(hz);for(let i=0;i<W;i+=2){   /* sqrt: the faint floor still reads */
+      const v=g*f*(.7+.3*Math.sin(i*.011+Math.sin(i*.0037)*3)),th=(B4[((j>>1)&3)*4+((i>>1)&3)]+.5)/16;if(v*.9<=th)continue;
+      const c=col[v>.85?3:v>.65?2:v>.4?1:0];for(let b=0;b<2&&j+b<bh;b++)for(let a=0;a<2&&i+a<W;a++)u[(j+b)*W+i+a]=c}}
+    g.putImageData(id,0,0);hzImg={key,c}}
+  x.drawImage(hzImg.c,0,y0);
+  const N=Math.round((6+34*hz)*W/1200);
+  for(let k=0;k<N;k++){const sp=14+22*fxHash(k,1),yy=bh-((t*sp+fxHash(k,2)*bh)%bh),f=yy/bh,xx=fxHash(k,3)*W+Math.sin(t*1.6+k)*5;
+    if(fxHash(k,Math.floor(t*5))>f*1.8)continue;   /* thin out as they rise */
+    x.fillStyle=f>.6?HOT.crest:f>.3?HOT.embL:HOT.emb;x.fillRect(Math.round(xx/2)*2,y0+Math.round(yy/2)*2,2,2)}
+}
+/* Molten: a vent erupts and the desktop icons glow warm orange: a ring round each icon's own silhouette, lit from below */
+function glowFx(v){
+  $$('#icons .icon').forEach(b=>{
+    const ic=$('.ic',b);let c=$('canvas.glow',ic);
+    if(!v){if(c)c.remove();return}
+    const rows=ICON[ic.dataset.ic||(b.id==='ic-wake'?'wake':'')];if(!rows||c)return;
+    c=document.createElement('canvas');c.className='glow';c.width=c.height=36;c.setAttribute('aria-hidden','true');ic.appendChild(c);
+    const x=c.getContext('2d'),on=(i,j)=>i>=0&&j>=0&&i<32&&j<32&&rows[j][i]!=='.',C=(i,j,k)=>{x.fillStyle=k;x.fillRect(i+2,j+2,1,1)};
+    let top=32,bot=0;for(let j=0;j<32;j++)for(let i=0;i<32;i++)if(on(i,j)){top=Math.min(top,j);bot=Math.max(bot,j)}
+    for(let j=-2;j<34;j++)for(let i=-2;i<34;i++){
+      if(on(i,j)){if(!on(i,j+1)&&j>(top+bot)/2)C(i,j,HOT.embL);continue}   /* rim light on his lower edges */
+      const d1=on(i-1,j)||on(i+1,j)||on(i,j-1)||on(i,j+1),d2=!d1&&(on(i-2,j)||on(i+2,j)||on(i,j-2)||on(i,j+2)||on(i-1,j-1)||on(i+1,j-1)||on(i-1,j+1)||on(i+1,j+1));
+      const lo=(j-top)/Math.max(1,bot-top);
+      if(d1)C(i,j,lo>.5?HOT.crest:HOT.embL);else if(d2&&((i+j)&1))C(i,j,lo>.5?HOT.emb:HOT.rust)}
+  });
+}
+/* Flood: the Trash fills with water. Its window: water from the items' middle down, the items bobbing at the surface; its
+   desktop icon: water inside the can, drips down its sides and a puddle at its foot */
+function wetFx(v){
+  FXL.wet=v?1:0;if(v)fxTiles();WIN.trash.el.classList.toggle('wet',!!v);
+  const ic=$('#ic-trash .ic');let c=ic&&$('canvas.wet',ic);
+  if(!v){if(c)c.remove();return}
+  if(!ic||c||!ICON.trash)return;
+  c=document.createElement('canvas');c.className='wet';c.width=c.height=36;c.setAttribute('aria-hidden','true');ic.appendChild(c);
+  const rows=ICON.trash,x=c.getContext('2d'),on=(i,j)=>i>=0&&j>=0&&i<32&&j<32&&rows[j][i]!=='.',C=(i,j,k)=>{x.fillStyle=k;x.fillRect(i+2,j+2,1,1)};
+  for(let j=17;j<=28;j++)for(let i=0;i<32;i++){if(!on(i,j)||rows[j][i]==='k')continue;
+    C(i,j,j===17?WTR.hi:j===18?WTR.crest:j<21&&(i+j)&1?WTR.crest:j<24?WTR.crestD:(i+j)&1&&j<26?WTR.crestD:WTR.streak)}
+  for(let j=28;j<=33;j++)for(let i=-2;i<34;i++){const dx=(i+.5-16)/13,dy=(j+.5-30.5)/2.2;if(dx*dx+dy*dy>1||on(i,j))continue;
+    C(i,j,j<=29?WTR.crest:(i+j)&1?WTR.crestD:WTR.streak)}
+  [[6,16],[6,19],[25,15],[25,21],[25,22]].forEach(([i,j])=>{if(!on(i,j))C(i,j,WTR.crestD)});C(6,20,WTR.crest);C(25,23,WTR.crest);
 }
 
 /* ================= Wake Up: the ending. The window finally closes, the OS reboots home, the icon goes, the door's medallion is the wallpaper ================= */
@@ -2594,7 +2727,7 @@ boot.addEventListener('pointerdown',finishBoot);
 function restart(){for(const k in WIN)if(WIN[k].open&&k!=='readme')closeWin(k);runBoot()}
 
 let rzT=0;
-addEventListener('resize',()=>{for(const k in WIN)if(WIN[k].open&&!WIN[k].min)clampWin(WIN[k].el);fitCards()});
+addEventListener('resize',()=>{for(const k in WIN)if(WIN[k].open&&!WIN[k].min)clampWin(WIN[k].el);fitCards();if(fxC||FXL.flood||FXL.heat)deskFx()});
 let wsz='';new ResizeObserver(()=>{const k=desk.clientWidth+'x'+desk.clientHeight;if(k===wsz)return;wsz=k;clearTimeout(rzT);rzT=setTimeout(buildWall,wall.width?120:0)}).observe(desk);
 
 paintMarks();stage();renderStrip();updInd();BS.mask=PREF(MASK_KEY,'0')==='1'?1:0;bRender();syncSkull();syncWake();runBoot();

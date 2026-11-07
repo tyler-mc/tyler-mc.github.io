@@ -80,7 +80,7 @@ const end=CH.endX(C);
      is dry to his middle (12 px over his feet) while the snout is still east of it: no safe perch, and no step is a trap */
   const bad=[],wet=[];let n=0;
   for(const R of FL)for(let ty=2;ty<R.h;ty++)for(let tx=0;tx<R.w;tx++){
-    const hard=c=>c==='#'||c==='='||c==='G',c=R.g[ty][tx],up=R.g[ty-1][tx],up2=R.g[ty-2][tx];if(!hard(c)||hard(up)||hard(up2)||up==='~')continue;
+    const hard=c=>c==='#'||c==='='||c==='G'||c==='X',c=R.g[ty][tx],up=R.g[ty-1][tx],up2=R.g[ty-2][tx];if(!hard(c)||hard(up)||hard(up2)||up==='~')continue;
     const X=R.at[0]+tx;if(X*T>C.from*T||X*T+T<end)continue;n++;
     const feet=(R.at[1]+ty)*T,lv=atX[X]??atX[X+1]??atX[X-1];if(lv===undefined||feet-3<=lv-C.tide.reach)bad.push(`${R.id}:${tx},${ty}`);
     const pit=R.id==='f1'&&tx>=14&&tx<=25;if(!pit&&before[X]!==undefined&&feet-12>before[X])wet.push(`${R.id}:${tx},${ty}`)}
@@ -200,6 +200,48 @@ let CLEAN=null;
     notes.push(`${R.id}:${t.tx},${t.ty}${pause?'+1s':''} ${r.ok?r.secs.toFixed(1)+'s, closest '+(Math.min(...Object.values(r.near))/T).toFixed(1)+' tiles':'FAIL '+r.stuck}`)}
   ok(all,`restarted at every torch (and hesitating 1 s per room) he clears it: ${notes.join('; ')}`);
 }
+/* ---------------- the eel's surge, its beats and the water it stirs (chases.js EEL, eelBeats; tide.js stirTide) ---------------- */
+console.log('the eel: surge, breach, snap, churn');
+{ const old=(t)=>C.tide.reach-(t<0?Math.min(1,-t/C.beat):0)*(C.tide.reach+24);
+  ok([-C.beat,-90,-60,-CH.REST,-1,0,1,500].every(t=>CH.reachOf({t},C)===old(t)),'reachOf() is the reach the hit always used (rising out of its lair over the beat and a rest; full after)');
+  /* standing at the pedestal (out of reach), through the beat and on until it reaches him */
+  const S=atPedestal();run(S,1,I({l:1}));while(!S.chase)run(S,1,I({l:1}));S.p.inv=1e6;const tl=[],xs=[];let sh=0;
+  for(let i=0;i<C.beat+400&&S.chase&&!S.p.dead;i++){const t=S.chase.t,x=S.chase.x,ev=E.step(S,I(),[]);if(!S.chase)break;for(const e of ev)if(/^eel_/.test(e))tl.push([e,S.chase.t,CH.nearness(S)]);if(S.chase.t>1)xs.push(x-S.chase.x);if(ev.includes('eel_breach'))sh=S.cam.sh}
+  const br=tl.filter(e=>e[0]==='eel_breach');
+  ok(br.length===1&&CH.reachOf({t:br[0][1]-1},C)<0&&CH.reachOf({t:br[0][1]},C)>=0&&sh>=3,`'eel_breach' once, the frame its head breaks the water (chase clock ${br[0]&&br[0][1]}, ${((C.beat+(br[0]?br[0][1]:0))/60).toFixed(2)} s into the beat), shaking the view`);
+  const sn=tl.filter(e=>e[0]==='eel_snap'),wd=tl.filter(e=>e[0]==='eel_wind');
+  ok(sn.length>=2&&sn.every(e=>e[1]%CH.EEL.surge===CH.EEL.snap&&e[2]>0)&&wd.every(e=>e[1]%CH.EEL.surge===CH.EEL.wind&&e[2]>0),`while it nears him, 'eel_wind' (rearing) and 'eel_snap' (the jaw) each surge of ${CH.EEL.surge} frames, at phases ${CH.EEL.wind} and ${CH.EEL.snap} (${wd.length} and ${sn.length} here)`);
+  ok(xs.length>2*CH.EEL.surge&&xs.every(d=>Math.abs(d-xs[0])<1e-6),`the surge is only its look: the snout moves exactly ${xs[0].toFixed(2)} px every frame through it (its speed and hit never change)`);
+  /* far from him, no snaps; after a death, no second breach (the rest is not the beat) */
+  const F=atTorch('f1',3,15);F.p.inv=1e6;F.chase.x=wx(F)+900;const fe=run(F,300,I());ok(!fe.some(e=>/^eel_/.test(e)),'far behind him (outside nearness) it makes no snap or rearing sound');
+  const D=atTorch('f2',35,15);D.p.inv=0;run(D,5,I());D.chase.x=wx(D)+D.p.w+10;D.chase.t=0;const de=run(D,120,I());ok(de.includes('die')&&!de.includes('eel_breach'),'after it catches him the restart has no breach (only the lift wakes it)');
+  /* the churn: kicks on the tide's springs near the eel and the bore, bounded, and they change no bot result */
+  const TDs={...TD.STIR};const Z=atPedestal(),zr=[];run(Z,1,I({l:1}));let mx=0;for(let i=0;i<600&&Z.chase;i++){E.step(Z,I({l:i%200<150}),[]);const T0=Z.liq&&Z.liq.tide;if(T0)mx=Math.max(mx,...T0.h.map(Math.abs))}
+  ok(mx>1&&mx<=9,`the eel churns the tide (its surface moves up to ${mx.toFixed(1)} px, inside the springs' 9 px clamp)`);
+  for(const k in TD.STIR)if(k!=='front')TD.STIR[k]=0;const A0=chaseRun(atPedestal());Object.assign(TD.STIR,TDs);const A1=chaseRun(atPedestal());
+  ok(A0.ok&&A1.ok&&Math.abs(A0.secs-A1.secs)<.5,`the bot's clean run is the same with the churn off and on (${A0.secs.toFixed(1)} s / ${A1.secs.toFixed(1)} s)`);
+}
+/* the art is honest to the hit: drawn with a recording context through the beat and two surges, nothing of the eel (spray,
+   foam and bubbles aside) lies above its reach line or west of its snout line, its front is drawn 0..4 px behind that
+   line (so where it kills him it touches him: he dies only once his box is 5 px past the line), and the face it kills
+   with is drawn from its head's top down through the water (its shadow there), as deep as he can be */
+{ const recs=[],quiet=()=>({fillStyle:'',fillRect(){},createImageData(w,h){return {data:new Uint8ClampedArray(w*h*4)}},putImageData(){}}),mkCtx=()=>({fillStyle:'',fillRect(x,y,w,h){recs.push([this.fillStyle,x,y,w,h])},drawImage(im,x,y){recs.push(['img',x,y,im.width,im.height])},save(){},restore(){},beginPath(){},rect(){},clip(){},translate(){},scale(){},
+    createPattern(){return {pat:1}},createImageData(w,h){return {data:new Uint8ClampedArray(w*h*4)}},putImageData(){}});
+  const d0=globalThis.document;globalThis.document={createElement:()=>({width:0,height:0,getContext:quiet})};   /* its cached sprites and dither tiles draw unrecorded */
+  const FA=await import(G+'floodart.js'),spray=new Set(['#e8f7ff','#9fcbe8','#8fc3e6','#4f86b4']);
+  const S=atPedestal();run(S,1,I({l:1}));while(!S.chase)run(S,1,I({l:1}));S.p.inv=1e6;const bad=[],fronts=[];let faceGap=0;
+  for(let i=0;i<C.beat+2*CH.EEL.surge;i++){E.step(S,I(),[]);const c=S.chase,R=ROOMS[S.room];if(!c||!c.on)break;const ax=R.at[0]*T,ay=R.at[1]*T,ox=Math.round(c.x-ax)-60,oy=Math.round(c.y-ay)-130;
+    recs.length=0;FA.drawEel(mkCtx(),S,R,ox,oy,S.t,false,false);const sx=Math.round(c.x-ax)-ox,top=Math.round(FA.eelGeom(c,C).top-ay)-oy,wy=Math.round(c.y-ay)-oy;
+    const body=recs.filter(r=>typeof r[0]!=='string'||!spray.has(r[0]));let west=1e9;
+    for(const [s,x,y,w,h] of body){if(y<top||x<sx)bad.push(`t${c.t}:${s}@${x-sx},${y-top}`);west=Math.min(west,x)}
+    if(top<wy-8){fronts.push(west-sx);const tx=Math.floor((c.x-ax+8)/T);let fl=wy;while(fl<wy+120&&!'#=X'.includes(R.g[Math.floor((fl+oy)/T)]?.[tx]??'#'))fl++;
+      const yEnd=Math.min(fl,wy+PH+12);for(let y=top;y+3<yEnd;y+=4)if(!body.some(([s,x,yy,w,h])=>x<=sx+6&&yy<=y+3&&yy+h>y))faceGap++}}
+  globalThis.document=d0;
+  ok(!bad.length&&fronts.length>100,`nothing of the eel is drawn above its reach or west of its snout over ${C.beat+2*CH.EEL.surge} frames${bad.length?': '+bad.slice(0,5).join(' '):''}`);
+  ok(fronts.every(v=>v>=0&&v<=4)&&Math.max(...fronts)===4&&Math.min(...fronts)===0,`its front is drawn ${Math.min(...fronts)}..${Math.max(...fronts)} px behind the hit's line (4 rearing back, 0 at the snap)`);
+  ok(!faceGap,`the face it kills with is drawn from its head's top down through the water to the floor under it, or his height below the water (within 6 px of the line in every 4 px band)${faceGap?': '+faceGap+' gaps':''}`);
+}
+
 console.log('Assist');
 { const v=(it,s)=>{const S=atPedestal(it,s);run(S,1,I({l:1}));while(!S.chase)run(S,1,I({l:1}));S.p.inv=1e6;while(S.chase.t<0)run(S,1,I());const x0=S.chase.x;run(S,60,I());return (x0-S.chase.x)/60};
   const n=v(full,0),a=v(full,1);ok(Math.abs(a/n-CH.ASSIST_SPEED)<.01,`Assist slows the eel to 70% (${n.toFixed(3)} -> ${a.toFixed(3)} px/frame)`);

@@ -3,25 +3,26 @@
    (px per frame, + is east) from the room's ents: {at:[x,y],flow:-150} on a liquid tile sets its whole connected body
    to -1.5. Everything lives in S.liq as plain numbers (snapshot/restore, the Undo ring later), stepped at the fixed
    60 Hz with no randomness, and rebuilt on room entry (never saved). Gameplay reads the surface and the flow; splashes,
-   droplets and current streaks are the renderer's. Liquid-agnostic: lava (M4) is another char in isLiq. No DOM. */
+   droplets and current streaks are the renderer's. Liquid-agnostic: lava ('L', Molten) is another char in isLiq. A surface is
+   one char's run (water and lava never share one); a lava surface carries lava:1 and is thicker (its ripples die faster). No DOM. */
 import {T} from './state.js';
 
-export const CW=2,isLiq=c=>c==='~';
+export const CW=2,isLiq=c=>c==='~'||c==='L',isLava=c=>c==='L';
 /* K: spring to rest, D: damping, SP: spread to neighbours per pass, MAXH: the clamp (px) */
-const K=.03,D=.04,SP=.2,MAXH=9,EPS=1e-4;
+const K=.03,D=.04,DL=.16,SP=.2,MAXH=9,EPS=1e-4;
 const liqAt=(R,tx,ty)=>!!(R.g[ty]&&isLiq(R.g[ty][tx]));
 
-/* S.liq for a room: {s:[{tx,ty,n,h,v}] surfaces, flow:{tile index:px per frame}, wet:his feet were under (0/1)} */
+/* S.liq for a room: {s:[{tx,ty,n,h,v,lava?}] surfaces, flow:{tile index:px per frame}, wet:his feet were under (0/1)} */
 export function newLiquid(R,ents=[]){
   const s=[],flow={};
   for(let ty=0;ty<R.h;ty++)for(let tx=0;tx<R.w;){
     if(!liqAt(R,tx,ty)||liqAt(R,tx,ty-1)){tx++;continue}
-    let e=tx;while(e<R.w&&liqAt(R,e,ty)&&!liqAt(R,e,ty-1))e++;
-    const n=(e-tx)*T/CW;s.push({tx,ty,n,h:Array(n).fill(0),v:Array(n).fill(0)});tx=e;
+    const ch=R.g[ty][tx];let e=tx;while(e<R.w&&R.g[ty][e]===ch&&!liqAt(R,e,ty-1))e++;
+    const n=(e-tx)*T/CW;s.push({tx,ty,n,h:Array(n).fill(0),v:Array(n).fill(0),...(isLava(ch)?{lava:1}:{})});tx=e;
   }
   for(const en of ents){if(!en.flow||!liqAt(R,en.at[0],en.at[1]))continue;
-    const q=[[en.at[0],en.at[1]]],f=en.flow/100;
-    while(q.length){const [x,y]=q.pop(),k=y*R.w+x;if(k in flow||!liqAt(R,x,y))continue;flow[k]=f;q.push([x+1,y],[x-1,y],[x,y+1],[x,y-1])}}
+    const q=[[en.at[0],en.at[1]]],f=en.flow/100,ch=R.g[en.at[1]][en.at[0]];
+    while(q.length){const [x,y]=q.pop(),k=y*R.w+x;if(k in flow||!liqAt(R,x,y)||R.g[y][x]!==ch)continue;flow[k]=f;q.push([x+1,y],[x-1,y],[x,y+1],[x,y-1])}}
   return {s,flow,wet:0};
 }
 
@@ -60,8 +61,8 @@ function bodies(S,R,ev){
 export function stepLiquid(S,R,ev=[]){
   const L=S.liq;if(!L)return;
   bodies(S,R,ev);
-  for(const s of L.tide?[...L.s,L.tide]:L.s){const h=s.h,v=s.v,n=s.n;
-    for(let i=0;i<n;i++)v[i]+=-K*h[i]-D*v[i]+SP*((i?h[i-1]:h[i])+(i<n-1?h[i+1]:h[i])-2*h[i]);   /* ripples spread both ways */
+  for(const s of L.tide?[...L.s,L.tide]:L.s){const h=s.h,v=s.v,n=s.n,d=s.lava?DL:D;
+    for(let i=0;i<n;i++)v[i]+=-K*h[i]-d*v[i]+SP*((i?h[i-1]:h[i])+(i<n-1?h[i+1]:h[i])-2*h[i]);   /* ripples spread both ways */
     for(let i=0;i<n;i++){h[i]+=v[i];if(h[i]>MAXH)h[i]=MAXH;else if(h[i]<-MAXH)h[i]=-MAXH;if(Math.abs(h[i])<EPS&&Math.abs(v[i])<EPS){h[i]=0;v[i]=0}}
   }
 }

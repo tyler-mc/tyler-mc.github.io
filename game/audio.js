@@ -1,6 +1,6 @@
 /* Synthesized Web Audio only. Nothing plays until unlock() runs inside a user gesture. */
 export function createAudio(muteKey){
-  let ac=null,master=null,sfxBus=null,crk=null,rmb=null,rst=null,hush=null,ambs={},cur=null,muted=false,drip=0;
+  let ac=null,master=null,sfxBus=null,crk=null,rmb=null,rst=null,roar=null,roarF=null,hush=null,ambs={},cur=null,muted=false,drip=0,near=0;
   try{muted=localStorage.getItem(muteKey)==='1'}catch(_){}
   const now=()=>ac.currentTime;
   function buf(sec,fill){const b=ac.createBuffer(1,Math.floor(ac.sampleRate*sec),ac.sampleRate),d=b.getChannelData(0);fill(d,ac.sampleRate);return b}
@@ -37,6 +37,12 @@ export function createAudio(muteKey){
         const c=src(cb,true),cf2=ac.createBiquadFilter();cf2.type='bandpass';cf2.frequency.value=1800;cf2.Q.value=.7;rst=ac.createGain();rst.gain.value=0;
         const tr=ac.createGain();tr.gain.value=.6;const lo=ac.createOscillator(),lg=ac.createGain();lo.frequency.value=7;lg.gain.value=.4;lo.connect(lg).connect(tr.gain);
         c.connect(cf2).connect(tr).connect(rst);rst.connect(master);c.start();lo.start()}
+      /* the eel's tide (Flood chase): a roar of deep water, brown noise through a low-pass that opens as the eel nears, its
+         loudness heaving slowly like a swell; rumble(v) drives it in the tide's rooms in place of the thorns' rustle */
+      {const rb=buf(4,d=>{let l=0;for(let i=0;i<d.length;i++){l=(l+.02*(Math.random()*2-1))/1.02;d[i]=l*3.5}});
+        const s=src(rb,true);roarF=ac.createBiquadFilter();roarF.type='lowpass';roarF.frequency.value=160;roarF.Q.value=.8;
+        const sw=ac.createGain();sw.gain.value=.7;const lo=ac.createOscillator(),lg=ac.createGain();lo.frequency.value=.32;lg.gain.value=.3;lo.connect(lg).connect(sw.gain);
+        roar=ac.createGain();roar.gain.value=0;s.connect(roarF).connect(sw).connect(roar);roar.connect(master);s.start();lo.start()}
       /* the hush: three sines (open fifths) with slow swells, silent until he sits on a perch (hush(v)) */
       {const hg=ac.createGain();hg.gain.value=0;hg.connect(master);
         [98,147,196].forEach((f,i)=>{const o=ac.createOscillator(),og=ac.createGain(),l=ac.createOscillator(),lg=ac.createGain();o.type='sine';o.frequency.value=f*(1+i*.002);og.gain.value=.5/(i+1);
@@ -94,6 +100,8 @@ export function createAudio(muteKey){
       for(let i=0;i<3;i++){const o=ac.createOscillator(),o2=ac.createOscillator(),g=ac.createGain(),a=t+.12+i*.5;o.type='sine';o2.type='sine';o.frequency.value=110;o2.frequency.value=165.5;
         g.gain.setValueAtTime(0,a);g.gain.linearRampToValueAtTime(.16-i*.04,a+.12);g.gain.exponentialRampToValueAtTime(.0001,a+.75);o.connect(g);o2.connect(g);g.connect(sfxBus);o.start(a);o2.start(a);o.stop(a+.8);o2.stop(a+.8)}},
     door:()=>{const t=now();tone('sine',55,40,2.5,.5,t);noise(2.4,.35,'lowpass',400,60,1,t)},
+    /* a seal giving way a beat after its fragment sets (engine door()): the door's low rumble, short, under a rubble slide */
+    unseal:()=>{const t=now();tone('sine',60,38,1.1,.45,t);noise(1,.32,'lowpass',500,70,1,t);noise(.5,.3,'lowpass',1300,140,1,t+.12)},
     /* Flood: the board's whoosh, a wave as it lands on water, a splash in; the crab's shell clack and pinch; the fish's
        bump, its swelling turn, the lunge and the calm after */
     dash:()=>{noise(.18,.22,'bandpass',900,3200,1.2);tone('sine',180,320,.12,.05)},
@@ -108,6 +116,30 @@ export function createAudio(muteKey){
     hunt:()=>noise(.4,.15,'lowpass',500,900,1),
     lunge:()=>{tone('square',200,60,.18,.18);noise(.12,.25,'lowpass',1200,200)},
     calm:()=>tone('sine',500,700,.15,.06),
+    /* the eel (chases.js eelBeats), louder the nearer it is: its head breaking out of the lair (a deep boom, a crash of
+       water, a growl); rearing for a lunge (a rising growl, the telegraph); its jaw slamming shut (a click, a thud, a splash) */
+    eel_breach:()=>{const t=now();tone('sine',70,30,1.3,.55,t);noise(1,.5,'lowpass',2200,200,1,t);noise(1.4,.28,'bandpass',420,140,1.4,t+.05);tone('sawtooth',58,38,1.1,.1,t+.08)},
+    eel_wind:()=>{const k=Math.max(.35,near);noise(.5,.2*k,'bandpass',180,720,1.6);tone('sawtooth',46,72,.5,.08*k)},
+    eel_snap:()=>{const k=Math.max(.35,near);tone('square',1700,280,.035,.2*k);tone('sine',150,42,.28,.5*k);noise(.32,.26*k,'lowpass',1600,220,1,now()+.02)},
+    /* Molten: the board burning on lava, the save jump off it; the claws biting a wall, a vine shooting up, the wall jump,
+       a crack ticking under the drill and the wall crumbling */
+    burn:()=>{noise(.5,.3,'highpass',1500,5000,.8);tone('sawtooth',160,60,.35,.06)},
+    savejump:o=>{const k=vary(o,.04);tone('square',300*k,640*k,.1,.09)},
+    cling:()=>noise(.06,.12,'bandpass',2600,1400,2),
+    vine:()=>{noise(.5,.06,'bandpass',600,1800,1.5);tone('sine',220,330,.4,.04)},
+    walljump:o=>{const k=vary(o,.06);tone('square',300*k,560*k,.08,.08);noise(.05,.08,'bandpass',2000,900,2)},
+    crack:()=>{tone('square',1400,900,.02,.07);noise(.04,.1,'highpass',3000,2000)},
+    drill:()=>{noise(.45,.35,'lowpass',1200,120,1);tone('sine',90,40,.3,.3)},
+    /* Molten creatures and vents (game/cinders.js, geysers.js; a vent's only when it is near him): a vent cracking and hissing as it
+       starts to steam, its eruption (a low whump under a roar of spray), a dormant vent's soft sigh; an ember snuffed
+       and relit; the slag beetle's shell knocked open and grinding shut */
+    geyser_crack:()=>{tone('square',900,500,.03,.06);noise(.8,.12,'highpass',2500,6000,.7)},
+    geyser_erupt:()=>{tone('sine',70,35,.4,.4);noise(.9,.35,'bandpass',500,2400,.6);noise(.6,.15,'highpass',4000,1500,.8,now()+.1)},
+    geyser_puff:()=>noise(.5,.04,'highpass',2000,4000,.6),
+    ember_out:()=>{noise(.4,.18,'highpass',3000,800,.8);tone('sine',300,120,.2,.04)},
+    ember_lit:()=>{noise(.25,.12,'bandpass',800,2600,1);tone('triangle',180,360,.15,.05)},
+    beetle_open:()=>{tone('square',220,110,.08,.14);noise(.12,.2,'lowpass',900,200,1.2)},
+    beetle_shut:()=>{tone('triangle',140,260,.12,.08);noise(.1,.1,'bandpass',1200,600,1.5)},
   };
   return {
     unlock,
@@ -117,8 +149,10 @@ export function createAudio(muteKey){
     crackle(v){if(crk)crk.gain.setTargetAtTime(v*.9,now(),.1)},
     /* v: how far the hush has swelled, 0..1 (0 = silent) */
     hush(v){if(hush)hush.gain.setTargetAtTime(v*.16,now(),.8)},
-    /* v: the thorn wall's nearness 0..1 (0 = silent) */
-    rumble(v){if(!rmb)return;rmb.gain.setTargetAtTime(v*.9,now(),.15);rst.gain.setTargetAtTime(v*v*.5,now(),.1)},
+    /* v: the thorn wall's (the eel's) nearness 0..1 (0 = silent) */
+    rumble(v){if(!rmb)return;near=v;const w=cur==='tide';   /* in the Flood the eel's tide roars and builds in place of the thorns' rustle */
+      rmb.gain.setTargetAtTime(v*(w?.5:.9),now(),.15);rst.gain.setTargetAtTime(w?0:v*v*.5,now(),.1);
+      roar.gain.setTargetAtTime(w?v*1.1:0,now(),.25);roarF.frequency.setTargetAtTime(140+760*v*v,now(),.3)},
     amb(name){
       if(!ac)return;
       if(name!==cur){for(const k in ambs)ambs[k].gain.setTargetAtTime(k===name?(k==='cave'?.5:.35):0,now(),.6);cur=name}

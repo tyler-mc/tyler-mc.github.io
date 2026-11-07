@@ -1,6 +1,6 @@
 /* Wake Up: engine. Fixed 60 Hz step, tile collision, camera, input, save. mount(el, opts) embeds the game anywhere.
    The world step (step, move, solid) touches no DOM, so it runs under node for tests. */
-import {T,VW,VH,MUTE_KEY,ASSIST_KEY,PIECES,DOOR,STUCK,PERCH,newState,snapshot,restore,save,load,clearSave,resume} from './state.js';
+import {T,VW,VH,MUTE_KEY,ASSIST_KEY,PIECES,DOOR,STUCK,PERCH,newState,snapshot,restore,save,load,clearSave,resume,items} from './state.js';
 import {ROOMS,ORDER,CHASES,NEXT,roomAtTile,perchOf} from './rooms/index.js';
 import {startChase,stepChase,resetChase,nearness,progress} from './chases.js';
 import {DISC} from './door.js';
@@ -9,8 +9,10 @@ import {spawnEnemies,stepEnemies,WRAP} from './enemies.js';
 import {createRenderer} from './render.js';
 import {createAudio} from './audio.js';
 import {bumpStep} from './bump.js';
-import {newLiquid,stepLiquid} from './liquid.js';
+import {newLiquid,stepLiquid,isLiq,inTide} from './liquid.js';
+import {stepVines,isDrilled} from './claws.js';   /* Molten: vines grow and wither; drilled cracked walls (game/claws.js) */
 import {floodTouch} from './fish.js';
+import {cinderTouch} from './cinders.js';   /* Molten: embers, slag beetles, geyser columns */
 import {DBUF,BDEMO,boardDemo} from './board.js';
 export {T,VW,VH};
 
@@ -26,11 +28,18 @@ export function tile(R,tx,ty){
   const wx=R.at[0]+tx,wy=R.at[1]+ty,N=roomAtTile(wx,wy);
   return N?N.g[wy-N.at[1]][wx-N.at[0]]:null;
 }
+/* a seal (rubble with ent opens:<biome>, rooms/index.js R.seals) is open once fragment k is in the door, from DOOR.crumble
+   frames after it lands (door() sends 'unseal' then). Read from S.placed, so old saves and restore() agree, and it never shuts again */
+export const sealOpen=(S,b)=>{const k=PIECES.indexOf(b);return k>=0&&!!(S.placed&&S.placed[k])&&!(S.slot&&S.slot.k===k&&S.slot.t<DOOR.fly+DOOR.crumble)};   /* b: the biome in opens */
+function sealed(S,R,tx,ty){
+  let N=R,x=tx,y=ty;if(tx<0||ty<0||tx>=R.w||ty>=R.h){N=roomAtTile(R.at[0]+tx,R.at[1]+ty);if(!N)return true;x=R.at[0]+tx-N.at[0];y=R.at[1]+ty-N.at[1]}
+  const k=N.seals?N.seals[x+','+y]:undefined;return k===undefined||!sealOpen(S,k);
+}
 export function solid(S,R,tx,ty){
   const out=tx<0||ty<0||tx>=R.w||ty>=R.h;
   if(out&&R.id==='hub'&&!S.lit)return true;
   const c=tile(R,tx,ty);
-  return c===null||c==='#'||c==='='||(c==='G'&&(out||S.gate<.5));
+  return c===null||c==='#'||(c==='='&&sealed(S,R,tx,ty))||(c==='G'&&(out||S.gate<.5))||(c==='X'&&(out||!isDrilled(S,tx,ty)));   /* X: cracked rock, till drilled */
 }
 function hits(S,R,b,boxes){
   const o=[],x0=Math.floor(b.x/T),x1=Math.ceil((b.x+b.w)/T)-1,y0=Math.floor(b.y/T),y1=Math.ceil((b.y+b.h)/T)-1;
@@ -63,6 +72,7 @@ export function spot(S,R,tx,ty){
 export function enterRoom(S,id,pos){
   const R=ROOMS[id],p=S.p;
   S.room=id;S.ens=spawnEnemies(R);S.liq=newLiquid(R,R.flows);S.gate=S.latch&&S.latch[id]?1:0;S.plate=0;S.roots=[];S.flash=-1;S.sit=0;S.still=0;
+  S.vines=[];S.drilled=[];S.drillNow=[];S.crack=null;p.cl=0;p.cv=0;   /* Molten: vines and drilled walls are this visit's */
   if(pos){p.x=pos.x;p.y=pos.y;p.vx=0;p.vy=0}
   p.on=-1;camera(S,R,1);
 }
@@ -70,7 +80,7 @@ const hubTorch=()=>{const t=ROOMS.hub.torches[0];return {room:'hub',tx:t.tx,ty:t
 function respawn(S,ev){
   const cp=S.cp||hubTorch(),R=ROOMS[cp.room],p=S.p;
   enterRoom(S,cp.room,spot(S,R,cp.tx,cp.ty));
-  p.dead=0;p.rez=12;p.inv=45;p.ground=0;p.coy=0;p.buf=0;p.carry=0;p.demo=0;p.jq=0;p.dt=0;p.surf=0;p.bo=0;p.mo=0;p.db=0;p.bd=0;ev.push('rez');   /* no dash, surf or board demo carries over */
+  p.dead=0;p.rez=12;p.inv=45;p.ground=0;p.coy=0;p.buf=0;p.carry=0;p.demo=0;p.jq=0;p.dt=0;p.surf=0;p.bo=0;p.mo=0;p.db=0;p.bd=0;p.sj=0;p.burn=0;p.cl=0;p.cv=0;p.vc=0;p.wj=0;ev.push('rez');   /* no dash, surf, burn, cling or board demo carries over */
   resetChase(S);   /* a running chase restarts a fair gap behind this torch (game/chases.js) */
 }
 function die(S,ev,src){const p=S.p;if(p.dead||p.inv)return;p.dead=18;p.gl=18;p.vx=0;p.vy=0;S.flash=src;ev.push('die')}
@@ -82,7 +92,7 @@ function camera(S,R,snap){
      higher pushes the window's top. One continuous value, so a new higher ground is reached by easing, never by a jump.
      Feet in water: he floats and never lands, so it follows him as before */
   if(snap||c.gy==null){c.gy=p.y;c.gt=0}
-  else{const wet=tile(R,Math.floor((p.x+PW/2)/T),Math.floor((p.y+PH-1)/T))==='~';
+  else{const wet=isLiq(tile(R,Math.floor((p.x+PW/2)/T),Math.floor((p.y+PH-1)/T)));
     c.gy=wet||p.y>c.gy?p.y:Math.min(c.gy,p.y+44);c.gt=p.ground?Math.min(c.gt+1,7):0;
     if(c.gt>6)c.gy=Math.abs(p.y-c.gy)<.5?p.y:c.gy+(p.y-c.gy)*.06}   /* 6 frames on the ground, then ease 6% a frame to him */
   const lead=FEEL.LEAD?clamp(p.vx*8,-16,16):p.face*12,
@@ -132,9 +142,10 @@ function demo(p){
   return i;
 }
 function spikeRect(R,tx,ty){
-  const s=(x,y)=>{const c=tile(R,x,y);return c===null||c==='#'||c==='='},x=tx*T,y=ty*T;
+  const s=(x,y)=>{const c=tile(R,x,y);return c===null||c==='#'||c==='='||c==='X'},x=tx*T,y=ty*T;
   return s(tx,ty+1)?{x:x+1,y:y+6,w:10,h:6}:s(tx,ty-1)?{x:x+1,y,w:10,h:6}:s(tx-1,ty)?{x,y:y+1,w:6,h:10}:s(tx+1,ty)?{x:x+6,y:y+1,w:6,h:10}:{x:x+2,y:y+2,w:8,h:8};
 }
+export const LAVA=3;
 export const pedRect=f=>({x:f.tx*T-4,y:f.ty*T-24,w:T+8,h:T+24});
 function touch(S,R,ev){
   const p=S.p;
@@ -145,7 +156,7 @@ function touch(S,R,ev){
     if(!S.torches[key]){S.torches[key]=1;ev.push('light')}
     if(!S.cp||S.cp.room!==R.id||S.cp.tx!==t.tx||S.cp.ty!==t.ty){S.cp={room:R.id,tx:t.tx,ty:t.ty};ev.push('cp')}
   }
-  for(const it of R.items)if(!S.items[it.id]&&ov(p,trect(it.tx,it.ty))){S.items[it.id]=1;if(it.id==='root'){p.root=1;p.demo=1}else{p.dc=1;if(it.id==='board')p.bd=1}ev.push('item')}   /* each shows its move (demo(), board.js boardDemo) */
+  for(const it of R.items)if(!S.items[it.id]&&ov(p,trect(it.tx,it.ty))&&!(it.id==='forged'&&!S.items.board)){S.items[it.id]=1;if(it.id==='root'){p.root=1;p.demo=1}else{p.dc=1;if(it.id==='board'||it.id==='forged')p.bd=1}ev.push('item')}   /* each shows its move (demo(), board.js boardDemo); the forged board waits for the board */
   /* a fragment on its pedestal (it rests above the tile): walking into it lifts it, and its biome's chase wakes */
   for(const f of R.pedestals){const k=PIECES.indexOf(f.piece);if(k<0||S.pieces[k]||!ov(p,pedRect(f)))continue;
     S.pieces[k]=1;S.cam.sh=3;ev.push('piece');if(CHASES[f.piece]&&!(S.chase&&S.chase.on))startChase(S,f.piece,ev)}
@@ -166,13 +177,16 @@ function touch(S,R,ev){
   if(p.dead)return;
   const x0=Math.floor(p.x/T),x1=Math.floor((p.x+p.w)/T),y0=Math.floor(p.y/T),y1=Math.floor((p.y+p.h)/T);
   for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++)if(R.g[ty]&&R.g[ty][tx]==='^'&&ov(ins(p,2),spikeRect(R,tx,ty)))return die(S,ev,[tx,ty]);
+  /* lava: touching it glitches him out, from LAVA px under its line (a forged board's surf rides above that) */
+  if(!(p.surf&&S.items.forged&&S.items.board))for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++)if(R.g[ty]&&R.g[ty][tx]==='L'){const top=R.g[ty-1]&&R.g[ty-1][tx]==='L'?0:LAVA;
+    if(ov(ins(p,2),{x:tx*T,y:ty*T+top,w:T,h:T-top}))return die(S,ev,'lava')}
 }
 function transition(S,R){
   const p=S.p,cx=p.x+PW/2,cy=p.y+PH/2;
   if(cx>=0&&cy>=0&&cx<R.w*T&&cy<R.h*T)return;
   const N=roomAtTile(R.at[0]+Math.floor(cx/T),R.at[1]+Math.floor(cy/T));
   if(!N||N===R){p.x=clamp(p.x,-PW/2,R.w*T-PW/2);p.y=clamp(p.y,-PH/2,R.h*T-PH/2);return}
-  p.x+=(R.at[0]-N.at[0])*T;p.y+=(R.at[1]-N.at[1])*T;
+  p.x+=(R.at[0]-N.at[0])*T;p.y+=(R.at[1]-N.at[1])*T;p.wy+=(R.at[1]-N.at[1])*T;
   enterRoom(S,N.id);
 }
 /* ---------- the door: a carried fragment flies into its slot ---------- */
@@ -181,6 +195,7 @@ function door(S,R,inp,ev){
   const p=S.p,sl=S.slot;
   if(sl){
     if(++sl.t===DOOR.fly){S.placed[sl.k]=1;S.cam.sh=2;ev.push('place');if(S.placed.every(Boolean)&&!S.door){S.door=1;S.doorT=0;ev.push('door')}}
+    if(sl.t===DOOR.fly+DOOR.crumble&&ORDER.some(id=>ROOMS[id].seals&&Object.values(ROOMS[id].seals).includes(PIECES[sl.k]))){S.cam.sh=3;ev.push('unseal')}   /* the rubble it seals crumbles (sealOpen) */
     if(sl.t>=DOOR.fly+DOOR.pulse)S.slot=null;
     if(sl.t<DOOR.fly)return {...inp,l:0,r:0,j:0,jp:0};   /* he stands and watches it go */
   }
@@ -216,6 +231,7 @@ function stuck(S,ev){
 export function step(S,inp,ev=[]){
   let R=ROOMS[S.room];const p=S.p;
   S.t++;
+  if(S.drillNow&&S.drillNow.length)S.drillNow=[];   /* a drill's tiles show for the one step it lands (game/claws.js) */
   if(S.say){S.say.n++;if(--S.say.t<=0)S.say=null}
   if(S.cam.sh>0)S.cam.sh=Math.max(0,S.cam.sh-.25);
   if(S.mode==='intro'){intro(S,R,ev);return ev}
@@ -239,6 +255,7 @@ export function step(S,inp,ev=[]){
   }else{
     if(p.carry){p.carry=0;p.vx=0;p.vy=0}
     stepPlayer(S,R,p.demo?demo(p):p.bd?boardDemo(p):p.jq&&!inp.jp?{...inp,jp:1}:inp,ev,solids(S));
+    stepVines(S);   /* Molten: vines grow and wither (game/claws.js) */
     {const wd=inp.l&&!inp.r?-1:inp.r&&!inp.l?1:0;bumpStep(S,!!(wd&&p.ground&&!p.dead&&!p.demo&&!p.bd&&hits(S,R,{x:p.x+wd,y:p.y,w:p.w,h:p.h},[]).length),'walk',ev)}   /* walked into one */
   }
   p.jq=0;
@@ -246,6 +263,7 @@ export function step(S,inp,ev=[]){
   burst(S,ev);
   if(S.mode==='dark')S.idle=inp.any||inp.drag?0:S.idle+1;
   {const c=floodTouch(S,R,inp,ev);if(c>=0)die(S,ev,c)}   /* rams, pinches, knocks, a piranha's chomp, shell pushes (game/fish.js) */
+  {const c=cinderTouch(S,R,ev);if(c>=0)die(S,ev,c)}   /* vines smother embers, drills open beetles; an ember, a beetle or an eruption (game/cinders.js) */
   touch(S,R,ev);
   stepLiquid(S,R,ev);   /* ripples (game/liquid.js) */
   if(!p.dead)transition(S,R);
@@ -291,10 +309,38 @@ const ICON={l:px('M3 7h1V6h1V5h1V4h1V3h1v8H7v-1H6V9H5V8H4V7z'),r:px('M6 3h1v1h1v
 /* the board: Shift, X or K (L and M are kept for Undo and the map) */
 export const keyOf=c=>({ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d',Space:'j',ShiftLeft:'b',ShiftRight:'b',KeyX:'b',KeyK:'b'})[c];
 
+/* The OS's fourth-wall levels for this frame (pure; no clock, no randomness): {biome, ...} with only the biome's own keys.
+   Every level is coarse (0/1 or quarters) so the host restarts its effects rarely. mount() sends each one through
+   onFx when it changes. */
+const RT=ORDER.filter(id=>ROOMS[id].biome==='roots').flatMap(id=>ROOMS[id].torches.map(t=>id+':'+t.tx+','+t.ty));
+export function fxLevels(S){
+  const R=ROOMS[S.room],bio=R.biome,o={biome:bio},q=v=>Math.round(v*4)/4;
+  if(S.items.root)o.seed=1;
+  if(bio==='roots')o.moss=Math.round(Math.max(.2,RT.filter(k=>S.torches[k]).length/Math.max(1,RT.length))*20)/20;
+  o.shake=q(nearness(S));   /* a chase trembles the desktop harder as the thorns close in */
+  if(bio==='flood'){
+    const p=S.p,cx=p.x+PW/2,cy=p.y+PH/2,c=(R.g[Math.floor(cy/T)]||'')[Math.floor(cx/T)];
+    o.wet=1;   /* the Trash is full of water from the first Flood room */
+    o.slosh=p.surf||(S.liq&&S.liq.wet)||inTide(S.liq,cx,cy)||c==='~'?1:0;   /* in the water or surfing it: the game's tab sloshes */
+    o.flood=S.chase&&S.chase.id==='flood'?q(progress(S)):0;   /* the tide fills the desktop */
+  }
+  if(bio==='molten'){
+    o.heat=1;   /* a faint heat haze from the first Molten room */
+    o.shimmer=S.chase&&S.chase.on&&CHASES[S.chase.id]&&CHASES[S.chase.id].kind==='geyser'?q(progress(S)):0;
+    o.glow=S.ens.some(e=>e.k==='vent'&&e.st===2)?1:0;
+  }
+  return o;
+}
+
 /* opts: dev, keyTarget, isActive(), look, assist (bool; default the tos_assist pref), onTorch({restored,warp}),
    onEvent(name,data): 'torch', 'item' {name}, 'piece' {biome}, 'place' {biome}, 'chase_start', 'chase_done', 'door' (all four set),
-   onFx(name,level): 'biome', 'moss', 'seed', 'shake' (0..1 in quarters while thorns or the eel chase him), 'flood' (in Flood:
-   how far the eel's tide has come, 0..1 in quarters, 0 once it is over),
+   onFx(name,level), from fxLevels(): 'biome', 'moss', 'seed', 'shake' (0..1 in quarters while thorns or the eel chase him),
+   in Flood 'wet' (1: the Trash fills with water), 'slosh' (1 while he is in the water or surfing it, else 0) and 'flood'
+   (how far the eel's tide has come, 0..1 in quarters, 0 once it is over), and in Molten 'heat' (1: a faint heat haze),
+   'shimmer' (how far he has come through the geyser chase, 0..1 in quarters, 0 outside it; the haze grows with it) and
+   'glow' (1 while a vent in his room erupts, else 0: the desktop icons glow, the haze flares). A new 'biome' means the
+   host clears every effect but the seed; keys a biome does not send are 0 there.
+   'shake' in the geyser chase is how near a cracking or erupting vent is,
    onDone({restored}): once, after the door has finished opening (or on mount when a save has it open already); the host
    runs the ending from there (os.js: finishGame). The game never fires onEvent('done') itself. */
 export function mount(el,opts={}){
@@ -398,7 +444,6 @@ export function mount(el,opts={}){
   }
   /* host hooks: onEvent(name,data) for item/piece/torch, onFx(name,level) for the OS's fourth-wall effects; each sent only when it changes */
   const PIECE=['roots','flood','molten','crystals'],emit=(n,d={})=>opts.onEvent&&opts.onEvent(n,d);
-  const RT=ORDER.filter(id=>ROOMS[id].biome==='roots').flatMap(id=>ROOMS[id].torches.map(t=>id+':'+t.tx+','+t.ty));
   let seenI={...S.items},seenP=S.pieces.slice();const fxS={};
   const fx=(n,v)=>{if(fxS[n]!==v){fxS[n]=v;opts.onFx&&opts.onFx(n,v)}};
   function hooks(){
@@ -406,11 +451,8 @@ export function mount(el,opts={}){
     S.pieces.forEach((v,i)=>{if(v&&!seenP[i])emit('piece',{biome:PIECE[i]})});
     seenI={...S.items};seenP=S.pieces.slice();
     if(!opts.onFx||!S.lit)return;
-    const bio=ROOMS[S.room].biome;if(fxS.biome!==bio)for(const k in fxS)if(k!=='seed')delete fxS[k];fx('biome',bio);
-    if(S.items.root)fx('seed',1);
-    if(bio==='roots')fx('moss',Math.round(Math.max(.2,RT.filter(k=>S.torches[k]).length/Math.max(1,RT.length))*20)/20);
-    fx('shake',Math.round(nearness(S)*4)/4);   /* a chase trembles the desktop harder as the thorns close in (quarters, so os.js restarts rarely) */
-    if(bio==='flood')fx('flood',S.chase&&S.chase.id==='flood'?Math.round(progress(S)*4)/4:0);   /* the tide fills the desktop (os.js) */
+    const L=fxLevels(S);if(fxS.biome!==L.biome)for(const k in fxS)if(k!=='seed')delete fxS[k];
+    for(const k in L)fx(k,L[k]);   /* 'biome' first (object order), so os.js clears the last biome's effects before the new ones */
   }
   function sound(){
     const R=ROOMS[S.room];
@@ -467,7 +509,7 @@ export function mount(el,opts={}){
       const R=ROOMS[id],t=R.torches[R.torches.length-1];enterRoom(S,id,spot(S,R,t.tx,t.ty));
       if(!lit0&&opts.onTorch)opts.onTorch({restored:false,warp:true});
     },
-    grant(k,v){S.items[k]=v?1:0;if(v&&k==='root')S.p.root=1;if(v&&k==='board')S.p.dc=1;save(S)},   /* the item's charge: the root jump, the dash */
+    grant(k,v){S.items[k]=v?1:0;if(v&&k==='root')S.p.root=1;if(v&&k==='board')S.p.dc=1;S.items=items(S.items);save(S)},   /* no forged board without the board */   /* the item's charge: the root jump, the dash */
     piece(i,v){S.pieces[i]=v?1:0;if(!v)S.placed[i]=0;save(S)},
     place(i,v){S.placed[i]=v?1:0;if(v)S.pieces[i]=1;S.door=S.placed.every(Boolean)?1:0;S.doorT=S.door?999:0;save(S)},
     assist(v){setAssist(v)},

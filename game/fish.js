@@ -16,7 +16,7 @@ import {FEEL} from './player.js';
 /* crab: shell frames, the last of them a wobble, push speed, walk speed, a tease's reach (centre to centre). fish: swim speed, knocks to turn, piranha tell,
    chase and lunge frames, chase speed, lunge speed, the reach that starts a lunge, and the rest after it */
 export const CRAB={shell:300,wob:60,push:1,sp:.35,tease:120},FISH={sp:.45,knocks:3,tell:40,chase:150,lunge:16,cv:1.15,lv:3.4,reach:24,rest:60};
-const hard=c=>c===null||c==='#'||c==='='||c==='G';
+const hard=c=>c===null||c==='#'||c==='='||c==='G'||c==='X';
 const at=(R,x,y)=>{const r=R.g[Math.floor(y/T)];return r?r[Math.floor(x/T)]??null:null};
 const wetPt=(R,x,y)=>isLiq(at(R,x,y));
 
@@ -84,7 +84,7 @@ export function floodTouch(S,R,inp,ev){
   const hb={x:p.x+3,y:p.y+3,w:p.w-6,h:p.h-6},away=e=>p.x+9<e.x+e.w/2?-1:1;
   let hit=-1;
   S.ens.forEach((e,i)=>{
-    if(!e.soft)return;
+    if(!e.soft||e.mol)return;   /* Molten's: game/cinders.js */
     if(e.k==='crab'){
       if(e.tz===1&&!e.wrap){const land=p.ground&&!e.pg;e.pg=p.ground?1:0;   /* the tease: his first landing near it, no board yet */
         if(land&&!S.items.board&&Math.hypot(p.x+9-e.x-e.w/2,p.y+12-e.y-e.h/2)<CRAB.tease){e.tz=2;e.wrap=CRAB.shell;e.vx=0;e.vy=0;e.cd=0;e.pass=ov(e,p)?1:0;ev.push('shell');return}}

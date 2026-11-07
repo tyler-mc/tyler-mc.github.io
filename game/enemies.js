@@ -3,11 +3,12 @@
 import {T} from './state.js';
 import {move,solid,tile,ov} from './engine.js';
 import {spawnFlood,stepFlood} from './fish.js';   /* Flood: the hermit crab and the clownfish */
+import {spawnCinder,stepCinder,spawnVent} from './cinders.js';   /* Molten: ember sprite, slag beetle, geyser vents (after the others, so their indices hold) */
 
 export const WRAP=240,SLACK=60,GRACE=30;
 
 /* thorns are ground to a Mossback: it walks over them and they never hurt it */
-const hard=c=>c===null||c==='#'||c==='='||c==='G'||c==='^';
+const hard=c=>c===null||c==='#'||c==='='||c==='G'||c==='^'||c==='X';
 /* on a floor of thorns it settles 4px down onto the tips (its top stays above them) */
 const sink=(R,x,y,gy)=>gy===1&&R.g[y+1]&&R.g[y+1][x]==='^'?4:0;
 /* left/top/right/bottom (room ents, optional): the cells it never leaves, so a room can fence a patrol without thorns.
@@ -21,7 +22,7 @@ function moss(R,s){
 }
 const puff=s=>({k:'puff',x:s.tx*T,y:s.ty*T,w:12,h:12,hx:s.tx*T,hy:s.ty*T,amp:s.amp??12,ph:0,sp:s.sp||.035,
   vy:0,ret:0,wrap:0,grace:0,pass:0,dx:0,dy:0});
-export const spawnEnemies=R=>R.spawns.map(s=>s.k==='M'?moss(R,s):s.k==='O'?puff(s):spawnFlood(R,s));
+export const spawnEnemies=R=>[...R.spawns.map(s=>s.k==='M'?moss(R,s):s.k==='O'?puff(s):s.k==='E'||s.k==='K'?spawnCinder(R,s):spawnFlood(R,s)),...(R.vents||[]).map(v=>spawnVent(R,v))];
 
 /* the crawler's box hugs the surface on its g side. An outer corner is a straight run, a quarter turn of
    radius 4 round the block's corner, and a straight run (og/om: the g and m the move started with). */
@@ -39,7 +40,7 @@ function box(e){
 }
 /* pick the next cell: inner corner turns in place, outer corner wraps diagonally, water/room edge/its box reverse */
 function plan(S,R,e){
-  const out=(x,y)=>x<0||y<0||x>=R.w||y>=R.h,sol=(x,y)=>!out(x,y)&&(solid(S,R,x,y)||R.g[y][x]==='^'),bad=(x,y)=>out(x,y)||R.g[y][x]==='~',
+  const out=(x,y)=>x<0||y<0||x>=R.w||y>=R.h,sol=(x,y)=>!out(x,y)&&(solid(S,R,x,y)||R.g[y][x]==='^'),bad=(x,y)=>out(x,y)||R.g[y][x]==='~'||R.g[y][x]==='L',
     b=e.fence,fence=(x,y)=>b&&(x<b[0]||y<b[1]||x>b[2]||y>b[3]),rev=()=>{e.mx=-e.mx;e.my=-e.my};
   for(let i=0;i<6;i++){
     const ax=e.cx+e.mx,ay=e.cy+e.my;
@@ -61,7 +62,8 @@ function crawl(S,R,e){
 export function stepEnemies(S,R,ev){
   for(const e of S.ens){
     const ox=e.x,oy=e.y;
-    if(e.soft)stepFlood(S,R,e,ev);
+    if(e.mol)stepCinder(S,R,e,ev);
+    else if(e.soft)stepFlood(S,R,e,ev);
     else if(e.wrap>0){
       if(--e.wrap===0){e.grace=GRACE;e.ret=1;ev.push('unwrap')}
       else if(e.k==='puff'){e.vy=Math.min(3,e.vy+.2);if(move(S,R,e,0,e.vy,[]).hy)e.vy=0;if(ov(e,S.p))e.pass=1}   /* sinks through him, never lifts him */

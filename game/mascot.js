@@ -21,7 +21,8 @@ function drawMac(ctx){
   paint(ctx,g);
 }
 /* body frames [rx,ry,oy]: the feet are two 4x2 blocks at x 9 and 19 (dx 0), top row y 31+oy+ry */
-export const FR={idle:[11,11,0],breath:[11,10,1],squash:[13,8,3],stretch:[10,12,-2],land:[12,10,1]};
+/* cling (game/claws.js): narrow and tall against the wall; drawBuddy adds the claws on the side s.dir[0] points to */
+export const FR={idle:[11,11,0],breath:[11,10,1],squash:[13,8,3],stretch:[10,12,-2],land:[12,10,1],cling:[9,12,-1]};
 function drawBuddy(ctx,s){
   if(s.mac){drawMac(ctx);return}
   const W=32,H=48,g=grid(W,H);
@@ -51,6 +52,8 @@ function drawBuddy(ctx,s){
     else{for(let y=0;y<2;y++)for(let x=0;x<2;x++)g[ey-1+dy+y][ex-1+dx+x]='k'}
   }
   g[cy+1][cx-9]=g[cy+1][cx-8]='c';g[cy+1][cx+7]=g[cy+1][cx+8]='c';
+  /* clinging: two hooked claws dug into the wall beside him (his box edge is the wall face) */
+  if(fr==='cling'){const sd=(s.dir&&s.dir[0])<0?-1:1,wx=sd>0?cx+9:cx-10;for(const y of [cy-5,cy+1]){g[y][wx]='k';g[y+1][wx]='k';g[y][wx+sd]='w';g[y-1]&&(g[y-1][wx-sd]='k')}}
   const my=cy+3;
   if(s.face==='scared'){for(let yy=my-1;yy<=my+3;yy++)for(let xx=cx-3;xx<=cx+2;xx++)g[yy][xx]=(yy>my-1&&yy<my+3&&xx>cx-3&&xx<cx+2)?'m':'k'}
   else if(s.face==='huh'){g[my][cx-1]=g[my][cx]=g[my+1][cx-1]=g[my+1][cx]='k'}

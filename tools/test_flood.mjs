@@ -147,7 +147,7 @@ console.log('items, save');
 { const R=ROOMS.f1,it=R.items.find(i=>i.id==='board');ok(!!it,'Shallows holds the board (I tile, item:board)');
   const S=playState('f1',it.tx*T-30,192-PH,{root:1});run(S,3,I());const ev=run(S,60,I({r:1}));
   ok(S.items.board===1&&ev.includes('item')&&!S.p.demo,'walking into it picks up the board (no root demo plays)');
-  const m=mem();save(S,m);const d=load(m);ok(d.v===VER&&VER===4&&d.items.board===1,'the save carries the board (v4)');
+  const m=mem();save(S,m);const d=load(m);ok(d.v===VER&&VER>=4&&d.items.board===1,'the save carries the board (v4 and later)');
   for(const v of [1,2,3]){m.setItem('tos_game',JSON.stringify({v,lit:1,items:{root:1},pieces:[1,0,0,0],torches:{},cp:{room:'r1',tx:36,ty:14}}));const S3=resume(newState(),load(m));ok(S3.items.root===1&&S3.items.board===0,`a v${v} save still loads (no board)`)}
 }
 
