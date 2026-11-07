@@ -4,6 +4,8 @@
 'use strict';
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 let reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* the mascot's cell (mascot/atlas.js): 40x64 art pixels, shoe soles on row SOLE, the head tip (where he is held and where the bubble points) on row TIPROW at rest */
+const {W:CELL_W,H:CELL_H,SOLE}=window.MASCOT,TIPROW=32,TIPX=22;   /* the resting head tip's cap centre: column 22 (tip x 20 + 2), row 32 */
 const isMobile=()=>matchMedia('(max-width:700px)').matches;
 const canHover=matchMedia('(hover:hover)').matches;
 const INK='#1A1716', RED='#FF3333';
@@ -58,11 +60,11 @@ function folder(L,M,Dk,back,front){return art(32,32,a=>{const{P,R}=a;
   back&&back(a);
   R(1,12,30,1,'k');R(2,13,28,15,M);R(2,13,28,1,L);R(2,13,1,15,L);R(2,27,28,1,Dk);R(29,14,1,13,Dk);
   front&&front(a)})}
-/* the Trash with its lid lifted and two eyes looking out of the dark */
+/* the Trash with its lid lifted and two eyes looking out of the dark (blink 'off': just the dark, no eyes, for when the mascot himself pops out) */
 function trashArt(blink){return art(32,32,({R,P})=>{
   R(8,2,20,1,'k');R(7,3,1,3,'k');R(28,3,1,3,'k');R(8,6,20,1,'k');R(8,3,20,3,'g');R(8,3,20,1,'w');R(8,5,20,1,'G');
   R(7,8,18,4,'k');
-  if(blink){R(11,10,3,1,'w');R(18,10,3,1,'w')}else{R(11,9,3,3,'w');R(18,9,3,3,'w');P(12,11,'k');P(19,11,'k')}
+  if(blink==='off'){}else if(blink){R(11,10,3,1,'w');R(18,10,3,1,'w')}else{R(11,9,3,3,'w');R(18,9,3,3,'w');P(12,11,'k');P(19,11,'k')}
   for(let y=12;y<=28;y++){const l=7+Math.floor((y-12)/9),r=24-Math.floor((y-12)/9);P(l,y,'k');P(r,y,'k');R(l+1,y,r-l-1,1,'g');
     for(let x=l+1;x<r;x++){const f=(x-l)/(r-l);if((f>.78&&(x+y)%2===0)||(f>.6&&f<=.78&&x%2===0&&y%2===0))P(x,y,'G')}
     if(y>13&&y<27){P(11,y,'G');P(12,y,'w');P(16,y,'G');P(17,y,'w')}}
@@ -88,7 +90,7 @@ const ICON={
  linkedin:art(32,32,({R})=>{R(5,5,22,22,'k');R(6,6,20,20,'N');R(10,10,3,3,'w');R(10,15,3,8,'w');R(15,15,3,8,'w');R(18,15,6,2,'w');R(21,17,3,6,'w')}),
  compost:art(32,32,({R,P,O})=>{for(let y=15;y<=27;y++){const hw=Math.round(3+(y-15)*1.05);for(let x=16-hw;x<=15+hw;x++)P(x,y,(x*3+y)%7===0?'b':(y<19?'B':'n'))}
    O('k');R(15,8,2,8,'J');R(10,8,5,3,'Q');R(17,6,5,3,'Q');R(9,10,2,1,'J');R(21,8,2,1,'J');R(20,23,3,2,'y');R(9,24,3,1,'Y');R(14,20,2,2,'y')}),
- trashO0:trashArt(false),trashO1:trashArt(true),
+ trashO0:trashArt(false),trashO1:trashArt(true),trashO2:trashArt('off'),
  about:art(32,32,({R,P,D,get})=>{
    R(3,6,26,1,'k');R(3,27,26,1,'k');R(2,7,1,20,'k');R(29,7,1,20,'k');R(3,7,26,20,'c');
    R(3,7,26,5,'T');R(3,7,26,1,'t');R(3,12,26,1,'k');R(5,9,2,1,'q');R(8,9,2,1,'q');
@@ -493,7 +495,7 @@ function fitWork(el){
   if(isMobile()||el.dataset.fit)return;el.dataset.fit='1';
   const dw=desk.clientWidth,dh=desk.clientHeight,body=$('.wbody',el);
   el.style.width=Math.min(800,dw-16)+'px';el.style.height='200px';
-  const need=200-body.clientHeight+body.scrollHeight+4,roof=Math.ceil(buddy.offsetHeight*43/48)+HOPTOP;
+  const need=200-body.clientHeight+body.scrollHeight+4,roof=Math.ceil(buddy.offsetHeight*SOLE/CELL_H)+HOPTOP;
   const y=need<=dh-6-roof?roof:Math.max(16,Math.min(64,dh-6-need)),h=Math.min(need,dh-6-y);
   el.style.top=y+'px';el.style.height=h+'px';
   /* keep clear of the open-windows list in the bottom-left corner (it grows as windows open) */
@@ -1055,11 +1057,17 @@ function ssFlying(){
   const f=t=>{const dt=Math.min(.05,(t-last)/1000);last=t;for(let i=0;i<es.length;i++){const e=es[i];e.x+=e.vx*dt;e.y+=e.vy*dt;e.f+=dt*5;if(e.x<-80||e.y>H+40)es[i]=mk(false)}draw();ssRaf=requestAnimationFrame(f)};
   ssRaf=requestAnimationFrame(f);
 }
+let napT=[];
+/* [[look, ms], ...] one after the other while the nap is still on; done() after the last */
+function napSteps(steps,done){let i=0;const go=()=>{if(ssOn!=='nap')return;if(i>=steps.length){done&&done();return}const [lk,ms]=steps[i++];Object.assign(BS,lk);bRender();napT.push(setTimeout(go,ms))};go()}
 function ssNap(){
-  ssEl.classList.add('nap');BS.sleep=1;BS.f='idle';bRender();buddy.classList.add('nap');hideBub();
+  ssEl.classList.add('nap');BS.f='idle';buddy.classList.add('nap');hideBub();
   const zz=()=>{const r=buddy.getBoundingClientRect(),z=document.createElement('i');z.className='zz';z.textContent=['z','Z','Z'][(Math.random()*3)|0];
     z.style.left=Math.round(r.right-r.width*.25+Math.random()*10)+'px';z.style.top=Math.round(r.top+r.height*.1)+'px';ssEl.appendChild(z);setTimeout(()=>z.remove(),2700)};
-  zz();if(!reduce){nzT=setInterval(zz,1100);napBr=setInterval(()=>{BS.f=BS.f==='idle'?'breath':'idle';bRender()},900)}
+  const sleepNow=()=>{Object.assign(BS,{sleep:1,face:0,lid:0,mouth:0,lv:'S3',ft:'sleep',arms:[250,290]});bRender();zz();if(!reduce){nzT=setInterval(zz,1100);napBr=setInterval(()=>{BS.lv=BS.lv==='S3'?'S2':'S3';BS.fx=[fxAt('drool',BS.lv==='S3'?0:1)];bRender()},900)}};
+  /* drowsy, a yawn that opens in three steps, the eyelids sink, then asleep (mascot/faces.js) */
+  if(reduce){sleepNow();return}
+  napSteps([[{face:'sleepy'},900],[{face:'yawn1'},140],[{face:'yawn2'},140],[{face:'yawn3'},700],[{face:'yawn2'},120],[{face:'sleepy'},600],[{face:0,lid:3},400],[{lid:4},400]],sleepNow);
 }
 function ssStart(kind){
   if(ssOn||carry||bdrag||diving)return;stopDance();let k=kind||saverK;if(k==='none')return;if(k==='nap'&&buddy.hidden)k='seeds';
@@ -1068,7 +1076,9 @@ function ssStart(kind){
 }
 function ssStop(){
   if(!ssOn)return;const was=ssOn;ssOn=null;cancelAnimationFrame(ssRaf);clearInterval(nzT);clearInterval(napBr);ssEl.hidden=true;ssEl.className='';$$('.zz',ssEl).forEach(n=>n.remove());
-  if(was==='nap'){BS.sleep=0;BS.f='idle';buddy.classList.remove('nap');play([[{f:'stretch',hop:3,happy:1},130],[{f:'idle',hop:0},220],[RESET,0]])}
+  if(was==='nap'){napT.forEach(clearTimeout);napT=[];BS.sleep=0;BS.f='idle';buddy.classList.remove('nap');
+    /* waking: the lids open in steps, one blink, then the stretch */
+    play([[{face:0,lid:4,blink:0,fx:[fxAt('drool',2)]},90],[{fx:0},110],[{lid:3},160],[{lid:2},140],[{lid:0,blink:1},80],[{blink:0,f:'stretch',hop:3,happy:1},130],[{f:'idle',hop:0},220],[RESET,0]])}
   lastAct=performance.now();
 }
 let lastAct=performance.now();
@@ -1399,91 +1409,8 @@ desk.addEventListener('pointerup',e=>{
 const buddy=$('#buddy'),bcv=$('#bcv'),bctx=bcv.getContext('2d');
 const BC={ink:INK,hi:'#FF9A8E',base:'#FF3333',tex:'#E2262C',sh:'#B3121B',eye:'#FFFFFF',cheek:'#FF8A92',mouth:'#6E0C12',stem:'#0F766E',leaf:'#3DCBB9',leaf2:'#2FB3A6',fc:'#FFD36B',shadow:'#032A2C'};
 const BS={f:'idle',blink:0,dir:[0,0],happy:0,stage:0,hop:0,sleep:0,hat:(h=>h==='none'?0:h)(PREF('tos_hat','none'))};
-const grid=(w,h)=>Array.from({length:h},()=>Array(w).fill('.'));
-function stamp(g,pat,ox,oy){pat.forEach((r,y)=>{for(let x=0;x<r.length;x++){const c=r[x];if(c!=='.'&&g[oy+y]&&g[oy+y][ox+x]!==undefined)g[oy+y][ox+x]=c}})}
-const MB={B:'#F1E9D2',b:'#C9BFA5',Y:'#F6B92B',k:INK,r:'#FF3333',p:'#FF9A9A',R:'#B01E23',w:'#ffffff',m:'#7A0A12',n:'#0B5A55',T:'#3FC2B5',o:'#FFD94A',h:'#00393B',c:'#FF7A7A',H:'#FF2E88'};
-/* the old dead-Mac icon, still red: a little computer with a crossed-out face */
-function drawMac(ctx){
-  const W=32,H=48,g=grid(W,H),X0=6,Y0=16,BW=20,BH=26;
-  for(let y=44;y<48;y++)for(let x=4;x<28;x++){const dx=(x+.5-16)/12,dy=(y+.5-45.5)/2.4;if(dx*dx+dy*dy>1)continue;if(y%2===1&&(x%4===0))g[y][x]='h'}
-  for(let y=Y0;y<Y0+BH;y++)for(let x=X0;x<X0+BW;x++){
-    const edge=x===X0||x===X0+BW-1||y===Y0||y===Y0+BH-1,corner=(x===X0||x===X0+BW-1)&&(y===Y0||y===Y0+BH-1);if(corner)continue;
-    g[y][x]=edge?'k':(x===X0+1||y===Y0+1)?'p':(x===X0+BW-2||y===Y0+BH-2)?'R':'r'}
-  const SX=X0+3,SY=Y0+3,SW=14,SH=12;
-  for(let y=SY;y<SY+SH;y++)for(let x=SX;x<SX+SW;x++)g[y][x]=(x===SX||x===SX+SW-1||y===SY||y===SY+SH-1)?'k':'w';
-  stamp(g,["k.k",".k.","k.k"],SX+2,SY+3);stamp(g,["k.k",".k.","k.k"],SX+9,SY+3);
-  stamp(g,["..kkkk..",".k....k."],SX+3,SY+8);
-  for(let x=X0+4;x<X0+BW-4;x++)g[Y0+BH-7][x]='k';
-  for(let x=X0+13;x<X0+BW-3;x++)g[Y0+BH-4][x]='k';
-  ctx.clearRect(0,0,W,H);
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const c=g[y][x];if(c!=='.'){ctx.fillStyle=MB[c];ctx.fillRect(x,y,1,1)}}
-}
-function drawBuddy(ctx,s){
-  if(s.mac){drawMac(ctx);return}
-  const W=32,H=48,g=grid(W,H);
-  const fr=s.hop>0?'hop':s.f==='squash2'?'land':s.f;
-  const [rx,ry,oy]={idle:[11,11,0],breath:[11,10,1],squash:[13,8,3],stretch:[10,12,-2],hop:[10,12,-6],land:[12,10,1]}[fr]||[11,11,0];
-  const cx=16+(s.dx|0),cy=31+oy,ph=fr==='breath'?1.6:.5;
-  if(!s.air)for(let y=43;y<48;y++)for(let x=3;x<29;x++){const dx=(x+.5-16)/12,dy=(y+.5-45.5)/2.4,e=dx*dx+dy*dy;if(e>1)continue;
-    const p2=(y>>1)&1?2:0;if(y%2===1&&((x+p2)%4===0||(e<.5&&(x+p2)%4===1)))g[y][x]='h'}
-  const fy=cy+ry;if(fr!=='hop')for(const fx of [cx-7,cx+3])for(let i=0;i<4;i++)for(let j=0;j<2;j++)if(g[fy+j])g[fy+j][fx+i]='k';
-  /* wobbly outline: the radius ripples with angle, and the ripple shifts each breath so the line boils */
-  const ins=(x,y)=>{const dx=(x+.5-cx)/rx,dy=(y+.5-cy)/ry,r=1+.05*Math.sin(9*Math.atan2(dy,dx)+ph);return dx*dx+dy*dy<=r*r};
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(!ins(x,y))continue;
-    if(!ins(x-1,y)||!ins(x+1,y)||!ins(x,y-1)||!ins(x,y+1)){g[y][x]='k';continue}
-    const nx=(x+.5-cx)/rx,ny=(y+.5-cy)/ry;g[y][x]=Math.hypot(nx+.42,ny+.46)<.3?'p':Math.hypot(nx+.2,ny+.24)>.98?'R':'r'}
-  /* sprout grows with seeds planted */
-  const st=s.stage,pop=s.sp|0,len=[0,3,5,7,8][st]+pop,top=cy-ry;
-  for(let i=1;i<=len;i++)g[top-i]&&(g[top-i][cx]='n');
-  if(st>=1||pop)stamp(g,["kk...","kTTk.",".kTTk"],cx-5,top-3);
-  if(st>=2)stamp(g,["...kk",".kTTk","kTTk."],cx+1,top-5);
-  if(st>=3)stamp(g,["kk...","kTTk.",".kTTk"],cx-5,top-7);
-  if(st>=4)stamp(g,[".kkk.","kpork","krork","krRRk",".kkk."],cx-2,top-len-4);
-  /* eyes snap to 8 directions */
-  const ey=cy-3,[dx,dy]=s.dir;
-  for(const ex of [cx-5,cx+4]){
-    if(s.face==='yuck'){const L=ex<cx;for(let k=0;k<5;k++){const o=k<3?k:4-k;const xx=L?ex-2+o:ex+1-o,yy=ey-1+k;g[yy][xx]='k';g[yy][xx+(L?1:-1)]='k'}continue}
-    if(s.blink||s.sleep){for(let x=ex-2;x<=ex+1;x++)g[ey+1][x]='k';continue}
-    for(let y=ey-3;y<=ey+3;y++)for(let x=ex-3;x<=ex+2;x++){const edge=y===ey-3||y===ey+3||x===ex-3||x===ex+2;const corner=(y===ey-3||y===ey+3)&&(x===ex-3||x===ex+2);if(corner)continue;g[y][x]=edge?'k':'w'}
-    if(s.face==='scared'){g[ey][ex-1]=g[ey+1][ex-1]='k'}
-    else if(s.face==='love'){[".H.H.","HHHHH",".HHH.","..H.."].forEach((row,yy)=>{for(let xx=0;xx<5;xx++)if(row[xx]==='H')g[ey-1+yy][ex-2+xx]='H'})}
-    else if(s.face==='awe'){for(let y=ey-2;y<=ey+2;y++)for(let x=ex-2;x<=ex+1;x++)g[y][x]='k';g[ey-2][ex-1]='w';g[ey-1][ex-1]='w'}
-    else if(s.pens){for(let x=ex-2;x<=ex+1;x++){g[ey-2][x]='r';g[ey-1][x]='r';g[ey][x]='k'}g[ey+1][ex-1]=g[ey+1][ex]='k';
-      const L=ex<cx;[[ex-2,L?ey-5:ey-6],[ex-1,L?ey-5:ey-6],[ex,L?ey-6:ey-5],[ex+1,L?ey-6:ey-5]].forEach(([a,b])=>{if(g[b])g[b][a]='k'})}
-    else{for(let y=0;y<2;y++)for(let x=0;x<2;x++)g[ey-1+dy+y][ex-1+dx+x]='k'}
-  }
-  g[cy+1][cx-9]=g[cy+1][cx-8]='c';g[cy+1][cx+7]=g[cy+1][cx+8]='c';
-  const my=cy+3;
-  if(s.face==='scared'){for(let yy=my-1;yy<=my+3;yy++)for(let xx=cx-3;xx<=cx+2;xx++)g[yy][xx]=(yy>my-1&&yy<my+3&&xx>cx-3&&xx<cx+2)?'m':'k'}
-  else if(s.face==='huh'){g[my][cx-1]=g[my][cx]=g[my+1][cx-1]=g[my+1][cx]='k'}
-  else if(s.face==='yuck'){[[-3,1],[-2,0],[-1,1],[0,0],[1,1],[2,0]].forEach(([a,b])=>{g[my+b][cx+a]='k'});[[0,2],[1,2],[0,3]].forEach(([a,b])=>{g[my+b][cx+a]='T'});g[my+4]&&(g[my+4][cx]='k')}
-  else if(s.face==='awe'){for(let yy=my-1;yy<=my+5;yy++)for(let xx=cx-3;xx<=cx+2;xx++){const e=yy===my-1||yy===my+5||xx===cx-3||xx===cx+2,c=(yy===my-1||yy===my+5)&&(xx===cx-3||xx===cx+2);if(c)continue;g[yy][xx]=e?'k':'m'}}
-  else if(s.gape){const gw=Math.min(7,2+Math.round(s.gape*1.2)),gh=Math.min(6,1+Math.round(s.gape*1.2));for(let yy=my-1;yy<=my+gh+1;yy++)for(let xx=cx-gw-1;xx<=cx+gw;xx++){const e=yy===my-1||yy===my+gh+1||xx===cx-gw-1||xx===cx+gw;g[yy][xx]=e?'k':'m'}}
-  else if(s.pens&&!s.face){for(let k=-2;k<=1;k++)g[my+1][cx+k]='k';g[my][cx+2]='k'}
-  else if(s.mouth){for(let yy=my-1;yy<=my+2;yy++)for(let xx=cx-2;xx<=cx+1;xx++)g[yy][xx]=(yy>=my&&yy<=my+1&&xx>=cx-1&&xx<=cx)?'m':'k'}
-  else if(s.happy){g[my][cx-2]='k';g[my][cx-1]='m';g[my][cx]='m';g[my][cx+1]='k';g[my+1][cx-1]='k';g[my+1][cx]='k'}
-  else{g[my][cx-1]=g[my][cx]='k'}
-  if(s.hold)stamp(g,["kkkkk","krrrk","kkkkk"],s.hold>0?cx+rx-2:cx-rx-2,cy-2);
-  if(s.face==='love'){g[cy+2][cx-9]=g[cy+2][cx-8]=g[cy+2][cx+7]=g[cy+2][cx+8]='c'}
-  if(s.heart){const hp=(hx,hy)=>["H.H","HHH",".H."].forEach((row,yy)=>{for(let xx=0;xx<3;xx++)if(row[xx]==='H'&&g[hy+yy]&&g[hy+yy][hx+xx]!==undefined)g[hy+yy][hx+xx]='H'});
-    const by=Math.max(0,cy-ry-3-s.heart*3);hp(cx+8,by);hp(cx-11,by+6)}
-  if(s.sweat){[[8,0],[9,0],[8,1],[9,1],[8,2],[9,2],[9,3]].forEach(([a,b])=>{const yy=cy-ry+2+b,xx=cx+a;if(g[yy]&&g[yy][xx]!==undefined)g[yy][xx]='T'})}
-  if(s.q){[".XX.","X..X","..X.",".X..","....",".X.."].forEach((row,yy)=>{for(let xx=0;xx<4;xx++)if(row[xx]==='X'){const Y=Math.max(0,cy-ry-9)+yy,X=cx+7+xx;if(g[Y]&&g[Y][X]!==undefined)g[Y][X]='o'}})}
-  if(s.mask){
-    for(let y=ey-4;y<=cy+8;y++)for(let x=cx-10;x<=cx+9;x++){if(!ins(x,y)||!ins(x-1,y)||!ins(x+1,y)||!ins(x,y-1)||!ins(x,y+1))continue;g[y][x]=x>cx+3?'b':'B'}
-    for(const ex of [cx-5,cx+4])for(let y=ey-3;y<=ey+3;y++)for(let x=ex-3;x<=ex+2;x++){const a=(x+.5-ex+.5)/3.2,b=(y-ey)/3.6;if(a*a+b*b<=1)g[y][x]='k'}
-    for(const ex of [cx-5,cx+4]){g[ey-1][ex-1]='B'}
-    g[cy+1][cx-1]=g[cy+1][cx]='k';g[cy+2][cx-1]=g[cy+2][cx]='k';g[cy+3][cx-2]=g[cy+3][cx+1]='k';
-    for(let x=cx-5;x<=cx+4;x++)g[cy+5][x]='k';for(let x=cx-5;x<=cx+4;x+=2)for(let y=cy+6;y<=cy+7;y++)if(g[y][x]==='B'||g[y][x]==='b')g[y][x]='k'}
-  if(s.hat==='party'||s.hat==='crown'){
-    const topAt=xc=>{for(let y=0;y<H;y++)if(ins(xc,y))return y;return cy-ry};
-    if(s.hat==='party')stamp(g,["....w....","...kok...","...kHk...","..kkokk..","..kHHHk..",".kkokokk.",".kHHHHHk.","kkkkkkkkk"],cx+1,topAt(cx+5)-6);
-    else stamp(g,["k...k...k","kY.kYk.Yk","kYkkYkkYk","kYYYYYYYk","kYoYHYoYk","kkkkkkkkk"],cx-10,topAt(cx-6)-4)}
-  if(s.hat==='shades'){for(const ex of [cx-5,cx+4]){for(let y=ey-2;y<=ey+2;y++)for(let x=ex-3;x<=ex+2;x++)g[y][x]='k';g[ey-1][ex-2]='w';g[ey-2][ex-1]='w'}g[ey-1][cx-2]=g[ey-1][cx-1]=g[ey-1][cx]='k';g[ey-1][cx-9]='k';g[ey-1][cx+7]='k'}
-  ctx.clearRect(0,0,W,H);
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const c=g[y][x];if(c!=='.'){ctx.fillStyle=MB[c];ctx.fillRect(x,y,1,1)}}
-}
-/* Wake Up: once he has been pulled into the game (tos_wake_in) he stays out of the OS until the ending's "Home." */
+/* the sprite itself (grid, colours, drawMac, drawBuddy) lives in mascot/atlas.js; mascot/atlas.classic.js (tools/build_mascot.py) sets window.MASCOT before this file runs */
+const {drawBuddy}=window.MASCOT;
 let trapped=PREF('tos_wake_in','')==='1'&&PREF('tos_wake','')==='on';
 let gone=store.get('buddyGone')==='1';if(gone||trapped)buddy.hidden=true;
 const bRender=()=>drawBuddy(bctx,BS);
@@ -1491,7 +1418,10 @@ function stage(){BS.stage=seeds>=100?4:seeds>=40?3:seeds>=10?2:seeds>=1?1:0;bRen
 let seq=[],seqT=0;
 function play(frames){if(reduce){Object.assign(BS,frames[frames.length-1][0]);bRender();return}clearTimeout(seqT);seq=frames.slice();step()}
 function step(){const f=seq.shift();if(!f)return;Object.assign(BS,f[0]);bRender();seqT=setTimeout(step,f[1])}
-function buddyPlant(){play([[{f:'squash',happy:1,sp:0},70],[{f:'stretch',sp:2},70],[{f:'squash2',sp:1},70],[{f:'idle',sp:0},260],[{happy:0},0]])}
+/* effect sprites (mascot/anim_fx.js), anchored where FX_SPOT says on the rest body; on the wide squashed body the dust starts 1 px further out */
+const fxAt=(n,i,dx=0)=>{const S=window.MASCOT.FX_SPOT[n]||[0,0];return [n,i,S[0]+dx,S[1]]};   /* effect sprites return re-anchored to the new cell; until then a missing spot stamps nothing */
+const dustFx=(i,wide)=>[fxAt('dust',i,wide?1:0),fxAt('dustL',i,wide?-1:0)];
+function buddyPlant(){play([[{f:'squash',happy:1,sp:0,arms:[240,300]},70],[{f:'stretch',sp:2},70],[{f:'squash2',sp:1},70],[{f:'idle',sp:0},260],[{happy:0,arms:undefined},0]])}
 /* ================= mascot: speech bubbles, click reactions, scared at the close button, hang and drop ================= */
 const bub=$('#bub');let bubT=0,bubI=0,clickN=0,clickAt=-1e9,BUBBLE_P=.2,waitShown=false,speakN=0,waitSeen=false,oofSeen=false;
 function hideBub(){clearTimeout(bubT);clearInterval(bubI);bub.className='';buddy.classList.remove('talk')}
@@ -1502,7 +1432,7 @@ function speak(text,ms=2400,force,scr){
   const r=buddy.getBoundingClientRect(),dr=desk.getBoundingClientRect(),w=bub.offsetWidth,h=bub.offsetHeight,mid=r.left+r.width/2;
   let dx=0;if(mid-w/2<dr.left+8)dx=dr.left+8-(mid-w/2);if(mid+w/2>dr.right-8)dx=dr.right-8-(mid+w/2);
   bub.style.setProperty('--bx',Math.round(dx)+'px');
-  bub.classList.toggle('below',r.top+bcv.offsetHeight*19/48-h-16<dr.top+28);
+  bub.classList.toggle('below',r.top+bcv.offsetHeight*TIPROW/CELL_H-h-16<dr.top+28);
   if(reduce){t.textContent=text}
   else if(scr){let f=0;const F=15;bubI=setInterval(()=>{f++;const k=Math.floor(f/F*text.length);t.textContent=text.split('').map((c,i)=>i<k||c===' '?c:SCR[(Math.random()*SCR.length)|0]).join('');if(f>=F){clearInterval(bubI);t.textContent=text}},40)}
   else{let i=0;bubI=setInterval(()=>{i+=2;t.textContent=text.slice(0,i);if(i>=text.length)clearInterval(bubI)},30)}
@@ -1515,27 +1445,30 @@ const clampBuddy=()=>{if(!buddy.style.left)return;const dw=desk.clientWidth,dh=d
   buddy.style.left=Math.round(Math.min(Math.max(parseFloat(buddy.style.left),-bw*.3),dw-bw*.7))+'px';buddy.style.top=Math.round(Math.min(Math.max(parseFloat(buddy.style.top),24),dh-bh*.6))+'px'};
 const saveBuddy=()=>store.set('buddyPos',JSON.stringify({l:buddy.style.left,t:buddy.style.top}));
 try{const bp=JSON.parse(store.get('buddyPos')||'null');if(bp){buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.left=bp.l;buddy.style.top=bp.t;clampBuddy()}}catch(_){}
-const RESET={face:0,dx:0,heart:0,happy:0,hop:0,mouth:0,q:0,sweat:0,air:0,hold:0,gape:0,f:'idle'};
+const RESET={face:0,dx:0,heart:0,happy:0,hop:0,mouth:0,q:0,sweat:0,air:0,hold:0,gape:0,lv:0,ft:0,lean:0,pose:0,flip:0,lid:0,fx:0,sw:0,arms:undefined,f:'idle'};   /* arms: screen angles [left,right] in degrees (0 right, 90 up, 180 left, 270 down); undefined = the resting pair, [false,false] = none */
 /* clicked, not dragged */
-function huh(){
+function huh(px){
   bump('clicks');const said=discoveryClick();const now=performance.now();
   /* the four click lines are spaced out (at least 6 s apart), each is said once, and then it stays quiet */
   const L=["Huh? Oh, it's you again.","Careful. I'm a seed, not a stress ball.","That's one way to say hello.","Keep it up and I'll start charging per poke."];
   if(!said&&clickN<L.length&&now-clickAt>6000&&speak(L[clickN])){clickN++;clickAt=now}
-  play([[{f:'stretch',face:'huh',hop:3,happy:0},110],[{f:'idle',hop:0},1700],[RESET,0]]);
+  /* a poke: he squashes away from the side he was poked on, rebounds, then stands with the huh look (mascot/anim_ground.js 2, 3; flip when poked from the right) */
+  const r=buddy.getBoundingClientRect(),o={flip:px!=null&&px>r.left+r.width/2?1:0,face:'huh',happy:0,hop:0,air:0,bv:0};
+  play([[{...o,pose:'ground:2',arms:[150,30]},110],[{...o,pose:'ground:3',arms:[190,350]},150],[{face:'huh',pose:0,lv:0,ft:0,flip:0,f:'idle',arms:undefined},1550],[RESET,0]]);
 }
 /* dancing (after the glowing flower): about five seconds of hops, shuffles and hearts */
 let danceRaf=0;
 function stopDance(){cancelAnimationFrame(danceRaf);danceRaf=0;bcv.style.transform=''}
 function dance(ms=5200){
   stopDance();if(buddy.hidden||carry||bdrag)return;
-  const beat=[[{f:'stretch',hop:3,happy:1,dx:-1,face:0,mouth:0,heart:0},150],[{f:'squash',hop:0,happy:1,dx:0},150],[{f:'stretch',hop:3,happy:1,dx:1},150],[{f:'squash',hop:0,happy:1,dx:0,heart:1},150]];
-  const frames=[];for(let t=0;t<ms;t+=600)frames.push(...beat);frames.push([RESET,0]);play(frames);
-  if(reduce)return;
-  const t0=performance.now();
-  const stp=t=>{if(carry||bdrag||buddy.hidden){stopDance();return}const e=t-t0;if(e>=ms){stopDance();return}
-    bcv.style.transform='translateX('+Math.round(Math.sin(e/260*Math.PI)*16)+'px) rotate('+Math.round(Math.sin(e/150*Math.PI)*5)+'deg)';danceRaf=requestAnimationFrame(stp)};
-  danceRaf=requestAnimationFrame(stp);
+  /* eight hand-drawn frames (mascot/anim_dance.js): plant, crouch, hop, peak, land, hop, peak, settle: a 1080 ms loop of bounce and sway; no canvas rotation or sliding */
+  const base={flip:0,happy:1,face:0,mouth:0,hop:0,dx:0,air:0,bv:0};
+  /* a bounce-and-sway built from parts: body levels (squash, stretch), feet poses (lifting alternately) and arms swinging all around the body (mascot/arms.js) */
+  const BEAT=[{lv:'rest',ft:'stand',arms:[210,330]},{lv:'S2',ft:'together',arms:[240,300]},{lv:'T2',ft:'tuck',arms:[150,30]},{lv:'T1',ft:'liftL',arms:[150,30]},{lv:'S2',ft:'splay',arms:[180,0]},{lv:'T2',ft:'tuck',arms:[150,30]},{lv:'T1',ft:'liftR',arms:[150,30]},{lv:'S1',ft:'stand',arms:[190,350]}];
+  if(reduce){Object.assign(BS,base,BEAT[0],{heart:1});bRender();setTimeout(()=>{Object.assign(BS,RESET);bRender()},Math.min(ms,2400));return}
+  const D=[150,120,120,150,130,120,150,140],frames=[];
+  for(let t=0;t<ms;t+=1080)D.forEach((h,i)=>frames.push([{...base,...BEAT[i],fx:i>=3&&i<=5?[fxAt('heart',i-3)]:[fxAt('note',i%2)]},h]));
+  frames.push([RESET,0]);play(frames);
 }
 /* re-enabled: happy for a moment */
 function setMascot(on){
@@ -1543,12 +1476,12 @@ function setMascot(on){
   if(!on||trapped){hideBub();return}
   clearBye();nudgeLogo(false);
   requestAnimationFrame(()=>{clampBuddy();speak("I'm back!");
-    play([[{f:'squash',happy:1},90],[{f:'stretch',hop:4,happy:1},110],[{f:'idle',hop:0,happy:1},110],[{f:'stretch',hop:4},110],[{f:'idle',hop:0,heart:1},700],[RESET,0]])});
+    play([[{f:'squash',happy:1},90],[{f:'stretch',hop:4,happy:1,arms:[150,30]},110],[{f:'idle',hop:0,happy:1,arms:[150,30]},110],[{f:'stretch',hop:4,arms:[150,30]},110],[{f:'idle',hop:0,heart:1,arms:undefined},700],[RESET,0]])});
 }
 /* holding the close button: scared */
 const bx=$('#bx');let scT=0,holdX=false;
 function scare(on){clearInterval(scT);scT=0;
-  if(on){let k=0;BS.face='scared';BS.sweat=1;BS.f='stretch';bRender();if(!reduce)scT=setInterval(()=>{BS.dx=(k++%2)?1:-1;bRender()},70)}
+  if(on){let k=0;Object.assign(BS,{face:'scared',sw:1,lv:'S3',ft:'pigeon',arms:[250,290],flip:0,air:0,bv:0});bRender();if(!reduce)scT=setInterval(()=>{BS.bv=(k++%2)?1:0;BS.dx=(k%2)?1:-1;bRender()},70)}   /* the cower and its shiver (mascot/anim_ground.js 6, 7) */
   else{Object.assign(BS,RESET);bRender()}}
 bx.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.stopPropagation();holdX=true;scare(true);waitShown=speak('Wait, wait, wait!',60000,!waitSeen);waitSeen=true});
 ['pointerleave','pointercancel'].forEach(t=>bx.addEventListener(t,()=>{if(!holdX)return;holdX=false;scare(false);if(waitShown)speak('Phew!',1000,true);waitShown=false}));
@@ -1574,6 +1507,17 @@ function goodbye(at){
 }
 /* grab: hangs by its head from the cursor and swings; no ground shadow while it is in the air */
 let bdrag=null,carry=null,diving=false;
+/* hanging from the pointer: the swing angle picks one of the authored lean frames (mascot/lean.js: 12, 25, 40 degrees, negative = mirrored) instead of rotating the canvas.
+   th > 0 swings the body to the right. The thresholds sit midway between the frames and have a gap each way (hysteresis) so a damped swing hovering at a threshold does not flicker. */
+const LEANUP=[.105,.32,.57],LEANDN=[.075,.29,.54];
+function leanFor(th,cur){const a=Math.abs(th);let n=Math.abs(cur);while(n<3&&a>=LEANUP[n])n++;while(n>0&&a<LEANDN[n-1])n--;return n&&th<0?-n:n}
+function carryPose(n){Object.assign(BS,n?{pose:'lean:'+(Math.abs(n)-1),flip:n<0?1:0,lv:0,ft:0,arms:undefined}:{pose:0,flip:0,lv:'T3',ft:'dangle',arms:undefined});bRender()}
+/* where the hold point (the neck) sits on the canvas, in art pixels: the upright hang holds it at the centre of pixel (16,19); each lean frame states its own pixel; all are pixel centres, so a pose change never shifts it */
+function neckAt(n){const a=Math.abs(n),M=window.MASCOT;   /* the hold point is the head tip's cap centre (tip.x+2, tip.y+.5); mirrored: W-(tip.x+2) */
+  if(!a||!M.ANIM_LEAN.frames[a-1]){const t=M.BODY.T3.tip;return[t[0]+2,t[1]+.5]}
+  const t=M.ANIM_LEAN.frames[a-1].tip;return n<0?[CELL_W-(t[0]+2),t[1]+.5]:[t[0]+2,t[1]+.5]}
+function carryPlace(c,dr){const sc=bcv.offsetWidth/CELL_W,[ax,ay]=neckAt(c.lean),snap=v=>Math.round(v/sc)*sc;
+  buddy.style.left=snap(c.px-ax*sc-dr.left)+'px';buddy.style.top=snap(c.py-ay*sc-dr.top)+'px'}
 function carryLoop(t){
   const c=carry;if(!c)return;
   const dt=Math.min(.05,(t-c.last)/1000)||.016;c.last=t;const dr=desk.getBoundingClientRect();
@@ -1581,13 +1525,13 @@ function carryLoop(t){
   const nx=c.px+(tx-c.px)*k,ny=c.py+(ty-c.py)*k,vx=(nx-c.px)/Math.max(dt,.001);
   c.ax=c.ax*.6+Math.max(-12000,Math.min(12000,(vx-c.vx)/Math.max(dt,.001)))*.28;c.vx=vx;c.px=nx;c.py=ny;
   let rem=dt;while(rem>0){const h=Math.min(rem,.008);c.sw.step(h,c.ax);rem-=h}
-  buddy.style.left=Math.round(nx-buddy.offsetWidth/2-dr.left)+'px';buddy.style.top=Math.round(ny-c.tp-dr.top)+'px';
-  buddy.style.transform=`rotate(${rotQ(c.sw.th)}deg)`;
+  const n=reduce||window.MASCOT.ANIM_LEAN.frames.length<3?0:leanFor(c.sw.th,c.lean);   /* no swing under reduced motion: the upright hang only */if(n!==c.lean){c.lean=n;carryPose(n)}
+  carryPlace(c,dr);
   c.raf=requestAnimationFrame(carryLoop);
 }
 /* standing: on a window's top edge, on the status bar at a window's foot, on the bottom bar, or on the floor */
 let perch=null,fallStart=0;
-const FEET=()=>buddy.offsetHeight*43/48;
+const FEET=()=>buddy.offsetHeight*SOLE/CELL_H;
 function ledges(cx,feetY){
   const dr=desk.getBoundingClientRect(),out=[];
   if(!isMobile())order.forEach(id=>{const w=WIN[id];if(!w||!w.open||w.min)return;const el=w.el,r=el.getBoundingClientRect();
@@ -1626,11 +1570,12 @@ function dropBuddy(){
   buddy.style.zIndex='';buddy.classList.add('falling');fallStart=performance.now();perch=null;
   const land=far=>{buddy.classList.remove('falling');BS.air=0;bRender();saveBuddy();
     if(target)perch={host:target.host,kind:target.kind,dx:cx-target.x0};
-    play([[{f:'squash',happy:0,air:0},110],[{f:'idle'},120],[RESET,0]]);const first=!oofSeen;oofSeen=true;if(first)speak('Oof!',900,true);else if(far)speak('Oof!',900)};
+    play(far?[[{lv:'S3',ft:'splay',face:'hurt',happy:0,air:0,bv:0,arms:[190,350],fx:dustFx(0,1)},70],[{fx:dustFx(1,1)},70],[{lv:'S2',ft:'stand',face:'worry',arms:[210,330],fx:dustFx(2)},120],[{lv:'T1',fx:dustFx(3),arms:[200,340]},120],[{lv:'S1',fx:0},120],[{pose:'ground:6',face:'worry',air:1,arms:undefined,flip:0},150],[{pose:0,lv:0,ft:0,f:'idle',air:0,face:'worry'},90],[{pose:'ground:7',face:'worry',air:1,arms:undefined,flip:0},150],[{pose:0,lv:0,ft:0,f:'idle',air:0,face:'worry'},90],[{lv:0,ft:0,f:'idle',face:'worry',arms:undefined},220],[RESET,0]]:[[{lv:'S2',ft:'splay',happy:0,air:0,bv:0,arms:[190,350],fx:dustFx(0,1)},70],[{lv:'S1',ft:'stand',arms:undefined,fx:dustFx(1,1)},70],[{lv:0,ft:0,f:'idle',fx:dustFx(2)},90],[{fx:dustFx(3)},110],[RESET,0]]);const first=!oofSeen;oofSeen=true;if(first)speak('Oof!',900,true);else if(far)speak('Oof!',900)};
   if(reduce){buddy.style.top=Math.round(floor-fo)+'px';land(false);return}
-  let vy=0,last=performance.now(),bounced=false;
+  let vy=0,last=performance.now();
+  /* the landing animation (squash, dust) starts on the first ground contact: no little rebound first, the squash is the rebound */
   const step=t=>{const dt=Math.min(.04,(t-last)/1000)||.016;last=t;vy+=3800*dt;top+=vy*dt;
-    if(top+fo>=floor){top=floor-fo;if(!bounced&&vy>520){bounced=true;vy=-vy*.22}else{buddy.style.top=Math.round(top)+'px';land(top-from>150);return}}
+    if(top+fo>=floor){top=floor-fo;buddy.style.top=Math.round(top)+'px';land(top-from>150);return}
     buddy.style.top=Math.round(top)+'px';requestAnimationFrame(step)};
   requestAnimationFrame(step);
 }
@@ -1643,28 +1588,44 @@ async function hopOnto(id){
   const dr=desk.getBoundingClientRect(),br=buddy.getBoundingClientRect(),sx=br.left-dr.left,sy=br.top-dr.top;
   const cx=Math.min(Math.max(sx+bw/2,L.x0+bw/2+24),L.x0+L.w-bw/2-24),tx=cx-bw/2,ty=L.y-fo;
   stopDance();hideBub();perch=null;buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.left=Math.round(sx)+'px';buddy.style.top=Math.round(sy)+'px';
+  const d0=[...BS.dir],sc=bcv.offsetWidth/CELL_W,snap=v=>Math.round(v/sc)*sc;  /* the art is drawn sc screen px per art px: move in whole art pixels */
   const stand=()=>{perch={host:id,kind:'top',dx:cx-L.x0};buddy.classList.remove('falling');saveBuddy();
-    play([[{f:'squash',happy:1,hop:0,air:0},110],[{f:'idle',happy:1},300],[RESET,0]])};
+    if(reduce){play([[{f:'squash',happy:1,hop:0,air:0},110],[{f:'idle',happy:1},300],[RESET,0]]);return}
+    play([[{lv:'S3',ft:'splay',bv:0,dir:[0,0],happy:1,air:0,arms:[190,350],fx:dustFx(0,1)},70],[{lv:'S1',ft:'stand',bv:0,arms:undefined,fx:dustFx(1,1)},70],[{fx:dustFx(2)},90],[{lv:0,ft:0,f:'idle',face:'relief',dir:d0,fx:dustFx(3)},110],[{fx:0},190],[RESET,0]])};
   if(reduce){buddy.style.left=Math.round(tx)+'px';buddy.style.top=Math.round(ty)+'px';stand();return true}
-  buddy.classList.add('falling');play([[{f:'squash',happy:1},90],[{f:'stretch',air:0,hop:3,happy:1},900],[RESET,0]]);
+  /* a ballistic hop: up to a peak 56 px above the higher of the two spots, then down onto the ledge. The rise and the fall each ease like gravity (out, then in),
+     so the speed is zero at the peak and the top is held there; the time split follows the two distances (t ~ sqrt(distance)), and a longer climb takes longer.
+     It is posed by phase (mascot/feet.js, mascot/body.js): crouch, push off, rise, hold at the top, fall, reach, then the landing in stand(). */
+  const peak=Math.min(sy,ty)-56,rise=sy-peak,fall=ty-peak,kp=Math.sqrt(rise)/(Math.sqrt(rise)+Math.sqrt(fall)),dur=Math.round(Math.min(900,Math.max(480,260+20*Math.sqrt(rise+fall))));
+  const POSES=[{lv:'T2',ft:'together',dir:[0,-1],arms:[150,30]},{lv:'T3',ft:'tuck',dir:[0,-1],arms:[150,30]},{lv:'rest',ft:'loose',dir:[0,0],arms:[170,10]},{lv:'T1',ft:'spread',dir:[0,1],arms:[150,30]},{lv:'T2',ft:'spread',dir:[0,1],arms:[150,30]}];
+  const phase=k=>{if(k<kp){const u=k/kp;return u<.12?0:u<.80?1:2}const q=(k-kp)/(1-kp);return q<.18?2:q<.72?3:4};
+  let pi=-1;
+  buddy.classList.add('falling');play([[{lv:'S2',ft:'together',bv:0,dir:[0,-1],happy:1,air:0,arms:[240,300]},90]]);
   await wait(90);
-  await anim(520,k=>{if(carry||bdrag)return;const e=k*k*(3-2*k);buddy.style.left=Math.round(lerp(sx,tx,e))+'px';buddy.style.top=Math.round(lerp(sy,ty,e)-96*4*k*(1-k))+'px'});
-  if(carry||bdrag){buddy.classList.remove('falling');return false}
-  if(!w.open||w.min){dropBuddy();return true}
+  await anim(dur,k=>{if(carry||bdrag)return;
+    const i=phase(k);if(i!==pi){pi=i;Object.assign(BS,POSES[i],{bv:0,air:1,happy:1});bRender()}
+    const y=k<kp?lerp(sy,peak,1-(1-k/kp)**2):lerp(peak,ty,((k-kp)/(1-kp))**2),x=lerp(sx,tx,k*k*(3-2*k));
+    if(k>=1){buddy.style.left=Math.round(tx)+'px';buddy.style.top=Math.round(ty)+'px'}else{buddy.style.left=snap(x)+'px';buddy.style.top=snap(y)+'px'}});
+  if(carry||bdrag){buddy.classList.remove('falling');Object.assign(BS,{lv:0,ft:0,dir:d0});return false}
+  if(!w.open||w.min){Object.assign(BS,{lv:0,ft:0,dir:d0});dropBuddy();return true}
   stand();return true;
 }
 bcv.addEventListener('pointerdown',e=>{if(e.button!==0||diving)return;e.preventDefault();bcv.setPointerCapture(e.pointerId);bdrag={sx:e.clientX,sy:e.clientY,moved:false}});
 bcv.addEventListener('pointermove',e=>{if(!bdrag)return;
   if(!bdrag.moved){if(Math.hypot(e.clientX-bdrag.sx,e.clientY-bdrag.sy)<4)return;
-    bdrag.moved=true;stopDance();hideBub();perch=null;buddy.style.zIndex='';buddy.classList.add('carried');buddy.style.right='auto';buddy.style.bottom='auto';
-    const r=buddy.getBoundingClientRect(),tp=bcv.offsetHeight*19/48;buddy.style.transformOrigin='50% '+tp+'px';
-    carry={px:r.left+r.width/2,py:r.top+tp,cx:e.clientX,cy:e.clientY+4,vx:0,ax:0,tp,sw:Swing(112,2.2,.85),last:performance.now(),raf:0};
-    play([[{f:'stretch',happy:0,mouth:0,hop:0,face:0,air:1},0]]);carry.raf=requestAnimationFrame(carryLoop)}
+    bdrag.moved=true;stopDance();hideBub();perch=null;buddy.style.zIndex='';buddy.classList.add('carried');
+    /* measure him BEFORE his right/bottom anchoring is dropped, and pin left/top to where he stands: otherwise the first drag of a visit starts from the desk's top-left corner */
+    const r=buddy.getBoundingClientRect(),dr0=desk.getBoundingClientRect(),tp=bcv.offsetHeight*TIPROW/CELL_H;
+    buddy.style.left=Math.round(r.left-dr0.left)+'px';buddy.style.top=Math.round(r.top-dr0.top)+'px';buddy.style.right='auto';buddy.style.bottom='auto';
+    carry={px:r.left+TIPX*(r.width/CELL_W),py:r.top+(TIPROW+.5)*(r.width/CELL_W),cx:e.clientX,cy:e.clientY+4,vx:0,ax:0,tp,lean:0,sw:Swing(112,2.2,.85),last:performance.now(),raf:0};
+    play([[{lv:'T3',ft:'dangle',arms:undefined,pose:0,flip:0,lean:0,bv:0,happy:0,mouth:0,hop:0,face:0,air:1},0]]);carry.raf=requestAnimationFrame(carryLoop)}
   carry.cx=e.clientX;carry.cy=e.clientY+4;const ot=overTrash(e);trashHot(ot)});
-const endDrag=()=>{if(!bdrag)return;const m=bdrag.moved;bdrag=null;
-  if(m&&carry){bump('drops');TK.discover('mascot-drag');const pt={clientX:carry.cx,clientY:carry.cy-4};cancelAnimationFrame(carry.raf);carry=null;buddy.classList.remove('carried');buddy.style.transform='';buddy.style.transformOrigin='';
+const endDrag=()=>{if(!bdrag)return;const m=bdrag.moved,px0=bdrag.sx;bdrag=null;
+  if(m&&carry){bump('drops');TK.discover('mascot-drag');const pt={clientX:carry.cx,clientY:carry.cy-4};cancelAnimationFrame(carry.raf);
+    carry.lean=0;carryPlace(carry,desk.getBoundingClientRect());Object.assign(BS,{lean:0,pose:0,flip:0,lv:'T3',ft:'dangle',arms:undefined,f:'stretch',air:1});bRender();   /* upright again with the neck where it was held: no jump */
+    carry=null;buddy.classList.remove('carried');buddy.style.transform='';buddy.style.transformOrigin='';
     const ot=overTrash(pt);trashHot(false);if(ot)trashDive();else dropBuddy()}
-  else huh()};
+  else huh(px0)};
 bcv.addEventListener('pointerup',endDrag);bcv.addEventListener('pointercancel',endDrag);bcv.addEventListener('lostpointercapture',endDrag);
 addEventListener('pointerup',endDrag,true);addEventListener('blur',endDrag);addEventListener('pointermove',e=>{if(bdrag&&bdrag.moved&&e.buttons===0)endDrag()},true);
 addEventListener('resize',()=>{if(!carry)clampBuddy()});
@@ -1672,6 +1633,8 @@ addEventListener('resize',()=>{if(!carry)clampBuddy()});
 const lerp=(a,b,k)=>a+(b-a)*k,wait=ms=>new Promise(r=>setTimeout(r,ms));
 const anim=(ms,fn)=>new Promise(res=>{const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
 const trashFrame=k=>{const ic=$('#ic-trash .ic');if(!ic)return;const m=$('canvas.moss',ic);ic.innerHTML=svg(ICON[k],2)+svg(ICON[k],2,{fill:'url(#ck)',cls:'selov'});if(m)ic.appendChild(m)};
+/* the dive's hand-drawn frames (mascot/anim_trash.js): 0 ready, 1..3 turning, 4/5 upside down kicking, 6/7 rummage tilts; fl=1 mirrors (turning on past 180 for the climb out) */
+const trashPose=(i,fl=0)=>{Object.assign(BS,{pose:'trash:'+i,flip:fl,air:1,face:0,happy:0,mouth:0,hop:0,bv:0});bRender()};
 async function trashDive(){
   TK.discover('mascot-trash');
   if(reduce){dropBuddy();return}
@@ -1679,19 +1642,24 @@ async function trashDive(){
   const icn=$('#ic-trash .ic'),dr=desk.getBoundingClientRect(),r=icn.getBoundingClientRect(),bw=buddy.offsetWidth,bh=buddy.offsetHeight;
   const cx=r.left+r.width/2-dr.left-bw/2,rimY=r.top-dr.top+r.height*.3,hoverY=rimY-bh*.8,sx=parseFloat(buddy.style.left)||0,sy=parseFloat(buddy.style.top)||0;
   const clip=t=>{const vis=Math.max(0,rimY-t);buddy.style.clipPath='inset(0 0 '+Math.max(0,Math.round(bh-vis))+'px 0)'};
-  buddy.style.zIndex='6';play([[{f:'stretch',air:1,face:0,happy:0,mouth:0},0]]);
-  await anim(150,k=>{buddy.style.left=Math.round(lerp(sx,cx,k))+'px';buddy.style.top=Math.round(lerp(sy,hoverY,k))+'px'});
-  await anim(280,k=>{const t=lerp(hoverY,rimY,k*k);buddy.style.top=Math.round(t)+'px';clip(t)});
+  /* over the can, a flip with the whole sprite above the rim (nothing clipped), then head first through the rim, feet kicking */
+  buddy.style.zIndex='6';trashPose(0);const flipY=rimY-bh;   /* the turning frames reach the bottom row of the cell, so the whole cell sits above the rim */
+  await anim(150,k=>{buddy.style.left=Math.round(lerp(sx,cx,k))+'px';buddy.style.top=Math.round(lerp(sy,flipY,k))+'px'});
+  let fi=-1;
+  await anim(220,k=>{const i=Math.min(4,Math.floor(k*5));if(i!==fi){fi=i;trashPose(i)}buddy.style.top=Math.round(flipY-16*4*k*(1-k))+'px'});
+  fi=-1;
+  await anim(280,k=>{const i=4+(Math.floor(k*280/90)%2);if(i!==fi){fi=i;trashPose(i)}const t=lerp(flipY,rimY,k*k);buddy.style.top=Math.round(t)+'px';clip(t)});
   buddy.style.visibility='hidden';buddy.style.clipPath='';Object.assign(BS,RESET);bRender();
   for(let i=0;i<5;i++){icn.style.transform='translateX('+(i%2?2:-2)+'px)';await wait(55)}icn.style.transform='';
   await wait(250);trashFrame('trashO0');await wait(800);
   trashFrame('trashO1');await wait(140);trashFrame('trashO0');await wait(520);
   trashFrame('trashO1');await wait(140);trashFrame('trashO0');await wait(760);
   /* it pops out of the can and over to the side, then falls to whatever is below */
+  trashFrame('trashO2');   /* the eyes in the can were the mascot looking out: once he shows himself the can has none */
   buddy.style.left=Math.round(cx)+'px';buddy.style.visibility='';play([[{f:'stretch',air:0,hop:3,happy:1},120],[{f:'idle',hop:0},400],[RESET,0]]);
   const upY=rimY-bh*.55;
   await anim(200,k=>{const t=lerp(rimY,upY,k);buddy.style.top=Math.round(t)+'px';clip(t)});
-  buddy.style.clipPath='';const ex=Math.max(8,cx-140);
+  buddy.style.clipPath='';trashFrame('trash');const ex=Math.max(8,cx-140);
   await anim(340,k=>{buddy.style.left=Math.round(lerp(cx,ex,k))+'px';buddy.style.top=Math.round(upY-4*70*k*(1-k))+'px'});
   trashFrame('trash');diving=false;dropBuddy();
 }
@@ -1746,24 +1714,26 @@ async function binShow(){
     const sx=br.left-dr.left,sy=br.top-dr.top;
     stopDance();hideBub();perch=null;buddy.classList.remove('falling');buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.left=Math.round(sx)+'px';buddy.style.top=Math.round(sy)+'px';buddy.style.zIndex='6';
     /* surprised: a jump, wide eyes, a line */
-    play([[{f:'stretch',face:'scared',hop:3,sweat:1,happy:0,mouth:0},0]]);
+    play([[{f:'stretch',face:'scared',hop:3,sw:1,happy:0,mouth:0},0]]);
     await anim(240,k=>{buddy.style.top=Math.round(sy-34*4*k*(1-k))+'px'});
     await wait(850);hideBub();
     /* over to the Trash in three hops */
     const t=trashPt(),cx=t.x-dr.left-bw/2,rimY=t.r.top-dr.top+t.r.height*.3,topIn=rimY-bh;
     const x0=Math.round(sx);
-    play([[{f:'stretch',face:0,hop:3,happy:1,sweat:0},0]]);
+    play([[{f:'stretch',face:0,hop:3,happy:1,sw:0,fx:0},0]]);
     await anim(620,k=>{const e=k*k*(3-2*k);buddy.style.left=Math.round(lerp(x0,cx,e))+'px';buddy.style.top=Math.round(lerp(sy,topIn-30,e)-26*Math.abs(Math.sin(k*Math.PI*3)))+'px'});
-    /* flip and go in headfirst: rotated 180 the part under the rim is the top of the canvas */
-    const rot=a=>{buddy.style.transform='rotate('+a+'deg)'},clip=d=>{const n=Math.max(0,Math.round(d));buddy.style.clipPath=n?'inset('+n+'px 0 0 0)':''};
-    buddy.style.transformOrigin='50% 50%';play([[{f:'stretch',air:1,face:0,happy:0,mouth:0,hop:0},0]]);
-    await anim(220,k=>{buddy.style.top=Math.round(lerp(topIn-30,topIn,k)-18*4*k*(1-k))+'px';rot(180*k)});
-    await anim(300,k=>{const d=fo*.55*k*k;buddy.style.top=Math.round(topIn+d)+'px';clip(d)});
-    /* rummage until nothing else has been dropped for a moment */
-    const t0=performance.now();let lastB=t0,lastS=t0;bin.until=Math.max(bin.until,t0+2300);
+    /* flip and go in headfirst with hand-drawn frames (mascot/anim_trash.js), no CSS rotation. The frames turn about the body centre, so upside down the body sits 12 art rows
+       lower than a canvas turned about its middle: top - off keeps the rim line where it was, and the part under the rim is the bottom of the canvas now. */
+    const off=23*bh/CELL_H,clip=d=>{const n=Math.max(0,Math.round(d-off));buddy.style.clipPath=n?'inset(0 0 '+n+'px 0)':''};
+    trashPose(0);let fi=-1;
+    await anim(220,k=>{const i=Math.min(4,Math.floor(k*5));if(i!==fi){fi=i;trashPose(i)}buddy.style.top=Math.round(lerp(topIn-30,topIn,k)-18*4*k*(1-k)-off*k)+'px'});
+    await anim(300,k=>{const d=fo*.55*k*k;buddy.style.top=Math.round(topIn+d-off)+'px';clip(d)});
+    /* rummage until nothing else has been dropped for a moment: kick A, tilt, kick B, tilt */
+    const t0=performance.now();let lastB=t0,lastS=t0;bin.until=Math.max(bin.until,t0+2300);fi=-1;
     while(performance.now()<bin.until){
-      const now=performance.now(),tm=now-t0,d=fo*(.58+.2*Math.sin(tm*.011));
-      buddy.style.top=Math.round(topIn+d)+'px';buddy.style.left=Math.round(cx+4*Math.sin(tm*.017))+'px';clip(d);rot(180+11*Math.sin(tm*.021));
+      const now=performance.now(),tm=now-t0,d=fo*(.58+.2*Math.sin(tm*.011)),i=[4,6,5,7][Math.floor(tm/110)%4];
+      if(i!==fi){fi=i;trashPose(i)}
+      buddy.style.top=Math.round(topIn+d-off)+'px';buddy.style.left=Math.round(cx+4*Math.sin(tm*.017))+'px';clip(d);
       if(now-lastS>110){lastS=now;icn.style.transform='translateX('+(Math.random()<.5?-2:2)+'px)'}
       if(now-lastB>520){lastB=now;burstAt(t.x,t.r.top+t.r.height*.28,6)}
       await nextFrame();
@@ -1771,12 +1741,13 @@ async function binShow(){
     icn.style.transform='';
     /* the icons shoot out, the mascot climbs out after them */
     ejected=(async()=>{do{await binEject(0)}while(bin.items.length)})();
-    await anim(220,k=>{const d=fo*.78*(1-k);buddy.style.top=Math.round(topIn+d)+'px';buddy.style.left=Math.round(cx)+'px';clip(d);rot(180)});
+    trashPose(4);
+    await anim(220,k=>{const d=fo*.78*(1-k);buddy.style.top=Math.round(topIn+d-off)+'px';buddy.style.left=Math.round(cx)+'px';clip(d)});
     buddy.style.clipPath='';buddy.style.visibility='';
-    play([[{f:'stretch',air:0,hop:3,happy:1},120],[{f:'idle',hop:0},400],[RESET,0]]);
-    const ex=Math.max(8,cx-140);
-    await anim(380,k=>{buddy.style.left=Math.round(lerp(cx,ex,k))+'px';buddy.style.top=Math.round(topIn-4*60*k*(1-k))+'px';rot(180+180*k)});
-    buddy.style.transform='';buddy.style.transformOrigin='';
+    const ex=Math.max(8,cx-140);fi=-1;
+    /* out and over to the left, the turn carrying on past 180 degrees (the mirrored frames), then upright */
+    await anim(380,k=>{const i=k<.3?3:k<.6?2:k<.85?1:0;if(i!==fi){fi=i;trashPose(i,1)}buddy.style.left=Math.round(lerp(cx,ex,k))+'px';buddy.style.top=Math.round(topIn-4*60*k*(1-k)-off*(1-k))+'px'});
+    Object.assign(BS,{pose:0,flip:0});play([[{f:'stretch',air:0,hop:3,happy:1},120],[{f:'idle',hop:0},400],[RESET,0]]);
     await ejected;ejected=null;
   }finally{
     if(ejected)await ejected.catch(()=>{});
@@ -2007,9 +1978,9 @@ async function unrOpen(){
   const w=WIN.crash.el;w.style.left=Math.round((desk.clientWidth-400)/2)+'px';w.style.top=Math.round(Math.max(150,desk.clientHeight*.36-60))+'px';
   openWin('crash',unr.el);
   if(!buddy.hidden&&!carry&&!bdrag){
-    BS.pens=0;play([[{f:'stretch',face:'scared',sweat:1,happy:0},0]]);
+    BS.pens=0;play([[{f:'stretch',face:'scared',sw:1,arms:[250,290],happy:0},0]]);
     crash.hop=hopOnto('crash');await crash.hop;if(!crash.on||crash.go)return;
-    play([[{f:'idle',face:'scared',sweat:1,happy:0},0]]);speak("Just ignore, don't do it again!",4600,true);
+    play([[{f:'idle',face:'scared',sw:1,arms:[240,300],happy:0},0]]);speak("Just ignore, don't do it again!",4600,true);
   }
 }
 /* Ignore: the dialog goes, the icon stays out, and so does the pulse */
@@ -2089,34 +2060,36 @@ async function unrTryAgain(){
       const br=buddy.getBoundingClientRect();perch=null;buddy.classList.remove('falling');buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.zIndex='6';
       buddy.style.left=Math.round(br.left-dr.left)+'px';buddy.style.top=Math.round(br.top-dr.top)+'px';
       /* he pops into the old dead-Mac icon at once */
-      BS.pens=0;Object.assign(BS,RESET);BS.mac=1;bRender();
+      BS.pens=0;Object.assign(BS,RESET,{pose:'mac:0',air:1,flip:0});bRender();   /* frame 0 of mascot/anim_mac.js is the old Mac icon, pixel for pixel */
     }
     if(!reduce){
       await wait(1000);
       closeWin('crash');
       if(mascot){
-        /* and drops to the bottom of the screen, tumbling onto his side */
-        const bh=buddy.offsetHeight,top0=parseFloat(buddy.style.top),land=dr.height-8-bh/2-bcv.offsetWidth/32*9.5;let vy=0,top=top0,last=performance.now(),rot=0,bounced=false;
-        buddy.style.transformOrigin='50% 50%';
+        /* and drops to the bottom of the screen, tumbling onto his side: hand-drawn tilts (mascot/anim_mac.js: 0 upright, 1 ~18, 2 ~45, 3 ~72 degrees, 4 on its side), picked by how far it has turned, no CSS rotation.
+           The lying Mac sits 3 art rows higher in its cell than an upright one, so it lands that much lower. It lands and cracks on the first contact, with no rebound. */
+        const bh=buddy.offsetHeight,sc=bcv.offsetWidth/CELL_W,top0=parseFloat(buddy.style.top),land=dr.height-8-(CELL_H-14.5)*sc+3*sc;   /* the Mac's feet row (57 of 64) lands where the old 32x48 formula put its row 41 */let vy=0,top=top0,last=performance.now(),rot=0,fi=-1;
+        const macPose=i=>{if(i===fi)return;fi=i;Object.assign(BS,{pose:'mac:'+i,air:1,flip:0});bRender()};
         await new Promise(res=>{const f=t=>{const dt=Math.min(.04,(t-last)/1000)||.016;last=t;vy+=3800*dt;top+=vy*dt;rot=Math.min(90,rot+dt*260);
-          if(top>=land){top=land;if(!bounced&&vy>500){bounced=true;vy=-vy*.25}else{buddy.style.top=Math.round(top)+'px';buddy.style.transform='rotate(90deg)';res();return}}
-          buddy.style.top=Math.round(top)+'px';buddy.style.transform='rotate('+rot+'deg)';requestAnimationFrame(f)};requestAnimationFrame(f)});
-        buddy.style.transform='rotate(90deg)';
-        await wait(500);
+          if(top>=land){top=land;buddy.style.top=Math.round(top)+'px';macPose(4);res();return}
+          buddy.style.top=Math.round(top)+'px';macPose(rot<9?0:rot<32?1:rot<58?2:rot<81?3:4);requestAnimationFrame(f)};requestAnimationFrame(f)});
+        /* the thud, then it cracks and smokes */
+        await wait(150);
+        for(const [i,ms] of [[5,150],[6,200],[7,250]]){macPose(i);await wait(ms)}
       }
       /* the vortex */
       $('#desk').style.transform='';$('#mbar').style.transform='';
       col=vxCollect();document.body.classList.add('vx');
       hole=document.createElement('div');hole.id='bhole';hole.innerHTML='<div class="bh-t"></div><div class="bh-b"></div>';document.body.appendChild(hole);
       const C={x:innerWidth/2,y:innerHeight/2},T=5200,t0=performance.now(),bp=mascot?(()=>{const r=buddy.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2,d:3500,D:1500,sg:1,rj:200,tw:0}})():null;
-      const mac=bp&&{el:buddy,...bp,base:'rotate(90deg)'};
+      const mac=bp&&{el:buddy,...bp};
       await new Promise(res=>{
         const f=now=>{const t=now-t0,k=Math.min(1,t/T);
           const gw=Math.round(lerp(110,280,Math.min(1,t/3800))),gh=Math.round(gw*.76),m=((t/90)|0)%2?1:0;
           hole.style.cssText=`width:${gw}px;height:${gh}px;left:${C.x-gw/2+(t<500?m*2:0)}px;top:${C.y-gh/2}px;opacity:${t<350?(((t/70)|0)%2?1:.4):1}`;
           for(const pc of col.pieces)vxPlace(pc,C,t,{d:0});
           if(mac){mac.dd=mac.d;const p=Math.max(0,Math.min(1,(t-mac.d)/mac.D)),q=Math.pow(p,1.35),r0=Math.hypot(mac.x-C.x,mac.y-C.y),a0=Math.atan2(mac.y-C.y,mac.x-C.x),R=r0*(1-q),th=q*(2.2*Math.PI+r0/260);
-            buddy.style.transform=`translate(${(C.x+R*Math.cos(a0+th)-mac.x).toFixed(1)}px,${(C.y+R*Math.sin(a0+th)-mac.y).toFixed(1)}px) rotate(${(90+q*720).toFixed(1)}deg) scale(${Math.max(.02,1-q*q*.98).toFixed(3)})`;if(p>=1)buddy.style.visibility='hidden'}
+            buddy.style.transform=`translate(${(C.x+R*Math.cos(a0+th)-mac.x).toFixed(1)}px,${(C.y+R*Math.sin(a0+th)-mac.y).toFixed(1)}px) rotate(${Math.round(q*8)*90}deg) scale(${Math.max(.02,1-q*q*.98).toFixed(3)})`;if(p>=1)buddy.style.visibility='hidden'}
           const dk=Math.min(1,Math.max(0,(t-1200)/3800));desk.style.background=document.body.style.background=`rgb(0,${Math.round(128*(1-dk))},${Math.round(128*(1-dk))})`;$('#wall').style.opacity=String(1-dk);
           if(t<T)requestAnimationFrame(f);else res()};requestAnimationFrame(f)});
     }
@@ -2582,15 +2555,29 @@ function mascotWelcome(id){
   const line=WELCOME[id];if(!line||welcomed.has(id)||buddy.hidden||carry||bdrag)return;
   welcomed.add(id);
   const say=()=>setTimeout(()=>{if(buddy.hidden||carry)return;speak(line,2600,true);
-    play([[{f:'stretch',hop:3,happy:1},110],[{f:'idle',hop:0},260],[RESET,0]])},350);
+    /* only the very first hello (the Read Me that opens at the start) gets a wave: one arm raised, bobbing between the up-right buckets, the other resting; with a party hat the left arm waves instead */
+    if(id==='readme'){const left=BS.hat==='party',W=a=>left?[180-a,330]:[210,a];
+      play([[{f:'stretch',hop:3,happy:1},110],...[0,30,0,30,0,30].map(a=>[{f:'idle',hop:0,happy:1,arms:W(a)},110]),[{arms:undefined},150],[RESET,0]])}
+    else play([[{f:'stretch',hop:3,happy:1},110],[{f:'idle',hop:0},260],[RESET,0]])},350);
   /* the first time Work opens, the mascot hops up onto it first (when there is room) */
   if(id==='work')hopOnto(id).then(say);else say();
 }
 
 
 if(!reduce){
-  setInterval(()=>{if(seq.length||buddy.hidden)return;BS.f=BS.f==='idle'?'breath':'idle';bRender()},640);
-  (function blink(){setTimeout(()=>{BS.blink=1;bRender();setTimeout(()=>{BS.blink=0;bRender();blink()},120)},2400+Math.random()*3000)})();
+  /* a sweat drop that forms, swells, runs and drips (mascot/anim_fx.js) while a scared moment has BS.sw set */
+  let swI=0;setInterval(()=>{if(!BS.sw||buddy.hidden)return;swI=(swI+1)%4;BS.fx=[fxAt('sweat',swI)];bRender()},150);
+  /* idle: calm and subtle, he is on screen while people read. No breathing in and out; every IDLE_MS the outline just settles into the next of two close boil variants
+     (about 4% of his pixels change, mascot/body.js). The nap keeps its own slow breathing. */
+  const IDLE_MS=2200;
+  setInterval(()=>{if(seq.length||buddy.hidden||buddy.classList.contains('falling')||buddy.classList.contains('carried'))return;if(BS.f==='breath')BS.f='idle';BS.bv=((BS.bv|0)+1)%2;bRender()},IDLE_MS);
+  /* perched with his centre within 7 art px of a ledge end he leans out over it, a shoe hanging, and wobbles back (mascot/anim_ground.js 8, 9; flip:1 at the left end) */
+  setInterval(()=>{if(!perch||seq.length||buddy.hidden||BS.sleep||BS.pose||BS.hold||BS.hat==='shades'||buddy.classList.contains('falling')||buddy.classList.contains('carried')||diving)return;
+    const L=ledgeNow(perch);if(!L)return;const k=buddy.offsetWidth/CELL_W,fl=perch.dx<=7*k?1:L.w-perch.dx<=7*k?0:-1;if(fl<0)return;
+    const o={pose:'ground:8',flip:fl,air:1,arms:[180,0]};play([[o,800],[{...o,pose:'ground:9'},900],[o,700],[RESET,0]])},3200);
+  /* a blink is a lid coming down: half, shut, half, open (mascot/faces.js LIDS); skipped asleep and while an authored face is up */
+  (function blink(){setTimeout(()=>{if(BS.sleep||window.MASCOT.FACES[BS.face]){blink();return}
+    BS.lid=2;bRender();setTimeout(()=>{BS.lid=0;BS.blink=1;bRender();setTimeout(()=>{BS.blink=0;BS.lid=2;bRender();setTimeout(()=>{BS.lid=0;bRender();blink()},60)},60)},60)},2400+Math.random()*3000)})();
 }
 let mx=0,my=0,raf=0;
 addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;if(!raf)raf=requestAnimationFrame(look)});
@@ -2731,7 +2718,7 @@ addEventListener('resize',()=>{for(const k in WIN)if(WIN[k].open&&!WIN[k].min)cl
 let wsz='';new ResizeObserver(()=>{const k=desk.clientWidth+'x'+desk.clientHeight;if(k===wsz)return;wsz=k;clearTimeout(rzT);rzT=setTimeout(buildWall,wall.width?120:0)}).observe(desk);
 
 paintMarks();stage();renderStrip();updInd();BS.mask=PREF(MASK_KEY,'0')==='1'?1:0;bRender();syncSkull();syncWake();runBoot();
-if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,makeHeap,sowHeap,dance,wither,get compost(){return compost},get bin(){return bin},get unr(){return unr},setMask,syncSkull,vxCollect,get crash(){return crash},unrOut,unrIn,unrOpen,unrTryAgain,binFeed,mawEat,get BS(){return BS},toCompost,trashDive,sproutFate,set80,show404,get v80on(){return v80on},plant,plants,sprout,bloom,eat,crumble,bubbleP:v=>{BUBBLE_P=v},get perch(){return perch},ditherIn,clearDither,get bubbles(){return speakN},dropBuddy,logoClick,discoveryClick,get logoN(){return logoN},get ST(){return ST},get endingDone(){return endingDone},plant:plant,showAlert,openWin,closeWin,setView,get seeds(){return seeds},get top(){return topId},
+if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,makeHeap,sowHeap,dance,wither,get compost(){return compost},get bin(){return bin},get unr(){return unr},setMask,syncSkull,vxCollect,get crash(){return crash},unrOut,unrIn,unrOpen,unrTryAgain,binFeed,mawEat,get BS(){return BS},toCompost,trashDive,sproutFate,set80,show404,get v80on(){return v80on},plant,plants,sprout,bloom,eat,crumble,bubbleP:v=>{BUBBLE_P=v},get perch(){return perch},ditherIn,clearDither,get bubbles(){return speakN},dropBuddy,hopOnto,logoClick,discoveryClick,get logoN(){return logoN},get ST(){return ST},get endingDone(){return endingDone},plant:plant,showAlert,openWin,closeWin,setView,get carry(){return carry},get seeds(){return seeds},get top(){return topId},
   /* Wake Up: unlock the icon without the crash, let the game window be closed, or forget the unlock (reload after) */
   wake(){if(unr.on)unrReset();if(WIN.crash.open)closeWin('crash');if(PREF(GAME_KEY,'')==='')PSET(GAME_KEY,'on');addWakeIcon(true);crumbleUnr();wakeNew=false;wakePulse()},
   releaseGame:()=>releaseWin('game'),unwake:()=>{PSET(GAME_KEY,'');PSET(SEED_KEY,'');PSET(TRAP_KEY,'');PSET(MIN_KEY,'');PSET(BEG_KEY,'')},openGame,

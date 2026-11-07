@@ -709,9 +709,9 @@ html.v80 .cp2 *{line-height:16px!important}
 /* the case-study styles for a project window are generated into rw.css (tools/scope_css.py) */
 
 /* ===== Mascot: 34x44 sprite at 3x ===== */
-#buddy{position:absolute;right:128px;bottom:8px;width:96px;height:144px;z-index:4}
+#buddy{position:absolute;right:128px;bottom:8px;width:120px;height:192px;z-index:4}
 #buddy[hidden]{display:none}
-#bcv{width:96px;height:144px}
+#bcv{width:120px;height:192px}   /* 40x64 at exactly 3x */
 .bx{position:absolute;right:0;top:24px;width:13px;height:13px;padding:0;border:0;background:none;visibility:hidden}
 .bx::after{content:"";position:absolute;inset:-8px}
 #buddy:hover .bx,.bx:focus-visible{visibility:visible}
@@ -725,7 +725,7 @@ html.v80 .cp2 *{line-height:16px!important}
 .alert::before{content:"";position:absolute;left:4px;top:4px;right:-4px;bottom:-4px;background:var(--chk);z-index:-1}
 .al-in{display:grid;grid-template-columns:68px 1fr;gap:16px 20px;padding:20px;background:var(--plat);border:1px solid var(--ink);
   box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 var(--plat-s),inset 0 0 0 3px var(--plat),inset 0 0 0 4px var(--plat-s)}
-.al-ico canvas{width:64px;height:96px}
+.al-ico canvas{width:80px;height:128px}
 .alert p{margin:16px 0 0;font:600 16px/24px var(--sans);align-self:start}
 .al-btns{grid-column:1/-1;display:flex;justify-content:flex-end}
 
@@ -779,8 +779,8 @@ html.v80 .cp2 *{line-height:16px!important}
   .seg button{min-height:44px;padding-top:11px}
   .item{min-height:44px}
   .rb,.disc{min-height:44px}
-  #buddy{right:8px;bottom:8px;width:64px;height:96px}
-  #bcv{width:68px;height:88px}
+  #buddy{right:8px;bottom:8px;width:80px;height:128px}
+  #bcv{width:80px;height:128px}   /* 40x64 at exactly 2x */
   .bx{width:44px;height:44px;right:-12px;top:-8px;visibility:visible;display:grid;place-items:center}
   .bx::after{inset:0}
   .btn{min-height:44px;padding-top:11px}
