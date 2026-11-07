@@ -9,12 +9,13 @@
    - the body centre (pixel centroid of v) stays within 2 px of the rotation centre, the centroid of BODY.T2 (19.6, 43.7), so the turn happens in place;
    - frame 0 is compose({lv:'T2',ft:'together',stage:3}) pixel for pixel outside its face box and the sweat bead, so swapping into it does not jump;
    - kick A (4) and kick B (5) shoes differ; the rummage tilts (6, 7) differ in body and shoes;
+   - back views (8..11, back:true): no face, no cheeks and no arm nubs; their body, shoes and nubs are the front frame's (4..7) plus the crack (over layer) at the shoe end;
    - compose() renders every frame, plain and flip:1, to a 40x64 grid of known palette chars, and every authored pixel lies on the canvas. */
 import {lintPoseFrames} from './lint_mascot_body.mjs';
 import {ANIM_TRASH} from '../mascot/anim_trash.js';
 import {BODY} from '../mascot/body.js';
 import {compose,MB} from '../mascot/atlas.js';
-const N=8,W=40,H=64;
+const N=12,W=40,H=64;
 const k8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 function blobs(set){const seen=new Set(),out=[];for(const key of set){if(seen.has(key))continue;const b=[],q=[key];seen.add(key);
   while(q.length){const k=q.pop();b.push(k);const x=k%W,y=Math.floor(k/W);for(const [a,c] of k8){const n=(y+c)*W+x+a;if(x+a>=0&&x+a<W&&set.has(n)&&!seen.has(n)){seen.add(n);q.push(n)}}}out.push(b)}return out}
@@ -35,14 +36,15 @@ export function lint(){
     // centre
     let sx=0,sy=0;for(const k of B.keys()){sx+=k%W;sy+=Math.floor(k/W)}sx/=B.size;sy/=B.size;
     if(Math.hypot(sx-cx0,sy-cy0)>2)E(`body centre ${sx.toFixed(1)},${sy.toFixed(1)} is more than 2 px from the turn centre ${cx0.toFixed(1)},${cy0.toFixed(1)}`);
-    // face
+    // face (a back view, 8..11, has none: eyes, brows, mouth and cheeks are gone)
     const fb=f.face;if(!Array.isArray(fb)||fb.length!==4){E('needs face:[x0,y0,x1,y1] (the box the baked face lies in)');return}
     const inBox=k=>{const x=k%W,y=Math.floor(k/W);return x>=fb[0]&&x<=fb[2]&&y>=fb[1]&&y<=fb[3]};
     const face=new Set();let whites=0;const bad=new Set();
     const nubInk=k=>{const x=k%W,y=Math.floor(k/W);return k8.some(([a,c])=>'rpR'.includes(O.get((y+c)*W+x+a)||'.'))};   // a nub's outline is not face
     for(const [k,c] of O){if(!inBox(k))continue;if('kwm'.includes(c)&&!(c==='k'&&nubInk(k))){face.add(k);if(c==='w')whites++}else if(c==='c'){if(!fill(k))bad.add(k)}}
-    if(whites<24)E(`the face has ${whites} white eye pixels (two open eyes have at least 24)`);
-    for(const k of face){if(!fill(k))bad.add(k);const x=k%W,y=Math.floor(k/W);
+    if(f.back){if(face.size||[...O.values()].includes('c')||whites)E('a back view carries no face (no k, w, m or c in the face box other than nub ink, no cheeks)')}
+    else if(whites<24)E(`the face has ${whites} white eye pixels (two open eyes have at least 24)`);
+    if(!f.back)for(const k of face){if(!fill(k))bad.add(k);const x=k%W,y=Math.floor(k/W);
       for(const [a,c] of k8){const n=(y+c)*W+x+a;if(face.has(n))continue;if(!fill(n)||(O.has(n)&&O.get(n)!=='c'))bad.add(n)}}
     if(bad.size)E(`face needs body fill under it and a clear 1 px ring of fill around it; not so at: ${[...bad].slice(0,6).map(k=>`${k%W},${Math.floor(k/W)}`).join(' ')}${bad.size>6?' ...':''}`);
     // leaf and sweat bead
@@ -62,7 +64,8 @@ export function lint(){
     sb.forEach((b,i)=>{const d=Math.min(...b.map(dist));if(d>3)E(`shoe ${i} is ${d} px from the body (max 3)`)});
     // nubs
     const nubSet=new Set([...O].filter(([k,c])=>'rpR'.includes(c)).map(([k])=>k)),nb=blobs(nubSet);
-    if(nb.length!==2)E(`wants two arm nubs (found ${nb.length} red blobs in the over layer)`);
+    if(f.back){if(nb.length)E('a back view has no arm nubs')}
+    else if(nb.length!==2)E(`wants two arm nubs (found ${nb.length} red blobs in the over layer)`);
     nb.forEach((b,i)=>{if(Math.min(...b.map(dist))>2)E(`nub ${i} floats off the body`)});
     info[fi]={B,shoes:shoeSet};
   });

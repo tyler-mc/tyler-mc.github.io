@@ -1642,7 +1642,7 @@ addEventListener('resize',()=>{if(!carry)clampBuddy()});
 const lerp=(a,b,k)=>a+(b-a)*k,wait=ms=>new Promise(r=>setTimeout(r,ms));
 const anim=(ms,fn)=>new Promise(res=>{const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
 const trashFrame=k=>{const ic=$('#ic-trash .ic');if(!ic)return;const m=$('canvas.moss',ic);ic.innerHTML=svg(ICON[k],2)+svg(ICON[k],2,{fill:'url(#ck)',cls:'selov'});if(m)ic.appendChild(m)};
-/* the dive's hand-drawn frames (mascot/anim_trash.js): 0 ready, 1..3 turning, 4/5 upside down kicking, 6/7 rummage tilts; fl=1 mirrors (turning on past 180 for the climb out) */
+/* the dive's hand-drawn frames (mascot/anim_trash.js): 0 ready, 1..3 turning, 4/5 upside down kicking, 6/7 rummage tilts, 8..11 the same four seen from behind (in the can); fl=1 mirrors (turning on past 180 for the climb out) */
 const trashPose=(i,fl=0)=>{Object.assign(BS,{pose:'trash:'+i,flip:fl,air:1,face:0,happy:0,mouth:0,hop:0,bv:0});bRender()};
 async function trashDive(){
   TK.discover('mascot-trash');
@@ -1736,11 +1736,12 @@ async function binShow(){
     const off=23*bh/CELL_H,clip=d=>{const n=Math.max(0,Math.round(d-off));buddy.style.clipPath=n?'inset(0 0 '+n+'px 0)':''};
     trashPose(0);let fi=-1;
     await anim(220,k=>{const i=Math.min(4,Math.floor(k*5));if(i!==fi){fi=i;trashPose(i)}buddy.style.top=Math.round(lerp(topIn-30,topIn,k)-18*4*k*(1-k)-off*k)+'px'});
-    await anim(300,k=>{const d=fo*.55*k*k;buddy.style.top=Math.round(topIn+d-off)+'px';clip(d)});
-    /* rummage until nothing else has been dropped for a moment: kick A, tilt, kick B, tilt */
+    trashPose(8);   /* going in, he turns his back on us: the rest of the rummage is seen from behind */
+    await anim(300,k=>{const d=fo*.68*k*k;buddy.style.top=Math.round(topIn+d-off)+'px';clip(d)});
+    /* rummage until nothing else has been dropped for a moment: kick A, tilt, kick B, tilt (from behind, head well down in the can) */
     const t0=performance.now();let lastB=t0,lastS=t0;bin.until=Math.max(bin.until,t0+2300);fi=-1;
     while(performance.now()<bin.until){
-      const now=performance.now(),tm=now-t0,d=fo*(.58+.2*Math.sin(tm*.011)),i=[4,6,5,7][Math.floor(tm/110)%4];
+      const now=performance.now(),tm=now-t0,d=fo*(.68+.12*Math.sin(tm*.011)),i=[8,10,9,11][Math.floor(tm/110)%4];
       if(i!==fi){fi=i;trashPose(i)}
       buddy.style.top=Math.round(topIn+d-off)+'px';buddy.style.left=Math.round(cx+4*Math.sin(tm*.017))+'px';clip(d);
       if(now-lastS>110){lastS=now;icn.style.transform='translateX('+(Math.random()<.5?-2:2)+'px)'}
@@ -1751,7 +1752,7 @@ async function binShow(){
     /* the icons shoot out, the mascot climbs out after them */
     ejected=(async()=>{do{await binEject(0)}while(bin.items.length)})();
     trashPose(4);
-    await anim(220,k=>{const d=fo*.78*(1-k);buddy.style.top=Math.round(topIn+d-off)+'px';buddy.style.left=Math.round(cx)+'px';clip(d)});
+    await anim(220,k=>{const d=fo*.8*(1-k);buddy.style.top=Math.round(topIn+d-off)+'px';buddy.style.left=Math.round(cx)+'px';clip(d)});
     buddy.style.clipPath='';buddy.style.visibility='';
     const ex=Math.max(8,cx-140);fi=-1;
     /* out and over to the left, the turn carrying on past 180 degrees (the mirrored frames), then upright */
