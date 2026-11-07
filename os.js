@@ -2057,7 +2057,7 @@ async function unrTryAgain(){
   let col=null,hole=null,black=null,flash=null,word=null;
   try{
     if(mascot){
-      const br=buddy.getBoundingClientRect();perch=null;buddy.classList.remove('falling');buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.zIndex='6';
+      const br=buddy.getBoundingClientRect();perch=null;buddy.classList.remove('falling');buddy.style.right='auto';buddy.style.bottom='auto';buddy.style.zIndex='8600';   /* the Mac icon draws over every window (they stack from 20 up; the crash dialog is 8500) */
       buddy.style.left=Math.round(br.left-dr.left)+'px';buddy.style.top=Math.round(br.top-dr.top)+'px';
       /* he pops into the old dead-Mac icon at once */
       BS.pens=0;Object.assign(BS,RESET,{pose:'mac:0',air:1,flip:0});bRender();   /* frame 0 of mascot/anim_mac.js is the old Mac icon, pixel for pixel */
