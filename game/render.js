@@ -2,7 +2,7 @@
    light pass (4 brightness steps); the mascot, enemies and plate/gate marks go on top so they always read. */
 import {T,VW,VH} from './state.js';
 import {AMB,ROOMS,perchOf} from './rooms/index.js';
-import {sprite,glitch,B4,levelOf,shoeX,WALK_LOOKS,ANIM_ROOT,CX,SOLE} from './mascot.js';
+import {sprite,glitch,B4,levelOf,shoeX,WALK_LOOKS,IDLE_TURN,IDLE_LEAN,ANIM_ROOT,CX,SOLE} from './mascot.js';
 import {SLACK,GRACE} from './enemies.js';
 import {paintDoor,drawFragments,drawHudPieces} from './door.js';
 import {drawFragment,fragCentre,ACCENT} from './door.js';   /* M1b: pedestal, fly-in, slot pulse */
@@ -226,7 +226,7 @@ export function createRenderer(cv,{reduce=false}={}){
        the face keeps its size. Feet, arms and facing follow the state. */
     s.lv={idle:'rest',breath:'breath',squash:'S3',land:'S1',stretch:'T2',cling:'T2'}[s.f]||'rest';
     if(fx.k&&live(S)&&(s.f==='idle'||s.f==='breath')){const l=levelOf(fx.sy);if(l!=='rest')s.lv=l}
-    s.flip=p.face<0?1:0;s.ft='stand';
+    s.flip=p.face<0?1:0;s.ft='stand';s.turn=IDLE_TURN;s.lean=IDLE_LEAN;   /* a 3/4 view even standing (the reference's idle): the face sits toward the way he faces, the body leans 1 px that way; the walk adds to both (mascot/anim_walk.js), so a start or stop snaps nothing */
     /* the root jump (mascot/anim_root.js, a taller cell): the frame follows the latest burst and the fall, then the landing */
     const rb=S.items.root&&!p.dead&&!seat&&S.mode!=='intro'?S.roots[S.roots.length-1]:null;let rf=-1;
     if(rb&&!p.ground){rf=rb.t<4?5:rb.t<10?6:rb.t>=18?9:p.vy<-1?3+((rb.t/5|0)&1):p.vy>1?8:7;if(reduce)rf=7}
@@ -237,12 +237,13 @@ export function createRenderer(cv,{reduce=false}={}){
     else if(seat){s.ft='sit';s.lv=s.f==='land'?'S1':'S2'}
     else if(p.cl&&!p.dead){const d=p.cl>0?1:-1;s.ft='together';s.cling=d;s.flip=d<0?1:0;s.dir=[d,-1];s.arms=d>0?[30,0]:[150,180]}   /* clinging: both hands up on the wall side (flip is by his facing) */
     else if(!p.ground&&S.mode!=='intro'){s.ft=p.vy<-1?'tuck':p.vy>2?'dangle':'loose';s.arms=p.vy<-1?[150,30]:[180,0]}
-    else if(p.walk&&!reduce){const w=WALK_LOOKS[Math.floor(p.x/FEEL.STRIDE)&3];s.ft=w.ft;s.arms=w.arms;if(s.lv==='rest'||s.lv==='breath')s.lv=w.lv}
+    else if(p.walk&&!reduce){const w=WALK_LOOKS[Math.floor(p.x*p.face/FEEL.STRIDE)&7];s.ft=w.ft;s.arms=w.arms;s.turn=w.turn;s.lean=w.lean;if(s.lv==='rest'||s.lv==='breath')s.lv=w.lv}
     else if(!seat&&p.ground&&live(S)&&fx.sk){s.pose='ground:5';s.flip=p.vx<0?1:0;s.dx=0}   /* A7: leaning back into the slide, shoes forward (mascot/anim_ground.js) */
     else if(s.edge){s.pose=(t>>6)&1?'ground:9':'ground:8';s.flip=s.edge<0?1:0;s.arms=[180,0]}   /* A13: leaning out over the ledge, a shoe hanging */
     else if(s.lv==='S3'||s.lv==='S2')s.ft='splay';
     else if(s.lv==='T1'||s.lv==='T2'||s.lv==='T3')s.ft='together';
     if(s.face==='beg'){s.face='worry';s.arms=[240,300]}
+    if(s.pose||s.cling)s.turn=s.lean=0;   /* a whole-frame pose or the cling is authored with its own face and body: no 3/4 shift on top */
     return s;
   }
   /* pulse and dust (game/fx.js): one fixed step per world step, from tick(). Not in S, so Undo and saves never hold them.

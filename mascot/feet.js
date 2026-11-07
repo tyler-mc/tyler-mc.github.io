@@ -4,7 +4,7 @@
    back:true (every pose here), tuck behind it: only the toe ends and the two rows under the body show. Use them with compose({lv, ft:name}); airborne poses with air:1.
    Lowest shoe row [left, right] (59 = on the ground, 57 = two rows up, 61 = two rows lower; tools/lint_anim_feet.mjs SOLES checks these):
      stand 59,59  together 59,59  splay 59,59  toeUp 59,59  skid 59,59  pigeon 59,59  sit 59,59  sleep 59,59
-     walkA 58,59  walkB 58,59  walkC 57,59  walkD 56,59  liftL 53,59  liftR 59,53
+     walkA 59,59  walkB 59,57  walkC 59,57  walkD 59,58  liftL 53,59  liftR 59,53
      airborne: tuck 57,57  loose 59,60  spread 58,58  kick 58,50  dangle 61,61  dangleB 61,57
    WIRING NOTE (OS: setTimeout poses of about 60 to 180 ms; game: 60 Hz steps):
    - stand      the approved rest pair (toes out). Idle, breathing, talking, and the static pose for reduced motion.
@@ -15,11 +15,13 @@
        spread     falling/reaching: wide apart, toes out and up, 1 row up. Held while falling.
        toeUp      heel strike: toes tipped up, heels on the ground. 1 pose on contact (OS 60 ms, game 2-3 steps); also a skid-lite stop.
        splay      landing impact: flat and wide; with the landing squash (S1/S3). OS 100 ms, game 5-6 steps, then stand.
-   - WALK (toes forward, to the right; 4 poses): cycle walkA -> walkC -> walkB -> walkD, OS about 120 ms each, game 8 steps each.
-       walkA      contact: the forward shoe (screen right) flat, the trailing shoe (screen left) with its heel lifted and the sole showing.
-       walkC      passing/down: the right shoe planted and squashed under the weight, the left lifted 2 rows and swinging through. Use the down body (breath/S1).
-       walkB      contact of the other leg (a different drawing, not a mirror): a new forward shoe (screen right) flat, the trailing shoe (screen left) steeper, sole showing.
-       walkD      passing/down: the right shoe planted, the left lifted 3 rows, toe down, swinging through. Use the down body.
+   - WALK (toes forward, to the right; 4 poses, one STEP; the game plays them twice a stride, mascot/anim_walk.js): cycle walkA -> walkB -> walkC -> walkD. In these poses feet[0] is the
+     PLANTED shoe (behind the body, back flag true) and feet[1] the SWINGING one; a shoe is [x, y, rows, back] and back:false draws it in front of the body, so a lifted foot reads.
+     The planted shoe slides back 6 px a pose (centres 31, 25, 19, 13) while the swinging shoe arcs from behind (centre 7) to the front (29). Use with the low body (breath) on A and B, the tall one (rest) on C and D.
+       walkA      contact: the planted shoe flat and far forward (toe past the body's edge); the trailing shoe behind, heel lifted, sole showing, pushing off.
+       walkB      down: the planted shoe flat, still ahead; the other shoe swings up in front of the body's lower left, lifted 2 rows, toe down.
+       walkC      passing: the planted shoe under the body (two rows show); the swinging shoe crosses in front of it, lifted 2 rows.
+       walkD      up: the planted heel lifts, toe down; the swinging shoe reaches forward, toe tipped up, 1 row up, ready for the next contact.
    - RUN / being CARRIED by the cursor: kick (both shoes flung back behind the body, soles to the viewer, air:1; feet[0] is the lower shoe, feet[1] the upper); for a run alternate kick with walkC every 80 ms.
    - SKID: skid (both shoes forward, toes up, braking) for 150 to 250 ms at the end of a run or a fling, body leaning back, then stand.
    - CARRIED / HANGING (dragged, hanging from a window edge): dangle (limp, toes down, 2 rows lower than standing, air:1); SWING: alternate dangle and dangleB
@@ -156,17 +158,7 @@ export const FEET={
       "kVVVVVVVkk..",
       ".kkkkkkk...."
     ]]]},
-  walkA:{back:true,feet:[[1,51,[
-      "..kkk.......",
-      ".kVVVkk.....",
-      "kVvvUUUkk...",
-      "kVvUUUUUUkk.",
-      ".kVUUUUUuuuk",
-      ".kVvUUUUUuuk",
-      "..kVVUUUUUuk",
-      "...kkkkkkkk."
-    ]],
-    [26,53,[
+  walkA:{back:true,feet:[[25,53,[
       "......kkkk..",
       "....kkUuuuk.",
       ".kkkUUUUUuuk",
@@ -174,28 +166,8 @@ export const FEET={
       "kvUUUUUUUUUk",
       "kVVVUUUUVVk.",
       ".kkkkkkkkk.."
-    ]]]},
-  walkB:{back:true,feet:[[2,50,[
-      ".kkkk......",
-      "kVVVVkk....",
-      "kVvvUUUkk..",
-      "kVvUUUUUUk.",
-      ".kVUUUUUUuk",
-      ".kVvUUUUuuk",
-      "..kVUUUuuuk",
-      "..kVVUUUuuk",
-      "...kkkkkkk."
-    ]],
-    [25,53,[
-      ".....kkkk...",
-      "...kkUuuuk..",
-      ".kkUUUUUuuk.",
-      "kUUUUUUUUuuk",
-      "kvUUUUUUUUUk",
-      "kVVVUUUUVVk.",
-      ".kkkkkkkkk.."
-    ]]]},
-  walkC:{back:true,feet:[[3,50,[
+    ],true],
+    [1,52,[
       "..kkk.......",
       ".kVVVkk.....",
       "kVvvUUUkk...",
@@ -204,15 +176,17 @@ export const FEET={
       ".kVvUUUUUuuk",
       "..kVVUUUUUuk",
       "...kkkkkkkk."
-    ]],
-    [21,55,[
-      "......kkkkkk..",
-      ".kkkkkUUuuuuk.",
-      "kvUUUUUUUUUUuk",
-      "kVVVUUUUUUVVVk",
-      ".kkkkkkkkkkkk."
-    ]]]},
-  walkD:{back:true,feet:[[1,50,[
+    ],true]]},
+  walkB:{back:true,feet:[[19,53,[
+      "......kkkk..",
+      "....kkUuuuk.",
+      ".kkkUUUUUuuk",
+      "kUUUUUUUUUuk",
+      "kvUUUUUUUUUk",
+      "kVVVUUUUVVk.",
+      ".kkkkkkkkk.."
+    ],true],
+    [6,51,[
       "..kkkkk....",
       "kkUUUUUkk..",
       "kvUUUUUuuk.",
@@ -220,16 +194,45 @@ export const FEET={
       ".kVvUUUUUuk",
       "..kVVVVVVk.",
       "...kkkkkk.."
-    ]],
-    [20,53,[
-      ".....kkkk...",
-      "...kkUuuuk..",
-      ".kkUUUUUuuk.",
-      "kUUUUUUUUuuk",
+    ],false]]},
+  walkC:{back:true,feet:[[13,53,[
+      "......kkkk..",
+      "....kkUuuuk.",
+      ".kkkUUUUUuuk",
+      "kUUUUUUUUUuk",
       "kvUUUUUUUUUk",
       "kVVVUUUUVVk.",
       ".kkkkkkkkk.."
-    ]]]},
+    ],true],
+    [17,51,[
+      "..kkkkk....",
+      "kkUUUUUkk..",
+      "kvUUUUUuuk.",
+      "kVvUUUUUuuk",
+      ".kVvUUUUUuk",
+      "..kVVVVVVk.",
+      "...kkkkkk.."
+    ],false]]},
+  walkD:{back:true,feet:[[7,52,[
+      "..kkk.......",
+      ".kVVVkk.....",
+      "kVvvUUUkk...",
+      "kVvUUUUUUkk.",
+      ".kVUUUUUuuuk",
+      ".kVvUUUUUuuk",
+      "..kVVUUUUUuk",
+      "...kkkkkkkk."
+    ],true],
+    [23,51,[
+      ".......kkkk.",
+      ".....kkUuuuk",
+      "...kkUUUUuuk",
+      ".kkUUUUUUUuk",
+      "kvUUUUUUUUVk",
+      "kvUUUUUUVVk.",
+      "kVVVVVVVkk..",
+      ".kkkkkkk...."
+    ],false]]},
   kick:{back:true,feet:[[2,50,[
       ".kkkk.....",
       "kVVVVkk...",

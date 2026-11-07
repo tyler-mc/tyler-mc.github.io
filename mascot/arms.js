@@ -1,25 +1,27 @@
-/* Authored arm nubs: cute round mittens, one per screen-angle bucket. Lint: node tools/lint_anim_arms.mjs   (--craft also lists pixel notes on the squash/stretch levels)
+/* Authored hands: round mittens that grow out of the body like the approved reference's (a big round hand, one body colour, the outline only around its outer edge). Lint: node tools/lint_anim_arms.mjs   (--craft also lists pixel notes)
    ARMS[angle] = {rows, ax, ay}. A look passes arms:[leftAngle, rightAngle] (degrees counterclockwise from the right: 0 right, 90 up (the head tip: never an arm), 180 left,
    270 down; false/null = no arm on that side; arms undefined = the resting pair [210,330]). compose (mascot/atlas.js) snaps each angle to the nearest bucket here, casts a
-   ray from BODY[level].ctr to where it leaves the body, and stamps the nub with its (ax,ay) pixel on that last body pixel P, after the body and shoes and before the face,
-   hat, stem and leaf. (ax,ay) is always an ink `k` that lands on the body outline: the nub SHARES the body's 1 px outline there (no gap, no double line, no ink inside the
-   body), exactly like the approved concept's resting nubs. Every bucket is a screen-absolute sprite: the `p` highlight is at the top left of the fill and the optional `R`
-   shade at its bottom right; a flipped look mirrors the whole grid, so the left-facing versions are the buckets 120..240 mirrored.
-   Palette: k ink, r body red, p highlight, R shade. Size 4..6 x 4..6 with 4..9 fill px: the round end points out along the bucket, the narrow end sits on the body.
+   ray from BODY[level].ctr to where it leaves the body, and draws the hand with its (ax,ay) pixel on that last body pixel P, after the body and shoes and before the face,
+   hat, stem and leaf. A hand is a big oval that reaches 2 px INTO the body: compose draws a hand pixel only where the body has no fill, so the hand's fill covers the body's
+   outline where they meet (no line between hand and body: it flows out of the body) and only its outer edge is ink. A hand that would leave the 40x64 cell slides inward.
+   Every bucket is a screen-absolute sprite: the `p` highlight is at the top left of the fill and the optional `R` shade at its bottom right; a flipped look mirrors the
+   whole grid, so the left-facing versions are the buckets 120..240 mirrored.
+   Palette: k ink, r body red, p highlight, R shade. Size 7..11 x 7..11 with 14..45 fill px (about a third of it inside the body).
+   The sprites are generated: ellipse, half-length 2.8..3.4 px and half-width 2.8..2.9 px along the bucket's direction, centre 1.6..2.6 px inside P, a 1 px ring.
 
-   bucket  size  fill  where it attaches on rest (P)                     reads as
-      0    5x4    6    right side, cheek height (31,45)                  arm straight out right (a horizontal oval, its left end on the side)
-     30    5x4    6    right shoulder corner (30,40)                     arm out and up: hello, shrug
-     60    6x6    9    right taper slope (25,36), under a hat brim      arm raised (a mitten leaning up-right); hidden by the crown's box
-    120    6x5    8    left taper slope (14,35), under a hat brim       arm raised (leaning up-left); hidden by the crown's box
-    150    5x4    6    left shoulder corner (10,39)                      arm out and up (mirror of 30)
-    180    5x4    6    left side, cheek height (8,45)                    arm straight out left
-    210    5x6    5    left side, rows 47..51 (P = (9,52), the tail px)  THE RESTING LEFT NUB: pixel-identical to the approved concept rest_v5
-    240    6x5    6    lower-left belly corner (13,56), over the shoe   hand down by the left shoe (planting, bracing)
-    270    4x4    4    bottom centre (20,57), between the shoes          one hand straight down (reach, pick up, dangle); lowest row 60
-    300    5x5    6    lower-right belly corner (27,56), over the shoe  hand down by the right shoe
-    330    4x5    5    right side, rows 47..51 (P = (31,51))             THE RESTING RIGHT NUB: pixel-identical to the approved concept rest_v5
-   (210's 1 px tail at its bottom right is its anchor: P is body ink, so the tail only re-inks the outline and the nub lands on the concept's pixels.)
+   bucket  where it grows from on the rest body (P)              reads as
+      0    right side, cheek height                                  arm straight out right
+     30    right shoulder corner                                     arm out and up: hello, shrug
+     60    right taper slope, under a hat brim                       arm raised; may hide behind a crown's brim
+    120    left taper slope, under a hat brim                        arm raised (mirror of 60)
+    150    left shoulder corner                                      arm out and up (mirror of 30)
+    180    left side, cheek height                                   arm straight out left
+    210    lower left side                                           THE RESTING LEFT HAND (a round mitten at the hip, merged into the body)
+    240    lower-left belly corner, over the shoe                    hand down by the left shoe (planting, bracing)
+    270    bottom centre, between the shoes                          one hand straight down (reach, pick up, dangle)
+    300    lower-right belly corner, over the shoe                   hand down by the right shoe
+    330    lower right side                                          THE RESTING RIGHT HAND
+   (The resting hands changed with the redesign of the hands: they are no longer pixel-identical to the concept rest_v5 nubs.)
 
    WIRING NOTE: which pair for which moment. OS = os.js setTimeout poses (hold times in ms); game = Wake Up 60 Hz steps. An arm pose rides on the body level and feet of the
    same frame: hold it as long as that frame.
@@ -43,78 +45,111 @@
    can slip through a diagonal outline gap: the lint reports these three as `compose:` problems with the fix (cast at the bucket angle, normalise, snap P to the
    outline). Until then pass bucket angles exactly. */
 export const ARMS={
-  0:{ax:0,ay:1,rows:[
-      ".kkk.",
-      "kprrk",
-      "krrRk",
-      ".kkk."
+  0:{ax:3,ay:3,rows:[
+      "..kkkkkk.",
+      ".kprrrrkk",
+      ".krrrrrrk",
+      "krrrrrrrk",
+      ".krrrrrRk",
+      ".krrrrRkk",
+      "..kkkkkk."
     ]},
-  30:{ax:2,ay:3,rows:[
-      ".kkk.",
-      "kprrk",
-      "krrRk",
-      ".kkk."
+  30:{ax:3,ay:4,rows:[
+      "...kkkkk.",
+      ".kkprrrkk",
+      ".krrrrrrk",
+      "kkrrrrrrk",
+      "krrrrrrRk",
+      ".krrrrRk.",
+      ".kkrrrkk.",
+      "..kkkk..."
     ]},
-  60:{ax:1,ay:5,rows:[
-      "...kk.",
-      "..kprk",
-      ".krrrk",
-      "krrRk.",
-      ".krk..",
-      ".kk..."
+  60:{ax:3,ay:4,rows:[
+      "..kkkk..",
+      ".kprrkk.",
+      "krrrrrk.",
+      "krrrrrrk",
+      "krrrrrRk",
+      "krrrrRk.",
+      "kkrrrkk.",
+      ".kkkkk.."
     ]},
-  120:{ax:3,ay:4,rows:[
-      "..kk..",
-      ".kprk.",
-      "krrrk.",
-      ".krrRk",
-      "..kkk."
+  120:{ax:4,ay:4,rows:[
+      "..kkkk..",
+      ".kkprrk.",
+      ".krrrrrk",
+      "krrrrrrk",
+      "krrrrrrk",
+      ".krrrrRk",
+      ".kkrrRkk",
+      "..kkkkk."
     ]},
-  150:{ax:4,ay:2,rows:[
-      ".kkk.",
-      "kprrk",
-      "krrRk",
-      ".kkk."
+  150:{ax:5,ay:4,rows:[
+      ".kkkkk...",
+      "kkprrrkk.",
+      "krrrrrrk.",
+      "krrrrrrkk",
+      "krrrrrrRk",
+      ".krrrrRk.",
+      ".kkrrrkk.",
+      "...kkkk.."
     ]},
-  180:{ax:4,ay:1,rows:[
-      ".kkk.",
-      "kprrk",
-      "krrRk",
-      ".kkk."
+  180:{ax:5,ay:3,rows:[
+      ".kkkkkk..",
+      "kkprrrrk.",
+      "krrrrrrk.",
+      "krrrrrrRk",
+      "krrrrrrk.",
+      "kkrrrrRk.",
+      ".kkkkkk.."
     ]},
-  210:{ax:4,ay:5,rows:[
-      "..kk.",
-      ".kpk.",
-      "kprk.",
-      "krRk.",
-      ".kkk.",
-      "....k"
+  210:{ax:5,ay:3,rows:[
+      "...kkk...",
+      "..kprrkk.",
+      ".krrrrrk.",
+      "kkrrrrrrk",
+      "krrrrrrkk",
+      "kkrrrrRk.",
+      ".krrrRkk.",
+      "..kkkk..."
     ]},
-  240:{ax:5,ay:3,rows:[
-      ".k....",
-      "kpk...",
-      "krrk..",
-      "krRrkk",
-      ".kkk.."
+  240:{ax:4,ay:2,rows:[
+      "..kkkk..",
+      ".kprrrk.",
+      "krrrrrkk",
+      "krrrrrrk",
+      "krrrrrkk",
+      "krrrrRk.",
+      ".kkrRk..",
+      "..kkk..."
     ]},
-  270:{ax:2,ay:0,rows:[
-      ".kk.",
-      "kprk",
-      "krRk",
-      ".kk."
+  270:{ax:3,ay:2,rows:[
+      ".kkkkk.",
+      "kkprrkk",
+      "krrrrrk",
+      "krrrrrk",
+      "krrrrRk",
+      "kkrrRkk",
+      ".kkkkk."
     ]},
-  300:{ax:0,ay:3,rows:[
-      "...k.",
-      "..kpk",
-      ".krrk",
-      "krRrk",
-      ".kkk."
+  300:{ax:3,ay:2,rows:[
+      "..kkkk..",
+      ".kprrrk.",
+      "kkrrrrrk",
+      "krrrrrrk",
+      "kkrrrrRk",
+      ".krrrrRk",
+      "..krrkk.",
+      "...kkk.."
     ]},
-  330:{ax:0,ay:4,rows:[
-      "kk..",
-      "kpk.",
-      "krrk",
-      "kRrk",
-      "kkk."
-    ]},
+  330:{ax:3,ay:3,rows:[
+      "...kkk...",
+      ".kkprrk..",
+      ".krrrrrk.",
+      "krrrrrrkk",
+      "kkrrrrrRk",
+      ".krrrrrkk",
+      ".kkrrrRk.",
+      "...kkkk.."
+    ]}
 };

@@ -44,7 +44,8 @@ export function compose(s){
   let rows,bx,by,cyA,fcxA,tip=null,ctr=null,feetList=null,feetBack=true;
   const up=PF||s.lv||fr!=='hop'?0:6;   /* a 'hop' pose floats 6 rows up with its feet hidden (os.js poses it so) */
   if(PF){const v=PF.v[bv%PF.v.length];rows=v;bx=PF.x0;by=PF.y0;cyA=PF.cy;fcxA=PF.fcx;tip=PF.tip||null;ctr=PF.ctr||[PF.x0+v[0].length/2,PF.y0+v.length*.6];feetList=PF.feet||[]}
-  else{const L=BODY[s.lv||LVMAP[fr]||'rest']||BODY.rest;rows=L.v[bv%L.v.length];bx=L.x0;by=L.y0-up;cyA=L.cy-up;fcxA=CX;tip=[L.tip[0],L.tip[1]-up];ctr=[L.ctr[0],L.ctr[1]-up];
+  else{const L=BODY[s.lv||LVMAP[fr]||'rest']||BODY.rest,ln=Math.max(-3,Math.min(3,s.lean|0));   /* s.lean (px, facing right; mirrored with flip): the body, leaf, arms and face slide over the shoes, which stay put */
+    rows=L.v[bv%L.v.length];bx=L.x0+ln;by=L.y0-up;cyA=L.cy-up;fcxA=CX+ln;tip=[L.tip[0]+ln,L.tip[1]-up];ctr=[L.ctr[0]+ln,L.ctr[1]-up];
     if(fr!=='hop'||s.lv){const F=FEET[s.ft]||FEET.stand;feetList=F.feet;feetBack=F.back!==false}}
   const bw=rows[0].length,bh=rows.length,inB=(x,y)=>{const r=rows[y-by];return !!r&&x>=bx&&x<bx+bw&&r[x-bx]!=='.'};
   if(!s.air)for(let y=SOLE;y<H;y++)for(let x=CX-13;x<CX+13;x++){const dx=(x+.5-CX)/12,dy=(y+.5-(SOLE+2.5))/2.4,e=dx*dx+dy*dy;if(e>1)continue;
@@ -62,7 +63,11 @@ export function compose(s){
     for(let t=0;t<48;t+=.5){const x=Math.round(ctr[0]+t*Math.cos(rad)),y=Math.round(ctr[1]-t*Math.sin(rad));if(inB(x,y)){px=x;py=y}else if(px>=0)break}
     /* the ray can leave the body through a diagonal gap in the outline and stop on fill: move the anchor to the neighbouring outline pixel on the ray's side */
     if(px>=0&&rows[py-by][px-bx]!=='k'){let bd=-1e9,q=null;for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++){const r=rows[py+j-by];if((i||j)&&r&&r[px+i-bx]==='k'){const d=i*Math.cos(rad)-j*Math.sin(rad);if(d>bd){bd=d;q=[px+i,py+j]}}}if(q){px=q[0];py=q[1]}}
-    if(px>=0)stamp(g,A.rows,px-A.ax,py-A.ay)}
+    if(px>=0){const ox=Math.max(0,Math.min(W-A.rows[0].length,px-A.ax)),oy=Math.max(0,Math.min(Hh-A.rows.length,py-A.ay)),body=(x,y)=>{const r=rows[y-by];return r?r[x-bx]||'.':'.'};
+      /* a round hand that overlaps the body's edge: it covers the body's outline (so the hand flows out of the body with no line between them) and draws no ink and no
+         shading of its own over the body's fill, only outside it; its ink is the hand's outer edge */
+      A.rows.forEach((r,j)=>{for(let i=0;i<r.length;i++){const c=r[i];if(c==='.')continue;const x=ox+i,y=oy+j;
+        if(g[y]&&g[y][x]!==undefined&&!'rpR'.includes(body(x,y)))g[y][x]=c}})}}
   /* sprout and hat: the leaf grows with the seeds planted (stage 0 is a small bud leaf: he always has one); a hat sits OVER the head tip and the stem and leaf poke out above it */
   if(tip&&!(PF&&PF.baked)){
     const ll=Math.max(-3,Math.min(3,fl?-(s.ll|0):(s.ll|0))),st=Math.min(4,(s.stage|0)+((s.sp|0)>0?1:0)),   /* ll: the leaf's lag in px (the game's sprout trailing his speed): the leaf slides sideways on the stem top */
@@ -76,7 +81,7 @@ export function compose(s){
   if(fl)for(let y=0;y<Hh;y++)g[y].reverse();
   if(PF&&PF.baked){shiftX(g,s.dx|0);if(s.fx)putFx(g,s.fx);return g}
   /* ---- pass B: the face and the things around the head, on the final (possibly mirrored) grid ---- */
-  const cx=fl?W+1-fcxA:fcxA,cy=cyA,ey=cy-3,[dx,dy]=s.dir||[0,0],tipX=tip?(fl?W-1-tip[0]-3:tip[0]):cx,tipY=tip?tip[1]:cy-26;
+  const turn=Math.max(0,Math.min(4,s.turn|0)),cx=(fl?W+1-fcxA:fcxA)+(fl?-turn:turn),cy=cyA,ey=cy-3,[dx,dy]=s.dir||[0,0],tipX=tip?(fl?W-1-tip[0]-3:tip[0]):cx,tipY=tip?tip[1]:cy-26;
   const FA=FACES[s.face||(s.pens?'worry':'')];   /* an authored face (mascot/faces.js): eye box rows {eye,eyeR?} and mouth {rows,ox,oy} replace the drawn ones; look.pens is the nervous worry face */
   for(const ex of [cx-5,cx+4]){
     if(FA&&FA.eye){const rr=(ex>cx&&FA.eyeR)||FA.eye;stamp(g,rr,ex-3,ey-3);continue}
@@ -93,7 +98,9 @@ export function compose(s){
   }
   /* a pose frame may hide one cheek (hideCheek:-1 = the authored-left pair, +1 = the right; negated when flipped): the near cheek of a 3/4 turn */
   const hc=PF&&PF.hideCheek?(fl?-PF.hideCheek:PF.hideCheek):0;
-  if(hc!==-1)g[cy+1][cx-9]=g[cy+1][cx-8]='c';if(hc!==1)g[cy+1][cx+7]=g[cy+1][cx+8]='c';
+  /* s.turn (px, 0..4): the face slides that far toward the way he faces, as a 3/4 turn: a cheek that would land on the outline is clipped to the body */
+  const cheek=(x,y)=>{if(!turn||g[y]&&'rpR'.includes(g[y][x]))g[y][x]='c'};
+  if(hc!==-1){cheek(cx-9,cy+1);cheek(cx-8,cy+1)}if(hc!==1){cheek(cx+7,cy+1);cheek(cx+8,cy+1)}
   const my=cy+3;
   const fits=(x0,x1,y0,y1)=>{for(let yy=y0;yy<=y1;yy++)for(let xx=x0;xx<=x1;xx++)if(!g[yy]||!'rpR'.includes(g[yy][xx]))return false;return true};
   if(FA&&FA.mouth)stamp(g,FA.mouth.rows,cx+(FA.mouth.ox|0),my+(FA.mouth.oy|0));

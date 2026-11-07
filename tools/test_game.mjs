@@ -193,11 +193,11 @@ console.log('skid, footsteps, edge pose, sprout lag, sound (feel Stage 4)');
     ok(!n(evs,'skid')&&!n(ev2,'skid'),`no skid standing (left/right taps from rest) or turning below SKID ${P.SKID} px/frame`)}
   { const S=flat();S.p.y-=2;S.p.ground=0;S.p.vx=P.RUN;S.p.face=1;let at=-1;for(let i=0;i<10;i++){const g=S.p.ground,ev=run(S,1,I({l:1}));if(ev.includes('skid')){at=at<0&&!g?i:-2}}
     ok(at>=0,`landing into a turn already held is one skid, on the landing frame (${at})`)}
-  { const S=flat(),x0=S.p.x,evs=[];let odd=0;for(let i=0;i<120;i++){const ev=run(S,1,I({r:1}));evs.push(...ev);if(ev.includes('footstep')&&Math.floor(S.p.x/P.STRIDE)&1)odd++}
-    const want=Math.floor(S.p.x/(2*P.FEEL.STRIDE))-Math.floor(x0/(2*P.FEEL.STRIDE));
-    ok(n(evs,'footstep')===want&&want>=14&&!odd,`A10: a 2 s walk (${(S.p.x-x0).toFixed(0)} px) gives ${n(evs,'footstep')} footsteps, one per ${2*P.FEEL.STRIDE} px (${want}), each on an even stride frame`)}
-  { const F=P.FEEL,s0=F.STRIDE,S=flat(),x0=S.p.x;F.STRIDE=9;const evs=run(S,120,I({r:1})),want=Math.floor(S.p.x/18)-Math.floor(x0/18);F.STRIDE=s0;
-    ok(P.STRIDE===6&&s0===6&&n(evs,'footstep')===want&&want<12,`FEEL.STRIDE is live (default 6): at 9 the same walk gives ${n(evs,'footstep')} footsteps, one per 18 px`)}
+  { const S=flat(),x0=S.p.x,evs=[];let odd=0;for(let i=0;i<120;i++){const ev=run(S,1,I({r:1}));evs.push(...ev);if(ev.includes('footstep')&&Math.floor(S.p.x/P.STRIDE)&3)odd++}
+    const want=Math.floor(S.p.x/(4*P.FEEL.STRIDE))-Math.floor(x0/(4*P.FEEL.STRIDE));
+    ok(n(evs,'footstep')===want&&want>=7&&!odd,`A10: a 2 s walk (${(S.p.x-x0).toFixed(0)} px) gives ${n(evs,'footstep')} footsteps, one per ${4*P.FEEL.STRIDE} px (${want}), each on the contact look of the walk cycle`)}
+  { const F=P.FEEL,s0=F.STRIDE,S=flat(),x0=S.p.x;F.STRIDE=9;const evs=run(S,120,I({r:1})),want=Math.floor(S.p.x/36)-Math.floor(x0/36);F.STRIDE=s0;
+    ok(P.STRIDE===6&&s0===6&&n(evs,'footstep')===want&&want<6,`FEEL.STRIDE is live (default 6): at 9 the same walk gives ${n(evs,'footstep')} footsteps, one per 36 px`)}
   { const S=flat(),evs=[...run(S,60,I()),...run(S,1,I({j:1,jp:1})),...run(S,20,I({j:1}))];
     ok(!n(evs,'footstep')&&!n(evs,'skid'),'no footsteps standing still or in a standing jump')}
   { const S=flat();run(S,20,I({r:1}));S.hit=3;const evs=[...run(S,1,I({l:1})),...run(S,1,I({l:1})),...run(S,1,I({l:1}))];

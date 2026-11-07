@@ -16,8 +16,8 @@ export const {ACC,DEC,AACC,ADEC,AREV,RUN,CORNER,HIT,LEAD,STRIDE}=FEEL;
 const appr=(v,t,a)=>v<t?Math.min(t,v+a):Math.max(t,v-a);
 /* the vx rate this step: input against vx brakes at DEC on the ground, AREV in the air */
 const rate=(F,ground,dir,vx)=>{const turn=dir*vx<0;return ground?(dir&&!turn?F.ACC:F.DEC):(turn?F.AREV:dir?F.AACC:F.ADEC)};
-/* feel Stage 4 events, no physics: 'skid' once as a ground turn starts above SKID px/frame (A7); 'footstep' each 2*FEEL.STRIDE
-   px of x walked under input, so it falls on alternate stride frames of the renderer's walk cycle (floor(x/STRIDE), A8, A10) */
+/* feel Stage 4 events, no physics: 'skid' once as a ground turn starts above SKID px/frame (A7); 'footstep' each 4*FEEL.STRIDE
+   px of x walked under input (one step), so it falls on the contact look of the renderer's walk cycle (floor(x*face/STRIDE), A8, A10) */
 export const SKID=.5;
 
 function jump(p,v,ev,name){p.vy=-v;p.jc=1;p.ground=0;p.coy=0;p.buf=0;p.on=-1;ev.push(name)}
@@ -78,5 +78,5 @@ export function stepPlayer(S,R,inp,ev,boxes){
   p.walk=p.ground&&Math.abs(p.vx)>.3?p.walk+1:0;
   /* a skid starts on the ground as he turns against his speed: the turn press itself, or landing into a turn already held */
   if(p.ground&&!wet&&dir*p.vx<-SKID&&(f0!==dir||!g0))ev.push('skid');
-  if(g0&&p.ground&&!wet&&dir*p.vx>0&&Math.floor(p.x/(F.STRIDE*2))!==Math.floor(x0/(F.STRIDE*2)))ev.push('footstep');
+  if(g0&&p.ground&&!wet&&dir*p.vx>0&&Math.floor(p.x/(F.STRIDE*4))!==Math.floor(x0/(F.STRIDE*4)))ev.push('footstep');
 }

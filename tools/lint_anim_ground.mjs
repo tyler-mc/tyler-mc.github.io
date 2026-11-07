@@ -95,9 +95,9 @@ export function lint(){
       if(px>=0&&body(px,py)!=='k'){let bd=-1e9,q=null;for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++){if((i||j)&&body(px+i,py+j)==='k'){const d=i*Math.cos(rad)-j*Math.sin(rad);if(d>bd){bd=d;q=[px+i,py+j]}}}if(q){px=q[0];py=q[1]}}
       return px<0?null:[A,px,py]};
     for(const flip of [0,1])for(const a0 of [210,330]){const r=armAt(a0,flip);
-      if(!r)E(`arm ${a0}${flip?' flipped':''}: the ray from ctr finds no body`);else box(`arm ${a0}`,r[1]-r[0].ax,r[2]-r[0].ay,r[0].rows)}
+      if(!r)E(`arm ${a0}${flip?' flipped':''}: the ray from ctr finds no body`);else box(`arm ${a0}`,Math.max(0,Math.min(W-r[0].rows[0].length,r[1]-r[0].ax)),Math.max(0,Math.min(H-r[0].rows.length,r[2]-r[0].ay)),r[0].rows)}
     /* every other authored bucket must land on the body too and stay on the canvas (posed arms such as the poke's [150,30]) */
-    for(const k of ARM_KEYS){const r=armAt(k,0);if(!r)E(`arm bucket ${k}: the ray from ctr finds no body`);else box(`arm bucket ${k}`,r[1]-r[0].ax,r[2]-r[0].ay,r[0].rows)}
+    for(const k of ARM_KEYS){const r=armAt(k,0);if(!r)E(`arm bucket ${k}: the ray from ctr finds no body`);else box(`arm bucket ${k}`,Math.max(0,Math.min(W-r[0].rows[0].length,r[1]-r[0].ax)),Math.max(0,Math.min(H-r[0].rows.length,r[2]-r[0].ay)),r[0].rows)}
     if(out.length)E(`clipped at the cell edge (party hat, stage 4, default arms): ${[...new Set(out)].join(', ')}`);
   });
   // related frames stay close

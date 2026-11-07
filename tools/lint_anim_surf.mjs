@@ -109,7 +109,7 @@ export function lint(){
       const A=ARMS[best],rad=ang*Math.PI/180;let px=-1,py=-1;
       for(let t=0;t<48;t+=.5){const x=Math.round(f.ctr[0]+t*Math.cos(rad)),y=Math.round(f.ctr[1]-t*Math.sin(rad));if(solid(x,y)){px=x;py=y}else if(px>=0)break}
       if(px<0){E(`arm ${a0} (flip ${fl}) finds no body`);return null}
-      return [px-A.ax,py-A.ay,px-A.ax+A.rows[0].length-1,py-A.ay+A.rows.length-1]};
+      const hx=Math.max(0,Math.min(W-A.rows[0].length,px-A.ax)),hy=Math.max(0,Math.min(H-A.rows.length,py-A.ay));return [hx,hy,hx+A.rows[0].length-1,hy+A.rows.length-1]};   /* compose slides a hand that would leave the cell inward */
     for(const fl of [0,1]){const all=[...ext,...[210,330,...(f.arms||[])].map(a=>arm(a,fl)).filter(Boolean)].map(([a,b,c,d])=>fl?[W-1-c,b,W-1-a,d]:[a,b,c,d]);
       const bad=all.filter(([a,b,c,d])=>a<0||b<0||c>=W||d>=H);
       if(bad.length)E(`${fl?'flipped: ':''}the sprite leaves the ${W}x${H} cell (${bad.map(r=>r.join(',')).slice(0,3).join(' / ')})`)}

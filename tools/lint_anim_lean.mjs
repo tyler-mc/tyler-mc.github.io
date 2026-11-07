@@ -57,7 +57,7 @@ export function lint(){
       const A=ARMS[best],rad=ang*Math.PI/180;let px=-1,py=-1;
       for(let t=0;t<48;t+=.5){const x=Math.round(L.ctr[0]+t*Math.cos(rad)),y=Math.round(L.ctr[1]-t*Math.sin(rad));if(solid(x,y)){px=x;py=y}else if(px>=0)break}
       if(px<0){E(`arm ${a0} (flip ${fl}) finds no body`);return null}
-      return [px-A.ax,py-A.ay,px-A.ax+A.rows[0].length-1,py-A.ay+A.rows.length-1]};
+      const hx=Math.max(0,Math.min(W-A.rows[0].length,px-A.ax)),hy=Math.max(0,Math.min(H-A.rows.length,py-A.ay));return [hx,hy,hx+A.rows[0].length-1,hy+A.rows.length-1]};   /* compose slides a hand that would leave the cell inward */
     const armExt=fl=>[[210,330],[250,290]].flatMap(p=>p.map(a=>arm(a,fl))).filter(Boolean);
     // stem, hats and leaves
     const top=LEAF.stem.reduce((m,p)=>p[1]<m[1]?p:m,LEAF.stem[0]);

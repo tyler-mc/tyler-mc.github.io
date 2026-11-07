@@ -6,7 +6,7 @@
    back:true (every pose here), tuck behind it: only the toe ends and the two rows under the body show. Use them with compose({lv, ft:name}); airborne poses with air:1.
    Lowest shoe row [left, right] (59 = on the ground, 57 = two rows up, 61 = two rows lower; tools/lint_anim_feet.mjs SOLES checks these):
      stand 59,59  together 59,59  splay 59,59  toeUp 59,59  skid 59,59  pigeon 59,59  sit 59,59  sleep 59,59
-     walkA 58,59  walkB 58,59  walkC 57,59  walkD 56,59  liftL 53,59  liftR 59,53
+     walkA 59,59  walkB 59,57  walkC 59,57  walkD 59,58  liftL 53,59  liftR 59,53
      airborne: tuck 57,57  loose 59,60  spread 58,58  kick 58,50  dangle 61,61  dangleB 61,57
    WIRING NOTE (OS: setTimeout poses of about 60 to 180 ms; game: 60 Hz steps):
    - stand      the approved rest pair (toes out). Idle, breathing, talking, and the static pose for reduced motion.
@@ -17,11 +17,13 @@
        spread     falling/reaching: wide apart, toes out and up, 1 row up. Held while falling.
        toeUp      heel strike: toes tipped up, heels on the ground. 1 pose on contact (OS 60 ms, game 2-3 steps); also a skid-lite stop.
        splay      landing impact: flat and wide; with the landing squash (S1/S3). OS 100 ms, game 5-6 steps, then stand.
-   - WALK (toes forward, to the right; 4 poses): cycle walkA -> walkC -> walkB -> walkD, OS about 120 ms each, game 8 steps each.
-       walkA      contact: the forward shoe (screen right) flat, the trailing shoe (screen left) with its heel lifted and the sole showing.
-       walkC      passing/down: the right shoe planted and squashed under the weight, the left lifted 2 rows and swinging through. Use the down body (breath/S1).
-       walkB      contact of the other leg (a different drawing, not a mirror): a new forward shoe (screen right) flat, the trailing shoe (screen left) steeper, sole showing.
-       walkD      passing/down: the right shoe planted, the left lifted 3 rows, toe down, swinging through. Use the down body.
+   - WALK (toes forward, to the right; 4 poses, one STEP; the game plays them twice a stride, mascot/anim_walk.js): cycle walkA -> walkB -> walkC -> walkD. In these poses feet[0] is the
+     PLANTED shoe (behind the body, back flag true) and feet[1] the SWINGING one; a shoe is [x, y, rows, back] and back:false draws it in front of the body, so a lifted foot reads.
+     The planted shoe slides back 6 px a pose (centres 31, 25, 19, 13) while the swinging shoe arcs from behind (centre 7) to the front (29). Use with the low body (breath) on A and B, the tall one (rest) on C and D.
+       walkA      contact: the planted shoe flat and far forward (toe past the body's edge); the trailing shoe behind, heel lifted, sole showing, pushing off.
+       walkB      down: the planted shoe flat, still ahead; the other shoe swings up in front of the body's lower left, lifted 2 rows, toe down.
+       walkC      passing: the planted shoe under the body (two rows show); the swinging shoe crosses in front of it, lifted 2 rows.
+       walkD      up: the planted heel lifts, toe down; the swinging shoe reaches forward, toe tipped up, 1 row up, ready for the next contact.
    - RUN / being CARRIED by the cursor: kick (both shoes flung back behind the body, soles to the viewer, air:1; feet[0] is the lower shoe, feet[1] the upper); for a run alternate kick with walkC every 80 ms.
    - SKID: skid (both shoes forward, toes up, braking) for 150 to 250 ms at the end of a run or a fling, body leaning back, then stand.
    - CARRIED / HANGING (dragged, hanging from a window edge): dangle (limp, toes down, 2 rows lower than standing, air:1); SWING: alternate dangle and dangleB
@@ -158,17 +160,7 @@ const FEET={
       "kVVVVVVVkk..",
       ".kkkkkkk...."
     ]]]},
-  walkA:{back:true,feet:[[1,51,[
-      "..kkk.......",
-      ".kVVVkk.....",
-      "kVvvUUUkk...",
-      "kVvUUUUUUkk.",
-      ".kVUUUUUuuuk",
-      ".kVvUUUUUuuk",
-      "..kVVUUUUUuk",
-      "...kkkkkkkk."
-    ]],
-    [26,53,[
+  walkA:{back:true,feet:[[25,53,[
       "......kkkk..",
       "....kkUuuuk.",
       ".kkkUUUUUuuk",
@@ -176,28 +168,8 @@ const FEET={
       "kvUUUUUUUUUk",
       "kVVVUUUUVVk.",
       ".kkkkkkkkk.."
-    ]]]},
-  walkB:{back:true,feet:[[2,50,[
-      ".kkkk......",
-      "kVVVVkk....",
-      "kVvvUUUkk..",
-      "kVvUUUUUUk.",
-      ".kVUUUUUUuk",
-      ".kVvUUUUuuk",
-      "..kVUUUuuuk",
-      "..kVVUUUuuk",
-      "...kkkkkkk."
-    ]],
-    [25,53,[
-      ".....kkkk...",
-      "...kkUuuuk..",
-      ".kkUUUUUuuk.",
-      "kUUUUUUUUuuk",
-      "kvUUUUUUUUUk",
-      "kVVVUUUUVVk.",
-      ".kkkkkkkkk.."
-    ]]]},
-  walkC:{back:true,feet:[[3,50,[
+    ],true],
+    [1,52,[
       "..kkk.......",
       ".kVVVkk.....",
       "kVvvUUUkk...",
@@ -206,15 +178,17 @@ const FEET={
       ".kVvUUUUUuuk",
       "..kVVUUUUUuk",
       "...kkkkkkkk."
-    ]],
-    [21,55,[
-      "......kkkkkk..",
-      ".kkkkkUUuuuuk.",
-      "kvUUUUUUUUUUuk",
-      "kVVVUUUUUUVVVk",
-      ".kkkkkkkkkkkk."
-    ]]]},
-  walkD:{back:true,feet:[[1,50,[
+    ],true]]},
+  walkB:{back:true,feet:[[19,53,[
+      "......kkkk..",
+      "....kkUuuuk.",
+      ".kkkUUUUUuuk",
+      "kUUUUUUUUUuk",
+      "kvUUUUUUUUUk",
+      "kVVVUUUUVVk.",
+      ".kkkkkkkkk.."
+    ],true],
+    [6,51,[
       "..kkkkk....",
       "kkUUUUUkk..",
       "kvUUUUUuuk.",
@@ -222,16 +196,45 @@ const FEET={
       ".kVvUUUUUuk",
       "..kVVVVVVk.",
       "...kkkkkk.."
-    ]],
-    [20,53,[
-      ".....kkkk...",
-      "...kkUuuuk..",
-      ".kkUUUUUuuk.",
-      "kUUUUUUUUuuk",
+    ],false]]},
+  walkC:{back:true,feet:[[13,53,[
+      "......kkkk..",
+      "....kkUuuuk.",
+      ".kkkUUUUUuuk",
+      "kUUUUUUUUUuk",
       "kvUUUUUUUUUk",
       "kVVVUUUUVVk.",
       ".kkkkkkkkk.."
-    ]]]},
+    ],true],
+    [17,51,[
+      "..kkkkk....",
+      "kkUUUUUkk..",
+      "kvUUUUUuuk.",
+      "kVvUUUUUuuk",
+      ".kVvUUUUUuk",
+      "..kVVVVVVk.",
+      "...kkkkkk.."
+    ],false]]},
+  walkD:{back:true,feet:[[7,52,[
+      "..kkk.......",
+      ".kVVVkk.....",
+      "kVvvUUUkk...",
+      "kVvUUUUUUkk.",
+      ".kVUUUUUuuuk",
+      ".kVvUUUUUuuk",
+      "..kVVUUUUUuk",
+      "...kkkkkkkk."
+    ],true],
+    [23,51,[
+      ".......kkkk.",
+      ".....kkUuuuk",
+      "...kkUUUUuuk",
+      ".kkUUUUUUUuk",
+      "kvUUUUUUUUVk",
+      "kvUUUUUUVVk.",
+      "kVVVVVVVkk..",
+      ".kkkkkkk...."
+    ],false]]},
   kick:{back:true,feet:[[2,50,[
       ".kkkk.....",
       "kVVVVkk...",
@@ -402,28 +405,30 @@ const FEET={
       ".kkkkkk.."
     ]]]},
 };
-/* Authored arm nubs: cute round mittens, one per screen-angle bucket. Lint: node tools/lint_anim_arms.mjs   (--craft also lists pixel notes on the squash/stretch levels)
+/* Authored hands: round mittens that grow out of the body like the approved reference's (a big round hand, one body colour, the outline only around its outer edge). Lint: node tools/lint_anim_arms.mjs   (--craft also lists pixel notes)
    ARMS[angle] = {rows, ax, ay}. A look passes arms:[leftAngle, rightAngle] (degrees counterclockwise from the right: 0 right, 90 up (the head tip: never an arm), 180 left,
    270 down; false/null = no arm on that side; arms undefined = the resting pair [210,330]). compose (mascot/atlas.js) snaps each angle to the nearest bucket here, casts a
-   ray from BODY[level].ctr to where it leaves the body, and stamps the nub with its (ax,ay) pixel on that last body pixel P, after the body and shoes and before the face,
-   hat, stem and leaf. (ax,ay) is always an ink `k` that lands on the body outline: the nub SHARES the body's 1 px outline there (no gap, no double line, no ink inside the
-   body), exactly like the approved concept's resting nubs. Every bucket is a screen-absolute sprite: the `p` highlight is at the top left of the fill and the optional `R`
-   shade at its bottom right; a flipped look mirrors the whole grid, so the left-facing versions are the buckets 120..240 mirrored.
-   Palette: k ink, r body red, p highlight, R shade. Size 4..6 x 4..6 with 4..9 fill px: the round end points out along the bucket, the narrow end sits on the body.
+   ray from BODY[level].ctr to where it leaves the body, and draws the hand with its (ax,ay) pixel on that last body pixel P, after the body and shoes and before the face,
+   hat, stem and leaf. A hand is a big oval that reaches 2 px INTO the body: compose draws a hand pixel only where the body has no fill, so the hand's fill covers the body's
+   outline where they meet (no line between hand and body: it flows out of the body) and only its outer edge is ink. A hand that would leave the 40x64 cell slides inward.
+   Every bucket is a screen-absolute sprite: the `p` highlight is at the top left of the fill and the optional `R` shade at its bottom right; a flipped look mirrors the
+   whole grid, so the left-facing versions are the buckets 120..240 mirrored.
+   Palette: k ink, r body red, p highlight, R shade. Size 7..11 x 7..11 with 14..45 fill px (about a third of it inside the body).
+   The sprites are generated: ellipse, half-length 2.8..3.4 px and half-width 2.8..2.9 px along the bucket's direction, centre 1.6..2.6 px inside P, a 1 px ring.
 
-   bucket  size  fill  where it attaches on rest (P)                     reads as
-      0    5x4    6    right side, cheek height (31,45)                  arm straight out right (a horizontal oval, its left end on the side)
-     30    5x4    6    right shoulder corner (30,40)                     arm out and up: hello, shrug
-     60    6x6    9    right taper slope (25,36), under a hat brim      arm raised (a mitten leaning up-right); hidden by the crown's box
-    120    6x5    8    left taper slope (14,35), under a hat brim       arm raised (leaning up-left); hidden by the crown's box
-    150    5x4    6    left shoulder corner (10,39)                      arm out and up (mirror of 30)
-    180    5x4    6    left side, cheek height (8,45)                    arm straight out left
-    210    5x6    5    left side, rows 47..51 (P = (9,52), the tail px)  THE RESTING LEFT NUB: pixel-identical to the approved concept rest_v5
-    240    6x5    6    lower-left belly corner (13,56), over the shoe   hand down by the left shoe (planting, bracing)
-    270    4x4    4    bottom centre (20,57), between the shoes          one hand straight down (reach, pick up, dangle); lowest row 60
-    300    5x5    6    lower-right belly corner (27,56), over the shoe  hand down by the right shoe
-    330    4x5    5    right side, rows 47..51 (P = (31,51))             THE RESTING RIGHT NUB: pixel-identical to the approved concept rest_v5
-   (210's 1 px tail at its bottom right is its anchor: P is body ink, so the tail only re-inks the outline and the nub lands on the concept's pixels.)
+   bucket  where it grows from on the rest body (P)              reads as
+      0    right side, cheek height                                  arm straight out right
+     30    right shoulder corner                                     arm out and up: hello, shrug
+     60    right taper slope, under a hat brim                       arm raised; may hide behind a crown's brim
+    120    left taper slope, under a hat brim                        arm raised (mirror of 60)
+    150    left shoulder corner                                      arm out and up (mirror of 30)
+    180    left side, cheek height                                   arm straight out left
+    210    lower left side                                           THE RESTING LEFT HAND (a round mitten at the hip, merged into the body)
+    240    lower-left belly corner, over the shoe                    hand down by the left shoe (planting, bracing)
+    270    bottom centre, between the shoes                          one hand straight down (reach, pick up, dangle)
+    300    lower-right belly corner, over the shoe                   hand down by the right shoe
+    330    lower right side                                          THE RESTING RIGHT HAND
+   (The resting hands changed with the redesign of the hands: they are no longer pixel-identical to the concept rest_v5 nubs.)
 
    WIRING NOTE: which pair for which moment. OS = os.js setTimeout poses (hold times in ms); game = Wake Up 60 Hz steps. An arm pose rides on the body level and feet of the
    same frame: hold it as long as that frame.
@@ -447,80 +452,113 @@ const FEET={
    can slip through a diagonal outline gap: the lint reports these three as `compose:` problems with the fix (cast at the bucket angle, normalise, snap P to the
    outline). Until then pass bucket angles exactly. */
 const ARMS={
-  0:{ax:0,ay:1,rows:[
-      ".kkk.",
-      "kprrk",
-      "krrRk",
-      ".kkk."
+  0:{ax:3,ay:3,rows:[
+      "..kkkkkk.",
+      ".kprrrrkk",
+      ".krrrrrrk",
+      "krrrrrrrk",
+      ".krrrrrRk",
+      ".krrrrRkk",
+      "..kkkkkk."
     ]},
-  30:{ax:2,ay:3,rows:[
-      ".kkk.",
-      "kprrk",
-      "krrRk",
-      ".kkk."
+  30:{ax:3,ay:4,rows:[
+      "...kkkkk.",
+      ".kkprrrkk",
+      ".krrrrrrk",
+      "kkrrrrrrk",
+      "krrrrrrRk",
+      ".krrrrRk.",
+      ".kkrrrkk.",
+      "..kkkk..."
     ]},
-  60:{ax:1,ay:5,rows:[
-      "...kk.",
-      "..kprk",
-      ".krrrk",
-      "krrRk.",
-      ".krk..",
-      ".kk..."
+  60:{ax:3,ay:4,rows:[
+      "..kkkk..",
+      ".kprrkk.",
+      "krrrrrk.",
+      "krrrrrrk",
+      "krrrrrRk",
+      "krrrrRk.",
+      "kkrrrkk.",
+      ".kkkkk.."
     ]},
-  120:{ax:3,ay:4,rows:[
-      "..kk..",
-      ".kprk.",
-      "krrrk.",
-      ".krrRk",
-      "..kkk."
+  120:{ax:4,ay:4,rows:[
+      "..kkkk..",
+      ".kkprrk.",
+      ".krrrrrk",
+      "krrrrrrk",
+      "krrrrrrk",
+      ".krrrrRk",
+      ".kkrrRkk",
+      "..kkkkk."
     ]},
-  150:{ax:4,ay:2,rows:[
-      ".kkk.",
-      "kprrk",
-      "krrRk",
-      ".kkk."
+  150:{ax:5,ay:4,rows:[
+      ".kkkkk...",
+      "kkprrrkk.",
+      "krrrrrrk.",
+      "krrrrrrkk",
+      "krrrrrrRk",
+      ".krrrrRk.",
+      ".kkrrrkk.",
+      "...kkkk.."
     ]},
-  180:{ax:4,ay:1,rows:[
-      ".kkk.",
-      "kprrk",
-      "krrRk",
-      ".kkk."
+  180:{ax:5,ay:3,rows:[
+      ".kkkkkk..",
+      "kkprrrrk.",
+      "krrrrrrk.",
+      "krrrrrrRk",
+      "krrrrrrk.",
+      "kkrrrrRk.",
+      ".kkkkkk.."
     ]},
-  210:{ax:4,ay:5,rows:[
-      "..kk.",
-      ".kpk.",
-      "kprk.",
-      "krRk.",
-      ".kkk.",
-      "....k"
+  210:{ax:5,ay:3,rows:[
+      "...kkk...",
+      "..kprrkk.",
+      ".krrrrrk.",
+      "kkrrrrrrk",
+      "krrrrrrkk",
+      "kkrrrrRk.",
+      ".krrrRkk.",
+      "..kkkk..."
     ]},
-  240:{ax:5,ay:3,rows:[
-      ".k....",
-      "kpk...",
-      "krrk..",
-      "krRrkk",
-      ".kkk.."
+  240:{ax:4,ay:2,rows:[
+      "..kkkk..",
+      ".kprrrk.",
+      "krrrrrkk",
+      "krrrrrrk",
+      "krrrrrkk",
+      "krrrrRk.",
+      ".kkrRk..",
+      "..kkk..."
     ]},
-  270:{ax:2,ay:0,rows:[
-      ".kk.",
-      "kprk",
-      "krRk",
-      ".kk."
+  270:{ax:3,ay:2,rows:[
+      ".kkkkk.",
+      "kkprrkk",
+      "krrrrrk",
+      "krrrrrk",
+      "krrrrRk",
+      "kkrrRkk",
+      ".kkkkk."
     ]},
-  300:{ax:0,ay:3,rows:[
-      "...k.",
-      "..kpk",
-      ".krrk",
-      "krRrk",
-      ".kkk."
+  300:{ax:3,ay:2,rows:[
+      "..kkkk..",
+      ".kprrrk.",
+      "kkrrrrrk",
+      "krrrrrrk",
+      "kkrrrrRk",
+      ".krrrrRk",
+      "..krrkk.",
+      "...kkk.."
     ]},
-  330:{ax:0,ay:4,rows:[
-      "kk..",
-      "kpk.",
-      "krrk",
-      "kRrk",
-      "kkk."
-    ]},
+  330:{ax:3,ay:3,rows:[
+      "...kkk...",
+      ".kkprrk..",
+      ".krrrrrk.",
+      "krrrrrrkk",
+      "kkrrrrrRk",
+      ".krrrrrkk",
+      ".kkrrrRk.",
+      "...kkkk.."
+    ]}
 };
 /* Authored sprout: ONE big swept leaf on a thin kinked stem rising from the head tip (n stem/underside, T blade, h dark edge; stage 4 adds a white flower: w/B petals,
    k outline, o/Y/r centre). Lint: node tools/lint_anim_head.mjs.
@@ -3982,50 +4020,50 @@ const ANIM_TRASH={frames:[
       "...kRRRRRRRRRRRRRRk...",
       "....kkRRRRRRRRRRkk....",
       "......kkkkkkkkkk......"]],
-    over:{x0:6,y0:17,rows:[
-      ".....................hhhh....",
-      "...................hhTTTThh..",
-      "..................hTTTTTTTThh",
-      ".................hTTTnnnTTTTh",
-      ".................hTnnTTTnnTTh",
-      "................hTnhhhhhhhnTh",
-      "................hnh......hTh.",
-      ".................h........h..",
-      ".................n...........",
-      "................n............",
-      "................n............",
-      ".............................",
-      ".............................",
-      ".............................",
-      "..T..........................",
-      ".TTT.........................",
-      ".hTh.........................",
-      "..h..........................",
-      ".............................",
-      ".........kk.....kk...........",
-      ".......kk.........kk.........",
-      ".............................",
-      ".......kkkk.....kkkk.........",
-      "......kwwwwk...kwwwwk........",
-      "......kwwwwk...kwwwwk........",
-      "......kwkkwk...kwkkwk........",
-      "......kwkkwk...kwkkwk........",
-      "......kwkkwk...kwkkwk........",
-      "..kk...kkkk.....kkkk...kk....",
-      ".kpk.cc..............cckpk...",
-      "kprk...................krrk..",
-      "krRk........kk.k.......kRrk..",
-      ".kkk.......k..k........kkk...",
-      "....k........................",
-      ".............................",
-      ".............................",
-      "...ku..................uk....",
-      "..kuu..................uuk...",
-      "..kuUU................UUuk...",
-      "..kUUUU..............UUUUk...",
-      "..kUUUUUU..........UUUUUUk...",
-      "...kVVUUUUVVk..kVVUUUUVVk....",
-      "....kkkkkkkk....kkkkkkkk....."]}},
+    over:{x0:5,y0:17,rows:[
+      "......................hhhh....",
+      "....................hhTTTThh..",
+      "...................hTTTTTTTThh",
+      "..................hTTTnnnTTTTh",
+      "..................hTnnTTTnnTTh",
+      ".................hTnhhhhhhhnTh",
+      ".................hnh......hTh.",
+      "..................h........h..",
+      "..................n...........",
+      ".................n............",
+      ".................n............",
+      "..............................",
+      "..............................",
+      "..............................",
+      "...T..........................",
+      "..TTT.........................",
+      "..hTh.........................",
+      "...h..........................",
+      "..............................",
+      "..........kk.....kk...........",
+      "........kk.........kk.........",
+      "..............................",
+      "........kkkk.....kkkk.........",
+      ".......kwwwwk...kwwwwk........",
+      ".......kwwwwk...kwwwwk........",
+      ".......kwkkwk...kwkkwk........",
+      ".......kwkkwk...kwkkwk........",
+      ".......kwkkwk...kwkkwk........",
+      "........kkkk.....kkkk.........",
+      "......cc..............cc..k...",
+      "...k.....................rrk..",
+      "..kpr........kk.k........rrrk.",
+      ".krrrr......k..k........rrrrkk",
+      "kkrrrr..................rrrrRk",
+      "krrrrr..................rrrrkk",
+      "kkrrrr..................rrrRk.",
+      ".krrrR..................kkkk..",
+      "..kkkk..................uuk...",
+      "...kuUU................UUuk...",
+      "...kUUUU..............UUUUk...",
+      "...kUUUUUU..........UUUUUUk...",
+      "....kVVUUUUVVk..kVVUUUUVVk....",
+      ".....kkkkkkkk....kkkkkkkk....."]}},
   /* 1 45 */
   {x0:6,y0:32,baked:true,face:[11,34,30,53],
     v:[[
@@ -4820,20 +4858,23 @@ const ANIM_TRASH={frames:[
       "...hhhhhhh...................."]}}
 ]};
 /* The walk and run set for the Wake Up game's player (data only; game/ adopts it later). Unlike the tilted animations this needs no whole-frame art: a walk is built from
-   parts. WALK_LOOKS is one stride of 4 looks for compose(): the body bobs between `rest` and `breath` (1 row), the shoes follow the four authored walk poses
-   (feet.js walkA contact, walkC down, walkB the other leg's contact, walkD down) and the arms swing in opposite phase (arms.js buckets). Faces right; flip:1 for left.
-   WIRING NOTE: pick the look by distance travelled: i = floor(d / WALK_STRIDE_PX) % 4 with WALK_STRIDE_PX = 7 art pixels per look (one stride = 28 px), d reset when a run starts
-   from standing, so the planted shoe moves back at the ground speed (no slide) at the game's walk speed; at run speed use the same looks at half the stride (3 or 4 px) with
-   arms [150,30] held out. Start/stop: `WALK_START` (first 4 px: body T1 leaning is not drawn, hold walkA with arms back) and `WALK_STOP` (S1 squash with both shoes stood, 4 steps).
-   Reduced motion / standing: the rest look. */
+   parts. WALK_LOOKS is one full stride of 8 looks for compose(), two steps of 4: contact, down, passing, up (feet.js walkA..walkD). The two steps use the same shoe drawings;
+   the arms see-saw the opposite way on the second step, so all 8 looks differ. Faces right; flip:1 for left.
+   The legs: at contact the planted shoe is far forward (its centre 11 px ahead of the body's) and the trailing shoe pushes off behind; the planted shoe then slides back 6 px
+   a look under the body (down, passing, up: its heel lifts) while the other shoe swings through IN FRONT of the body, lifted, and reaches forward for the next contact.
+   The body is LOW on contact and down (`breath`) and TALL on passing and up (`rest`): a weight shift, 1 row.
+   WIRING NOTE: pick the look by distance travelled in the facing direction: i = floor(d * face / WALK_STRIDE_PX) % 8 with WALK_STRIDE_PX = 6 (the game's FEEL.STRIDE): a step is 4 looks
+   = 24 px, so the planted shoe moves back at the ground speed (no slide), and a footstep falls every 24 px on look 0 (contact). Walking left plays the same cycle: x falls,
+   face is -1, so d*face still rises. Reduced motion / standing: the rest look. Start/stop: `WALK_START` and `WALK_STOP` (not wired in the game yet). */
 const ANIM_WALK={frames:[]};
-const WALK_STRIDE_PX=7;
-const WALK_LOOKS=[
-  {lv:'rest',ft:'walkA',arms:[150,330]},
-  {lv:'breath',ft:'walkC',arms:[210,330]},
-  {lv:'rest',ft:'walkB',arms:[210,30]},
-  {lv:'breath',ft:'walkD',arms:[210,330]}
-];
+const WALK_STRIDE_PX=6;
+const STEP=[{lv:'breath',ft:'walkA'},{lv:'breath',ft:'walkB'},{lv:'rest',ft:'walkC'},{lv:'rest',ft:'walkD'}];
+const SWING=[[210,30],[210,0],[210,330],[180,330],[150,330],[180,330],[180,330],[210,0]];   /* [left, right] arm angles per look: a pendulum, one arm up then the other */
+const IDLE_TURN=3;   /* the standing look is 3/4 as well: the face slid IDLE_TURN px and the body IDLE_LEAN px toward the way he faces, so the walk (below) starts and stops without a snap */
+const IDLE_LEAN=1;
+const WALK_TURN=3;   /* px the face slides toward the way he walks (compose's s.turn): without it he walks facing the camera */
+const WALK_LEAN=2;   /* walking leans 1 px further than standing */   /* px the body leans over the front shoe (compose's s.lean): the shoes stay put, so he leans into the walk */
+const WALK_LOOKS=SWING.map((arms,i)=>({...STEP[i&3],arms,turn:WALK_TURN,lean:WALK_LEAN}));
 const WALK_START={lv:'T1',ft:'walkA',arms:[210,30]};
 const WALK_STOP={lv:'S1',ft:'stand',arms:[190,350]};
 /* The mascot's pixels (the REDESIGN: a red teardrop with a swept leaf, big brown shoes and little round nub arms), shared by the OS desktop buddy (os.js, through
@@ -4867,7 +4908,8 @@ function compose(s){
   let rows,bx,by,cyA,fcxA,tip=null,ctr=null,feetList=null,feetBack=true;
   const up=PF||s.lv||fr!=='hop'?0:6;   /* a 'hop' pose floats 6 rows up with its feet hidden (os.js poses it so) */
   if(PF){const v=PF.v[bv%PF.v.length];rows=v;bx=PF.x0;by=PF.y0;cyA=PF.cy;fcxA=PF.fcx;tip=PF.tip||null;ctr=PF.ctr||[PF.x0+v[0].length/2,PF.y0+v.length*.6];feetList=PF.feet||[]}
-  else{const L=BODY[s.lv||LVMAP[fr]||'rest']||BODY.rest;rows=L.v[bv%L.v.length];bx=L.x0;by=L.y0-up;cyA=L.cy-up;fcxA=CX;tip=[L.tip[0],L.tip[1]-up];ctr=[L.ctr[0],L.ctr[1]-up];
+  else{const L=BODY[s.lv||LVMAP[fr]||'rest']||BODY.rest,ln=Math.max(-3,Math.min(3,s.lean|0));   /* s.lean (px, facing right; mirrored with flip): the body, leaf, arms and face slide over the shoes, which stay put */
+    rows=L.v[bv%L.v.length];bx=L.x0+ln;by=L.y0-up;cyA=L.cy-up;fcxA=CX+ln;tip=[L.tip[0]+ln,L.tip[1]-up];ctr=[L.ctr[0]+ln,L.ctr[1]-up];
     if(fr!=='hop'||s.lv){const F=FEET[s.ft]||FEET.stand;feetList=F.feet;feetBack=F.back!==false}}
   const bw=rows[0].length,bh=rows.length,inB=(x,y)=>{const r=rows[y-by];return !!r&&x>=bx&&x<bx+bw&&r[x-bx]!=='.'};
   if(!s.air)for(let y=SOLE;y<H;y++)for(let x=CX-13;x<CX+13;x++){const dx=(x+.5-CX)/12,dy=(y+.5-(SOLE+2.5))/2.4,e=dx*dx+dy*dy;if(e>1)continue;
@@ -4885,7 +4927,11 @@ function compose(s){
     for(let t=0;t<48;t+=.5){const x=Math.round(ctr[0]+t*Math.cos(rad)),y=Math.round(ctr[1]-t*Math.sin(rad));if(inB(x,y)){px=x;py=y}else if(px>=0)break}
     /* the ray can leave the body through a diagonal gap in the outline and stop on fill: move the anchor to the neighbouring outline pixel on the ray's side */
     if(px>=0&&rows[py-by][px-bx]!=='k'){let bd=-1e9,q=null;for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++){const r=rows[py+j-by];if((i||j)&&r&&r[px+i-bx]==='k'){const d=i*Math.cos(rad)-j*Math.sin(rad);if(d>bd){bd=d;q=[px+i,py+j]}}}if(q){px=q[0];py=q[1]}}
-    if(px>=0)stamp(g,A.rows,px-A.ax,py-A.ay)}
+    if(px>=0){const ox=Math.max(0,Math.min(W-A.rows[0].length,px-A.ax)),oy=Math.max(0,Math.min(Hh-A.rows.length,py-A.ay)),body=(x,y)=>{const r=rows[y-by];return r?r[x-bx]||'.':'.'};
+      /* a round hand that overlaps the body's edge: it covers the body's outline (so the hand flows out of the body with no line between them) and draws no ink and no
+         shading of its own over the body's fill, only outside it; its ink is the hand's outer edge */
+      A.rows.forEach((r,j)=>{for(let i=0;i<r.length;i++){const c=r[i];if(c==='.')continue;const x=ox+i,y=oy+j;
+        if(g[y]&&g[y][x]!==undefined&&!'rpR'.includes(body(x,y)))g[y][x]=c}})}}
   /* sprout and hat: the leaf grows with the seeds planted (stage 0 is a small bud leaf: he always has one); a hat sits OVER the head tip and the stem and leaf poke out above it */
   if(tip&&!(PF&&PF.baked)){
     const ll=Math.max(-3,Math.min(3,fl?-(s.ll|0):(s.ll|0))),st=Math.min(4,(s.stage|0)+((s.sp|0)>0?1:0)),   /* ll: the leaf's lag in px (the game's sprout trailing his speed): the leaf slides sideways on the stem top */
@@ -4899,7 +4945,7 @@ function compose(s){
   if(fl)for(let y=0;y<Hh;y++)g[y].reverse();
   if(PF&&PF.baked){shiftX(g,s.dx|0);if(s.fx)putFx(g,s.fx);return g}
   /* ---- pass B: the face and the things around the head, on the final (possibly mirrored) grid ---- */
-  const cx=fl?W+1-fcxA:fcxA,cy=cyA,ey=cy-3,[dx,dy]=s.dir||[0,0],tipX=tip?(fl?W-1-tip[0]-3:tip[0]):cx,tipY=tip?tip[1]:cy-26;
+  const turn=Math.max(0,Math.min(4,s.turn|0)),cx=(fl?W+1-fcxA:fcxA)+(fl?-turn:turn),cy=cyA,ey=cy-3,[dx,dy]=s.dir||[0,0],tipX=tip?(fl?W-1-tip[0]-3:tip[0]):cx,tipY=tip?tip[1]:cy-26;
   const FA=FACES[s.face||(s.pens?'worry':'')];   /* an authored face (mascot/faces.js): eye box rows {eye,eyeR?} and mouth {rows,ox,oy} replace the drawn ones; look.pens is the nervous worry face */
   for(const ex of [cx-5,cx+4]){
     if(FA&&FA.eye){const rr=(ex>cx&&FA.eyeR)||FA.eye;stamp(g,rr,ex-3,ey-3);continue}
@@ -4916,7 +4962,9 @@ function compose(s){
   }
   /* a pose frame may hide one cheek (hideCheek:-1 = the authored-left pair, +1 = the right; negated when flipped): the near cheek of a 3/4 turn */
   const hc=PF&&PF.hideCheek?(fl?-PF.hideCheek:PF.hideCheek):0;
-  if(hc!==-1)g[cy+1][cx-9]=g[cy+1][cx-8]='c';if(hc!==1)g[cy+1][cx+7]=g[cy+1][cx+8]='c';
+  /* s.turn (px, 0..4): the face slides that far toward the way he faces, as a 3/4 turn: a cheek that would land on the outline is clipped to the body */
+  const cheek=(x,y)=>{if(!turn||g[y]&&'rpR'.includes(g[y][x]))g[y][x]='c'};
+  if(hc!==-1){cheek(cx-9,cy+1);cheek(cx-8,cy+1)}if(hc!==1){cheek(cx+7,cy+1);cheek(cx+8,cy+1)}
   const my=cy+3;
   const fits=(x0,x1,y0,y1)=>{for(let yy=y0;yy<=y1;yy++)for(let xx=x0;xx<=x1;xx++)if(!g[yy]||!'rpR'.includes(g[yy][xx]))return false;return true};
   if(FA&&FA.mouth)stamp(g,FA.mouth.rows,cx+(FA.mouth.ox|0),my+(FA.mouth.oy|0));
@@ -4956,5 +5004,5 @@ function paint(ctx,g){
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const c=g[y][x];if(c!=='.'){ctx.fillStyle=MB[c];ctx.fillRect(x,y,1,1)}}
 }
 const drawBuddy=(ctx,s)=>paint(ctx,compose(s));
-window.MASCOT={FEET,ARMS,LEAF,HATS,GEAR,FACES,LIDS,BODY,ANIM_DANCE,ANIM_FX,FX_SPOT,ANIM_GROUND,ANIM_LEAN,ANIM_MAC,ANIM_ROOT,ROOT_FX,ANIM_SURF,SURF_FOAM,ANIM_TRASH,ANIM_WALK,WALK_STRIDE_PX,WALK_LOOKS,WALK_START,WALK_STOP,INK,W,H,CX,SOLE,grid,stamp,MB,compose,paint,drawBuddy};
+window.MASCOT={FEET,ARMS,LEAF,HATS,GEAR,FACES,LIDS,BODY,ANIM_DANCE,ANIM_FX,FX_SPOT,ANIM_GROUND,ANIM_LEAN,ANIM_MAC,ANIM_ROOT,ROOT_FX,ANIM_SURF,SURF_FOAM,ANIM_TRASH,ANIM_WALK,WALK_STRIDE_PX,IDLE_TURN,IDLE_LEAN,WALK_TURN,WALK_LEAN,WALK_LOOKS,WALK_START,WALK_STOP,INK,W,H,CX,SOLE,grid,stamp,MB,compose,paint,drawBuddy};
 })();

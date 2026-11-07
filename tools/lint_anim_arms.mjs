@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /* Lint for the arm nubs in mascot/arms.js (ARMS[angle] = {rows, ax, ay}). Run: node tools/lint_anim_arms.mjs   (prints the problems, exits 1 on any)
    tools/test_mascot.mjs calls lint() (an array of problems; empty = green). Checks:
+   0. (round hands that merge into the body: 7..11 px, 14..45 fill px; compose draws a hand pixel only where the body has no fill, so the body outline is covered by the hand's fill)
    1. the 11 buckets 0 30 60 120 150 180 210 240 270 300 330 exist and nothing else (90 is the head tip: never an arm);
-   2. each sprite: equal-length rows of `.kprR`, 4..6 wide and 4..6 tall, (ax,ay) inside the rows and on an ink `k` pixel (it lands on the body outline), one 8-connected
-      blob, 4..9 fill pixels, one or two `p` highlights at the top left of the fill, at most two `R` shades at its bottom right;
+   2. each sprite: equal-length rows of `.kprR`, 7..11 wide and 7..11 tall, (ax,ay) inside the rows on a hand pixel (it lands on the body outline pixel the hand grows from), one 8-connected
+      blob, 14..45 fill pixels, one or two `p` highlights at the top left of the fill, at most two `R` shades at its bottom right;
    3. composed on EVERY BODY level and boil variant (whatever levels exist when it runs), plain ({lv,bv,arms:[a,false],dir:[0,0],air:1}) and flipped
       ({...,arms:[false,a],flip:1}), for every angle a in the bucket list:
       - a 40x64 grid of known chars; the ray from ctr finds the body; the whole nub footprint lies inside the cell (stamp() drops off-cell pixels silently);
@@ -34,21 +35,21 @@ function lintSprite(b,A,E){
   if(!A||!Array.isArray(A.rows)||!A.rows.length)return E(`${b}: needs {rows, ax, ay}`),false;
   const rows=A.rows,w=rows[0].length,h=rows.length;
   if(!rows.every(r=>typeof r==='string'&&r.length===w&&/^[.kprR]+$/.test(r)))return E(`${b}: rows must be equal-length strings of .kprR`),false;
-  if(w<4||w>6||h<4||h>6)E(`${b}: ${w}x${h} (want 4..6 wide, 4..6 tall)`);
+  if(w<7||w>11||h<7||h>11)E(`${b}: ${w}x${h} (want 7..11 wide, 7..11 tall: a round hand that overlaps the body edge)`);
   if(!Number.isInteger(A.ax)||!Number.isInteger(A.ay)||A.ax<0||A.ay<0||A.ax>=w||A.ay>=h)return E(`${b}: (ax,ay)=(${A.ax},${A.ay}) is outside the rows`),false;
-  if(rows[A.ay][A.ax]!=='k')E(`${b}: (ax,ay) must be an ink pixel (it lands on the body outline), is '${rows[A.ay][A.ax]}'`);
+  if(rows[A.ay][A.ax]==='.')E(`${b}: (ax,ay) must be a hand pixel (it lands on the body outline pixel the hand grows from), is clear`);
   const at=(x,y)=>y>=0&&y<h&&x>=0&&x<w?rows[y][x]:'.';
   const pts=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(at(x,y)!=='.')pts.push([x,y]);
   const seen=new Set([pts[0]+'']),st=[pts[0]];
   while(st.length){const [x,y]=st.pop();for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const k=[x+i,y+j]+'';if(at(x+i,y+j)!=='.'&&!seen.has(k)){seen.add(k);st.push([x+i,y+j])}}}
   if(seen.size!==pts.length)E(`${b}: not one 8-connected blob (${pts.length-seen.size} px apart)`);
   const fill=pts.filter(([x,y])=>'rpR'.includes(at(x,y)));
-  if(fill.length<4||fill.length>9)E(`${b}: ${fill.length} fill px (want 4..9: a nub, not a lump)`);
+  if(fill.length<14||fill.length>45)E(`${b}: ${fill.length} fill px (want 14..45: a round hand, not a nub or a lump)`);
   const s=([x,y])=>x+y,lo=Math.min(...fill.map(s)),hi=Math.max(...fill.map(s));
   const P=fill.filter(([x,y])=>at(x,y)==='p'),R=fill.filter(([x,y])=>at(x,y)==='R');
   if(P.length<1||P.length>2)E(`${b}: ${P.length} highlight p (want 1 or 2)`);
   if(P.some(v=>s(v)>lo+1))E(`${b}: the highlight p must sit at the top left of the fill`);
-  if(R.length>2)E(`${b}: ${R.length} shade R (want at most 2)`);
+  if(R.length>3)E(`${b}: ${R.length} shade R (want at most 3)`);
   if(R.some(v=>s(v)<hi-1))E(`${b}: the shade R must sit at the bottom right of the fill`);
   return true;
 }
@@ -57,20 +58,21 @@ function lintSprite(b,A,E){
    compose's own ray, whatever it does; the footprint is then the sprite placed at P - (ax,ay). Returned in pass-A (unmirrored) coordinates. */
 const SENT='0123456789@';
 function footprint(L,lv,bv,a0,fl){
-  const keep={};BUCKETS.forEach((b,i)=>{const A=ARMS[b];keep[b]=A.rows;ARMS[b]={...A,rows:A.rows.map((r,y)=>y===A.ay?r.slice(0,A.ax)+SENT[i]+r.slice(A.ax+1):r)}});
-  let g;try{g=compose({lv,bv,dir:[0,0],air:1,flip:fl,arms:fl?[false,a0]:[a0,false]})}finally{BUCKETS.forEach(b=>{ARMS[b]={...ARMS[b],rows:keep[b]}})}
+  const keep={};BUCKETS.forEach((b,i)=>{keep[b]=ARMS[b];ARMS[b]={ax:0,ay:0,rows:[SENT[i]]}});   /* a one pixel hand: the sentinel lands exactly on the anchor P, whatever the real sprite's clamping does */
+  let g;try{g=compose({lv,bv,dir:[0,0],air:1,flip:fl,arms:fl?[false,a0]:[a0,false]})}finally{BUCKETS.forEach(b=>{ARMS[b]=keep[b]})}
   let hit=null;for(let y=0;y<g.length&&!hit;y++)for(let x=0;x<g[y].length;x++){const i=SENT.indexOf(g[y][x]);if(i>=0){hit=[fl?W-1-x:x,y,BUCKETS[i]];break}}
   if(!hit)return null;
   const [px,py,a]=hit,A=ARMS[a],rows=L.v[bv%L.v.length],bx=L.x0,by=L.y0,bw=rows[0].length;
   const inB=(x,y)=>{const r=rows[y-by];return !!r&&x>=bx&&x<bx+bw&&r[x-bx]!=='.'};
-  const fp=[];A.rows.forEach((r,y)=>{for(let x=0;x<r.length;x++)if(r[x]!=='.')fp.push([px-A.ax+x,py-A.ay+y,r[x]])});
+  const ox=Math.max(0,Math.min(W-A.rows[0].length,px-A.ax)),oy=Math.max(0,Math.min(H-A.rows.length,py-A.ay));   /* compose slides a hand that would leave the cell inward */
+  const fp=[];A.rows.forEach((r,y)=>{for(let x=0;x<r.length;x++)if(r[x]!=='.')fp.push([ox+x,oy+y,r[x]])});
   return {a,P:[px,py],fp,bodyAt:(x,y)=>inB(x,y)?rows[y-by][x-bx]:null};
 }
 
 /* CRAFT_LEVELS: where the pixel craft checks (crease, notch, 2x2 ink, dead ends, anchor on the outline) are errors: the approved rest body, also the reduced-motion
    static pose. On the other levels one fixed sprite per bucket cannot meet every outline (the ray lands 1 px in or out as the body squashes, stretches and boils): those
    are listed by `node tools/lint_anim_arms.mjs --craft`, not failed. */
-export const CRAFT_LEVELS=['rest'];
+export const CRAFT_LEVELS=[];   /* the hands are round and overlap the body edge (compose opens the outline under them), so a 2x2 ink block or a one pixel notch where the ring meets a sloped outline is a note, not an error */
 export function lint({craft=false}={}){
   const out=[],notes=[],E=m=>out.push('arms '+m);
   const keys=Object.keys(ARMS);
@@ -94,14 +96,14 @@ export function lint({craft=false}={}){
       const bucket=`(bucket ${F.a})`;
       if(F.fp.some(([x,y])=>x<0||x>=W||y<0||y>=H)){E(`${tag} ${bucket}: the nub leaves the ${W}x${H} cell`);continue}
       if(F.bodyAt(...F.P)!=='k'){gapBug.push(`${tag.replace(' arms','')} P ${F.P} is '${F.bodyAt(...F.P)}'`);continue}
-      let crease=0;for(const [x,y,c] of F.fp){const bc=F.bodyAt(x,y);if(bc&&(c!=='k'||bc!=='k'))crease++}
-      if(crease)C(`${tag} ${bucket}: ${crease} nub px cut into the body (ink on body fill or fill on the outline: a crease)`);
+      const drawn=F.fp.filter(([x,y])=>!'rpR'.includes(F.bodyAt(x,y)||'.'));   /* compose draws a hand pixel only where the body has no fill: over the outline or outside */
+      if(!drawn.some(([x,y,c])=>'rpR'.includes(c)&&F.bodyAt(x,y)==='k'))C(`${tag} ${bucket}: the hand does not open the body outline (no fill lands on it): it would read as stuck on`);
       /* the face, in final coordinates (compose pass B) */
       const cx=fl?W+1-20:20,cy=L.cy,my=cy+3,face=new Set();
       for(let y=cy-6;y<=cy;y++){for(let x=cx-8;x<=cx-3;x++)face.add(x+','+y);for(let x=cx+1;x<=cx+6;x++)face.add(x+','+y)}
       for(const x of [cx-9,cx-8,cx+7,cx+8])face.add(x+','+(cy+1));
       for(let y=my-1;y<=my+2;y++)for(let x=cx-2;x<=cx+1;x++)face.add(x+','+y);
-      const onFace=F.fp.filter(([x,y])=>face.has(mx(x)+','+y)).length;
+      const onFace=drawn.filter(([x,y])=>face.has(mx(x)+','+y)).length;
       if(onFace)E(`${tag} ${bucket}: ${onFace} nub px under the eyes, cheeks or mouth`);
       /* what shows */
       const vis=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(g[y][x]!==g0[y][x])vis.push([x,y]);

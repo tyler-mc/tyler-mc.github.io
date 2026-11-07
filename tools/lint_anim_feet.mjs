@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Lint for the authored shoe poses in mascot/feet.js (FEET[name] = {back, feet:[[x,y,rows],[x,y,rows]]}, feet[0] = the screen-left shoe). Run: node tools/lint_anim_feet.mjs
+/* Lint for the authored shoe poses in mascot/feet.js (FEET[name] = {back, feet:[[x,y,rows(,back)],[x,y,rows(,back)]]}, feet[0] = the screen-left shoe). Run: node tools/lint_anim_feet.mjs
    tools/test_mascot.mjs calls lint() (an array of problems; empty = green). Checks:
    1. every required pose exists (compose falls back to `stand` for an unknown name, so a missing pose would fail silently) and has exactly two shoes;
    2. each shoe: equal-length rows of `.kuUvV`, one 8-connected blob, closed by its k outline (no fill pixel 4-touches clear or the rows' edge), a 1 px line (no 2x2 ink,
@@ -18,15 +18,18 @@ import {KEYS} from './lint_mascot_body.mjs';
 export const NAMES=['stand','together','tuck','loose','spread','splay','toeUp','walkA','walkB','walkC','walkD','kick','skid','dangle','dangleB','liftL','liftR','pigeon','sit','sleep'];
 /* lowest shoe row [left, right]: 59 = the sole on the ground; e.g. 57 = two rows up, 61 = two rows lower (a hanging foot) */
 export const SOLES={stand:[59,59],together:[59,59],tuck:[57,57],loose:[59,60],spread:[58,58],splay:[59,59],toeUp:[59,59],
-  walkA:[58,59],walkB:[58,59],walkC:[57,59],walkD:[56,59],kick:[58,50],skid:[59,59],dangle:[61,61],dangleB:[61,57],
+  walkA:[59,59],walkB:[59,57],walkC:[59,57],walkD:[59,58],kick:[58,50],skid:[59,59],dangle:[61,61],dangleB:[61,57],
   liftL:[53,59],liftR:[59,53],pigeon:[59,59],sit:[59,59],sleep:[59,59]};
+/* the walk poses draw the swinging shoe IN FRONT of the body (a per-shoe 4th element false) so a lifted foot reads; they are checked on the rest and breath bodies only,
+   and a front shoe may cover the body from the mouth row down (never the face above it) */
+const WALK=new Set(['walkA','walkB','walkC','walkD']);
 const AIR=new Set(['tuck','loose','spread','kick','dangle','dangleB']);
 const STAND=[[4,53,["..kkkk......",".kuuuUkk....","kuuUUUUUkkk.","kuUUUUUUUUUk","kUUUUUUUUUvk",".kVVUUUUVVVk","..kkkkkkkkk."]],
   [24,53,["......kkkk..","....kkUuuuk.",".kkkUUUUUuuk","kUUUUUUUUUuk","kvUUUUUUUUUk","kVVVUUUUVVk.",".kkkkkkkkk.."]]];
 const MIN_VIS=14,W=40,H=64;
 
 function lintShoe(tag,f,E){
-  if(!Array.isArray(f)||f.length!==3||!Number.isInteger(f[0])||!Number.isInteger(f[1])||!Array.isArray(f[2])||!f[2].length)return E(`${tag} must be [x, y, rows]`),false;
+  if(!Array.isArray(f)||(f.length!==3&&f.length!==4)||(f.length===4&&typeof f[3]!=='boolean')||!Number.isInteger(f[0])||!Number.isInteger(f[1])||!Array.isArray(f[2])||!f[2].length)return E(`${tag} must be [x, y, rows] or [x, y, rows, back]`),false;
   const [fx,fy,rows]=f,w=rows[0].length,h=rows.length;
   if(!rows.every(r=>typeof r==='string'&&r.length===w&&/^[.kuUvV]+$/.test(r)))return E(`${tag} rows must be equal-length strings of .kuUvV`),false;
   const at=(x,y)=>y>=0&&y<h&&x>=0&&x<w?rows[y][x]:'.',solid=(x,y)=>at(x,y)!=='.';
@@ -68,13 +71,14 @@ export function lint(){
     if(!AIR.has(name)&&!low.includes(59))E('a grounded pose needs a sole on row 59');
     if(!AIR.has(name)&&low.some(v=>v>59))E('a grounded pose has a shoe below the ground row 59');
     for(const lv of levels){const L=BODY[lv];
+      if(WALK.has(name)&&lv!=='rest'&&lv!=='breath')continue;
       for(const flip of [0,1]){const s={dir:[0,0],stage:1,lv,air:1,flip},g=compose({...s,ft:name}),g0=compose({...s,ft:'__nofeet__'});
         if(g.length!==H||g.some(r=>r.length!==W||r.some(c=>c!=='.'&&!MB[c]))){E(`${lv}${flip?' flipped':''}: bad grid`);continue}
         const rows=L.v[0],by=L.y0,bottom=by+rows.length-1,cy=L.cy;
         let bad=0;
         for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(g0[y][x]==='.'||g[y][x]===g0[y][x])continue;
           const xa=flip?W-1-x:x;   /* the authored (unflipped) column */
-          if(F.back||y<bottom-5||(xa>=17&&xa<=22)||(y>=cy-6&&y<=cy+9&&xa>=CXm(cy)-10&&xa<=CXm(cy)+9))bad++}
+          if(WALK.has(name)?y<cy+4:F.back||y<bottom-5||(xa>=17&&xa<=22)||(y>=cy-6&&y<=cy+9&&xa>=CXm(cy)-10&&xa<=CXm(cy)+9))bad++}
         if(bad)E(`${lv}${flip?' flipped':''}: the shoes change ${bad} body/face/arm pixel(s)`)}
       /* visibility on this level with no arms */
       const g=compose({dir:[0,0],stage:1,lv,air:1,ft:name,arms:[false,false]});let u=0;

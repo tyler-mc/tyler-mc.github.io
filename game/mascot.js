@@ -2,12 +2,12 @@
    The cell is 40x64 with the soles on row SOLE; render.js draws it at (p.x+9-CX, p.y+PH-1-SOLE) so the soles land on the player box's last row.
    A look is the atlas's: {lv,ft,arms,face,blink,happy,mouth,dir,stage,hat,mask,pose,flip,dx,air,...} (see compose in mascot/atlas.js). */
 import {compose,paint,W,H,CX,SOLE,INK} from '../mascot/atlas.js';
-import {WALK_LOOKS} from '../mascot/anim_walk.js';
+import {WALK_LOOKS,IDLE_TURN,IDLE_LEAN} from '../mascot/anim_walk.js';
 import {FEET} from '../mascot/feet.js';
 import {BODY} from '../mascot/body.js';
 import {ANIM_ROOT} from '../mascot/anim_root.js';
 import {ANIM_SURF} from '../mascot/anim_surf.js';
-export {INK,W,H,CX,SOLE,WALK_LOOKS,ANIM_ROOT};
+export {INK,W,H,CX,SOLE,WALK_LOOKS,IDLE_TURN,IDLE_LEAN,ANIM_ROOT};
 export const B4=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
 
 /* the pulse (game/fx.js sy: 1 = rest, below = squashed, above = stretched) picks one authored body level */
@@ -20,7 +20,7 @@ export const shoeX=(ft,flip)=>{const F=FEET[ft]||FEET.stand;return F.feet.map(f=
 const leafLag=s=>{const l=s.sp|0;if(!s.pose)return l;const u=s.flip?-l:l,t=Math.min(0,u);return s.flip?-t:t};
 const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
 const cache=new Map();
-const KEYS=['lv','ft','arms','face','blink','happy','mouth','dir','stage','hat','mask','pose','flip','dx','air','lid','pens','sleep','gape','bv','hold','heart','q','fx','ll','forged','cling'];
+const KEYS=['lv','ft','arms','face','blink','happy','mouth','dir','stage','hat','mask','pose','flip','dx','air','lid','pens','sleep','gape','bv','hold','heart','q','fx','ll','forged','cling','turn','lean'];
 /* a cached canvas for a look (the pose frame may be taller than 64 rows: the canvas follows the grid) */
 export function sprite(s){
   const l=s.mac?{pose:'mac:0',air:1,dir:[0,0],stage:0}:{...s,ll:leafLag(s),sp:0,air:1},k=KEYS.map(n=>JSON.stringify(l[n])).join('|');
