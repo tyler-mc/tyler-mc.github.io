@@ -13,6 +13,7 @@ import {tideBody,tideCrest,tideFront,drawEel} from './floodart.js';   /* the Flo
 import {CHASES} from './rooms/index.js';
 import {drawMolten,moltenLights} from './moltenart.js';   /* Molten: vents, embers, slag beetles */
 import {createFx,stepFx,clearFx,radii,sprout} from './fx.js';   /* the body pulse, dust, skid and sprout lag, kept out of S */
+import {createVfx} from './vfx/vfx.js';   /* Sprite Fusion pixel VFX (MIT, Hugo Duprez): item moments, stun, Roots and Flood ambient */
 import {MAXF,FEEL} from './player.js';
 import {isLiq} from './liquid.js';
 import {solid,tile,sealOpen} from './engine.js';   /* the edge pose's ground is collision's own (a cycle, used only at draw time) */
@@ -217,6 +218,7 @@ export function createRenderer(cv,{reduce=false}={}){
      A new room, or an S.t that does not follow the last step (warp, reset, restore()), clears them; draw() shows them only
      while S is still at the step they were made for. frozen: the world spent this step on hit-stop. */
   const fx=createFx(),at={room:null,t:NaN},rub=newRubble();
+  const vfx=createVfx({reduce,mk,rooms:ROOMS,PIECES,fragCentre,T,VW,VH,isLiq});   /* outside S too; it clears on the same room/S.t test */
   const live=S=>S.room===at.room&&S.t===at.t;
   function step(S,ev,frozen){
     const p=S.p,R=ROOMS[S.room];
@@ -230,6 +232,7 @@ export function createRenderer(cv,{reduce=false}={}){
     /* a jump has already moved him up by vy this step, so its dust goes where his feet left the ground; no dust under water */
     stepFx(fx,wet?ev.filter(e=>e!=='land'):ev,{hit:frozen??S.hit>0,reduce,lv:p.lv,MAXF,feetX:fx0,feetY:fy0-(ev.includes('jump')?p.vy:0),
       ground:!!p.ground,skid:!!p.ground&&p.face*p.vx<-.2,vx:p.dead||p.carry?0:p.vx});
+    vfx.step(S,ev,frozen,R);
   }
   /* a ledge under only the box's outer px (his feet are at x+2..5 and x+12..15): the side of the drop, 1 or -1, else 0.
      Ground is what collision stands him on (engine solid(): rock, rubble, a shut gate, past the edge the next room) plus a
@@ -281,6 +284,8 @@ export function createRenderer(cv,{reduce=false}={}){
       blit(ctx,PED,cx-11,fy-PED.length,PED_P);
       const k=PIECES.indexOf(f.piece);if(k>=0&&!S.pieces[k])drawFragment(ctx,k,cx,fy-PED.length-13,{mk});}
     if(R.id==='hub')drawFragments(ctx,S,ox,oy,mk);   /* the disc's four fragment recesses (game/door.js) */
+    const vl=live(S)&&vfx.live()>0;
+    if(vl)vfx.drawLit(ctx,ox,oy);   /* map.js slot 'lit': under the light pass, so the room darkens it (nothing is 'lit' by default) */
     /* light */
     const amb=R.id==='hub'?(S.lit?Math.min(1,S.litT/60):0):(AMB[R.biome]??.4);
     if(amb<1){
@@ -296,6 +301,7 @@ export function createRenderer(cv,{reduce=false}={}){
       for(const f of R.pedestals)addLight(L,f.tx*T+6-ox,f.ty*T-6-oy,S.pieces[PIECES.indexOf(f.piece)]?18:44,.85);
       for(const q of R.perches)addLight(L,q.tx*T+6-ox,q.ty*T+2-oy,S.sit&&perchOf(R,S.p)===q?46:24,.7);   /* a seat is lit, so it reads as a place to stop */   /* a shaft of light on the shrine */
       moltenLights(S,(x,y,r,k)=>addLight(L,x-ox,y-oy,r,k));   /* a lit ember's small warm light (game/cinders.js) */
+      if(vl)vfx.light(L,ox,oy);   /* effect light as luminance x LIGHT_GAIN; never from noLight uses (stun) */
       /* enemies and thorns give no light (Tyler): their red lives in the sprite art; enemies draw after this pass */
       lightPass(amb);
       /* the dark room's window edge: a faint dithered frame wherever the light comes near it */
@@ -308,6 +314,7 @@ export function createRenderer(cv,{reduce=false}={}){
       }
     }
 
+    if(vl)vfx.drawBack(ctx,ox,oy);   /* 'emissive' back layers: after the light; under the water crest, plates, enemies and him */
     waterCrest(ctx,S,ox,oy,t,amb<1?L:null,amb,reduce);   /* the surface line reads in the dark */
     lavaCrest(ctx,S,ox,oy,t,amb<1?L:null,amb,reduce);
     tideCrest(ctx,S,ox,oy,t,amb<1?L:null,amb,reduce);
@@ -362,6 +369,7 @@ export function createRenderer(cv,{reduce=false}={}){
         ctx.fillStyle='#c9a36a';ctx.fillRect(hx,hy+2,1,5);ctx.fillStyle='#F08A2A';ctx.fillRect(hx-1,hy-1+(f&1),3,3);ctx.fillStyle=YEL;ctx.fillRect(hx,hy+(f===2?0:1),1,2);
       }
     }
+    if(vl)vfx.drawFront(ctx,ox,oy);   /* 'emissive' front layers: over him, under the HUD */
     /* HUD: what he carries */
     if(S.lit){
       let hx=4;
@@ -371,7 +379,7 @@ export function createRenderer(cv,{reduce=false}={}){
       drawHudPieces(ctx,S.pieces,hx,3,mk);   /* quarter-disc fragments, hollow until carried (game/door.js) */
     }
   }
-  return {draw,step,look,setLook(l){LOOK={...(l||{})}}};   /* look: for node tests */
+  return {draw,step,look,setLook(l){LOOK={...(l||{})}},vfx};   /* look: for node tests; vfx: the dev panel can spawn effects */
 }
 
 /* plate -> gate: the same cyan marks on the plate, on a socket over the gate, and on a vein through the floor between
