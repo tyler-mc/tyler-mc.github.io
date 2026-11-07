@@ -7,7 +7,7 @@ MB = {'B':'#F1E9D2','b':'#C9BFA5','Y':'#F6B92B','k':'#1A1716','r':'#FF3333','p':
 out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'mascot_sheet.png')
 S = int(sys.argv[2]) if len(sys.argv) > 2 else 6
 rows = json.loads(subprocess.check_output(['node', os.path.join(ROOT, 'tools', 'mascot_sheet.mjs')]))
-W, H, PAD, LAB = 32, 48, 6, 70
+H = max(len(f['g']) for r in rows for f in r['frames']); W = max(len(f['g'][0]) for r in rows for f in r['frames']); PAD, LAB = 6, 70
 cols = max(len(r['frames']) for r in rows)
 img = Image.new('RGB', (LAB + cols * (W * S + PAD), len(rows) * (H * S + PAD + 12)), '#EDE3CF')
 d = ImageDraw.Draw(img)

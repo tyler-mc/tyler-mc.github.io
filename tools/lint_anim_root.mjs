@@ -1,111 +1,101 @@
 #!/usr/bin/env node
-/* Lint for mascot/anim_root.js (the root launch, root double jump, airborne roots and landing, plus the ROOT_FX particle sprites).
+/* Lint for mascot/anim_root.js (the Wake Up root jump for the redesigned character, plus the ROOT_FX particle sprites).
    Run: node tools/lint_anim_root.mjs   (tools/test_mascot.mjs also calls lint()).
-   The root frames use a TALL cell: ANIM_ROOT.cellH = 72 and every frame sets cellH:72 (compose returns 32x72, lintPoseFrames bounds-checks
-   against it), with soleRow 35 and groundRow 36. On top of lintPoseFrames (closed 1 px body outline, light, face margin plain AND mirrored,
-   canvas bounds, over/feet format) it checks:
-   - 12 frames in the documented order (each carries its name), never baked, feet:[] (the boots live in the over layer), cellH 72;
-   - boots: every frame names two tight boot boxes [x,y,w,h] on the canvas (top row has boot px, bottom row the sole); inside each box the
-     over layer holds a whole boot (ink k, light u, body U, shade v, sole V); the boot's top row is within 1 row of the body's last row
-     (shoeTop - bodyBottom in -1..1: tucked under the belly by at most its last two rows, never higher, never floating); `sole` is the
-     frame's lowest sole (V) row;
-   - ground frames (crouch, dig, landBurst, landSettle) have ground === groundRow (36) and both soles on soleRow (35), or 36 when dug in
-     (dig); air frames have ground null and soles on rows 34..36 (a boot may dangle 1 px);
-   - the over layer only covers body pixels with boot pixels on the body's last two rows: roots, dirt and leaves never paint the body;
-   - roots: every frame has root pixels (a A e g G, and u outside the boot boxes) touching a boot, at least MINROOT[name]; the airborne and
-     burst frames carry fresh green tips (G); no root reaches more than 40 rows below the soles, and rise1, burst, burst2 and hang reach at
-     least 22 (about a body height); fall has roots above the boots (streaming up past the body); ground frames reach into the ground;
-   - no orphan root pixel: every a A e g G (and u outside the boots) has an 8-neighbour that is root or boot. Lone dirt specks are v or b,
-     which this rule ignores (they float on purpose). A root clump bigger than 16 px must touch a boot (only clods, root bits and leaves fly free);
-   - compose() renders every frame plain and flip:1, with faces 'scared' and 'huh', hats 'crown' and 'party', sprout stages 0 and 3: a
-     32x72 grid of known palette chars with every authored body-outline and over pixel drawn as authored; hats and the stage 3 sprout are
-     drawn whole (same count of hat or sprout pixels as on the plain rest body, so nothing clips at row 0), the hat brim sits on the head
-     (no column floats more than 1 px) and covers no eye;
-   - ROOT_FX: piece (2 frames), leaf (3), crumbs (3), dust (4), lines (3); frames of one sprite are the same size, at most 12x10, rows of
-     known palette chars; no pixel without an 8-neighbour except in crumbs (its specks are intended); lines are b only. */
+   The root frames use a TALL cell: 40x96 (ANIM_ROOT.cellH 96, every frame cellH:96), soleRow 59 (= atlas SOLE, the plain sprite's sole row), groundRow 60.
+   On top of lintPoseFrames (closed 1 px body outline, light, face margin plain AND mirrored, canvas bounds, over/feet format) it checks:
+   - 12 frames in the documented order (each carries its name), never baked, cellH 96;
+   - drift guard: v, x0, y0, cy, tip, ctr are BODY[lv] variant bv exactly, fcx 20; feet are FEET[ft] exactly (dig: 1 row lower); so a body.js/feet.js change shows up
+     here instead of as a pop when the game switches between the plain sprite and a root frame;
+   - arms: [150,30] on burst and burst2, the resting [210,330] elsewhere; `sole` is the lowest shoe row; ground frames have ground 60 and soles on 59 (dig 60),
+     air frames ground null and soles on 57..61;
+   - the over layer never paints a body or shoe pixel (checked on the data), an arm nub, the stem, a hat or any leaf stage (checked through compose: the nub
+     pixels and the count of stem/leaf/hat colours match the plain BODY level with the same look);
+   - roots (a A e g G u in the over layer) are 8-connected to a shoe, at least MINROOT[name] px; the airborne frames have fresh green tips (G); no orphan root
+     pixel (lone specks must be v or b), no free clump over 16 px (only clods, root bits and leaves fly free); roots reach at most 34 rows below the soles, and
+     rise1, burst, burst2 and hang at least 20 (about a body height); fall has roots streaming up beside the body; ground frames reach into the ground (row > 60);
+   - compose() renders every frame plain and flip:1 with the plain, scared, huh and gape faces, crown and party hats, leaf stages 0..4 and the
+     leaf lag ll +-3: a 40x96 grid of known
+     palette chars, every over pixel drawn as authored, and every body pixel identical to the plain BODY level composed with the same look;
+   - ROOT_FX: piece (2 frames), leaf (3), crumbs (3), dust (4), lines (3); frames of one sprite are the same size, at most 12x10, rows of known palette chars;
+     no pixel without an 8-neighbour except in crumbs (its specks are intended); lines are b only. */
 import {lintPoseFrames} from './lint_mascot_body.mjs';
 import {ANIM_ROOT,ROOT_FX} from '../mascot/anim_root.js';
-import {compose,MB} from '../mascot/atlas.js';
+import {compose,MB,W,SOLE} from '../mascot/atlas.js';
+import {BODY} from '../mascot/body.js';
+import {FEET} from '../mascot/feet.js';
 export const NAMES=['crouch','dig','push','rise1','rise2','burst','burst2','hang','fall','retract','landBurst','landSettle'];
-const GROUNDED=new Set(['crouch','dig','landBurst','landSettle']),GREEN=new Set(['rise1','rise2','burst','burst2','hang','fall','retract']);
-const MINROOT={crouch:20,dig:200,push:150,rise1:300,rise2:200,burst:350,burst2:400,hang:250,fall:200,retract:100,landBurst:150,landSettle:20};
-const LONG=new Set(['rise1','burst','burst2','hang']);
+const GROUNDED=new Set(['crouch','dig','landBurst','landSettle']),GREEN=new Set(['push','rise1','rise2','burst','burst2','hang','fall','retract']);
+const MINROOT={crouch:20,dig:150,push:120,rise1:250,rise2:150,burst:250,burst2:300,hang:180,fall:120,retract:60,landBurst:120,landSettle:12};
+const LONG=new Set(['rise1','burst','burst2','hang']),RAISED=new Set(['burst','burst2']);
 const FXSPEC={piece:2,leaf:3,crumbs:3,dust:4,lines:3};
-const ROOTC='aAegG',SHOEC='kuUvV';
+const ROOTC='aAegGu',HEADC='nThYoHwB',CH=96;
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 export function lint(){
-  const F=ANIM_ROOT.frames,errs=lintPoseFrames('root',F,{minFrames:NAMES.length,turnsMax:6});
+  const F=ANIM_ROOT.frames,errs=lintPoseFrames('root',F,{minFrames:NAMES.length});
   if(F.length!==NAMES.length)errs.push(`root: ${F.length} frames, the wiring note documents ${NAMES.length}`);
-  if(ANIM_ROOT.soleRow!==35||ANIM_ROOT.groundRow!==36||ANIM_ROOT.cellH!==72)errs.push('root: the cell is 32x72 with soleRow 35 and groundRow 36 (the wiring note offsets the cell by them)');
+  if(ANIM_ROOT.soleRow!==SOLE||ANIM_ROOT.soleRow!==59||ANIM_ROOT.groundRow!==60||ANIM_ROOT.cellH!==CH)errs.push('root: the cell is 40x96 with soleRow 59 (= atlas SOLE) and groundRow 60 (the wiring note places the cell by them)');
   const known=new Set(['.',...Object.keys(MB)]);
-  /* reference hat and sprout pixel counts on the plain rest body */
   const cnt=(g,set)=>g.reduce((s,r)=>s+r.filter(c=>set.includes(c)).length,0);
-  const REF={crown:cnt(compose({lv:'rest',dir:[0,0],stage:0,air:1,hat:'crown'}),'YoH'),party:cnt(compose({lv:'rest',dir:[0,0],stage:0,air:1,hat:'party'}),'YoHw'),
-    sprout:cnt(compose({lv:'rest',dir:[0,0],stage:3,air:1}),'nT')};
   F.forEach((f,fi)=>{
-    const E=m=>errs.push(`root[${fi}] ${f.name}: ${m}`),CH=f.cellH||48;
-    if(f.cellH!==ANIM_ROOT.cellH)E(`cellH is ${f.cellH}, every root frame uses the ${ANIM_ROOT.cellH}-row cell`);
+    const E=m=>errs.push(`root[${fi}] ${f.name}: ${m}`);
     if(f.name!==NAMES[fi])E(`must be named '${NAMES[fi]}'`);
-    if(f.baked)E('must not be baked: compose draws the face, sprout and hat');
-    if(!Array.isArray(f.feet)||f.feet.length)E('feet must be [] (the shoes are in the over layer)');
-    if(!f.v||!f.v[0]||!f.over||!f.over.rows)return E('needs body rows and an over layer');
-    const rows=f.v[0],h=rows.length,bb=f.y0+h-1,body=(x,y)=>{const r=rows[y-f.y0];return r&&x>=f.x0&&x<f.x0+r.length?r[x-f.x0]:'.'};
+    if(f.cellH!==CH)E(`cellH is ${f.cellH}, every root frame uses the ${CH}-row cell`);
+    if(f.baked)E('must not be baked: compose draws the face, leaf and hat');
+    const L=BODY[f.lv];if(!L||!L.v[f.bv|0])return E(`lv '${f.lv}' bv ${f.bv} is not a BODY level`);
+    if(!f.v||f.v.length!==1||!same(f.v[0],L.v[f.bv|0]))E(`v is not BODY.${f.lv} variant ${f.bv|0} (body.js changed? regenerate)`);
+    for(const k of ['x0','y0','cy','tip','ctr'])if(!same(f[k],L[k]))E(`${k} ${JSON.stringify(f[k])} differs from BODY.${f.lv} ${JSON.stringify(L[k])}`);
+    if(f.fcx!==20)E('fcx must be 20 (the plain face column)');
+    const FT=FEET[f.ft],dy=f.name==='dig'?1:0;
+    if(!FT)return E(`ft '${f.ft}' is not a FEET pose`);
+    if(!same(f.feet,FT.feet.map(([x,y,r])=>[x,y+dy,r])))E(`feet are not FEET.${f.ft}${dy?' one row lower':''} (feet.js changed? regenerate)`);
+    if(!same(f.arms,RAISED.has(f.name)?[150,30]:[210,330]))E(`arms must be ${RAISED.has(f.name)?'[150,30]':'[210,330]'}`);
+    if(!f.over||!f.over.rows)return E('needs an over layer (the roots)');
+    // occupancy
+    const body=new Set(),shoe=new Set(),K=(x,y)=>y*64+x;
+    f.v[0].forEach((r,y)=>{for(let x=0;x<r.length;x++)if(r[x]!=='.')body.add(K(f.x0+x,f.y0+y))});
+    let sole=-1,shoeTop=99;for(const [x0,y0,rows] of f.feet)rows.forEach((r,y)=>{for(let x=0;x<r.length;x++)if(r[x]!=='.'){shoe.add(K(x0+x,y0+y));sole=Math.max(sole,y0+y);shoeTop=Math.min(shoeTop,y0+y)}});
+    if(f.sole!==sole)E(`sole is ${f.sole}, the lowest shoe row is ${sole}`);
+    if(GROUNDED.has(f.name)){if(f.ground!==ANIM_ROOT.groundRow)E(`ground must be ${ANIM_ROOT.groundRow}`);if(sole!==(f.name==='dig'?60:59))E(`a ground frame stands on row ${f.name==='dig'?60:59}, the soles are on ${sole}`)}
+    else{if(f.ground!==null)E('ground must be null (air frame)');if(sole<57||sole>61)E(`air frame sole row ${sole} outside 57..61`)}
     const O=f.over,ov=(x,y)=>{const r=O.rows[y-O.y0];return r&&x>=O.x0&&x<O.x0+r.length?r[x-O.x0]:'.'};
-    // shoes
-    if(!Array.isArray(f.shoes)||f.shoes.length!==2)return E('needs two shoe boxes [x,y,w,h]');
-    const inShoe=(x,y)=>f.shoes.some(([sx,sy,sw,sh])=>x>=sx&&x<sx+sw&&y>=sy&&y<sy+sh);
-    let sole=-1;
-    f.shoes.forEach(([sx,sy,sw,sh],i)=>{
-      if(sx<0||sy<0||sx+sw>32||sy+sh>CH)return E(`shoe ${i} box leaves the canvas`);
-      const n={};let top=99,vlow=-1;
-      for(let y=sy;y<sy+sh;y++)for(let x=sx;x<sx+sw;x++){const c=ov(x,y);if(SHOEC.includes(c)){n[c]=(n[c]||0)+1;top=Math.min(top,y)}if(c==='V')vlow=Math.max(vlow,y)}
-      if(![...Array(sw).keys()].some(i=>SHOEC.includes(ov(sx+i,sy)))||![...Array(sw).keys()].some(i=>ov(sx+i,sy+sh-1)==='V'))E(`shoe ${i} box [${sx},${sy},${sw},${sh}] is not tight (top row needs shoe px, bottom row the sole)`);
-      if(!(n.k>=12&&n.u>=2&&n.U>=8&&n.v>=2&&n.V>=4))E(`shoe ${i} is not a whole shoe (k ${n.k|0}, u ${n.u|0}, U ${n.U|0}, v ${n.v|0}, V ${n.V|0})`);
-      if(top-bb<-1||top-bb>1)E(`shoe ${i} top row ${top} must be within 1 row of the body's last row ${bb}`);
-      sole=Math.max(sole,vlow);
-      if(GROUNDED.has(f.name)&&vlow!==(f.name==='dig'?36:35))E(`shoe ${i} sole row ${vlow}, a ground frame stands on ${f.name==='dig'?36:35}`);
-    });
-    if(f.sole!==sole)E(`sole is ${f.sole}, the lowest sole (V) row is ${sole}`);
-    if(GROUNDED.has(f.name)?f.ground!==ANIM_ROOT.groundRow:f.ground!==null)E(`ground must be ${GROUNDED.has(f.name)?ANIM_ROOT.groundRow:'null'}`);
-    if(!GROUNDED.has(f.name)&&(sole<34||sole>36))E(`air frame sole row ${sole} outside 34..36`);
-    // the over layer never paints the body, except the shoes over its bottom outline
-    for(let y=0;y<CH;y++)for(let x=0;x<32;x++){const c=ov(x,y);if(c==='.'||body(x,y)==='.')continue;
-      if(!(inShoe(x,y)&&SHOEC.includes(c)&&y>=bb-1)){E(`over '${c}' paints the body at ${x},${y}`);break}}
+    for(let y=0;y<CH;y++)for(let x=0;x<W;x++){const c=ov(x,y);if(c==='.')continue;if(body.has(K(x,y))||shoe.has(K(x,y))){E(`over '${c}' paints the ${body.has(K(x,y))?'body':'shoe'} at ${x},${y}`);break}}
     // roots
-    const isRoot=(x,y)=>{const c=ov(x,y);return ROOTC.includes(c)||(c==='u'&&!inShoe(x,y))},isShoe=(x,y)=>inShoe(x,y)&&SHOEC.includes(ov(x,y));
+    const isRoot=(x,y)=>ROOTC.includes(ov(x,y)),isShoe=(x,y)=>shoe.has(K(x,y));
     const seen=new Set(),comps=[];
-    for(let y=0;y<CH;y++)for(let x=0;x<32;x++){if(!isRoot(x,y)||seen.has(y*64+x))continue;
-      const st=[[x,y]],cells=[];let shoe=false;seen.add(y*64+x);
+    for(let y=0;y<CH;y++)for(let x=0;x<W;x++){if(!isRoot(x,y)||seen.has(K(x,y)))continue;
+      const st=[[x,y]],cells=[];let sh=false;seen.add(K(x,y));
       while(st.length){const [a,b]=st.pop();cells.push([a,b]);for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){if(!i&&!j)continue;const X=a+i,Y=b+j;
-        if(isShoe(X,Y))shoe=true;if(isRoot(X,Y)&&!seen.has(Y*64+X)){seen.add(Y*64+X);st.push([X,Y])}}}
-      comps.push({cells,shoe})}
+        if(isShoe(X,Y))sh=true;if(isRoot(X,Y)&&!seen.has(K(X,Y))){seen.add(K(X,Y));st.push([X,Y])}}}
+      comps.push({cells,sh})}
     for(const c of comps){if(c.cells.length===1)E(`orphan root pixel '${ov(...c.cells[0])}' at ${c.cells[0].join(',')} (lone specks must be v or b)`);
-      else if(!c.shoe&&c.cells.length>16)E(`a root clump of ${c.cells.length} px at ${c.cells[0].join(',')} floats free of the shoes`)}
-    const attached=comps.filter(c=>c.shoe).flatMap(c=>c.cells);
-    if(attached.length<MINROOT[f.name])E(`${attached.length} root px touch the shoes, want at least ${MINROOT[f.name]}`);
-    if(GREEN.has(f.name)&&attached.filter(([x,y])=>ov(x,y)==='G').length<2)E('needs fresh green tips (G) on its roots');
-    const deep=Math.max(...attached.map(c=>c[1]))-sole;
-    if(deep>40)E(`roots reach ${deep} rows below the soles (max 40)`);
-    if(LONG.has(f.name)&&deep<22)E(`roots reach only ${deep} rows below the soles, want 22..40 (about a body height)`);
-    if(f.name==='fall'&&!attached.some(([x,y])=>y<f.shoes[0][1]-4))E('the roots must stream up past the body');
-    if(GROUNDED.has(f.name)&&!attached.some(([x,y])=>y>ANIM_ROOT.groundRow))E('the roots must reach into the ground');
+      else if(!c.sh&&c.cells.length>16)E(`a root clump of ${c.cells.length} px at ${c.cells[0].join(',')} floats free of the shoes`)}
+    const att=comps.filter(c=>c.sh).flatMap(c=>c.cells);
+    if(att.length<MINROOT[f.name])E(`${att.length} root px touch the shoes, want at least ${MINROOT[f.name]}`);
+    if(GREEN.has(f.name)&&att.filter(([x,y])=>ov(x,y)==='G').length<4)E('needs fresh green tips (G) on its roots');
+    const deep=Math.max(...att.map(c=>c[1]))-ANIM_ROOT.soleRow;
+    if(deep>34)E(`roots reach ${deep} rows below the soles (max 34)`);
+    if(LONG.has(f.name)&&deep<20)E(`roots reach only ${deep} rows below the soles, want 20..34 (about a body height)`);
+    if(f.name==='fall'&&!att.some(([x,y])=>y<shoeTop-8))E('the roots must stream up beside the body');
+    if(GROUNDED.has(f.name)&&!att.some(([x,y])=>y>ANIM_ROOT.groundRow))E('the roots must reach into the ground');
     // compose
-    for(const flip of [0,1])for(const [tag,extra] of [['plain',{}],['scared',{face:'scared'}],['huh',{face:'huh'}],['crown',{hat:'crown'}],['party',{hat:'party'}],['stage0',{stage:0}],['sprout',{stage:3}]]){
-      const look={pose:'root:'+fi,flip,dir:[0,0],stage:0,air:1,...extra},g=compose(look),T=`${tag}${flip?' flipped':''}`;
-      if(g.length!==CH||g.some(r=>r.length!==32)){E(`${T}: compose is not 32x${CH}`);continue}
+    for(const flip of [0,1])for(const [tag,extra] of [['plain',{}],['scared',{face:'scared'}],['huh',{face:'huh'}],['gape',{gape:3}],['crown',{hat:'crown',stage:3}],['party',{hat:'party',stage:4}],
+        ...[0,1,2,3,4].map(s=>['stage'+s,{stage:s}]),['lag+3',{hat:'party',stage:4,ll:3}],['lag-3',{hat:'crown',stage:4,ll:-3}]]){
+      const look={dir:[0,0],stage:0,air:1,arms:f.arms,flip,...extra},g=compose({...look,pose:'root:'+fi}),T=`${tag}${flip?' flipped':''}`;
+      if(g.length!==CH||g.some(r=>r.length!==W)){E(`${T}: compose is not ${W}x${CH}`);continue}
       if(g.some(r=>r.some(c=>!known.has(c)))){E(`${T}: unknown char`);continue}
-      const X=x=>flip?31-x:x;
-      // every authored pixel is drawn (the face, sprout and hat may only cover body fill)
-      let lost=0;for(let y=0;y<CH;y++)for(let x=0;x<32;x++){const o=ov(x,y),b=body(x,y),want=o!=='.'?o:b;if(want==='.')continue;const got=g[y][X(x)];if(got!==want&&!'rpR'.includes(want)&&!(tag==='crown'||tag==='party'||tag==='sprout'))lost++}
-      if(lost)E(`${T}: ${lost} authored outline/over px are not drawn as authored`);
-      if(tag==='crown'||tag==='party'){const set=tag==='crown'?'YoH':'YoHw',n=cnt(g,set);if(n!==REF[tag])E(`${T}: the hat draws ${n} px, whole is ${REF[tag]} (clipped?)`);
-        const a=compose({...look,hat:undefined}),hc=[];for(let y=0;y<CH;y++)for(let x=0;x<32;x++)if(a[y][x]!==g[y][x])hc.push([x,y]);
-        const brim=Math.max(...hc.map(c=>c[1])),xs=[...new Set(hc.map(c=>c[0]))],gaps=xs.map(x=>{for(let y=0;y<CH;y++)if(a[y][x]!=='.')return y-brim-1;return CH});
-        if(Math.max(...gaps)>1)E(`${T}: the hat floats (brim ${brim})`);
-        if(hc.some(([x,y])=>y>=f.cy-6&&y<=f.cy))E(`${T}: the hat covers the eyes`)}
-      if(tag==='sprout'){const n=cnt(g,'nT');if(n!==REF.sprout)E(`${T}: the stage 3 sprout draws ${n} px, whole is ${REF.sprout} (clipped?)`)}
+      const ref=compose({...look,lv:f.lv,bv:f.bv|0,ft:f.ft}),X=x=>flip?W-1-x:x;
+      let lostO=0,bodyD=0;
+      for(let y=0;y<CH;y++)for(let x=0;x<W;x++){const o=ov(x,y);if(o!=='.'&&g[y][X(x)]!==o)lostO++;
+        if(y<64&&body.has(K(x,y))&&g[y][X(x)]!==ref[y][X(x)])bodyD++}
+      if(lostO)E(`${T}: ${lostO} over px are not drawn as authored`);
+      if(bodyD)E(`${T}: ${bodyD} body px differ from BODY.${f.lv} composed with the same look`);
+      // arm nubs: every pixel the arms change on the plain level must look the same here
+      const noArm=compose({...look,lv:f.lv,bv:f.bv|0,ft:f.ft,arms:[false,false]});let armD=0;
+      for(let y=0;y<64;y++)for(let x=0;x<W;x++)if(ref[y][x]!==noArm[y][x]&&g[y][x]!==ref[y][x])armD++;
+      if(armD)E(`${T}: ${armD} arm nub px are covered`);
+      const n=cnt(g,HEADC),n0=cnt(ref,HEADC);if(n!==n0)E(`${T}: ${n} stem/leaf/hat px, the plain BODY.${f.lv} has ${n0} (the over layer covers head gear?)`);
     }
   });
-  // FX sprites
   for(const [k,nf] of Object.entries(FXSPEC)){const S=ROOT_FX[k],E=m=>errs.push(`ROOT_FX.${k}: ${m}`);
     if(!Array.isArray(S)||S.length!==nf){E(`needs ${nf} frames`);continue}
     const dims=new Set(S.map(fr=>fr.length+'x'+(fr[0]||'').length));if(dims.size!==1)E(`frames differ in size (${[...dims].join(', ')})`);

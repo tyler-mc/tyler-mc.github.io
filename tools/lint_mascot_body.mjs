@@ -10,7 +10,7 @@
    same size, a few edge pixels moved, drawn in turn so the outline shimmers by design. */
 export const LEVELS=['S3','S2','S1','rest','T1','T2','T3'];
 export const KEYS=[...LEVELS,'breath'];
-const CX=16,GROUND=41;
+const CX=20,GROUND=57,CW=40,CHGT=64;   // the cell is 40x64: centre column 20, body bottom row 57
 const SPEC={
   maxAreaDev:.06,        // silhouette pixels within 6% of rest variant 0 ...
   tallAreaDev:.09,       // ... except T1..T3, which may be 9% over so a stretched body stays round (Tyler, 2026-11-06: a round tomato beats exact volume)
@@ -36,8 +36,8 @@ function checkVariant(name,L,vi,out,lean=false,opts={}){
   const P=place(L,vi),{rows,w,h}=P,E=m=>out.push(`${name}[${vi}] ${m}`);
   if(!Array.isArray(rows)||!rows.every(r=>typeof r==='string'&&r.length===w))return E('rows must be strings of equal length'),null;
   if(!lean&&w%2)E(`width ${w} is odd (must be even so the mirror axis stays on the frame centre)`);
-  if(w<(lean?14:18)||w>(lean?32:28))E(`width ${w} outside ${lean?'14..32':'18..28'}`);
-  if(h<(lean?15:15)||h>(lean?36:28))E(`height ${h} outside ${lean?'15..36':'15..28'}`);
+  if(w<(lean?14:18)||w>(lean?CW:34))E(`width ${w} outside ${lean?'14..'+CW:'18..34'}`);
+  if(h<15||h>(lean?CHGT:36))E(`height ${h} outside 15..${lean?CHGT:36}`);
   const at=(x,y)=>y>=0&&y<h&&x>=0&&x<w?rows[y][x]:'.';
   for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(!'.kprR'.includes(rows[y][x])){E(`unknown char '${rows[y][x]}' at ${x},${y}`);return null}
   // rows and columns are one run each: no holes, no notches
@@ -62,12 +62,13 @@ function checkVariant(name,L,vi,out,lean=false,opts={}){
   const seen=new Set(),comp={p:[],R:[]};
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const c=at(x,y);if((c!=='p'&&c!=='R')||seen.has(y*64+x))continue;
     const st=[[x,y]],cells=[];seen.add(y*64+x);
-    while(st.length){const [a,b]=st.pop();cells.push([a,b]);for(const [i,j] of [[1,0],[-1,0],[0,1],[0,-1]]){const q=(b+j)*64+a+i;if(at(a+i,b+j)===c&&!seen.has(q)){seen.add(q);st.push([a+i,b+j])}}}
+    while(st.length){const [a,b]=st.pop();cells.push([a,b]);for(const [i,j] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){const q=(b+j)*64+a+i;   // 8-neighbour: the approved shading runs down the slopes as diagonal streaks
+      if(at(a+i,b+j)===c&&!seen.has(q)){seen.add(q);st.push([a+i,b+j])}}}
     if(cells.length<2)E(`orphan '${c}' pixel at ${x},${y}`);comp[c].push(...cells)}
   const cxm=(w-1)/2,cym=(h-1)/2,mean=(a,i)=>a.reduce((s,p)=>s+p[i],0)/a.length;
-  if(comp.p.length<12||comp.p.length>45)E(`highlight is ${comp.p.length} px (want 12..45; today's is about 35)`);
+  if(comp.p.length<6||comp.p.length>45)E(`highlight is ${comp.p.length} px (want 6..45; the approved concept has 8)`);
   else if(!opts.anyLight&&(mean(comp.p,0)>=cxm||mean(comp.p,1)>=cym))E('highlight is not in the top left');
-  if(comp.R.length<15||comp.R.length>70)E(`shade is ${comp.R.length} px (want 15..70; today's is about 50)`);
+  if(comp.R.length<12||comp.R.length>90)E(`shade is ${comp.R.length} px (want 12..90)`);
   else if(!opts.anyLight&&(mean(comp.R,0)<=cxm||mean(comp.R,1)<=cym))E('shade is not in the bottom right');
   // edge profile: a convex blob turns once on each side; the left and right edges must agree
   const lx=[],rx=[];for(let y=0;y<h;y++){const r=rows[y];lx.push(r.search(/[^.]/));rx.push(r.length-1-[...r].reverse().findIndex(c=>c!=='.'))}
@@ -78,9 +79,6 @@ function checkVariant(name,L,vi,out,lean=false,opts={}){
   if(elbows>SPEC.elbowsMax)E(`${elbows} L-shaped ink corners (max ${SPEC.elbowsMax})`);
   let asym=0;for(let y=0;y<h;y++)for(let x=0;x<w/2;x++)if(solid(at(x,y))!==solid(at(w-1-x,y)))asym++;asym*=2;
   const aMax=vi?SPEC.asymN:SPEC.asym0;if(!lean&&asym>aMax)E(`silhouette is ${asym} px off mirror-symmetric (max ${aMax})`);
-  // feet: two 4x2 ink blocks hang on rows 42..43 under cx-7..cx-4 and cx+3..cx+6, as they do today. Each must touch the last body row,
-  // straight above or diagonally (today the foot sits just outside the curve of the belly)
-  if(!lean)for(const [a,b] of [[CX-7,CX-4],[CX+3,CX+6]]){let n=0;for(let x=a-1;x<=b+1;x++)if(solid(at(x-P.x0,h-1)))n++;if(!n)E(`the last row does not reach the foot at columns ${a}..${b} (not even diagonally)`)}
   if(!opts.skipFace){
   // face: eyes (cx-8..cx-3, cx+1..cx+6, rows cy-6..cy) and the normal mouth (cx-2..cx+1, rows cy+2..cy+5) sit in body colour with 1 px to spare;
   // the wider scared and open mouths (cx-3..cx+2, rows cy+2..cy+6) and the cheeks (row cy+1, cx-9..cx-8 and cx+7..cx+8) must still be body colour
@@ -106,7 +104,7 @@ export function lintBody(BODY,{complete=true}={}){
     const L=BODY[k];
     if(!L){if(complete)errors.push(`${k}: missing`);continue}
     if(!Number.isInteger(L.cy))errors.push(`${k}: cy must be an integer`);
-    if(!Array.isArray(L.v)||L.v.length<2||L.v.length>4){errors.push(`${k}: needs 2 to 4 boil variants`);continue}
+    if(!Array.isArray(L.v)||L.v.length<1||L.v.length>4){errors.push(`${k}: needs 1 to 4 boil variants`);continue}
     info[k]=L.v.map((_,i)=>checkVariant(k,L,i,errors));
     const dims=new Set(L.v.map(r=>r.length+'x'+r[0].length));
     if(dims.size>1)errors.push(`${k}: variants differ in size (${[...dims].join(', ')})`);
@@ -122,7 +120,7 @@ export function lintBody(BODY,{complete=true}={}){
     for(const k of KEYS)for(const [i,r] of (info[k]||[]).entries())if(r){const dev=(r.area-A0)/A0;
       const lim=k[0]==='T'||k==='breath'?SPEC.tallAreaDev:SPEC.maxAreaDev;
       if(Math.abs(dev)>lim)errors.push(`${k}[${i}]: area ${r.area} is ${(dev*100).toFixed(1)}% from rest (${A0}), max ${lim*100}%`)}
-    if(rest.P.w<22||rest.P.w>24||rest.P.h<21||rest.P.h>23)errors.push(`rest is ${rest.P.w}x${rest.P.h}; today's idle is 22x22 and rest must read as the same character (22..24 wide, 21..23 tall)`);
+    if(rest.P.w<24||rest.P.w>26||rest.P.h<24||rest.P.h>28)errors.push(`rest is ${rest.P.w}x${rest.P.h}; the approved concept is 24x26 (24..26 wide, 24..28 tall)`);
     const br=info.breath&&info.breath[0];
     if(br&&(br.P.h<rest.P.h-2||br.P.h>rest.P.h-1||Math.abs(br.P.w-rest.P.w)>1))errors.push('breath must be rest with one or two rows less (width within 1)');
   }
@@ -136,80 +134,6 @@ export function lintBody(BODY,{complete=true}={}){
   return {errors,table:rows};
 }
 
-/* FEET[pose] = [[fx, fo, rows], [fx, fo, rows]]: left foot then right foot. fx is the column of the foot's left edge counted from cx (16),
-   fo the row offset from the row under the body (row 42 on a grounded body), rows are strings of 'k' (ink) and '.'. Today's stand pose is
-   [[-7,0,['kkkk','kkkk']],[3,0,['kkkk','kkkk']]]. Poses for the hop: stand, together, tuck, loose, spread, splay. */
-export const FEET_KEYS=['stand','together','tuck','loose','spread','splay'];
-export function lintFeet(FEET){
-  const errors=[],E=(k,m)=>errors.push(`feet ${k}: ${m}`);
-  for(const k of FEET_KEYS){
-    const P=FEET[k];if(!P){E(k,'missing');continue}
-    if(!Array.isArray(P)||P.length!==2){E(k,'needs exactly two feet [left, right]');continue}
-    const ext=[];
-    for(const [i,f] of P.entries()){
-      if(!Array.isArray(f)||f.length!==3||!Number.isInteger(f[0])||!Number.isInteger(f[1])||!Array.isArray(f[2])){E(k,`foot ${i} must be [fx, fo, rows]`);continue}
-      const [fx,fo,rows]=f,w=rows[0]&&rows[0].length;
-      if(!rows.length||rows.length>3)E(k,`foot ${i} is ${rows.length} rows (want 1 to 3)`);
-      if(!rows.every(r=>typeof r==='string'&&r.length===w&&/^[k.]+$/.test(r)))E(k,`foot ${i} rows must be equal-length strings of k and .`);
-      else{
-        if(w<3||w>6)E(k,`foot ${i} is ${w} px wide (want 3 to 6)`);
-        if(rows.some(r=>!/^\.*k+\.*$/.test(r)))E(k,`foot ${i} has a gap in a row`);
-        if(rows[0].indexOf('k')<0&&rows.length===1)E(k,`foot ${i} is empty`);
-        for(let a=0;a<rows.length-1;a++)if(![...rows[a]].some((c,x)=>c==='k'&&rows[a+1][x]==='k'))E(k,`foot ${i} rows ${a} and ${a+1} do not touch`);
-      }
-      if(fo<0||fo>2)E(k,`foot ${i} row offset ${fo} outside 0..2`);
-      ext.push([fx,fx+(w||0)-1]);
-    }
-    if(ext.length===2){const [l,r]=ext;if(l[1]+1>=r[0])E(k,'the feet touch or overlap, they need at least 1 clear px between them');if(l[0]<-13||r[1]>12)E(k,'a foot sits outside cx-13..cx+12')}
-  }
-  const st=FEET.stand;if(st&&JSON.stringify(st)!==JSON.stringify([[-7,0,['kkkk','kkkk']],[3,0,[ 'kkkk','kkkk']]]))errors.push("feet stand must equal today's blocks [[-7,0,['kkkk','kkkk']],[3,0,['kkkk','kkkk']]]");
-  return errors;
-}
-
-/* LEAN[l1|l2|l3] = {x0,y0,nx,ny,fcx,cy,v:[rows],feet:[[x,y,rows],[x,y,rows]]}: the hanging mascot leaning RIGHT about 12, 25 and 40 degrees (left leans are these mirrored).
-   Everything is in absolute 32x48 canvas coordinates. v = 1 or 2 boil variants of the body rows (same size) placed with their top-left at (x0,y0): body only, no face,
-   no feet, chars as in BODY. nx,ny = the neck: the pixel the pointer holds, on a body pixel; fcx,cy = where compose() draws the face (the face stays upright, as in BODY, cy is
-   the face row and fcx the column the face code calls cx). feet = the two dangling feet, absolute x,y of each foot's top-left, rows of 'k' and '.', same rules as FEET. */
-export const LEAN_KEYS=['l1','l2','l3'],LEAN_ANGLE={l1:[6,20],l2:[20,34],l3:[34,50]};
-export function lintLean(LEAN){
-  const errors=[];
-  for(const k of LEAN_KEYS){
-    const L=LEAN[k],E=m=>errors.push(`lean ${k}: ${m}`);
-    if(!L){E('missing');continue}
-    for(const f of ['x0','y0','nx','ny','fcx','cy'])if(!Number.isInteger(L[f]))E(`${f} must be an integer`);
-    if(!Array.isArray(L.v)||L.v.length<1||L.v.length>2){E('needs 1 or 2 body variants');continue}
-    const probs=[];const infos=L.v.map((_,i)=>checkVariant(k,L,i,probs,true));probs.forEach(m=>errors.push(`lean ${m}`));
-    if(!infos.every(Boolean))continue;
-    const P=infos[0].P;
-    if(new Set(L.v.map(r=>r.length+'x'+r[0].length)).size>1)E('variants differ in size');
-    if(P.x0<0||P.y0<0||P.x0+P.w>32||P.y0+P.h>48)E('the body leaves the 32x48 canvas');
-    const at=(x,y)=>{const r=P.rows[y-P.y0];return r&&x>=P.x0&&x<P.x0+P.w?r[x-P.x0]:'.'};
-    if(!'kprR'.includes(at(L.nx,L.ny)))E(`the neck (${L.nx},${L.ny}) is not on a body pixel`);
-    // angle: from the neck to the centre of the body pixels, measured from straight down
-    let sx=0,sy=0,n=0;P.rows.forEach((r,y)=>{for(let x=0;x<P.w;x++)if(r[x]!=='.'){sx+=P.x0+x;sy+=P.y0+y;n++}});
-    const ang=Math.atan2(sx/n+.5-(L.nx+.5),sy/n+.5-(L.ny+.5))*180/Math.PI,[lo,hi]=LEAN_ANGLE[k];
-    if(ang<lo||ang>hi)E(`the body hangs at ${ang.toFixed(1)} degrees from the neck, want ${lo}..${hi}`);
-    // feet
-    if(!Array.isArray(L.feet)||L.feet.length!==2){E('needs exactly two feet');continue}
-    const ext=[];
-    for(const [i,f] of L.feet.entries()){
-      if(!Array.isArray(f)||f.length!==3||!Number.isInteger(f[0])||!Number.isInteger(f[1])||!Array.isArray(f[2])){E(`foot ${i} must be [x, y, rows]`);continue}
-      const [fx,fy,rows]=f,w=rows[0]&&rows[0].length;
-      if(!rows.length||rows.length>3||!rows.every(r=>typeof r==='string'&&r.length===w&&/^\.*k+\.*$/.test(r)))E(`foot ${i} rows must be 1 to 3 equal-length strings of one run of k`);
-      else{
-        if(w<3||w>6)E(`foot ${i} is ${w} px wide (want 3 to 6)`);
-        for(let a=0;a<rows.length-1;a++)if(![...rows[a]].some((c,x)=>c==='k'&&rows[a+1][x]==='k'))E(`foot ${i} rows ${a} and ${a+1} do not touch`);
-        if(fx<0||fy<0||fx+w>32||fy+rows.length>48)E(`foot ${i} leaves the canvas`);
-        let near=99;rows.forEach((r,yy)=>{for(let xx=0;xx<w;xx++)if(r[xx]==='k')for(let by=0;by<P.h;by++)for(let bx=0;bx<P.w;bx++)if(P.rows[by][bx]!=='.')near=Math.min(near,Math.max(Math.abs(P.x0+bx-(fx+xx)),Math.abs(P.y0+by-(fy+yy))))});
-        if(near<1)E(`foot ${i} overlaps the body`);if(near>3)E(`foot ${i} floats ${near} px from the body (max 3)`);
-        ext.push([fx,fx+w-1,fy,fy+rows.length-1]);
-      }
-    }
-    if(ext.length===2){const [a,b]=ext;if(a[0]<=b[1]&&b[0]<=a[1]&&a[2]<=b[3]&&b[2]<=a[3])E('the feet overlap each other')}
-  }
-  return errors;
-}
-
 /* Pose frames for tools/lint_anim_<name>.mjs (mascot/anim_<name>.js = {frames:[...]}): each frame is {x0,y0,v:[rows,...],feet?:[[x,y,rows],..],fcx,cy,nx?,ny?,baked?}
    with the same meaning as a LEAN frame (absolute 32x48 coordinates, body rows only unless baked). opts: baked (the face, sprout and hat are drawn into the rows: no face
    anchor needed, no face-margin check), anyLight (frames rotated or flipped, so the highlight need not be top left), turnsMax (edge direction changes per side, default 4),
@@ -219,7 +143,7 @@ export function lintPoseFrames(name,frames,opts={}){
   if(!Array.isArray(frames)){return [`${name}: frames must be an array`]}
   if(frames.length<(opts.minFrames||1))errors.push(`${name}: needs at least ${opts.minFrames||1} frame(s), has ${frames.length}`);
   frames.forEach((L,fi)=>{
-    const tag=`${name}[${fi}]`,E=m=>errors.push(`${tag}: ${m}`),CH=L.cellH||48;   // a frame may declare a taller cell (cellH)
+    const tag=`${name}[${fi}]`,E=m=>errors.push(`${tag}: ${m}`),CH=L.cellH||CHGT;   // a frame may declare a taller cell (cellH)
     for(const f of ['x0','y0'])if(!Number.isInteger(L[f]))E(`${f} must be an integer`);
     if(!opts.baked)for(const f of ['fcx','cy'])if(!Number.isInteger(L[f]))E(`${f} must be an integer (where the face is drawn)`);
     if(!Array.isArray(L.v)||L.v.length<1||L.v.length>3){E('needs 1 to 3 body variants in v');return}
@@ -227,9 +151,9 @@ export function lintPoseFrames(name,frames,opts={}){
     if(!infos.every(Boolean))return;
     const P=infos[0].P;
     if(new Set(L.v.map(r=>r.length+'x'+r[0].length)).size>1)E('variants differ in size');
-    if(P.x0<0||P.y0<0||P.x0+P.w>32||P.y0+P.h>CH)E(`the body leaves the 32x${CH} canvas`);
+    if(P.x0<0||P.y0<0||P.x0+P.w>CW||P.y0+P.h>CH)E(`the body leaves the ${CW}x${CH} canvas`);
     if(!opts.baked&&Number.isInteger(L.fcx)){   // flip:1 mirrors the body (x -> 31-x) and draws the face at 33-fcx: the mirrored face must fit too
-      const M={...L,x0:32-L.x0-P.w,fcx:33-L.fcx,v:L.v.map(r=>r.map(x=>[...x].reverse().join('')))};
+      const M={...L,x0:CW-L.x0-P.w,fcx:CW+1-L.fcx,v:L.v.map(r=>r.map(x=>[...x].reverse().join('')))};
       const pm=[];L.v.forEach((_,i)=>checkVariant(tag+' flipped',M,i,pm,true,{anyLight:true,turnsMax:opts.turnsMax}));pm.forEach(m=>errors.push(m));
     }
     if(L.over!==undefined){   // an overlay drawn on top of the body rows: any palette char, so faces, screens and shadows can live there
@@ -238,15 +162,16 @@ export function lintPoseFrames(name,frames,opts={}){
       else{const w=O.rows[0].length;
         if(!O.rows.every(r=>typeof r==='string'&&r.length===w))E('over rows must be equal-length strings');
         else{for(const r of O.rows)for(const c of r)if(c!=='.'&&!MB_CHARS.includes(c))E(`over has unknown palette char '${c}'`);
-          if(O.x0<0||O.y0<0||O.x0+w>32||O.y0+O.rows.length>CH)E(`over leaves the 32x${CH} canvas`)}}
+          if(O.x0<0||O.y0<0||O.x0+w>CW||O.y0+O.rows.length>CH)E(`over leaves the ${CW}x${CH} canvas`)}}
     }
     if(L.feet!==undefined){
       if(!Array.isArray(L.feet))E('feet must be an array of [x,y,rows]');
       else L.feet.forEach((f,i)=>{
         if(!Array.isArray(f)||f.length!==3||!Number.isInteger(f[0])||!Number.isInteger(f[1])||!Array.isArray(f[2])){E(`foot ${i} must be [x, y, rows]`);return}
         const [fx,fy,rows]=f,w=rows[0]&&rows[0].length;
-        if(!rows.length||rows.length>3||!rows.every(r=>typeof r==='string'&&r.length===w&&/^\.*k+\.*$/.test(r)))E(`foot ${i} rows must be 1 to 3 equal-length strings with one run of k`);
-        else if(fx<0||fy<0||fx+w>32||fy+rows.length>CH)E(`foot ${i} leaves the canvas`);
+        if(!rows.length||rows.length>9||!rows.every(r=>typeof r==='string'&&r.length===w&&/^[.kuUvV]+$/.test(r)&&/[kuUvV]/.test(r)))E(`foot ${i} rows must be 1 to 9 equal-length strings of shoe palette chars .kuUvV`);
+        else if(w<3||w>14)E(`foot ${i} is ${w} px wide (want 3 to 14)`);
+        else if(fx<0||fy<0||fx+w>CW||fy+rows.length>CH)E(`foot ${i} leaves the canvas`);
       });
     }
   });
@@ -256,9 +181,6 @@ export function lintPoseFrames(name,frames,opts={}){
 if(import.meta.url===`file://${process.argv[1]}`){
   const {BODY}=await import('../mascot/body.js');
   const {errors,table}=lintBody(BODY,{complete:!process.argv.includes('--partial')});
-  const {FEET}=await import('../mascot/feet.js');const feetErrors=process.argv.includes('--partial')&&!Object.keys(FEET).length?[]:lintFeet(FEET);
-  errors.push(...feetErrors);
-  {const {LEAN}=await import('../mascot/lean.js');if(!(process.argv.includes('--partial')&&!Object.keys(LEAN).length))errors.push(...lintLean(LEAN))}
   console.log(table.join('\n'));
   if(errors.length){console.log('\n'+errors.length+' problem'+(errors.length>1?'s':'')+':\n  '+errors.join('\n  '));process.exit(1)}
   console.log('\nlint green');

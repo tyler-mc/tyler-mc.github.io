@@ -1,409 +1,508 @@
-/* Authored mascot frames: ground. Standing leans and reactions: feet planted (or sliding) on the ground, NOT baked: compose() draws the usual upright face at
-   (fcx,cy), the sprout and any hat on top, so the caller adds face:'scared'/'huh'/..., hat and stage as usual. Format: lintPoseFrames in tools/lint_mascot_body.mjs;
-   tools/lint_anim_ground.mjs has the extra rules. Drawn with compose({pose:'ground:<i>', flip, ...}).
+/* Authored mascot frames: GROUND (the redesign). Standing tilts and reactions in the 40x64 cell, NOT baked: compose() adds the usual upright face at (fcx,cy),
+   the stem, the upright leaf and any hat at `tip`, and the arm nubs cast from `ctr` (the resting pair [210,330] unless the look says otherwise), so face,
+   hat, stage and arms flags work as on any BODY level. Drawn with compose({pose:'ground:<i>', flip, ...}); flip:1 mirrors (x -> 39-x, face at 41-fcx).
+   Lint: node tools/lint_anim_ground.mjs (lintPoseFrames plus the checks in its header).
+   Each frame: v = the body (k/r/p/R only), feet = [left shoe, right shoe] in the feet.js shoe design (drawn behind the body), tip = the left pixel of the
+   4 px head cap (the body's top row), ctr = where the arms are cast from.
 
-   HOW THEY ARE DRAWN. Each frame starts from an approved body level (rest, S1, S2, S3 or T1) bent by hand the way mascot/lean.js bends T2: the head bumps,
-   shoulder ledge, left nub, belly bulge, roll and droop travel with the pose, the highlight stays upper left and the shade lower right, one variant each (no boil).
-   Every frame is grounded: its last body row is row 41, as on BODY (none is meant to be off the ground). Feet sit on rows 42..43 (recoil's left foot too: it
-   lifts by hooking its toe up, '..kk' over 'kkk.'), except the edge frames' right foot, which hangs over the drop on rows 44..45.
-   Authored facing / leaning RIGHT; flip:1 mirrors (x -> 31-x, face at 33-fcx). Both faces fit every frame with the 1 px body margin, including the wide scared mouth.
-   The head dip sits at fcx-1 (as on rest) so the sprout grows from the right bump, plain and flipped.
-   A tilt this small on a 22 px body moves the outline only 2 to 5 px, and the upright face pins a 19x9 block of fill, so the lean is carried by the head (shifted
-   and tipped: one bump a row higher), the sloping sides and the base; the nub and roll become concave steps where the lint's column rule forbids a notch (lean.js
-   does the same on l2/l3).
+   HOW THEY ARE DRAWN. Each body is an approved BODY level (rest, S1, S2, T1) bent about its base: its smooth outline is rotated about the base centre (20,58)
+   and sheared further at the top (a bend, not a rigid turn), the level's own top three rows (the 4 px cap and the tip that curls right) are re-stamped level
+   at the tilted tip so the stem and hats seat the same way in every frame, each side is kept one-humped with convex stair steps, and the outline, the
+   upper-left highlight streak, the right rim shade and the base shade band are redrawn with the rules read off BODY.rest. One variant each (no boil).
+   Every body is grounded (last row 57). Lean = the angle from the body's pixel centroid to the cap centre, minus the same on BODY.rest (which already
+   curls about 8 deg right), so 0 = upright rest.
 
-   FRAMES (index name: what; body rows / face):
-     0  lean1     standing lean right, about 6 degrees, feet planted (rest bent: head +3, base unmoved).               rows 20..41, face 18,31
-     1  lean2     about 12 to 15 degrees: left bump a row higher, the weight bulges low on the right.                     rows 20..41, face 19,31
-     2  recoil    poked from the LEFT: squashed (S2 height), leaning right about 10 degrees, left toe hooked up.            rows 23..41, face 19,33
-     3  recoil2   the rebound: stretched (T1 height), leaning left about 5 degrees, raised right bump.                  rows 19..41, face 15,30
-     4  skid1     hard stop while travelling RIGHT: leans back (left) about 10 degrees, feet pushed forward, small squash. rows 21..41, face 15,32
-     5  skid2     the slide: leans back further, body stretched along the lean, feet further forward.                   rows 20..41, face 15,30
-     6  cower     hunched very low (S3 height), head sunk into raised shoulders, curled away from a threat on his RIGHT,
-                  feet tucked together, toes in.                                                                         rows 25..41, face 15,34
-     7  cower2    cower with the upper body shivered 1 px right (face 1 px right too); base and feet stay put.          rows 25..41, face 16,34
-     8  landSoft  gentle landing squash: weight spread low (pear), feet splayed 1 px each side.                         rows 23..41, face 16,33
-     9  landHard  deep landing splat: 31 px wide at the base, head pressed flat, feet splayed wide.                      rows 25..41, face 16,34
-    10  dizzy1    dizzy wobble, tipped left: right bump raised, weight in the left sag.                                 rows 20..41, face 15,31
-    11  dizzy2    tipped right: left bump raised, weight in the right bulge.                                            rows 20..41, face 17,31
-    12  edge1     balancing on a ledge, leaning out right about 8 degrees (T1 height); right foot hangs off the edge.   rows 19..41, face 18,30
-    13  edge2     leaning out further, about 14 degrees.                                                                rows 19..41, face 19,30
-   Frame-to-frame silhouette change stays at or under 80 px for 0-1, 4-5, 6-7, 10-11, 12-13. recoil -> recoil2 is a deliberate snap (about 210 px, like the
-   OS's squash -> stretch hops); landSoft and landHard are alternatives, never played one after the other.
+   FRAMES (index name  source  lean  face fcx,cy  tip  soles [left,right]: lowest shoe row, 59 = planted)
+     0 lean1    rest  +7.4  21,46  23,32  59,59  standing lean to the right, shoes planted (stand).
+     1 lean2    rest +12.5  22,46  25,32  59,59  further right, weight on the right shoe (flattened splay shoe); the left shoe stays planted, unweighted.
+     2 recoil   S2   +11.6  21,48  24,36  57,59  poked from the LEFT: squashed, pushed over to the right; the left shoe lifted 2 rows, toe kicked up.
+     3 recoil2  T1    -4.2  19,45  18,30  59,59  the rebound: taller, swaying back to the left, shoes planted.
+     4 skid1    S1    -8.8  18,47  16,34  59,59  a hard stop while travelling RIGHT: leaning back (left), small squash, the back shoe dug in flat,
+                                                 the front shoe pushed forward with its toe up.
+     5 skid2    rest -13.0  17,46  14,32  59,59  the slide: leaning back further and taller (stretched along the lean), the front shoe further forward, both toes up
+                                                 (rocked onto the heels).
+     6 dizzy1   rest  -6.9  19,46  17,32  59,59  dizzy wobble tipped LEFT: the head's right side raised, weight sagging into the left (left shoe splayed).
+     7 dizzy2   rest  +7.6  21,46  23,32  59,59  tipped RIGHT (right shoe splayed).
+     8 edge1    rest  +9.5  21,46  24,32  59,61  balancing on a ledge whose end is on his RIGHT: leaning out, the left shoe planted, the right shoe
+                                                 hanging off the end, toes down (below the ledge top: rows 54..61).
+     9 edge2    rest +12.9  22,46  25,32  59,62  leaning out further, the hanging shoe one row lower.
+   Related frames stay close (body silhouette px that differ): lean1-lean2 40, skid1-skid2 65, edge1-edge2 24; dizzy1 and dizzy2 differ from rest by 79 and 66 (the wobble
+   passes through rest); recoil -> recoil2 is a deliberate snap (squash-right to stretch-left).
+   The tips stay inside columns 10..25 so the party hat (tip.x-10..tip.x+8) and the stage-4 leaf (to tip.x+14) never clip, plain or flipped.
 
-   WIRING NOTE (os.js; poses are played with play([[look,ms],...]) / setTimeout; RESET already clears pose and flip). Pose looks are {pose:'ground:<i>', flip:0|1};
-   they replace f/lv/ft/lean for the body, face flags still apply. Under reduced motion play() shows only the LAST frame, so the static poses below are what to
-   Object.assign + bRender directly where a moment should still show something.
-   - Poke (huh(), the click handler): today [[{f:'stretch',face:'huh',hop:3},110],[{f:'idle',hop:0},1700],[RESET,0]]. Suggested, with flip:0 when the click is
-     left of his centre (he recoils right) and flip:1 when it is right of it:
-       play([[{pose:'ground:2',flip,face:'huh',hop:0},90],[{pose:'ground:3',flip},110],[{pose:'ground:0',flip:flip^1},90],[{pose:0,flip:0,f:'idle'},1600],[RESET,0]])
-     (the third beat is lean1 leaning back toward the poke, 90 ms; drop it for a snappier poke). Reduced motion: no pose change (huh face only).
-   - Scared at the close button (scare(on)): today face 'scared', sweat, f:'stretch' and a 70 ms setInterval flipping dx between -1 and 1. Instead set
-     BS.pose='ground:6', BS.face='scared', BS.sweat=1, flip:1 when the close button is to his LEFT (the authored frame shrinks away from a threat on his right),
-     and let the 70 ms interval alternate pose 'ground:6' / 'ground:7' (no dx). scare(false) -> RESET as today. Reduced motion: static ground:6, no interval.
-   - Landing (dropBuddy -> land(far)): near fall (today [[{f:'squash',air:0},110],[{f:'idle'},120],[RESET,0]]):
-       [[{pose:'ground:8',air:0},110],[{pose:0,f:'idle'},120],[RESET,0]]
-     far fall (today [[{f:'squash',face:'hurt',air:0},110],[{f:'idle',face:'worry'},260],[RESET,0]]):
-       [[{pose:'ground:9',face:'hurt',air:0},130], ...dizzy below (straight from landHard, never through landSoft)..., [RESET,0]]
-     flip may follow the sideways drift of the drop (the splats are lopsided, either way reads). Reduced motion: static ground:8 for ~300 ms, then RESET.
-   - Dizzy after a big fall (append to the far landing): [{pose:'ground:10',face:'worry'},150],[{pose:'ground:11'},150] repeated 3 times (900 ms), then
-     [{pose:0,f:'idle'},200]. Reduced motion: static ground:10 for ~600 ms.
-   - Edge balance (perchTick): the ledge's end must fall between the planted foot (ends at column 12) and the hanging one (starts at column 20), so his centre is
-     at most 4 art px inside the end. With sc=bcv.offsetWidth/32: 0 <= L.w-perch.dx <= 4*sc -> {pose:'ground:12', flip:0, air:1} (drop on his right);
-     0 <= perch.dx <= 4*sc -> the same with flip:1 (left end). air:1 because the ground shadow would hang over the drop. Every 2 to 4 s wobble
-     12 -> 13 -> 12 (180, 140, 180 ms). Set the pose only when it changes, not every rAF tick. Reduced motion: static ground:12.
-   - Leans (lean1/lean2): a standing lean toward something (the pointer resting near him, the window he is about to hop onto): lean1 90 ms -> lean2 held,
-     back through lean1 90 ms -> RESET; flip:1 to lean left. Reduced motion: static ground:1.
-   - Skid (the Wake Up game, and any OS walk that stops): skid1 80 ms -> skid2 held while sliding -> skid1 70 ms -> RESET; flip:1 when travelling LEFT.
-     Reduced motion: static ground:4.
-   Static reduced-motion poses, in one line: poke none, scared 6, landing 8, dizzy 10, edge 12, lean 1, skid 4.
-   FACES: scared, huh, yuck and love (and the plain face) fit every frame, plain and flipped (the lint composes them). Not 'awe': compose() shortens the awe mouth
-   only on BODY levels (if(lv)), so on the cy-34 frames (cower, cower2, landHard) it runs through the base into the feet; avoid awe on those until atlas.js
-   gates that shrink on rows, as gape already does. faces.js hurt/worry/relief/ouch also land on body fill on every frame (checked by hand, not linted). */
+   WIRING NOTE (os.js: play([[look,ms],...]) poses by setTimeout, 60 to 180 ms; RESET clears pose and flip. Wake Up game: 60 Hz steps, not wired in this
+   repo yet). A pose look is {pose:'ground:<i>', flip:0|1}; it replaces lv/ft/lean for the body; face, hat, stage, arms, fx still apply. Under reduced
+   motion play() shows only the LAST frame, so a sequence ending in RESET shows nothing extra; the static poses below are for moments that should still read.
+   - POKE, huh(px) (today: S2 'together' 110 ms -> T1 'stand' 150 ms -> idle 1550 ms). With the same flip rule (flip:1 when the click is right of his centre,
+     so he always recoils away from the poke):
+       play([[{...o,pose:'ground:2',arms:[150,30]},110],[{...o,pose:'ground:3',arms:[190,350]},150],[{pose:0,flip:0,face:'huh',f:'idle',arms:undefined},1550],[RESET,0]])
+     Game: recoil 6-7 steps, recoil2 9 steps, then rest. Reduced motion: no pose change (the huh face only), as today.
+   - SKID (the game's skid when he stops or turns at speed; an OS walk that stops): skid1 80 ms (game 5 steps) -> skid2 held while still sliding
+     (OS 150-250 ms; game while |vx| is above the stop speed) -> skid1 70 ms (4 steps) -> rest. flip:1 when travelling LEFT. Pair it with the dust fx on
+     the side of travel (anim_fx.js). Reduced motion: static skid1 for the slide, then rest.
+   - DIZZY after a hard (far) fall: append to the far landing in dropBuddy -> land(true), after its squash/settle beats:
+       [{pose:'ground:6',face:'worry'},150],[{pose:0,f:'idle'},90],[{pose:'ground:7'},150],[{pose:0},90]  x3 (about 1.4 s), then [RESET,0].
+     Game: 9 / 5 / 9 / 5 steps. Never step straight from 6 to 7 (they differ by about 140 px): the wobble goes through upright rest.
+     Reduced motion: static dizzy1 with the worry face for about 600 ms, then RESET.
+   - EDGE BALANCE (perchTick, perched on a window's top edge near its end): the ledge's end must fall between the planted left shoe (it ends at art column
+     15) and the hanging right shoe (it starts at column 27 on edge1, 28 on edge2); his centre is column 20, so he is 0 to 7 art px inside the end. With
+     sc = buddy.offsetWidth/40:
+       0 <= L.w - perch.dx <= 7*sc  -> {pose:'ground:8', flip:0, air:1, arms:[180,0]}   (the end is on his right)
+       0 <= perch.dx <= 7*sc        -> {pose:'ground:8', flip:1, air:1, arms:[180,0]}   (the left end)
+     (perchTick already drops him once his centre passes the end.) Arms out [180,0] (the arms.js balancing pair) is what sets the edge apart from the
+     standing lean, whose body it shares within about 25 px. air:1 because the ground shadow would hang over the drop. Every 2 to 4 s wobble 8 -> 9 -> 8
+     (180, 140, 180 ms; game 11/8/11 steps). Set the pose only when it changes, not every rAF tick; clear it (pose:0, air:0, arms:undefined) when he moves
+     back from the end. Reduced motion: static edge1 with arms [180,0], no wobble.
+   - STANDING LEAN (leaning toward something: the pointer resting near him, the window he is about to hop onto before hopOnto's anticipation squash,
+     an alert that pops up beside him): lean1 90 ms -> lean2 held (up to about 1.5 s) -> lean1 90 ms -> RESET; flip:1 to lean left. Game: 6 / held / 6 steps.
+     Reduced motion: static lean1 while it lasts.
+   Static reduced-motion poses, in one line: poke none, skid 4, dizzy 6, edge 8, lean 0.
+   ARMS: the default resting pair is checked on every frame (plain and flipped); posed arms (e.g. [150,30] on recoil) are cast from ctr like on any level.
+   HATS ride on tip unrotated (the brim stays level on the level cap); the hat never covers the eye rows. Not drawn here: the cower and the soft/hard
+   landings (built in code from S3/S2/S1, feet poses and arm angles). */
 export const ANIM_GROUND={frames:[
-  /* 0 lean1 */
-  {name:'lean1',x0:5,y0:20,fcx:18,cy:31,
-    v:[[
-      "........kkkk.kkkkk......",
-      "........kpppkrrrrrk.....",
-      ".......kpppprrrrrrrk....",
-      "....kkkppprrrrrrrrrrk...",
-      "...kppprrrrrrrrrrrrrrk..",
-      "..kpprrrrrrrrrrrrrrrrrk.",
-      "..kpprrrrrrrrrrrrrrrrrk.",
-      "..kprrrrrrrrrrrrrrrrrrk.",
-      "..krrrrrrrrrrrrrrrrrrrk.",
-      "..krrrrrrrrrrrrrrrrrrrk.",
-      ".krrrrrrrrrrrrrrrrrrRRk.",
-      ".krrrrrrrrrrrrrrrrrrRRk.",
-      ".krrrrrrrrrrrrrrrrrrRRk.",
-      ".krrrrrrrrrrrrrrrrrrRRRk",
-      "krrrrrrrrrrrrrrrrrrRRRk.",
-      "krrrrrrrrrrrrrrrrrRRRk..",
-      "krrrrrrrrrrrrrrrrRRRk...",
-      "krrrrrrrrrrrrrrRRRRRk...",
-      ".kRRRRRrrrrrrrRRRRkk....",
-      "..kkkRRRRRRRRRRRkk......",
-      ".....kkkRRRRRRRk........",
-      "........kkkkkkk........."]],
-    feet:[[9, 42, ["kkkk", "kkkk"]], [19, 42, ["kkkk", "kkkk"]]]},
-  /* 1 lean2 */
-  {name:'lean2',x0:5,y0:20,fcx:19,cy:31,
-    v:[[
+  {name:"lean1",x0:9,y0:32,fcx:21,cy:46,tip:[23,32],ctr:[21,45],v:[[
+      "..............kkkk......",
+      "............kkrrrRk.....",
+      "..........kkrrrrrRk.....",
+      ".......kkkprrrrrrRk.....",
+      ".....kkppprrrrrrrrRk....",
+      "....krprrrrrrrrrrrRk....",
+      "...krprrrrrrrrrrrrrRk...",
+      "..krprrrrrrrrrrrrrrrRk..",
+      ".krprrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "kRrrrrrrrrrrrrrrrrrrrRRk",
+      "kRrrrrrrrrrrrrrrrrrrrrRk",
+      ".kRRrrrrrrrrrrrrrrrrRRk.",
+      "..kRRRrrrrrrrrrrrrRRRk..",
+      "...kRRRRRRRRRRRRRRRRk...",
+      "....kRRRRRRRRRRRRRkk....",
+      ".....kkkkkkkkkkkkk......"
+    ]],
+    feet:[[4,53,[
+      "..kkkk......",
+      ".kuuuUkk....",
+      "kuuUUUUUkkk.",
+      "kuUUUUUUUUUk",
+      "kUUUUUUUUUvk",
+      ".kVVUUUUVVVk",
+      "..kkkkkkkkk."
+    ]],[24,53,[
+      "......kkkk..",
+      "....kkUuuuk.",
+      ".kkkUUUUUuuk",
+      "kUUUUUUUUUuk",
+      "kvUUUUUUUUUk",
+      "kVVVUUUUVVk.",
+      ".kkkkkkkkk.."
+    ]]]},
+  {name:"lean2",x0:9,y0:32,fcx:22,cy:46,tip:[25,32],ctr:[22,45],v:[[
+      "................kkkk.....",
+      "..............kkrrrRk....",
+      "............kkrrrrrRk....",
+      ".........kkkprrrrrrRk....",
+      ".......kkppprrrrrrrRk....",
+      ".....kkpprrrrrrrrrrRk....",
+      "....krprrrrrrrrrrrrrRk...",
+      "...krprrrrrrrrrrrrrrrRk..",
+      "..krprrrrrrrrrrrrrrrrRk..",
+      ".krprrrrrrrrrrrrrrrrrrrkk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "kRrrrrrrrrrrrrrrrrrrrrRRk",
+      "kRrrrrrrrrrrrrrrrrrrrrRk.",
+      ".kRRrrrrrrrrrrrrrrrrRRk..",
+      "..kRRRrrrrrrrrrrrrRRRk...",
+      "...kRRRRRRRRRRRRRRRRk....",
+      "....kkRRRRRRRRRRRRRk.....",
+      "......kkkkkkkkkkkkk......"
+    ]],
+    feet:[[4,53,[
+      "..kkkk......",
+      ".kuuuUkk....",
+      "kuuUUUUUkkk.",
+      "kuUUUUUUUUUk",
+      "kUUUUUUUUUvk",
+      ".kVVUUUUVVVk",
+      "..kkkkkkkkk."
+    ]],[25,55,[
+      "......kkkkkk..",
+      ".kkkkkUUuuuuk.",
+      "kvUUUUUUUUUUuk",
+      "kVVVUUUUUUVVVk",
+      ".kkkkkkkkkkkk."
+    ]]]},
+  {name:"recoil",x0:7,y0:36,fcx:21,cy:48,tip:[24,36],ctr:[22,47],v:[[
+      ".................kkkk........",
+      "..............kkkrrrRk.......",
+      "............kkrrrrrrrRk......",
+      "........kkkkprrrrrrrrRk......",
+      ".....kkkpppprrrrrrrrrrRk.....",
+      "...kkppprrrrrrrrrrrrrrrrkk...",
+      "..krprrrrrrrrrrrrrrrrrrrRk...",
+      ".krprrrrrrrrrrrrrrrrrrrrrRk..",
+      "krprrrrrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrrrrrRk",
+      "kRrrrrrrrrrrrrrrrrrrrrrrrrRRk",
+      "kRrrrrrrrrrrrrrrrrrrrrrrrrrRk",
+      ".kRRrrrrrrrrrrrrrrrrrrrrrrRRk",
+      "..kRRRrrrrrrrrrrrrrrrrrrRRRk.",
+      "...kkRRRRRRRRRRRRRRRRRRRRRk..",
+      ".....kkkRRRRRRRRRRRRRRRRkk...",
+      "........kkkkkkkkkkkkkkkk....."
+    ]],
+    feet:[[1,50,[
+      ".kkkk.......",
+      "kuuuUkk.....",
+      "kuuUUUUkk...",
+      "kuUUUUUUUkk.",
+      "kVUUUUUUUUvk",
+      ".kVVUUUUUUvk",
+      "..kkVVVVVVVk",
+      "....kkkkkkk."
+    ]],[25,55,[
+      "......kkkkkk..",
+      ".kkkkkUUuuuuk.",
+      "kvUUUUUUUUUUuk",
+      "kVVVUUUUUUVVVk",
+      ".kkkkkkkkkkkk."
+    ]]]},
+  {name:"recoil2",x0:7,y0:30,fcx:19,cy:45,tip:[18,30],ctr:[19,44],v:[[
+      "...........kkkk.........",
+      ".........kkrrrRk........",
+      ".......kkrrrrrRk........",
+      ".....kkprrrrrrrRk.......",
+      "....krprrrrrrrrRk.......",
+      "...krprrrrrrrrrrRk......",
+      "..krprrrrrrrrrrrrRk.....",
+      ".krprrrrrrrrrrrrrrRk....",
+      "krprrrrrrrrrrrrrrrrRk...",
+      "krrrrrrrrrrrrrrrrrrrrkk.",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      ".kRrrrrrrrrrrrrrrrrrrRRk",
+      "..kRrrrrrrrrrrrrrrrrrrRk",
+      "...kRRrrrrrrrrrrrrrrRRk.",
+      "....kRRRrrrrrrrrrrRRRk..",
+      ".....kRRRRRRRRRRRRRRk...",
+      "......kRRRRRRRRRRRRk....",
+      ".......kkkkkkkkkkkk....."
+    ]],
+    feet:[[4,53,[
+      "..kkkk......",
+      ".kuuuUkk....",
+      "kuuUUUUUkkk.",
+      "kuUUUUUUUUUk",
+      "kUUUUUUUUUvk",
+      ".kVVUUUUVVVk",
+      "..kkkkkkkkk."
+    ]],[24,53,[
+      "......kkkk..",
+      "....kkUuuuk.",
+      ".kkkUUUUUuuk",
+      "kUUUUUUUUUuk",
+      "kvUUUUUUUUUk",
+      "kVVVUUUUVVk.",
+      ".kkkkkkkkk.."
+    ]]]},
+  {name:"skid1",x0:5,y0:34,fcx:18,cy:47,tip:[16,34],ctr:[18,46],v:[[
+      "...........kkkk............",
+      ".........kkrrrRk...........",
+      ".......kkrrrrrRk...........",
+      ".....kkprrrrrrrrkk.........",
+      "....krprrrrrrrrrrrkk.......",
+      "...krprrrrrrrrrrrrrRk......",
+      "..krprrrrrrrrrrrrrrrRk.....",
+      ".krprrrrrrrrrrrrrrrrrrkkk..",
+      "krprrrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrrrRk",
+      "kRrrrrrrrrrrrrrrrrrrrrrrRRk",
+      ".kRrrrrrrrrrrrrrrrrrrrrrRk.",
+      "..kRRrrrrrrrrrrrrrrrrrRRk..",
+      "...kRRRrrrrrrrrrrrrrRRRk...",
+      "....kRRRRRRRRRRRRRRRRRk....",
+      ".....kkRRRRRRRRRRRRRkk.....",
+      ".......kkkkkkkkkkkkk......."
+    ]],
+    feet:[[6,53,[
+      "..kkkk......",
+      ".kuuuUkk....",
+      "kuuUUUUUkkk.",
+      "kuUUUUUUUUUk",
+      "kUUUUUUUUUvk",
+      ".kVVUUUUVVVk",
+      "..kkkkkkkkk."
+    ]],[26,52,[
+      ".......kkkk.",
+      ".....kkUuuuk",
+      "...kkUUUUuuk",
+      ".kkUUUUUUUuk",
+      "kvUUUUUUUUVk",
+      "kvUUUUUUVVk.",
+      "kVVVVVVVkk..",
+      ".kkkkkkk...."
+    ]]]},
+  {name:"skid2",x0:5,y0:32,fcx:17,cy:46,tip:[14,32],ctr:[17,45],v:[[
       ".........kkkk............",
-      "........kpppk.kkkkkkk....",
-      ".......kpppprkrrrrrrrkk..",
-      ".....kkppprrrrrrrrrrrrrk.",
-      "....kppprrrrrrrrrrrrrrrk.",
-      "...kpprrrrrrrrrrrrrrrrrrk",
-      "...kpprrrrrrrrrrrrrrrrrrk",
-      "...kprrrrrrrrrrrrrrrrrrrk",
-      "...krrrrrrrrrrrrrrrrrrrrk",
-      "...krrrrrrrrrrrrrrrrrrrrk",
-      "..krrrrrrrrrrrrrrrrrrrRRk",
-      "..krrrrrrrrrrrrrrrrrrrRRk",
-      "..krrrrrrrrrrrrrrrrrrrRRk",
-      ".krrrrrrrrrrrrrrrrrrrRRRk",
-      ".krrrrrrrrrrrrrrrrrrRRRkk",
-      "krrrrrrrrrrrrrrrrrrRRRk..",
-      "krrrrrrrrrrrrrrrrrRRRk...",
-      "krrrrrrrrrrrrrrRRRRRk....",
-      ".kRRRRRrrrrrrrRRRRkk.....",
-      "..kkkRRRRRRRRRRRkk.......",
-      ".....kkkRRRRRRRk.........",
-      "........kkkkkkk.........."]],
-    feet:[[9, 42, ["kkkk", "kkkk"]], [19, 42, ["kkkk", "kkkk"]]]},
-  /* 2 recoil */
-  {name:'recoil',x0:4,y0:23,fcx:19,cy:33,
-    v:[[
-      "..........kkkk.kkkkkk......",
-      ".........kppprkrrrrrrk.....",
-      "......kkkpppprrrrrrrrrkk...",
-      ".....kppprrrrrrrrrrrrrrrk..",
-      "....kppprrrrrrrrrrrrrrrrrk.",
-      "...kpprrrrrrrrrrrrrrrrrrrk.",
-      "...kpprrrrrrrrrrrrrrrrrrrrk",
-      "...kprrrrrrrrrrrrrrrrrrrrrk",
-      "...krrrrrrrrrrrrrrrrrrrrrrk",
-      "..krrrrrrrrrrrrrrrrrrrrrRRk",
-      "..krrrrrrrrrrrrrrrrrrrrrRRk",
-      "..krrrrrrrrrrrrrrrrrrrrrRRk",
-      ".krrrrrrrrrrrrrrrrrrrrrRRRk",
-      ".krrrrrrrrrrrrrrrrrrrrRRRk.",
-      "krrrrrrrrrrrrrrrrrrrrRRRk..",
-      "krrrrrrrrrrrrrrrrrrRRRRRk..",
-      "kkRRRRRRrrrrrrrrrRRRRRkk...",
-      "..kkkkRRRRRRRRRRRRRkkk.....",
-      "......kkkkkkkkkkkkk........"]],
-    feet:[[5, 42, ["..kk", "kkk."]], [20, 42, ["kkkk", "kkkk"]]]},
-  /* 3 recoil2 */
-  {name:'recoil2',x0:4,y0:19,fcx:15,cy:30,
-    v:[[
-      "...........kkkk......",
-      ".....kkkkk.krrrk.....",
-      "....kppprrkrrrrrk....",
-      "..kkpppprrrrrrrrrkk..",
-      ".kppprrrrrrrrrrrrrrk.",
-      "kppprrrrrrrrrrrrrrrrk",
-      "kpprrrrrrrrrrrrrrrrrk",
-      "kpprrrrrrrrrrrrrrrrrk",
-      ".kprrrrrrrrrrrrrrrrrk",
-      ".krrrrrrrrrrrrrrrrrrk",
-      "krrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrRRRk",
-      "krrrrrrrrrrrrrrrrRRRk",
-      ".krrrrrrrrrrrrrrrRRRk",
-      ".krrrrrrrrrrrrrrrrRk.",
-      ".krrrrrrrrrrrrrrrRRRk",
-      "..krrrrrrrrrrrrRRRRRk",
-      "..kRRRRRrrrrrrrRRRRk.",
-      "...kkRRRRRRRRRRRRRk..",
-      ".....kkkkRRRRRRRkk...",
-      ".........kkkkkkk....."]],
-    feet:[[9, 42, ["kkkk", "kkkk"]], [19, 42, ["kkkk", "kkkk"]]]},
-  /* 4 skid1 */
-  {name:'skid1',x0:3,y0:21,fcx:15,cy:32,
-    v:[[
-      ".....kkkk.kkkk...........",
-      "....kppprkrrrrkk.........",
-      "...kpppprrrrrrrrkk.......",
-      ".kkppprrrrrrrrrrrrkk.....",
-      "kppprrrrrrrrrrrrrrrrkk...",
-      "kpprrrrrrrrrrrrrrrrrrrk..",
-      "kpprrrrrrrrrrrrrrrrrrrk..",
-      ".kprrrrrrrrrrrrrrrrrrrk..",
-      ".krrrrrrrrrrrrrrrrrrrrrk.",
-      ".krrrrrrrrrrrrrrrrrrrrrk.",
-      ".krrrrrrrrrrrrrrrrrrrRRk.",
-      ".krrrrrrrrrrrrrrrrrrrRRk.",
-      ".krrrrrrrrrrrrrrrrrrrRRk.",
-      ".krrrrrrrrrrrrrrrrrrrRRRk",
-      "..krrrrrrrrrrrrrrrrrrRRRk",
-      "...krrrrrrrrrrrrrrrrrrRk.",
-      "...krrrrrrrrrrrrrrrrrRRRk",
-      "....krrrrrrrrrrrrrrRRRRRk",
-      ".....kkRRRRRrrrrrrRRRRkk.",
-      ".......kkkRRRRRRRRRRkk...",
-      "..........kkkkkkkkkk....."]],
-    feet:[[12, 42, ["kkkk", "kkkk"]], [20, 42, ["kkkk.", "kkkkk"]]]},
-  /* 5 skid2 */
-  {name:'skid2',x0:2,y0:20,fcx:15,cy:30,
-    v:[[
-      ".....kkkk.kkkkk...........",
-      "...kkppprkrrrrrkk.........",
-      ".kkpppprrrrrrrrrrkkkk.....",
-      "kppprrrrrrrrrrrrrrrrrk....",
-      "kppprrrrrrrrrrrrrrrrrrk...",
-      "kpprrrrrrrrrrrrrrrrrrrk...",
-      ".kpprrrrrrrrrrrrrrrrrrk...",
-      ".kprrrrrrrrrrrrrrrrrrrk...",
-      "..krrrrrrrrrrrrrrrrrrrk...",
-      "..krrrrrrrrrrrrrrrrrrRRk..",
-      "..krrrrrrrrrrrrrrrrrrRRk..",
-      "..krrrrrrrrrrrrrrrrrrRRk..",
-      "..krrrrrrrrrrrrrrrrrrRRRk.",
-      "...krrrrrrrrrrrrrrrrrRRRk.",
-      "....krrrrrrrrrrrrrrrrrRRRk",
-      ".....krrrrrrrrrrrrrrrrrRk.",
-      ".....krrrrrrrrrrrrrrrrRRRk",
-      "......krrrrrrrrrrrrrRRRRRk",
-      ".......kRRRRRrrrrrrrrRRRRk",
-      "........kkRRRRRRRRRRRRRRk.",
-      "..........kkkRRRRRRRRRkk..",
-      ".............kkkkkkkkk...."]],
-    feet:[[14, 42, ["kkkk", "kkkk"]], [22, 42, ["kkkk.", "kkkkk"]]]},
-  /* 6 cower */
-  {name:'cower',x0:2,y0:25,fcx:15,cy:34,
-    v:[[
-      ".......kkkkk.kkkk.........",
-      "....kkkppprrkrrrrkkkk.....",
-      "..kkpppprrrrrrrrrrrrrkk...",
-      ".kppprrrrrrrrrrrrrrrrrrk..",
-      ".kppprrrrrrrrrrrrrrrrrrk..",
-      "kpprrrrrrrrrrrrrrrrrrrrk..",
-      "kpprrrrrrrrrrrrrrrrrrrrrk.",
-      ".kprrrrrrrrrrrrrrrrrrrrrk.",
-      ".krrrrrrrrrrrrrrrrrrrrrrrk",
-      ".krrrrrrrrrrrrrrrrrrrrrRRk",
-      ".krrrrrrrrrrrrrrrrrrrrRRk.",
-      "..krrrrrrrrrrrrrrrrrRRRkk.",
-      "..krrrrrrrrrrrrrrrrrRRk...",
-      "...kkrrrrrrrrrrrrRRRRkk...",
-      ".....kkRRRRrrrrRRRRkk.....",
-      ".......kRRRRRRRRRkk.......",
-      "........kkkkkkkkk........."]],
-    feet:[[10, 42, ["kkkk", ".kkk"]], [15, 42, ["kkkk", "kkk."]]]},
-  /* 7 cower2 */
-  {name:'cower2',x0:3,y0:25,fcx:16,cy:34,
-    v:[[
-      ".......kkkkk.kkkk.........",
-      "....kkkppprrkrrrrkkkk.....",
-      "..kkpppprrrrrrrrrrrrrkk...",
-      ".kppprrrrrrrrrrrrrrrrrrk..",
-      ".kppprrrrrrrrrrrrrrrrrrk..",
-      "kpprrrrrrrrrrrrrrrrrrrrk..",
-      "kpprrrrrrrrrrrrrrrrrrrrrk.",
-      ".kprrrrrrrrrrrrrrrrrrrrrk.",
-      ".krrrrrrrrrrrrrrrrrrrrrrrk",
-      "krrrrrrrrrrrrrrrrrrrrrRRk.",
-      "krrrrrrrrrrrrrrrrrrrrRRk..",
-      ".krrrrrrrrrrrrrrrrrRRRkk..",
-      ".krrrrrrrrrrrrrrrrrRRk....",
-      "..kkrrrrrrrrrrrrRRRRkk....",
-      "....kkRRRRrrrrRRRRkk......",
-      "......kRRRRRRRRRkk........",
-      ".......kkkkkkkkk.........."]],
-    feet:[[10, 42, ["kkkk", ".kkk"]], [15, 42, ["kkkk", "kkk."]]]},
-  /* 8 landSoft */
-  {name:'landSoft',x0:1,y0:23,fcx:16,cy:33,
-    v:[[
-      "..........kkkk.kkkkk........",
-      ".........kppprkrrrrrk.......",
-      "......kkkpppprrrrrrrrkk.....",
-      ".....kppprrrrrrrrrrrrrrk....",
-      "....kppprrrrrrrrrrrrrrrrk...",
-      "....kpprrrrrrrrrrrrrrrrrk...",
-      "...kpprrrrrrrrrrrrrrrrrrrk..",
-      "...kprrrrrrrrrrrrrrrrrrrrk..",
-      "...krrrrrrrrrrrrrrrrrrrrrk..",
-      "...krrrrrrrrrrrrrrrrrrrrRRk.",
-      "..krrrrrrrrrrrrrrrrrrrrrRRk.",
-      "..krrrrrrrrrrrrrrrrrrrrrRRk.",
-      ".krrrrrrrrrrrrrrrrrrrrrrRRRk",
-      ".krrrrrrrrrrrrrrrrrrrrrrrRk.",
-      "krrrrrrrrrrrrrrrrrrrrrrrRRRk",
-      "krrrrrrrrrrrrrrrrrrrrrRRRRRk",
-      ".kkRRRRRRrrrrrrrrrrrRRRRRkk.",
-      "...kkkkRRRRRRRRRRRRRRRkkk...",
-      ".......kkkkkkkkkkkkkkk......"]],
-    feet:[[8, 42, ["kkkk", "kkkk"]], [20, 42, ["kkkk", "kkkk"]]]},
-  /* 9 landHard */
-  {name:'landHard',x0:0,y0:25,fcx:16,cy:34,
-    v:[[
-      "...........kkkk.kkkkk..........",
-      ".......kkkkppprkrrrrrkkkk......",
-      ".....kkpppprrrrrrrrrrrrrrk.....",
-      "....kppprrrrrrrrrrrrrrrrrrk....",
-      "...kppprrrrrrrrrrrrrrrrrrrrk...",
-      "...kpprrrrrrrrrrrrrrrrrrrrrk...",
-      "..kpprrrrrrrrrrrrrrrrrrrrrrrk..",
-      "..kprrrrrrrrrrrrrrrrrrrrrrrrk..",
-      "..krrrrrrrrrrrrrrrrrrrrrrrRRk..",
-      ".krrrrrrrrrrrrrrrrrrrrrrrrrRRk.",
-      ".krrrrrrrrrrrrrrrrrrrrrrrrrRRk.",
-      "krrrrrrrrrrrrrrrrrrrrrrrrrrRRRk",
-      "krrrrrrrrrrrrrrrrrrrrrrrrrrrRk.",
-      "krrrrrrrrrrrrrrrrrrrrrrrrRRRRRk",
-      "kkRRRRRRrrrrrrrrrrrrrrrrrRRRRRk",
-      "..kkkRRRRRRRRRRRRRRRRRRRRRRkkk.",
-      ".....kkkkkkkkkkkkkkkkkkkkkk...."]],
-    feet:[[3, 42, ["..kkkk", "kkkkkk"]], [23, 42, ["kkkk.", "kkkkk"]]]},
-  /* 10 dizzy1 */
-  {name:'dizzy1',x0:4,y0:20,fcx:15,cy:31,
-    v:[[
-      "........kkkk..........",
-      "...kkkk.krrrk.........",
-      "..kppppkrrrrrkk.......",
-      "kkppprrrrrrrrrrkkkk...",
-      "kppprrrrrrrrrrrrrrrkk.",
-      "kpprrrrrrrrrrrrrrrrrk.",
-      "kpprrrrrrrrrrrrrrrrrk.",
-      "kprrrrrrrrrrrrrrrrrrk.",
-      ".krrrrrrrrrrrrrrrrrrk.",
-      ".krrrrrrrrrrrrrrrrrrrk",
-      "krrrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrrRRRk",
-      "krrrrrrrrrrrrrrrrRRRk.",
-      "krrrrrrrrrrrrrrrrrRk..",
-      "krrrrrrrrrrrrrrrrRRRk.",
-      ".krrrrrrrrrrrrrRRRRRk.",
-      ".kRRRRRrrrrrrrRRRRkk..",
-      "..kkkRRRRRRRRRRRRk....",
-      ".....kkkRRRRRRRkk.....",
-      "........kkkkkkk......."]],
-    feet:[[9, 42, ["kkkk", "kkkk"]], [19, 42, ["kkkk", "kkkk"]]]},
-  /* 11 dizzy2 */
-  {name:'dizzy2',x0:5,y0:20,fcx:17,cy:31,
-    v:[[
-      ".......kkkk............",
-      "......kpppk.kkkkk......",
-      "......kppppkrrrrrkk....",
-      "...kkkppprrrrrrrrrrk...",
-      ".kkppprrrrrrrrrrrrrrk..",
-      "kpprrrrrrrrrrrrrrrrrk..",
-      "kpprrrrrrrrrrrrrrrrrk..",
-      "kprrrrrrrrrrrrrrrrrrk..",
-      ".krrrrrrrrrrrrrrrrrrk..",
-      ".krrrrrrrrrrrrrrrrrrrk.",
-      "krrrrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrrrRRRk",
-      "krrrrrrrrrrrrrrrrrRRRk.",
-      "krrrrrrrrrrrrrrrrrrRk..",
-      "krrrrrrrrrrrrrrrrRRRk..",
-      "krrrrrrrrrrrrrrRRRRRk..",
-      "kRRRRRrrrrrrrrRRRRkk...",
-      ".kkkRRRRRRRRRRRRkk.....",
-      "....kkkRRRRRRRRk.......",
-      ".......kkkkkkkk........"]],
-    feet:[[8, 42, ["kkkk", "kkkk"]], [18, 42, ["kkkk", "kkkk"]]]},
-  /* 12 edge1 */
-  {name:'edge1',x0:6,y0:19,fcx:18,cy:30,
-    v:[[
-      "............kkkk.......",
-      ".......kkkk.krrrkk.....",
-      "......kppprkrrrrrrkk...",
-      "...kkkpppprrrrrrrrrrkk.",
-      "..kppprrrrrrrrrrrrrrrrk",
-      ".kppprrrrrrrrrrrrrrrrrk",
-      "kpprrrrrrrrrrrrrrrrrrrk",
-      "kpprrrrrrrrrrrrrrrrrrrk",
-      ".kprrrrrrrrrrrrrrrrrrrk",
-      ".krrrrrrrrrrrrrrrrrrrrk",
-      "krrrrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrrrrRRk",
-      "krrrrrrrrrrrrrrrrrRRRk.",
-      "krrrrrrrrrrrrrrrrrRRRk.",
-      "krrrrrrrrrrrrrrrrRRRk..",
-      "krrrrrrrrrrrrrrrRRRk...",
-      "krrrrrrrrrrrrrrrRRRk...",
-      "krrrrrrrrrrrrrRRRRRk...",
-      "kkRRRRRrrrrrrRRRRkkk...",
-      "..kRRRRRRRRRRRRRk......",
-      "...kkkkRRRRRRRkk.......",
-      ".......kkkkkkk........."]],
-    feet:[[9, 42, ["kkkk", "kkkk"]], [20, 44, ["kkk.", ".kkk"]]]},
-  /* 13 edge2 */
-  {name:'edge2',x0:6,y0:19,fcx:19,cy:30,
-    v:[[
-      ".............kkkkk......",
-      "........kkkk.krrrrkk....",
-      ".......kppprkrrrrrrrkk..",
-      "....kkkpppprrrrrrrrrrrk.",
-      "...kppprrrrrrrrrrrrrrrrk",
-      "...kppprrrrrrrrrrrrrrrrk",
-      "..kpprrrrrrrrrrrrrrrrrrk",
-      "..kpprrrrrrrrrrrrrrrrrrk",
-      "..kprrrrrrrrrrrrrrrrrrrk",
-      "..krrrrrrrrrrrrrrrrrrrrk",
-      "..krrrrrrrrrrrrrrrrrrRRk",
-      ".krrrrrrrrrrrrrrrrrrrRRk",
-      ".krrrrrrrrrrrrrrrrrrrRRk",
-      ".krrrrrrrrrrrrrrrrrrRRRk",
-      ".krrrrrrrrrrrrrrrrrRRRk.",
-      "krrrrrrrrrrrrrrrrrRRRk..",
-      "krrrrrrrrrrrrrrrrRRRk...",
-      "krrrrrrrrrrrrrrrrRRRk...",
-      "krrrrrrrrrrrrrrRRRRRk...",
-      ".kRRRRRrrrrrrrRRRRkk....",
-      "..kkRRRRRRRRRRRRkk......",
-      "....kkkRRRRRRRkk........",
-      ".......kkkkkkk.........."]],
-    feet:[[9, 42, ["kkkk", "kkkk"]], [21, 44, ["kkk.", ".kkk"]]]},
+      ".......kkrrrRk...........",
+      ".....kkrrrrrRk...........",
+      "....krprrrrrrrkk.........",
+      "...krprrrrrrrrrRk........",
+      "..krprrrrrrrrrrrRk.......",
+      ".krprrrrrrrrrrrrrrkk.....",
+      "krprrrrrrrrrrrrrrrrrkk...",
+      "krprrrrrrrrrrrrrrrrrrRk..",
+      "krrrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "kRrrrrrrrrrrrrrrrrrrrrRRk",
+      ".kRrrrrrrrrrrrrrrrrrrrrRk",
+      "..kRRrrrrrrrrrrrrrrrrrRRk",
+      "...kRRRrrrrrrrrrrrrrRRRk.",
+      "....kRRRRRRRRRRRRRRRRkk..",
+      ".....kkRRRRRRRRRRRRkk....",
+      ".......kkkkkkkkkkkk......"
+    ]],
+    feet:[[6,52,[
+      ".kkkk.......",
+      "kuuuUkk.....",
+      "kuuUUUUkk...",
+      "kuUUUUUUUkk.",
+      "kVUUUUUUUUvk",
+      ".kVVUUUUUUvk",
+      "..kkVVVVVVVk",
+      "....kkkkkkk."
+    ]],[28,52,[
+      ".......kkkk.",
+      ".....kkUuuuk",
+      "...kkUUUUuuk",
+      ".kkUUUUUUUuk",
+      "kvUUUUUUUUVk",
+      "kvUUUUUUVVk.",
+      "kVVVVVVVkk..",
+      ".kkkkkkk...."
+    ]]]},
+  {name:"dizzy1",x0:7,y0:32,fcx:19,cy:46,tip:[17,32],ctr:[19,45],v:[[
+      "..........kkkk..........",
+      "........kkrrrRk.........",
+      "......kkrrrrrRk.........",
+      "....kkprrrrrrrrkk.......",
+      "...krprrrrrrrrrrk.......",
+      "..krprrrrrrrrrrrrkk.....",
+      ".krprrrrrrrrrrrrrrrk....",
+      "krprrrrrrrrrrrrrrrrrkk..",
+      "krprrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "kRrrrrrrrrrrrrrrrrrrrRRk",
+      "kRrrrrrrrrrrrrrrrrrrrrRk",
+      ".kRRrrrrrrrrrrrrrrrrRRk.",
+      "..kRRRrrrrrrrrrrrrRRRk..",
+      "...kRRRRRRRRRRRRRRRRk...",
+      "....kRRRRRRRRRRRRRkk....",
+      ".....kkkkkkkkkkkkk......"
+    ]],
+    feet:[[1,55,[
+      "..kkkkkk......",
+      ".kuuuuUUkkkkk.",
+      "kuUUUUUUUUUUvk",
+      "kVVVUUUUUUVVVk",
+      ".kkkkkkkkkkkk."
+    ]],[24,53,[
+      "......kkkk..",
+      "....kkUuuuk.",
+      ".kkkUUUUUuuk",
+      "kUUUUUUUUUuk",
+      "kvUUUUUUUUUk",
+      "kVVVUUUUVVk.",
+      ".kkkkkkkkk.."
+    ]]]},
+  {name:"dizzy2",x0:9,y0:32,fcx:21,cy:46,tip:[23,32],ctr:[21,45],v:[[
+      "..............kkkk......",
+      "............kkrrrRk.....",
+      "..........kkrrrrrRk.....",
+      ".......kkkprrrrrrRk.....",
+      ".....kkppprrrrrrrRk.....",
+      "....krprrrrrrrrrrRk.....",
+      "...krprrrrrrrrrrrrRk....",
+      "..krprrrrrrrrrrrrrrRk...",
+      ".krprrrrrrrrrrrrrrrrRk..",
+      "krrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrRk",
+      "kRrrrrrrrrrrrrrrrrrrrRRk",
+      "kRrrrrrrrrrrrrrrrrrrrrRk",
+      ".kRRrrrrrrrrrrrrrrrrRRk.",
+      "..kRRRrrrrrrrrrrrrRRRk..",
+      "...kRRRRRRRRRRRRRRRRk...",
+      "....kkRRRRRRRRRRRRRk....",
+      "......kkkkkkkkkkkkk....."
+    ]],
+    feet:[[4,53,[
+      "..kkkk......",
+      ".kuuuUkk....",
+      "kuuUUUUUkkk.",
+      "kuUUUUUUUUUk",
+      "kUUUUUUUUUvk",
+      ".kVVUUUUVVVk",
+      "..kkkkkkkkk."
+    ]],[25,55,[
+      "......kkkkkk..",
+      ".kkkkkUUuuuuk.",
+      "kvUUUUUUUUUUuk",
+      "kVVVUUUUUUVVVk",
+      ".kkkkkkkkkkkk."
+    ]]]},
+  {name:"edge1",x0:9,y0:32,fcx:21,cy:46,tip:[24,32],ctr:[22,45],v:[[
+      "...............kkkk......",
+      ".............kkrrrRk.....",
+      "...........kkrrrrrRk.....",
+      "........kkkprrrrrrRk.....",
+      "......kkppprrrrrrrRk.....",
+      "....kkpprrrrrrrrrrRk.....",
+      "...krprrrrrrrrrrrrrRk....",
+      "..krprrrrrrrrrrrrrrrRk...",
+      ".krprrrrrrrrrrrrrrrrrRk..",
+      "krrrrrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "kRrrrrrrrrrrrrrrrrrrrrRRk",
+      "kRrrrrrrrrrrrrrrrrrrrrrRk",
+      ".kRRrrrrrrrrrrrrrrrrrRRk.",
+      "..kRRRrrrrrrrrrrrrrRRRk..",
+      "...kRRRRRRRRRRRRRRRRkk...",
+      "....kRRRRRRRRRRRRRkk.....",
+      ".....kkkkkkkkkkkkk......."
+    ]],
+    feet:[[4,53,[
+      "..kkkk......",
+      ".kuuuUkk....",
+      "kuuUUUUUkkk.",
+      "kuUUUUUUUUUk",
+      "kUUUUUUUUUvk",
+      ".kVVUUUUVVVk",
+      "..kkkkkkkkk."
+    ]],[27,54,[
+      ".kkkk....",
+      "kvUUUkk..",
+      "kvUUUUuk.",
+      "kVvUUUuuk",
+      "kVvUUUuuk",
+      ".kVvUUUuk",
+      "..kVVVVk.",
+      "...kkkk.."
+    ]]]},
+  {name:"edge2",x0:9,y0:32,fcx:22,cy:46,tip:[25,32],ctr:[22,45],v:[[
+      "................kkkk.....",
+      "..............kkrrrRk....",
+      "............kkrrrrrRk....",
+      ".........kkkprrrrrrRk....",
+      ".......kkppprrrrrrrRk....",
+      ".....kkpprrrrrrrrrrRk....",
+      "....krprrrrrrrrrrrrRk....",
+      "...krprrrrrrrrrrrrrrRk...",
+      "..krprrrrrrrrrrrrrrrrRk..",
+      ".krprrrrrrrrrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrrrrrrrrrrRk",
+      "kRrrrrrrrrrrrrrrrrrrrrRRk",
+      "kRrrrrrrrrrrrrrrrrrrrrRk.",
+      "kRRrrrrrrrrrrrrrrrrrRRk..",
+      ".kRRRrrrrrrrrrrrrrRRRk...",
+      "..kkRRRRRRRRRRRRRRRRk....",
+      "....kkRRRRRRRRRRRRkk.....",
+      "......kkkkkkkkkkkk......."
+    ]],
+    feet:[[4,53,[
+      "..kkkk......",
+      ".kuuuUkk....",
+      "kuuUUUUUkkk.",
+      "kuUUUUUUUUUk",
+      "kUUUUUUUUUvk",
+      ".kVVUUUUVVVk",
+      "..kkkkkkkkk."
+    ]],[28,55,[
+      ".kkkk....",
+      "kvUUUkk..",
+      "kvUUUUuk.",
+      "kVvUUUuuk",
+      "kVvUUUuuk",
+      ".kVvUUUuk",
+      "..kVVVVk.",
+      "...kkkk.."
+    ]]]}
 ]};

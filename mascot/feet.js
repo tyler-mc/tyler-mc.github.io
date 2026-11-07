@@ -1,10 +1,402 @@
-/* Authored mascot feet for the hop (tools/lint_mascot_body.mjs lintFeet has the format and rules).
-   FEET[pose] = [left, right], each [fx from cx, row offset under the body, rows of 'k']. Lopsided on purpose: the feet do not mirror. */
+/* Authored mascot feet: big exaggerated brown shoes (k outline, U fill, u light toe cap, v shade, V sole), one pose per moment. Lint: node tools/lint_anim_feet.mjs
+   FEET[name] = {back:true|false, feet:[[x,y,rows],[x,y,rows]]}: feet[0] is the screen-LEFT shoe, feet[1] the screen-RIGHT one (authored facing right; flip:1 mirrors
+   x -> 39-x). Absolute 40x64 cell coordinates: the standing body's bottom row is 57 and the soles sit on row 59, so the shoes overlap the body's last rows and, with
+   back:true (every pose here), tuck behind it: only the toe ends and the two rows under the body show. Use them with compose({lv, ft:name}); airborne poses with air:1.
+   Lowest shoe row [left, right] (59 = on the ground, 57 = two rows up, 61 = two rows lower; tools/lint_anim_feet.mjs SOLES checks these):
+     stand 59,59  together 59,59  splay 59,59  toeUp 59,59  skid 59,59  pigeon 59,59  sit 59,59  sleep 59,59
+     walkA 58,59  walkB 58,59  walkC 57,59  walkD 56,59  liftL 53,59  liftR 59,53
+     airborne: tuck 57,57  loose 59,60  spread 58,58  kick 58,50  dangle 61,61  dangleB 61,57
+   WIRING NOTE (OS: setTimeout poses of about 60 to 180 ms; game: 60 Hz steps):
+   - stand      the approved rest pair (toes out). Idle, breathing, talking, and the static pose for reduced motion.
+   - HOP (OS window hop, game jump), in order:
+       together   push-off: shoes pulled in under the body and a bit taller; with the anticipation squash (S3/S2). OS 100 ms, game 5-6 steps.
+       tuck       rising: shoes pulled up 2 rows, short and close; with the stretch (T2/T3), air:1. OS 80 ms, game while rising.
+       loose      apex: relaxed, slightly splayed, the right shoe one row lower. OS 120 ms, game 6-8 steps around the top.
+       spread     falling/reaching: wide apart, toes out and up, 1 row up. Held while falling.
+       toeUp      heel strike: toes tipped up, heels on the ground. 1 pose on contact (OS 60 ms, game 2-3 steps); also a skid-lite stop.
+       splay      landing impact: flat and wide; with the landing squash (S1/S3). OS 100 ms, game 5-6 steps, then stand.
+   - WALK (toes forward, to the right; 4 poses): cycle walkA -> walkC -> walkB -> walkD, OS about 120 ms each, game 8 steps each.
+       walkA      contact: the forward shoe (screen right) flat, the trailing shoe (screen left) with its heel lifted and the sole showing.
+       walkC      passing/down: the right shoe planted and squashed under the weight, the left lifted 2 rows and swinging through. Use the down body (breath/S1).
+       walkB      contact of the other leg (a different drawing, not a mirror): a new forward shoe (screen right) flat, the trailing shoe (screen left) steeper, sole showing.
+       walkD      passing/down: the right shoe planted, the left lifted 3 rows, toe down, swinging through. Use the down body.
+   - RUN / being CARRIED by the cursor: kick (both shoes flung back behind the body, soles to the viewer, air:1; feet[0] is the lower shoe, feet[1] the upper); for a run alternate kick with walkC every 80 ms.
+   - SKID: skid (both shoes forward, toes up, braking) for 150 to 250 ms at the end of a run or a fling, body leaning back, then stand.
+   - CARRIED / HANGING (dragged, hanging from a window edge): dangle (limp, toes down, 2 rows lower than standing, air:1); SWING: alternate dangle and dangleB
+     (the right shoe swung up) every 140 to 180 ms (game 9-10 steps).
+   - DANCE / STEP / small hop on one foot: liftL and liftR (one shoe raised 6 rows and kicked out to the side, toe up, the other planted), alternate every 150 ms with stand between.
+     The default resting arm nubs (210/330) overlap the raised shoe a little: raise the arms (dance) when you use them.
+   - SHY: pigeon (toes turned in, heels raised out), held with the shy face.
+   - SIT: sit (flat stand shoes pushed out to the sides, soles down on row 59), held. A nap may also use it.
+   - SLEEP: sleep (small shoes tucked close together), held under the low loaf body. */
 export const FEET={
-  stand:   [[-7,0,['kkkk','kkkk']],[3,0,['kkkk','kkkk']]],
-  together:[[-4,0,['kkkk','kkkk','.kk.']],[1,0,['kkk.','kkkk','.kkk']]],  /* push-off: both feet under the belly, toes down */
-  tuck:    [[-5,0,['kkk','.kk']],[1,0,['kkk','kk.']]],                    /* rising: small nubs pulled up under the belly */
-  loose:   [[-6,0,['.kkk','kkk.']],[2,1,['kkk.','.kkk']]],                /* apex: lazy dangle, right foot a row lower */
-  spread:  [[-10,0,['..kk','.kkk','kkk.']],[5,0,['kk..','kkk.','.kkk']]],  /* falling: legs reach down and out, toes out (/ \) */
-  splay:   [[-11,0,['..kkkk','kkkkkk']],[5,0,['kkkk.','kkkkk']]],         /* landing: flat feet pushed out wide */
+  stand:{back:true,feet:[[4,53,[
+      "..kkkk......",
+      ".kuuuUkk....",
+      "kuuUUUUUkkk.",
+      "kuUUUUUUUUUk",
+      "kUUUUUUUUUvk",
+      ".kVVUUUUVVVk",
+      "..kkkkkkkkk."
+    ]],
+    [24,53,[
+      "......kkkk..",
+      "....kkUuuuk.",
+      ".kkkUUUUUuuk",
+      "kUUUUUUUUUuk",
+      "kvUUUUUUUUUk",
+      "kVVVUUUUVVk.",
+      ".kkkkkkkkk.."
+    ]]]},
+  together:{back:true,feet:[[8,52,[
+      "..kkkk.....",
+      ".kuuuUkk...",
+      "kuuUUUUUkk.",
+      "kuUUUUUUUUk",
+      "kUUUUUUUUUk",
+      "kUUUUUUUUvk",
+      ".kVVUUUUVVk",
+      "..kkkkkkkk."
+    ]],
+    [21,52,[
+      ".....kkkk..",
+      "...kkUuuuk.",
+      ".kkUUUUUuuk",
+      "kUUUUUUUUuk",
+      "kUUUUUUUUUk",
+      "kvUUUUUUUUk",
+      "kVVUUUUVVk.",
+      ".kkkkkkkk.."
+    ]]]},
+  tuck:{back:true,feet:[[5,52,[
+      "..kkkk....",
+      ".kuuuUkkk.",
+      "kuuUUUUUvk",
+      "kuUUUUUvVk",
+      ".kVVVVVVk.",
+      "..kkkkkk.."
+    ]],
+    [25,52,[
+      "....kkkk..",
+      ".kkkUuuuk.",
+      "kvUUUUUuuk",
+      "kVvUUUUUuk",
+      ".kVVVVVVk.",
+      "..kkkkkk.."
+    ]]]},
+  loose:{back:true,feet:[[2,53,[
+      "....kkkkk..",
+      "..kkUUUUUkk",
+      ".kuuUUUUUvk",
+      "kuuUUUUUvVk",
+      "kuUUUUUvVk.",
+      ".kVVVVVVk..",
+      "..kkkkkk..."
+    ]],
+    [27,54,[
+      "..kkkkk....",
+      "kkUUUUUkk..",
+      "kvUUUUUuuk.",
+      "kVvUUUUUuuk",
+      ".kVvUUUUUuk",
+      "..kVVVVVVk.",
+      "...kkkkkk.."
+    ]]]},
+  spread:{back:true,feet:[[0,51,[
+      ".kkkk.......",
+      "kuuuUkk.....",
+      "kuuUUUUkk...",
+      "kuUUUUUUUkk.",
+      "kVUUUUUUUUvk",
+      ".kVVUUUUUUvk",
+      "..kkVVVVVVVk",
+      "....kkkkkkk."
+    ]],
+    [28,51,[
+      ".......kkkk.",
+      ".....kkUuuuk",
+      "...kkUUUUuuk",
+      ".kkUUUUUUUuk",
+      "kvUUUUUUUUVk",
+      "kvUUUUUUVVk.",
+      "kVVVVVVVkk..",
+      ".kkkkkkk...."
+    ]]]},
+  splay:{back:true,feet:[[1,55,[
+      "..kkkkkk......",
+      ".kuuuuUUkkkkk.",
+      "kuUUUUUUUUUUvk",
+      "kVVVUUUUUUVVVk",
+      ".kkkkkkkkkkkk."
+    ]],
+    [25,55,[
+      "......kkkkkk..",
+      ".kkkkkUUuuuuk.",
+      "kvUUUUUUUUUUuk",
+      "kVVVUUUUUUVVVk",
+      ".kkkkkkkkkkkk."
+    ]]]},
+  toeUp:{back:true,feet:[[3,52,[
+      ".kkkk.......",
+      "kuuuUkk.....",
+      "kuuUUUUkk...",
+      "kuUUUUUUUkk.",
+      "kVUUUUUUUUvk",
+      ".kVVUUUUUUvk",
+      "..kkVVVVVVVk",
+      "....kkkkkkk."
+    ]],
+    [25,52,[
+      ".......kkkk.",
+      ".....kkUuuuk",
+      "...kkUUUUuuk",
+      ".kkUUUUUUUuk",
+      "kvUUUUUUUUVk",
+      "kvUUUUUUVVk.",
+      "kVVVVVVVkk..",
+      ".kkkkkkk...."
+    ]]]},
+  walkA:{back:true,feet:[[1,51,[
+      "..kkk.......",
+      ".kVVVkk.....",
+      "kVvvUUUkk...",
+      "kVvUUUUUUkk.",
+      ".kVUUUUUuuuk",
+      ".kVvUUUUUuuk",
+      "..kVVUUUUUuk",
+      "...kkkkkkkk."
+    ]],
+    [26,53,[
+      "......kkkk..",
+      "....kkUuuuk.",
+      ".kkkUUUUUuuk",
+      "kUUUUUUUUUuk",
+      "kvUUUUUUUUUk",
+      "kVVVUUUUVVk.",
+      ".kkkkkkkkk.."
+    ]]]},
+  walkB:{back:true,feet:[[2,50,[
+      ".kkkk......",
+      "kVVVVkk....",
+      "kVvvUUUkk..",
+      "kVvUUUUUUk.",
+      ".kVUUUUUUuk",
+      ".kVvUUUUuuk",
+      "..kVUUUuuuk",
+      "..kVVUUUuuk",
+      "...kkkkkkk."
+    ]],
+    [25,53,[
+      ".....kkkk...",
+      "...kkUuuuk..",
+      ".kkUUUUUuuk.",
+      "kUUUUUUUUuuk",
+      "kvUUUUUUUUUk",
+      "kVVVUUUUVVk.",
+      ".kkkkkkkkk.."
+    ]]]},
+  walkC:{back:true,feet:[[3,50,[
+      "..kkk.......",
+      ".kVVVkk.....",
+      "kVvvUUUkk...",
+      "kVvUUUUUUkk.",
+      ".kVUUUUUuuuk",
+      ".kVvUUUUUuuk",
+      "..kVVUUUUUuk",
+      "...kkkkkkkk."
+    ]],
+    [21,55,[
+      "......kkkkkk..",
+      ".kkkkkUUuuuuk.",
+      "kvUUUUUUUUUUuk",
+      "kVVVUUUUUUVVVk",
+      ".kkkkkkkkkkkk."
+    ]]]},
+  walkD:{back:true,feet:[[1,50,[
+      "..kkkkk....",
+      "kkUUUUUkk..",
+      "kvUUUUUuuk.",
+      "kVvUUUUUuuk",
+      ".kVvUUUUUuk",
+      "..kVVVVVVk.",
+      "...kkkkkk.."
+    ]],
+    [20,53,[
+      ".....kkkk...",
+      "...kkUuuuk..",
+      ".kkUUUUUuuk.",
+      "kUUUUUUUUuuk",
+      "kvUUUUUUUUUk",
+      "kVVVUUUUVVk.",
+      ".kkkkkkkkk.."
+    ]]]},
+  kick:{back:true,feet:[[2,50,[
+      ".kkkk.....",
+      "kVVVVkk...",
+      "kVvvVUUk..",
+      "kVvvvVUUk.",
+      ".kVvvVUUuk",
+      ".kVvvVUuuk",
+      "..kVvVUuuk",
+      "..kVVVUuk.",
+      "...kkkkk.."
+    ]],
+    [0,42,[
+      ".kkkk.....",
+      "kVVVVkk...",
+      "kVvvVUUk..",
+      "kVvvvVUUk.",
+      ".kVvvVUUuk",
+      ".kVvvVUuuk",
+      "..kVvVUuuk",
+      "..kVVVUuk.",
+      "...kkkkk.."
+    ]]]},
+  skid:{back:true,feet:[[19,52,[
+      ".......kkkk.",
+      ".....kkUuuuk",
+      "...kkUUUUuuk",
+      ".kkUUUUUUUuk",
+      "kvUUUUUUUUVk",
+      "kvUUUUUUVVk.",
+      "kVVVVVVVkk..",
+      ".kkkkkkk...."
+    ]],
+    [28,52,[
+      ".......kkkk.",
+      ".....kkUuuuk",
+      "...kkUUUUuuk",
+      ".kkUUUUUUUuk",
+      "kvUUUUUUUUVk",
+      "kvUUUUUUVVk.",
+      "kVVVVVVVkk..",
+      ".kkkkkkk...."
+    ]]]},
+  dangle:{back:true,feet:[[5,54,[
+      "....kkkk.",
+      "..kkUUUvk",
+      ".kuUUUUvk",
+      "kuuUUUvVk",
+      "kuuUUUvVk",
+      "kuUUUvVk.",
+      ".kVVVVk..",
+      "..kkkk..."
+    ]],
+    [26,54,[
+      ".kkkk....",
+      "kvUUUkk..",
+      "kvUUUUuk.",
+      "kVvUUUuuk",
+      "kVvUUUuuk",
+      ".kVvUUUuk",
+      "..kVVVVk.",
+      "...kkkk.."
+    ]]]},
+  dangleB:{back:true,feet:[[5,54,[
+      "....kkkk.",
+      "..kkUUUvk",
+      ".kuUUUUvk",
+      "kuuUUUvVk",
+      "kuuUUUvVk",
+      "kuUUUvVk.",
+      ".kVVVVk..",
+      "..kkkk..."
+    ]],
+    [28,51,[
+      "..kkkkk....",
+      "kkUUUUUkk..",
+      "kvUUUUUuuk.",
+      "kVvUUUUUuuk",
+      ".kVvUUUUUuk",
+      "..kVVVVVVk.",
+      "...kkkkkk.."
+    ]]]},
+  liftL:{back:true,feet:[[0,46,[
+      ".kkkk.......",
+      "kuuuUkk.....",
+      "kuuUUUUkk...",
+      "kuUUUUUUUkk.",
+      "kVUUUUUUUUvk",
+      ".kVVUUUUUUvk",
+      "..kkVVVVVVVk",
+      "....kkkkkkk."
+    ]],
+    [24,53,[
+      "......kkkk..",
+      "....kkUuuuk.",
+      ".kkkUUUUUuuk",
+      "kUUUUUUUUUuk",
+      "kvUUUUUUUUUk",
+      "kVVVUUUUVVk.",
+      ".kkkkkkkkk.."
+    ]]]},
+  liftR:{back:true,feet:[[4,53,[
+      "..kkkk......",
+      ".kuuuUkk....",
+      "kuuUUUUUkkk.",
+      "kuUUUUUUUUUk",
+      "kUUUUUUUUUvk",
+      ".kVVUUUUVVVk",
+      "..kkkkkkkkk."
+    ]],
+    [28,46,[
+      ".......kkkk.",
+      ".....kkUuuuk",
+      "...kkUUUUuuk",
+      ".kkUUUUUUUuk",
+      "kvUUUUUUUUVk",
+      "kvUUUUUUVVk.",
+      "kVVVVVVVkk..",
+      ".kkkkkkk...."
+    ]]]},
+  pigeon:{back:true,feet:[[6,53,[
+      ".kkkk......",
+      "kVUUUkkk...",
+      "kVvUUUUUkk.",
+      ".kVVUUUUuuk",
+      "..kkVUUuuuk",
+      "....kVVUuuk",
+      ".....kkkkk."
+    ]],
+    [23,53,[
+      "......kkkk.",
+      "...kkkUUUVk",
+      ".kkUUUUUvVk",
+      "kuuUUUUVVk.",
+      "kuuuUUVkk..",
+      "kuuUVVk....",
+      ".kkkkk....."
+    ]]]},
+  sit:{back:true,feet:[[0,53,[
+      "..kkkk......",
+      ".kuuuUkk....",
+      "kuuUUUUUkkk.",
+      "kuUUUUUUUUUk",
+      "kUUUUUUUUUvk",
+      ".kVVUUUUVVVk",
+      "..kkkkkkkkk."
+    ]],
+    [28,53,[
+      "......kkkk..",
+      "....kkUuuuk.",
+      ".kkkUUUUUuuk",
+      "kUUUUUUUUUuk",
+      "kvUUUUUUUUUk",
+      "kVVVUUUUVVk.",
+      ".kkkkkkkkk.."
+    ]]]},
+  sleep:{back:true,feet:[[7,55,[
+      ".kkkk....",
+      "kuuuUkkk.",
+      "kuUUUUUvk",
+      ".kVVUUVVk",
+      "..kkkkkk."
+    ]],
+    [23,55,[
+      "....kkkk.",
+      ".kkkUuuuk",
+      "kvUUUUUuk",
+      "kVVUUVVk.",
+      ".kkkkkk.."
+    ]]]},
 };

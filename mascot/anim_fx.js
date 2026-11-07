@@ -39,7 +39,8 @@
               OS: bloom and dance (replaces the 3x3 look.heart hearts). ms 140,140,180 then clear. still: 1.
      question 4x6  anchor bottom-left (0,5) above and right of the head: (cx+8, 11). OS: replaces look.q (the 1 px dot was a stray pixel). One frame, static.
      spark    5x7  anchor centre (2,3) on the zapped spot, e.g. (cx+8, 12). OS: the crash in crashIgnored, the unreleased program in runUnr, touching the
-              broken Mac. Bolt, flipped bolt, short crackle: ms 60,60,80 loop. still: 0. */
+              broken Mac. Bolt, flipped bolt, short crackle: ms 60,60,80 loop. still: 0. 
+   RE-ANCHORED to the redesign cell (40x64): the sprites are unchanged; FX_SPOT is the old spot +4 columns and +16 rows (dust and speed lines moved out for the wider shoes) as a starting point for the rest body. */
 export const ANIM_FX={
   dust:[ // specks
     ["........","........",".kk.....","kwwk....",".kkk...."],
@@ -107,5 +108,4 @@ export const ANIM_FX={
 };
 
 /* the rest-body (x,y) for each sprite's box top-left, as in the wiring note (tools/lint_anim_fx.mjs composes every frame there) */
-export const FX_SPOT={dust:[23,39],dustL:[1,39],z:[21,4],sweat:[21,18],sparkle:[23,12],drool:[18,32],shock:[22,8],tear:[20,31],speed:[0,27],speedL:[24,27],
-  impact:[1,13],note:[24,7],puff:[23,27],heart:[24,9],question:[24,11],spark:[24,12]};
+export const FX_SPOT={dust:[32,56],dustL:[0,56],z:[25,20],sweat:[25,34],sparkle:[27,28],drool:[22,48],shock:[26,24],tear:[24,47],speed:[0,43],speedL:[32,43],impact:[5,29],note:[28,23],puff:[27,43],heart:[28,25],question:[28,27],spark:[28,28]};

@@ -12,7 +12,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'mascot', 'atlas.js')
 import glob
-DATA = ['lean', 'feet', 'hands', 'faces', 'body']
+DATA = ['feet', 'arms', 'leaf', 'hats', 'faces', 'body']
 PARTS = [os.path.join(ROOT, 'mascot', n + '.js') for n in DATA] + sorted(glob.glob(os.path.join(ROOT, 'mascot', 'anim_*.js'))) + [SRC]   # atlas.js imports all the data files, so they come first
 OUT = os.path.join(ROOT, 'mascot', 'atlas.classic.js')
 
