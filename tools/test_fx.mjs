@@ -8,7 +8,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 
 const ROOT=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const FX=await import(pathToFileURL(path.join(ROOT,'game','fx.js')).href);
-const {FR}=await import(pathToFileURL(path.join(ROOT,'game','mascot.js')).href);
+const FR={idle:[11,11,0],breath:[11,10,1],squash:[13,8,3],stretch:[10,12,-2],land:[12,10,1],cling:[9,12,-1]};   /* fx.js radii bases: the pulse maths is unchanged; the atlas picks a body level from sy (game/mascot.js levelOf) */
 const {createFx,stepFx,clearFx,radii,REC}=FX;
 const MAXF=4.6,IDLE=[11,11,0];
 const O=(o={})=>Object.freeze({hit:false,reduce:false,lv:MAXF,MAXF,feetX:100,feetY:200,...o});

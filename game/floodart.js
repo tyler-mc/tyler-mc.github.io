@@ -73,7 +73,7 @@ export function boardItem(ctx,x,y,t,forged){const b=Math.round(Math.sin(t*.06)*1
 export const boardHud=(ctx,x,y,forged)=>blit(ctx,BOARD_HUD,x,y,forged?BPF:BP);
 /* under his feet while it is out: a dash leaves three speed lines behind him. Just picked up (board.js boardDemo, before
    its dash) it slides in from behind his heel over 12 frames and waits under him (reduced motion: it is just there) */
-export function boardUnder(ctx,S,ox,oy,t,reduce){
+export function boardUnder(ctx,S,ox,oy,t,reduce,inFrame){
   const p=S.p,demo=p.bd>0&&p.bd<BDEMO.go;
   if(p.burn>0&&!p.dead&&!p.hide){   /* burnt on lava (board.js): black, sinking under him, crumbling away */
     const x=Math.round(p.x+9)-10-ox,y=Math.round(p.y+p.h)-2-oy,u=1-p.burn/BURN.hold,PB=BPB;
@@ -81,7 +81,7 @@ export function boardUnder(ctx,S,ox,oy,t,reduce){
     return}
   if(!(p.bo||demo)||p.dead||p.hide)return;
   const k=demo&&!reduce?Math.max(0,1-p.bd/12):0,sl=-p.face*Math.round(16*k*k);
-  const x=Math.round(p.x+9)-10-ox+sl,y=Math.round(p.y+p.h)-2-oy;blit(ctx,BOARD,x,y,S.items.forged&&S.items.board?BPF:BP,p.face<0);
+  const x=Math.round(p.x+9)-10-ox+sl,y=Math.round(p.y+p.h)-2-oy;if(!inFrame)blit(ctx,BOARD,x,y,S.items.forged&&S.items.board?BPF:BP,p.face<0);   /* inFrame: the surf pose (mascot/anim_surf.js) has the board in its cell */
   if(p.dt>0&&!reduce){ctx.fillStyle='#e8f6ff';for(let n=0;n<3;n++){const yy=Math.round(p.y)+5+n*6-oy,len=6+((t+n*3)%4)*2,bx=p.face>0?Math.round(p.x)-3-len-ox:Math.round(p.x+p.w)+3-ox;
     for(let i=0;i<len;i+=1)if(bay(bx+i,yy)<1-i/len*(p.face>0?-1:1)*.5)ctx.fillRect(bx+i,yy,1,1)}}
 }

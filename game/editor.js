@@ -150,7 +150,7 @@ function swatch(biome,ch){
   const k=biome+ch;if(SW[k])return SW[k];
   const c=mk(T,T),x=c.getContext('2d'),g=ch==='S'?'.':ch,under='^MPGFBHVL'.includes(ch)?'#':ch==='K'?'X':'.';
   x.drawImage(paint(parse({id:'swatch',name:'',biome,at:[99999,99999],grid:['...','.'+g+'.','.'+under+'.'],ents:[]}),false),T,T,T,T,0,0,T,T);
-  if(ch==='S')x.drawImage(sprite(LOOK),3,0,24,48,1,0,10,20);
+  if(ch==='S')x.drawImage(sprite(LOOK),8,16,24,48,1,0,10,20);
   return SW[k]=c;
 }
 
@@ -193,7 +193,7 @@ function render(){
   /* markers the game does not draw: the start (as the mascot), puff bob ranges, tiles carrying ent data */
   const g=cur.src.grid;
   g.forEach((row,ty)=>[...row].forEach((c,tx)=>{
-    if(c==='S'){x.globalAlpha=.9;x.drawImage(sprite(LOOK),X((ax+tx)*T-10),Y((ay+ty)*T-32),Math.round(32*z),Math.round(48*z));x.globalAlpha=1}
+    if(c==='S'){x.globalAlpha=.9;x.drawImage(sprite(LOOK),X((ax+tx)*T-14),Y((ay+ty)*T-48),Math.round(40*z),Math.round(64*z));x.globalAlpha=1}
     if(c==='O'){const e=cur.src.ents.find(e=>e.at[0]===tx&&e.at[1]===ty),amp=e&&Number.isInteger(e.amp)?e.amp:12,cx=X((ax+tx)*T+6);
       x.strokeStyle='rgba(176,127,196,.9)';x.setLineDash([3,3]);x.beginPath();x.moveTo(cx+.5,Y((ay+ty)*T-amp));x.lineTo(cx+.5,Y((ay+ty)*T+12+amp));x.stroke();x.setLineDash([])}
   }));

@@ -1,108 +1,57 @@
-/* The mascot, copied from os.js (drawBuddy/drawMac, 32x48) and trimmed to what the game uses. Plus a glitch tear. */
+/* The mascot in the game: a thin adapter over the shared atlas (mascot/atlas.js, also the OS desktop buddy's art). compose(look) -> grid -> a cached canvas.
+   The cell is 40x64 with the soles on row SOLE; render.js draws it at (p.x+9-CX, p.y+PH-1-SOLE) so the soles land on the player box's last row.
+   A look is the atlas's: {lv,ft,arms,face,blink,happy,mouth,dir,stage,hat,mask,pose,flip,dx,air,...} (see compose in mascot/atlas.js). */
+import {compose,paint,W,H,CX,SOLE,INK} from '../mascot/atlas.js';
+import {WALK_LOOKS} from '../mascot/anim_walk.js';
+import {FEET} from '../mascot/feet.js';
+import {BODY} from '../mascot/body.js';
+import {ANIM_ROOT} from '../mascot/anim_root.js';
+import {ANIM_SURF} from '../mascot/anim_surf.js';
+export {INK,W,H,CX,SOLE,WALK_LOOKS,ANIM_ROOT};
 export const B4=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
-export const INK='#1A1716';
-const MB={B:'#F1E9D2',b:'#C9BFA5',Y:'#F6B92B',k:INK,r:'#FF3333',p:'#FF9A9A',R:'#B01E23',w:'#ffffff',m:'#7A0A12',n:'#0B5A55',T:'#3FC2B5',o:'#FFD94A',h:'#00393B',c:'#FF7A7A',H:'#FF2E88'};
-const grid=(w,h)=>Array.from({length:h},()=>Array(w).fill('.'));
-function stamp(g,pat,ox,oy){pat.forEach((r,y)=>{for(let x=0;x<r.length;x++){const c=r[x];if(c!=='.'&&g[oy+y]&&g[oy+y][ox+x]!==undefined)g[oy+y][ox+x]=c}})}
-const paint=(ctx,g)=>{ctx.clearRect(0,0,32,48);for(let y=0;y<48;y++)for(let x=0;x<32;x++){const c=g[y][x];if(c!=='.'){ctx.fillStyle=MB[c];ctx.fillRect(x,y,1,1)}}};
 
-/* the old dead-Mac icon, still red: a little computer with a crossed-out face */
-function drawMac(ctx){
-  const W=32,H=48,g=grid(W,H),X0=6,Y0=16,BW=20,BH=26;
-  for(let y=Y0;y<Y0+BH;y++)for(let x=X0;x<X0+BW;x++){
-    const edge=x===X0||x===X0+BW-1||y===Y0||y===Y0+BH-1,corner=(x===X0||x===X0+BW-1)&&(y===Y0||y===Y0+BH-1);if(corner)continue;
-    g[y][x]=edge?'k':(x===X0+1||y===Y0+1)?'p':(x===X0+BW-2||y===Y0+BH-2)?'R':'r'}
-  const SX=X0+3,SY=Y0+3,SW=14,SH=12;
-  for(let y=SY;y<SY+SH;y++)for(let x=SX;x<SX+SW;x++)g[y][x]=(x===SX||x===SX+SW-1||y===SY||y===SY+SH-1)?'k':'w';
-  stamp(g,["k.k",".k.","k.k"],SX+2,SY+3);stamp(g,["k.k",".k.","k.k"],SX+9,SY+3);
-  stamp(g,["..kkkk..",".k....k."],SX+3,SY+8);
-  for(let x=X0+4;x<X0+BW-4;x++)g[Y0+BH-7][x]='k';
-  for(let x=X0+13;x<X0+BW-3;x++)g[Y0+BH-4][x]='k';
-  paint(ctx,g);
-}
-/* body frames [rx,ry,oy]: the feet are two 4x2 blocks at x 9 and 19 (dx 0), top row y 31+oy+ry */
-/* cling (game/claws.js): narrow and tall against the wall; drawBuddy adds the claws on the side s.dir[0] points to */
-export const FR={idle:[11,11,0],breath:[11,10,1],squash:[13,8,3],stretch:[10,12,-2],land:[12,10,1],cling:[9,12,-1]};
-function drawBuddy(ctx,s){
-  if(s.mac){drawMac(ctx);return}
-  const W=32,H=48,g=grid(W,H);
-  const fr=s.f==='squash2'?'land':s.f;
-  const [rx,ry,oy]=FR[fr]||FR.idle;
-  const cx=16+(s.dx|0),cy=31+oy,ph=fr==='breath'?1.6:.5;
-  const fy=cy+ry;for(const fx of [cx-7,cx+3])for(let i=0;i<4;i++)for(let j=0;j<2;j++)if(g[fy+j])g[fy+j][fx+i]='k';
-  /* wobbly outline: the radius ripples with angle, and the ripple shifts each breath so the line boils */
-  const ins=(x,y)=>{const dx=(x+.5-cx)/rx,dy=(y+.5-cy)/ry,r=1+.05*Math.sin(9*Math.atan2(dy,dx)+ph);return dx*dx+dy*dy<=r*r};
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(!ins(x,y))continue;
-    if(!ins(x-1,y)||!ins(x+1,y)||!ins(x,y-1)||!ins(x,y+1)){g[y][x]='k';continue}
-    const nx=(x+.5-cx)/rx,ny=(y+.5-cy)/ry;g[y][x]=Math.hypot(nx+.42,ny+.46)<.3?'p':Math.hypot(nx+.2,ny+.24)>.98?'R':'r'}
-  /* sprout: grows once he carries the root seed. sp (A11): its lag in px; each row above his top leans k/3 of it */
-  const st=s.stage|0,len=[0,3,5,7,8][st],top=cy-ry,sp=s.sp|0,ln=y=>Math.round(sp*Math.min(1,(top-y)/3));
-  const lean=(pat,ox,oy)=>pat.forEach((r,j)=>stamp(g,[r],ox+ln(oy+j),oy+j));
-  for(let i=1;i<=len;i++)g[top-i]&&(g[top-i][cx+ln(top-i)]='n');
-  if(st>=1)lean(["kk...","kTTk.",".kTTk"],cx-5,top-3);
-  if(st>=2)lean(["...kk",".kTTk","kTTk."],cx+1,top-5);
-  /* eyes snap to 8 directions */
-  const ey=cy-3,[dx,dy]=s.dir||[0,0];
-  for(const ex of [cx-5,cx+4]){
-    if(s.blink){for(let x=ex-2;x<=ex+1;x++)g[ey+1][x]='k';continue}
-    for(let y=ey-3;y<=ey+3;y++)for(let x=ex-3;x<=ex+2;x++){const edge=y===ey-3||y===ey+3||x===ex-3||x===ex+2;const corner=(y===ey-3||y===ey+3)&&(x===ex-3||x===ex+2);if(corner)continue;g[y][x]=edge?'k':'w'}
-    if(s.face==='scared'){g[ey][ex-1]=g[ey+1][ex-1]='k'}
-    else if(s.face==='awe'){for(let y=ey-2;y<=ey+2;y++)for(let x=ex-2;x<=ex+1;x++)g[y][x]='k';g[ey-2][ex-1]='w';g[ey-1][ex-1]='w'}
-    else if(s.face==='beg'){for(let y=ey-2;y<=ey+2;y++)for(let x=ex-2;x<=ex+1;x++)g[y][x]='k';g[ey-2][ex-2]=g[ey-2][ex-1]=g[ey-1][ex-2]='w';g[ey+1][ex+1]='w';g[ey+4]&&(g[ey+4][ex+1]='T')}   /* begging: big wet shining eyes */
-    else{for(let y=0;y<2;y++)for(let x=0;x<2;x++)g[ey-1+dy+y][ex-1+dx+x]='k'}
-  }
-  g[cy+1][cx-9]=g[cy+1][cx-8]='c';g[cy+1][cx+7]=g[cy+1][cx+8]='c';
-  /* clinging: two hooked claws dug into the wall beside him (his box edge is the wall face) */
-  if(fr==='cling'){const sd=(s.dir&&s.dir[0])<0?-1:1,wx=sd>0?cx+9:cx-10;for(const y of [cy-5,cy+1]){g[y][wx]='k';g[y+1][wx]='k';g[y][wx+sd]='w';g[y-1]&&(g[y-1][wx-sd]='k')}}
-  const my=cy+3;
-  if(s.face==='scared'){for(let yy=my-1;yy<=my+3;yy++)for(let xx=cx-3;xx<=cx+2;xx++)g[yy][xx]=(yy>my-1&&yy<my+3&&xx>cx-3&&xx<cx+2)?'m':'k'}
-  else if(s.face==='huh'){g[my][cx-1]=g[my][cx]=g[my+1][cx-1]=g[my+1][cx]='k'}
-  else if(s.face==='awe'){for(let yy=my-1;yy<=my+5;yy++)for(let xx=cx-3;xx<=cx+2;xx++){const e=yy===my-1||yy===my+5||xx===cx-3||xx===cx+2,c=(yy===my-1||yy===my+5)&&(xx===cx-3||xx===cx+2);if(c)continue;g[yy][xx]=e?'k':'m'}}
-  else if(s.mouth){for(let yy=my-1;yy<=my+2;yy++)for(let xx=cx-2;xx<=cx+1;xx++)g[yy][xx]=(yy>=my&&yy<=my+1&&xx>=cx-1&&xx<=cx)?'m':'k'}
-  else if(s.happy){g[my][cx-2]='k';g[my][cx-1]='m';g[my][cx]='m';g[my][cx+1]='k';g[my+1][cx-1]='k';g[my+1][cx]='k'}
-  else if(s.face==='beg'){g[my][cx-1]=g[my][cx]='k';g[my+1][cx-2]=g[my+1][cx+1]='k'}
-  else{g[my][cx-1]=g[my][cx]='k'}
-  /* the OS's accessories (drawBuddy in os.js, same grids and offsets): skull mask, party hat, tiny crown, sunglasses */
-  if(s.mask){
-    for(let y=ey-4;y<=cy+8;y++)for(let x=cx-10;x<=cx+9;x++){if(!ins(x,y)||!ins(x-1,y)||!ins(x+1,y)||!ins(x,y-1)||!ins(x,y+1))continue;g[y][x]=x>cx+3?'b':'B'}
-    for(const ex of [cx-5,cx+4])for(let y=ey-3;y<=ey+3;y++)for(let x=ex-3;x<=ex+2;x++){const a=(x+.5-ex+.5)/3.2,b=(y-ey)/3.6;if(a*a+b*b<=1)g[y][x]='k'}
-    for(const ex of [cx-5,cx+4]){g[ey-1][ex-1]='B'}
-    g[cy+1][cx-1]=g[cy+1][cx]='k';g[cy+2][cx-1]=g[cy+2][cx]='k';g[cy+3][cx-2]=g[cy+3][cx+1]='k';
-    for(let x=cx-5;x<=cx+4;x++)g[cy+5][x]='k';for(let x=cx-5;x<=cx+4;x+=2)for(let y=cy+6;y<=cy+7;y++)if(g[y][x]==='B'||g[y][x]==='b')g[y][x]='k'}
-  /* begging: hands pressed together under the chin */
-  if(s.face==='beg')stamp(g,[".kkkkkk.","kppkkppk","kppkkppk","kpckkcpk",".kkkkkk."],cx-4,cy+5);
-  if(s.hat==='party'||s.hat==='crown'){
-    const topAt=xc=>{for(let y=0;y<H;y++)if(ins(xc,y))return y;return cy-ry};
-    if(s.hat==='party')stamp(g,["....w....","...kok...","...kHk...","..kkokk..","..kHHHk..",".kkokokk.",".kHHHHHk.","kkkkkkkkk"],cx+1,topAt(cx+5)-6);
-    else stamp(g,["k...k...k","kY.kYk.Yk","kYkkYkkYk","kYYYYYYYk","kYoYHYoYk","kkkkkkkkk"],cx-10,topAt(cx-6)-4)}
-  if(s.hat==='shades'){for(const ex of [cx-5,cx+4]){for(let y=ey-2;y<=ey+2;y++)for(let x=ex-3;x<=ex+2;x++)g[y][x]='k';g[ey-1][ex-2]='w';g[ey-2][ex-1]='w'}g[ey-1][cx-2]=g[ey-1][cx-1]=g[ey-1][cx]='k';g[ey-1][cx-9]='k';g[ey-1][cx+7]='k'}
-  paint(ctx,g);
-}
+/* the pulse (game/fx.js sy: 1 = rest, below = squashed, above = stretched) picks one authored body level */
+const LV=[[.8,'S3'],[.88,'S2'],[.95,'S1'],[1.04,'rest'],[1.1,'T1'],[1.18,'T2'],[9,'T3']];
+export const levelOf=sy=>{for(const [m,n] of LV)if(sy<m)return n;return 'T3'};
+/* the shoe centres of a feet pose in the cell (x only, facing right; render.js mirrors them), for the root strands */
+export const shoeX=(ft,flip)=>{const F=FEET[ft]||FEET.stand;return F.feet.map(f=>{const c=f[0]+f[2][0].length/2;return flip?W-c:c}).sort((a,b)=>a-b)};
 
+/* the sprout's lag in screen px. Pose frames (surf, ground, root) are authored with the leaf close to the cell's right edge: only a TRAILING lag (behind the way he faces) fits */
+const leafLag=s=>{const l=s.sp|0;if(!s.pose)return l;const u=s.flip?-l:l,t=Math.min(0,u);return s.flip?-t:t};
 const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
 const cache=new Map();
-/* a cached 32x48 canvas for a look {f,dir,blink,face,happy,mouth,mac,dx,stage,sp} */
+const KEYS=['lv','ft','arms','face','blink','happy','mouth','dir','stage','hat','mask','pose','flip','dx','air','lid','pens','sleep','gape','bv','hold','heart','q','fx','ll','forged','cling'];
+/* a cached canvas for a look (the pose frame may be taller than 64 rows: the canvas follows the grid) */
 export function sprite(s){
-  const k=s.mac?'mac':[s.f,s.dir&&s.dir.join(),s.blink|0,s.face||'',s.happy|0,s.mouth|0,s.dx|0,s.stage|0,s.hat||'',s.mask|0,s.sp|0].join('|');
+  const l=s.mac?{pose:'mac:0',air:1,dir:[0,0],stage:0}:{...s,ll:leafLag(s),sp:0,air:1},k=KEYS.map(n=>JSON.stringify(l[n])).join('|');
   let c=cache.get(k);
-  if(!c){c=mk(32,48);drawBuddy(c.getContext('2d',{willReadFrequently:true}),s);   /* glitch() reads these back */if(cache.size>300)cache.clear();cache.set(k,c)}
+  if(!c){const g=compose(l);c=mk(g[0].length,g.length);const cx=c.getContext('2d',{willReadFrequently:true});paint(cx,g);
+    if(l.forged&&l.pose&&/^surf:/.test(l.pose)){   /* the heat-forged board: its own pixels, still showing, go dark iron with an ember edge (floodart BPF) */
+      const F=ANIM_SURF.frames[+l.pose.slice(5)],B=F&&F.board,col={k:'#5a1c0c',o:'#ff8a3a',Y:'#3a2e2a',B:'#241a17'};
+      if(B)B.rows.forEach((r,j)=>{for(let i=0;i<r.length;i++){const ch=r[i];if(ch==='.'||!col[ch])continue;const x=l.flip?W-1-(B.x0+i):B.x0+i,y=B.y0+j;
+        if(g[y]&&g[y][x]===ch){cx.fillStyle=col[ch];cx.fillRect(x,y,1,1)}}})}   /* glitch() reads these back */
+    if(l.cling){   /* clinging (game/claws.js): hooked claws dug into the wall on his side, past the raised hands (the wall face is the player box edge) */
+      const d=l.cling>0?1:-1,cy=BODY.T2.cy,wx=d>0?CX+11:CX-12;
+      for(const y of [cy-5,cy+1]){for(const [x,yy,ch] of [[wx,y,'k'],[wx,y+1,'k'],[wx+d,y,'w'],[wx-d,y-1,'k']])if(g[yy]&&g[yy][x]==='.'||ch==='k'&&g[yy]&&g[yy][x]!==undefined){g[yy][x]=ch;cx.fillStyle=ch==='k'?INK:'#fff';cx.fillRect(x,yy,1,1)}}}
+    if(cache.size>400)cache.clear();cache.set(k,c)}
   return c;
 }
 
-/* RGB split, row tears and a Bayer dropout over a 32x48 sprite; returns a 40x48 canvas (draw 4px left) */
+/* RGB split, row tears and a Bayer dropout over a sprite; returns a canvas 8 px wider (draw it 4 px left) */
 let gc=null,gx=null;
 export function glitch(src,k,seed){
-  if(!gc){gc=mk(40,48);gx=gc.getContext('2d')}
-  const w=32,h=48,s=src.getContext('2d').getImageData(0,0,w,h).data,out=gx.createImageData(40,h),o=out.data;
+  const w=src.width,h=src.height,ow=w+8;
+  if(!gc||gc.width!==ow||gc.height!==h){gc=mk(ow,h);gx=gc.getContext('2d')}
+  const s=src.getContext('2d').getImageData(0,0,w,h).data,out=gx.createImageData(ow,h),o=out.data;
   let r=(seed*7919+13)%2147483647||1;const rn=()=>(r=(r*16807)%2147483647)/2147483647;
   const sh=new Array(h).fill(0);
   for(let n=0;n<3+k*6;n++){const y0=rn()*h|0,len=2+(rn()*6|0),dx=Math.round((rn()-.5)*10*k);for(let y=y0;y<Math.min(h,y0+len);y++)sh[y]=dx}
   const sp=Math.max(1,Math.round(2*k));
-  for(let y=0;y<h;y++)for(let x=0;x<40;x++){
+  for(let y=0;y<h;y++)for(let x=0;x<ow;x++){
     const sx=x-4-sh[y],at=xx=>xx>=0&&xx<w?(y*w+xx)*4:-1,iR=at(sx-sp),iG=at(sx),iB=at(sx+sp);
     const a=Math.max(iR<0?0:s[iR+3],iG<0?0:s[iG+3],iB<0?0:s[iB+3]);
     if(!a||(B4[(y&3)*4+(x&3)]+.5)/16<k*.4)continue;
-    const j=(y*40+x)*4;o[j]=iR<0?0:s[iR];o[j+1]=iG<0?0:s[iG+1];o[j+2]=iB<0?0:s[iB+2];o[j+3]=255;
+    const j=(y*ow+x)*4;o[j]=iR<0?0:s[iR];o[j+1]=iG<0?0:s[iG+1];o[j+2]=iB<0?0:s[iB+2];o[j+3]=255;
   }
   gx.putImageData(out,0,0);return gc;
 }

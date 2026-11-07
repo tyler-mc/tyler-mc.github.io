@@ -2,7 +2,7 @@
    light pass (4 brightness steps); the mascot, enemies and plate/gate marks go on top so they always read. */
 import {T,VW,VH} from './state.js';
 import {AMB,ROOMS,perchOf} from './rooms/index.js';
-import {sprite,glitch,B4,FR} from './mascot.js';
+import {sprite,glitch,B4,levelOf,shoeX,WALK_LOOKS,ANIM_ROOT,CX,SOLE} from './mascot.js';
 import {SLACK,GRACE} from './enemies.js';
 import {paintDoor,drawFragments,drawHudPieces} from './door.js';
 import {drawFragment,fragCentre,ACCENT} from './door.js';   /* M1b: pedestal, fly-in, slot pulse */
@@ -12,7 +12,7 @@ import {waterBody,waterCrest,waterFront,boardItem,boardHud,boardUnder,drawCrab,d
 import {tideBody,tideCrest,tideFront,drawEel} from './floodart.js';   /* the Flood chase: its tide and eel */
 import {CHASES} from './rooms/index.js';
 import {drawMolten,moltenLights} from './moltenart.js';   /* Molten: vents, embers, slag beetles */
-import {createFx,stepFx,clearFx,radii,sprout} from './fx.js';   /* the body pulse, dust, skid and sprout lag, kept out of S */
+import {createFx,stepFx,clearFx,sprout} from './fx.js';   /* the body pulse, dust, skid and sprout lag, kept out of S */
 import {createVfx} from './vfx/vfx.js';   /* Sprite Fusion pixel VFX (MIT, Hugo Duprez): item moments, stun, Roots and Flood ambient */
 import {MAXF,FEEL} from './player.js';
 import {isLiq} from './liquid.js';
@@ -155,6 +155,20 @@ function sealLayer(R){
 }
 
 /* ---------- renderer ---------- */
+/* the surf pose (mascot/anim_surf.js): he stands on the board. The frame follows his speed and the board's rise or fall, with short holds (outside S, like fx) */
+const sfs={t:-9,y:0,f:0,h:0,mount:-99,was:0,fast:0};
+function surfFrame(S){
+  const p=S.p;
+  if(sfs.t!==S.t){
+    if(!sfs.was)sfs.mount=S.t;
+    const dy=p.y-sfs.y;sfs.y=p.y;sfs.t=S.t;sfs.was=1;const ax=Math.abs(p.vx);
+    if(ax>2.95)sfs.fast=1;else if(ax<2.8)sfs.fast=0;
+    if(sfs.h>0)sfs.h--;
+    else if(dy<-.5){sfs.f=3;sfs.h=6}else if(dy>.5){sfs.f=4;sfs.h=6}
+    else sfs.f=ax<1.5?5+((S.t/5|0)&1):sfs.fast?1:0;
+  }
+  return S.t-sfs.mount<6?7:sfs.f;
+}
 export function createRenderer(cv,{reduce=false}={}){
   cv.width=VW;cv.height=VH;
   const ctx=cv.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=false;
@@ -192,7 +206,7 @@ export function createRenderer(cv,{reduce=false}={}){
     if(!seat&&p.ground&&live(S)&&fx.sk){s.f='land';s.dx=Math.sign(p.vx)}
     /* A13: still on a ledge with neither foot over ground, he looks down at the drop. Hit-stop, a seat, a hint and begging come
        first; never on a wrapped enemy, on the board (or during its pickup demo, board.js) or in liquid */
-    else if(!seat&&S.mode!=='intro'&&p.ground&&p.on<0&&!p.surf&&!p.bd&&!p.walk&&!p.dead&&!S.hit&&!S.hint&&Math.abs(p.vx)<.05){const e=ledge(S,p);if(e){s.dir=[e,1];if(!S.say)s.face='huh'}}
+    else if(!seat&&S.mode!=='intro'&&p.ground&&p.on<0&&!p.surf&&!p.bd&&!p.walk&&!p.dead&&!S.hit&&!S.hint&&Math.abs(p.vx)<.05){const e=ledge(S,p);if(e){s.dir=[e,1];s.edge=e;if(!S.say)s.face='huh'}}
     if(S.mode==='dark'&&S.idle>720){const tt=hubTorch();s.dir=[Math.sign(tt.x-p.x-9),Math.sign(tt.y-p.y-12)]}
     /* the stuck hint (engine stuck()): standing still, his eyes go toward what's next, then his head leans after them;
        a beat later, and every BOB frames after, a tiny bob that way */
@@ -205,13 +219,30 @@ export function createRenderer(cv,{reduce=false}={}){
     if(S.say&&S.say.n<S.say.text.length*2)s.mouth=(S.say.n>>2)&1;
     if(p.land>0&&S.mode==='intro')s.face='huh';
     if(S.say&&S.say.pose==='beg'){const n=S.say.n;s.face='beg';s.blink=0;s.dir=[0,0];s.dx=reduce?0:((n>>4)&1?1:-1);s.f=reduce?'idle':(n>>2)&1?'breath':'idle'}   /* begging: rocks and bobs for the line */
-    if(s.stage&&live(S)){const o=sprout(fx);if(o)s.sp=o}   /* A11: the sprout trails his speed (only drawn from stage 1) */
+    if(s.stage&&live(S)){const o=sprout(fx);if(o)s.sp=o}   /* A11: the sprout trails his speed (only drawn from stage 1): the atlas's leaf lag */
     if(p.cl&&!p.dead){s.f='cling';s.dir=[p.cl,-1];s.dx=0;s.face='';s.happy=0;s.sp=0}   /* clinging (game/claws.js): one fixed pose a side, nothing else shows */
     if(LOOK.hat&&LOOK.hat!=='none')s.hat=LOOK.hat;if(LOOK.mask)s.mask=1;   /* the OS Control Panel's hat and skull mask */
-    /* the pulse (A1-A4) scales a rest frame to whole-pixel radii; the face keeps its size. Each shape is an FR entry named
-       by its radii (drawBuddy reads FR[s.f]), so the sprite key holds them and the feet stay on row 42 (oy = 11 - ry) */
-    if(fx.k&&live(S)&&(s.f==='idle'||s.f==='breath')){const b=FR[s.f],r=radii(fx,b);
-      if(r.rx!==b[0]||r.ry!==b[1]){const n='p'+r.rx+'x'+r.ry;if(!FR[n])FR[n]=[r.rx,r.ry,r.oy];s.f=n}}
+    /* the body is one authored level (mascot/body.js): the frame name picks it, and the pulse (game/fx.js, A1-A4) swaps in a squash or stretch level;
+       the face keeps its size. Feet, arms and facing follow the state. */
+    s.lv={idle:'rest',breath:'breath',squash:'S3',land:'S1',stretch:'T2',cling:'T2'}[s.f]||'rest';
+    if(fx.k&&live(S)&&(s.f==='idle'||s.f==='breath')){const l=levelOf(fx.sy);if(l!=='rest')s.lv=l}
+    s.flip=p.face<0?1:0;s.ft='stand';
+    /* the root jump (mascot/anim_root.js, a taller cell): the frame follows the latest burst and the fall, then the landing */
+    const rb=S.items.root&&!p.dead&&!seat&&S.mode!=='intro'?S.roots[S.roots.length-1]:null;let rf=-1;
+    if(rb&&!p.ground){rf=rb.t<4?5:rb.t<10?6:rb.t>=18?9:p.vy<-1?3+((rb.t/5|0)&1):p.vy>1?8:7;if(reduce)rf=7}
+    else if(rb&&p.ground&&p.land>0)rf=p.land>=6?10:11;
+    if(!p.surf)sfs.was=0;
+    if(rf>=0){s.pose='root:'+rf;s.arms=ANIM_ROOT.frames[rf].arms;s.rootFrame=1}
+    else if(p.surf&&!p.dead&&!p.burn&&S.mode!=='intro'&&!seat){const f=reduce?0:surfFrame(S);s.pose='surf:'+f;s.arms=undefined;s.surf=1;if(S.items.forged&&S.items.board)s.forged=1}
+    else if(seat){s.ft='sit';s.lv=s.f==='land'?'S1':'S2'}
+    else if(p.cl&&!p.dead){const d=p.cl>0?1:-1;s.ft='together';s.cling=d;s.flip=d<0?1:0;s.dir=[d,-1];s.arms=d>0?[30,0]:[150,180]}   /* clinging: both hands up on the wall side (flip is by his facing) */
+    else if(!p.ground&&S.mode!=='intro'){s.ft=p.vy<-1?'tuck':p.vy>2?'dangle':'loose';s.arms=p.vy<-1?[150,30]:[180,0]}
+    else if(p.walk&&!reduce){const w=WALK_LOOKS[Math.floor(p.x/FEEL.STRIDE)&3];s.ft=w.ft;s.arms=w.arms;if(s.lv==='rest'||s.lv==='breath')s.lv=w.lv}
+    else if(!seat&&p.ground&&live(S)&&fx.sk){s.pose='ground:5';s.flip=p.vx<0?1:0;s.dx=0}   /* A7: leaning back into the slide, shoes forward (mascot/anim_ground.js) */
+    else if(s.edge){s.pose=(t>>6)&1?'ground:9':'ground:8';s.flip=s.edge<0?1:0;s.arms=[180,0]}   /* A13: leaning out over the ledge, a shoe hanging */
+    else if(s.lv==='S3'||s.lv==='S2')s.ft='splay';
+    else if(s.lv==='T1'||s.lv==='T2'||s.lv==='T3')s.ft='together';
+    if(s.face==='beg'){s.face='worry';s.arms=[240,300]}
     return s;
   }
   /* pulse and dust (game/fx.js): one fixed step per world step, from tick(). Not in S, so Undo and saves never hold them.
@@ -340,13 +371,13 @@ export function createRenderer(cv,{reduce=false}={}){
     else drawEel(ctx,S,R,ox,oy,t,reduce,p.dead&&S.flash==='chase'&&blinkOn);   /* Flood: the eel (asleep in its lair before the chase) */
     if(R.id==='hub')slotFx(ctx,S,ox,oy,t,reduce);
     /* root strands run from his shoes to their tips every frame */
-    const st0=look(S),sx=Math.round(p.x)-7-ox,sy=Math.round(p.y)-20-oy,fr=FR[st0.f]||FR.idle,fy=sy+31+fr[2]+fr[1];
-    const feet=[[sx+10,fy+2],[sx+20,fy+2]];
+    const st0=look(S),sx=Math.round(p.x)+9-CX-ox,sy=Math.round(p.y)+23-SOLE-oy,fy=sy+SOLE+1;   /* the cell's soles (row SOLE) land on the box's last row */
+    const feet=shoeX(st0.ft,st0.flip).map(x=>[sx+Math.round(x),fy]);
     /* dust at his feet (A5, A6), behind him: specks in the room's light rock tones, a 3 px one rounded, dithering away with age */
     if(live(S)&&fx.puffs.length){const P=PAL[R.biome]||PAL.roots;
       for(const q of fx.puffs){const x=X(q.x-q.w/2),y=Y(q.y)-q.w,a=q.t/q.life;if(bay(x,y)<a)continue;ctx.fillStyle=a<.4?P.topL:P.rockL;
         if(q.w>2){ctx.fillRect(x+1,y,1,3);ctx.fillRect(x,y+1,3,1)}else ctx.fillRect(x,y,q.w,q.w)}}
-    if(!p.dead&&!p.hide)strands(ctx,S,R,feet,ox,oy,t);
+    if(!p.dead&&!p.hide)strands(ctx,S,R,feet,ox,oy,t,st0.rootFrame);
 
     /* the mascot */
     /* reduced motion: no mac/buddy flicker, no glitch, and steady dimming in place of the death and invulnerable blinks */
@@ -356,12 +387,11 @@ export function createRenderer(cv,{reduce=false}={}){
       else if(p.dead)k=reduce?0:.6+(18-p.dead)/18*.4;
       else if(p.rez>0)k=reduce?0:p.rez/12*.9;
       if(st.mac)y+=2;
+      boardUnder(ctx,S,ox,oy,t,reduce,st.surf);   /* under him: he stands on it (the surf frames carry their own board) */
       if(reduce)ctx.globalAlpha=p.dead?.35:p.inv>0?.6:1;
       if(k){c=glitch(sprite(st),k,t);x-=4}
       else c=sprite(st);
       ctx.drawImage(c,x,y);
-      if(!k&&!st.mac)shoes(ctx,S,feet,fy,p.face);
-      boardUnder(ctx,S,ox,oy,t,reduce);
       if(!p.surf){waterFront(ctx,S,R,ox,oy,p);tideFront(ctx,S,ox,oy,p)}   /* swimming: the water in front of him */
       ctx.globalAlpha=1;
       if(S.mode==='dark'&&!p.dead&&S.match>0){
@@ -478,7 +508,7 @@ const back=b=>Math.max(b.t>18?(b.t-18)/10:0,(b.g||0)/5);
    meets ground, or an enemy the burst hit, holds there while he rises, so the strand stretches from his foot; a loose
    tip hangs from the foot and trails behind as he flies up. */
 const FAN=[[-1,.4],[-.6,1],[.6,1],[1,.4]];
-function strands(ctx,S,R,feet,ox,oy,t){
+function strands(ctx,S,R,feet,ox,oy,t,framed){
   const p=S.p,all=[];
   for(const b of S.roots){
     const r=back(b);if(r>=1)continue;
@@ -493,6 +523,7 @@ function strands(ctx,S,R,feet,ox,oy,t){
       const hold=r>0?null:e?[cl(fx+ox,e.x+2,e.x+e.w-2),cl(fy+oy,e.y+1,e.y+e.h-1)]:q.g;
       const tx=hold?hold[0]-ox:fx+q.wx-b.x,ty=hold?hold[1]-oy:fy+q.wy-b.y+4+Math.max(0,-p.vy)*1.2+Math.max(0,b.t-10)*.4;
       /* drawing back: the whole strand shrinks into the sole, so the tip keeps its curl */
+      if(framed&&!hold)continue;   /* the root frame already draws the loose roots */
       const v=1-r,sx0=fx+1,sy0=fy-1;all.push(curve(sx0,sy0,sx0+(tx-sx0)*v,sy0+(ty-sy0)*v,q.k,t,!!hold))}
   }
   /* thin earthy roots, secondary to the shoes: a 1px shadow, brown from the sole, greening to the tip */
@@ -513,14 +544,6 @@ function curve(x0,y0,x1,y1,k,t,hold){
   const out=[],N=pts.length-1;let lx,ly;
   for(let i=0;i<=N;i++){const x=Math.round(pts[i][0]),y=Math.round(pts[i][1]);if(x===lx&&y===ly)continue;lx=x;ly=y;out.push([x,y,i<N*.15?2:1,i/N])}
   return out;
-}
-/* root shoes: brown leather, on for good once he has the seed (from the saved item, so they survive rooms and reloads);
-   the toe points the way he faces. The roots shoot out of their soles. */
-const SHOE=['.kkkk...','khhBBkk.','kBBBBBBk','kdddddBk','kSSSSSSk'];
-const SHOE_P={k:INK,h:'#cf9a62',B:'#965f34',d:'#6e4324',S:'#2b1b10'};
-function shoes(ctx,S,feet,fy,face){
-  if(!S.items.root)return;
-  for(const [x] of feet)blit(ctx,SHOE,x-(face<0?4:2),fy-3,SHOE_P,face<0);
 }
 
 /* ---------- the thorn wall (game/chases.js) ----------
