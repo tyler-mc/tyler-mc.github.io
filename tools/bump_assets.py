@@ -11,7 +11,7 @@ import os
 import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ASSETS = ['styles.css', 'script.js', 'page.js', 'os.css', 'os.js', 'os-data.js', 'rw.css', 'plain.css', 'os-page.css', 'analytics.js']
+ASSETS = ['styles.css', 'script.js', 'page.js', 'os.css', 'os.js', 'os-data.js', 'rw.css', 'plain.css', 'os-page.css', 'analytics.js', 'mascot/atlas.classic.js']
 
 hashes = {}
 for name in ASSETS:

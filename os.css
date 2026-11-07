@@ -711,7 +711,7 @@ html.v80 .cp2 *{line-height:16px!important}
   .item{min-height:44px}
   .rb,.disc{min-height:44px}
   #buddy{right:8px;bottom:8px;width:64px;height:96px}
-  #bcv{width:68px;height:88px}
+  #bcv{width:64px;height:96px}   /* 32x48 at exactly 2x (was 68x88: uneven pixels, squashed) */
   .bx{width:44px;height:44px;right:-12px;top:-8px;visibility:visible;display:grid;place-items:center}
   .bx::after{inset:0}
   .btn{min-height:44px;padding-top:11px}
