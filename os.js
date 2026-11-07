@@ -1540,6 +1540,7 @@ function carryLoop(t){
 }
 /* standing: on a window's top edge, on the status bar at a window's foot, on the bottom bar, or on the floor */
 let perch=null,fallStart=0;
+const BUDDY_TOP=4999;   /* standing on a window, he draws over every window (they stack up from 20); matches #buddy.falling in os.css, just under the strip */
 const FEET=()=>buddy.offsetHeight*SOLE/CELL_H;
 function ledges(cx,feetY){
   const dr=desk.getBoundingClientRect(),out=[];
@@ -1554,8 +1555,8 @@ function ledgeNow(p){
   const dr=desk.getBoundingClientRect();
   if(p.host==='strip'){const sr=$('#strip').getBoundingClientRect();return {y:sr.top-dr.top,x0:sr.left-dr.left,w:sr.width,z:''}}
   const w=WIN[p.host];if(!w||!w.open||w.min)return null;const el=w.el,r=el.getBoundingClientRect();
-  if(p.kind==='foot'){if(el.classList.contains('shaded'))return null;const f=$('.wfoot',el);return {y:(f?f.getBoundingClientRect().top:r.bottom-10)-dr.top,x0:r.left-dr.left,w:r.width,z:(+el.style.zIndex||20)+1}}
-  return {y:r.top-dr.top,x0:r.left-dr.left,w:r.width,z:(+el.style.zIndex||20)+1};
+  if(p.kind==='foot'){if(el.classList.contains('shaded'))return null;const f=$('.wfoot',el);return {y:(f?f.getBoundingClientRect().top:r.bottom-10)-dr.top,x0:r.left-dr.left,w:r.width,z:BUDDY_TOP}}
+  return {y:r.top-dr.top,x0:r.left-dr.left,w:r.width,z:BUDDY_TOP};
 }
 /* stays attached while its support moves; falls if the support goes away */
 function perchTick(){
