@@ -235,7 +235,7 @@ export function createRenderer(cv,{reduce=false}={}){
     if(rf>=0){s.pose='root:'+rf;s.arms=ANIM_ROOT.frames[rf].arms;s.rootFrame=1}
     else if(p.surf&&!p.dead&&!p.burn&&S.mode!=='intro'&&!seat){const f=reduce?0:surfFrame(S);s.pose='surf:'+f;s.arms=undefined;s.surf=1;if(S.items.forged&&S.items.board)s.forged=1}
     else if(seat){s.ft='sit';s.lv=s.f==='land'?'S1':'S2'}
-    else if(p.cl&&!p.dead){const d=p.cl>0?1:-1;s.ft='together';s.cling=d;s.flip=d<0?1:0;s.dir=[d,-1];s.arms=d>0?[30,0]:[150,180]}   /* clinging: both hands up on the wall side (flip is by his facing) */
+    else if(p.cl&&!p.dead){const d=p.cl>0?1:-1;s.ft='together';s.cling=d;s.flip=d<0?1:0;s.dir=[d,-1];s.arms=d>0?[30,0]:[150,180];s.dx=-4*d}   /* the hands reach 4 px further than the old nubs: he grips at arm's length, body 4 px off the wall (game/mascot.js puts the claws past them) */   /* clinging: both hands up on the wall side (flip is by his facing) */
     else if(!p.ground&&S.mode!=='intro'){s.ft=p.vy<-1?'tuck':p.vy>2?'dangle':'loose';s.arms=p.vy<-1?[150,30]:[180,0]}
     else if(p.walk&&!reduce){const w=WALK_LOOKS[Math.floor(p.x*p.face/FEEL.STRIDE)&7];s.ft=w.ft;s.arms=w.arms;s.turn=w.turn;s.lean=w.lean;if(s.lv==='rest'||s.lv==='breath')s.lv=w.lv}
     else if(!seat&&p.ground&&live(S)&&fx.sk){s.pose='ground:5';s.flip=p.vx<0?1:0;s.dx=0}   /* A7: leaning back into the slide, shoes forward (mascot/anim_ground.js) */

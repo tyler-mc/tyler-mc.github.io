@@ -31,7 +31,7 @@ export function sprite(s){
       if(B)B.rows.forEach((r,j)=>{for(let i=0;i<r.length;i++){const ch=r[i];if(ch==='.'||!col[ch])continue;const x=l.flip?W-1-(B.x0+i):B.x0+i,y=B.y0+j;
         if(g[y]&&g[y][x]===ch){cx.fillStyle=col[ch];cx.fillRect(x,y,1,1)}}})}   /* glitch() reads these back */
     if(l.cling){   /* clinging (game/claws.js): hooked claws dug into the wall on his side, past the raised hands (the wall face is the player box edge) */
-      const d=l.cling>0?1:-1,cy=BODY.T2.cy,wx=d>0?CX+11:CX-12;
+      const d=l.cling>0?1:-1,cy=BODY.T2.cy,wx=d>0?CX+12:CX-13;   /* past the hands: render.js holds the clinging body 4 px off the wall (look.dx), so the big hands end at the wall face */
       for(const y of [cy-5,cy+1]){for(const [x,yy,ch] of [[wx,y,'k'],[wx,y+1,'k'],[wx+d,y,'w'],[wx-d,y-1,'k']])if(g[yy]&&g[yy][x]==='.'||ch==='k'&&g[yy]&&g[yy][x]!==undefined){g[yy][x]=ch;cx.fillStyle=ch==='k'?INK:'#fff';cx.fillRect(x,yy,1,1)}}}
     if(cache.size>400)cache.clear();cache.set(k,c)}
   return c;
