@@ -11,14 +11,16 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'mascot', 'atlas.js')
-PARTS = [os.path.join(ROOT, 'mascot', 'feet.js'), os.path.join(ROOT, 'mascot', 'body.js'), SRC]   # atlas.js imports the other two, so they come first
+import glob
+DATA = ['lean', 'feet', 'hands', 'faces', 'body']
+PARTS = [os.path.join(ROOT, 'mascot', n + '.js') for n in DATA] + sorted(glob.glob(os.path.join(ROOT, 'mascot', 'anim_*.js'))) + [SRC]   # atlas.js imports all the data files, so they come first
 OUT = os.path.join(ROOT, 'mascot', 'atlas.classic.js')
 
 def build():
     src = ''
     for part in PARTS:
         with open(part, encoding='utf-8') as f:
-            src += re.sub(r"^import .* from '\./(?:body|feet)\.js';\n", '', f.read(), flags=re.M).rstrip('\n') + '\n'
+            src += re.sub(r"^import .* from '\./[\w]+\.js';\n", '', f.read(), flags=re.M).rstrip('\n') + '\n'
     return src
 
 src = build()

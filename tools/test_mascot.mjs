@@ -11,9 +11,15 @@ import fs from 'node:fs';import path from 'node:path';import vm from 'node:vm';i
 import assert from 'node:assert/strict';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {looks,mockCtx} from './mascot_looks.mjs';
-import {lintBody,lintFeet} from './lint_mascot_body.mjs';
+import {lintBody,lintFeet,lintLean} from './lint_mascot_body.mjs';
+import {LEAN} from '../mascot/lean.js';
 import {FEET} from '../mascot/feet.js';
 import {BODY} from '../mascot/body.js';
+import {ANIM_TRASH} from '../mascot/anim_trash.js';
+import {ANIM_WALK} from '../mascot/anim_walk.js';
+import {HANDS} from '../mascot/hands.js';
+import {FACES,LIDS} from '../mascot/faces.js';
+import {ANIM_FX} from '../mascot/anim_fx.js';
 
 const ROOT=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const A=await import(pathToFileURL(path.join(ROOT,'mascot','atlas.js')).href);
@@ -29,7 +35,7 @@ const classic=(()=>{
 })();
 
 /* the awe face was redrawn on purpose (wide pupil in a white eye instead of a solid black eye), so its looks are no longer in the lossless check */
-const SAME=i=>LOOKS[i].face!=='awe';
+const SAME=i=>LOOKS[i].face!=='awe';   /* pens looks go through the legacy drawing here (look.old), so they stay in the check */
 test('atlas.js draws every recorded look exactly as the original os.js did (except the redrawn awe face)',()=>{
   const bad=[];LOOKS.forEach((s,i)=>{if(!SAME(i))return;const c=mockCtx();A.drawBuddy(c,{...s,old:1});if(dg(c)!==golden.digests[i])bad.push(i)});
   assert.equal(bad.length,0,bad.length+' looks differ, first: '+JSON.stringify(LOOKS[bad[0]]));
@@ -82,6 +88,77 @@ test('the awe mouth never draws outside an authored body',()=>{
 test('authored feet poses pass the feet lint (an empty placeholder table is allowed until they are drawn)',()=>{
   if(!Object.keys(FEET).length)return;
   const e=lintFeet(FEET);assert.equal(e.length,0,e.join('\n'));
+});
+
+test('authored lean frames pass the lean lint (an empty placeholder table is allowed until they are drawn)',()=>{
+  if(!Object.keys(LEAN).length)return;
+  const e=lintLean(LEAN);assert.equal(e.length,0,e.slice(0,12).join('\n'));
+});
+
+test('on lean frames the open mouth and the hats stay on the body',()=>{
+  for(const n of [1,2,3,-1,-2,-3]){
+    const a=A.compose({lean:n,dir:[0,0],stage:0,air:1});
+    for(const gp of [1,2,3,4,5,6]){const b=A.compose({lean:n,dir:[0,0],stage:0,air:1,gape:gp});
+      for(let y=0;y<48;y++)for(let x=0;x<32;x++)if(a[y][x]==='.'&&b[y][x]!=='.')assert.fail(`gape ${gp} on lean ${n} draws outside the body at ${x},${y}`)}
+    for(const hat of ['party','crown']){const h=A.compose({lean:n,dir:[0,0],stage:0,air:1,hat}),bare=a;
+      /* every hat pixel's column must have body at or below the hat's lowest row in that column (nothing floats beside the head) */
+      for(let x=0;x<32;x++){let low=-1;for(let y=0;y<48;y++)if(h[y][x]!=='.'&&bare[y][x]==='.')low=y;if(low<0)continue;
+        let bodyBelow=false;for(let y=low+1;y<48&&y<=low+2;y++)if(bare[y][x]!=='.')bodyBelow=true;
+        assert.ok(bodyBelow,`${hat} on lean ${n} floats at column ${x}`)}}
+  }
+});
+
+/* the plumbing hooks the per-animation data files plug into, proven with throwaway data that is removed again afterwards */
+test("compose hooks: pose frames (plain and baked, mirrored), hands, faces, lids, fx",()=>{
+  const keep={frames:ANIM_TRASH.frames.slice(),hands:{...HANDS},faces:{...FACES},lids:LIDS.slice(),fx:{...ANIM_FX}};
+  try{
+    const blob=['..kkkk..','.krrrrk.','krrrrrrk','krrrrrrk','.krrrrk.','..kkkk..'];
+    ANIM_TRASH.frames.length=0;   /* throwaway frames replace the real ones until the finally block puts them back */
+    ANIM_TRASH.frames.push({x0:4,y0:10,v:[blob],fcx:8,cy:13,feet:[[5,16,['kkk']]]},{x0:6,y0:20,v:[blob],baked:true,feet:[[7,26,['kk']]],over:{x0:8,y0:22,rows:['wk','kw']}});
+    const a=A.compose({pose:'trash:0',dir:[0,0],stage:0,air:1}),m=A.compose({pose:'trash:0',flip:1,dir:[0,0],stage:0,air:1});
+    assert.equal(a[10][6],'k');assert.equal(a[16][5],'k','the frame feet are drawn');assert.equal(a[13-3].includes('w'),true,'a plain pose frame still gets the composed face');
+    assert.equal(m[10][31-6],'k','flip mirrors the rows (x -> 31-x)');
+    const b=A.compose({pose:'trash:1',face:'scared',hat:'crown',dir:[0,0],stage:3,air:1});
+    assert.equal(b[20][8],'k');assert.equal(b[26][7],'k');assert.equal(b[22][8],'w','the overlay is drawn on top of a baked frame');assert.equal(b[22][9],'k');
+    assert.equal(b.flat().filter(c=>c!=='.').length,blob.join('').replace(/\./g,'').length+2,'a baked frame adds nothing but its feet (the overlay sits on body pixels): no face, hat or sprout');
+    const mb=A.compose({pose:'trash:1',flip:1,dir:[0,0],stage:0,air:1});assert.equal(mb[22][22],'k','the overlay flips with the frame (x0 32-8-2, rows reversed)');assert.equal(mb[22][23],'w');
+    HANDS.test={dy:0,ox:0,rows:['kk','kr']};
+    HANDS.tall={dy:-3,ay:3,ox:0,rows:['kk','kk','kk','kr']};
+    const ha=A.compose({lv:'rest',hands:['tall',0],dir:[0,0],stage:0,air:1}),hb=A.compose({lv:'rest',hands:['test',0],dir:[0,0],stage:0,air:1});
+    assert.ok(ha.flat().join('')!==hb.flat().join(''),'a hand with an attach row (ay) is placed by that row edge');
+    const h=A.compose({lv:'rest',hands:['test',0],dir:[0,0],stage:0,air:1}),h0=A.compose({lv:'rest',dir:[0,0],stage:0,air:1});
+    assert.ok(h.flat().join('')!==h0.flat().join(''),'a hand changes the sprite');
+    FACES.test={eye:['.kkkk.','kwwwwk','kwkkwk','kwkkwk','kwwwwk','kwwwwk','.kkkk.'],mouth:{rows:['kkkk'],ox:-2,oy:0}};
+    const f=A.compose({lv:'rest',face:'test',dir:[0,0],stage:0,air:1});assert.equal(f[27][10],'k','an authored eye box is drawn (pupil of the left eye)');assert.equal(f[27][9],'w');assert.equal(f[34][14],'k','an authored mouth is drawn');
+    LIDS.push(['kkkk','kkkk','....','....','....']);
+    const l=A.compose({lv:'rest',lid:1,dir:[0,0],stage:0,air:1});assert.ok(l.flat().join('')!==h0.flat().join(''),'an eyelid changes the eyes');
+    ANIM_FX.dust=[['kk','kk']];const fx=A.compose({lv:'rest',fx:[['dust',0,1,1]],dir:[0,0],stage:0,air:1});assert.equal(fx[1][1],'k');assert.equal(fx[2][2],'k');
+  }finally{
+    ANIM_TRASH.frames.length=0;ANIM_TRASH.frames.push(...keep.frames);for(const k of Object.keys(HANDS))delete HANDS[k];Object.assign(HANDS,keep.hands);
+    for(const k of Object.keys(FACES))delete FACES[k];Object.assign(FACES,keep.faces);LIDS.length=0;LIDS.push(...keep.lids);for(const k of Object.keys(ANIM_FX))delete ANIM_FX[k];Object.assign(ANIM_FX,keep.fx);
+  }
+});
+
+/* every tools/lint_anim_<name>.mjs exports lint() -> list of problems for its own mascot/anim_<name>.js (or hands.js, faces.js): all of them run here */
+for(const f of fs.readdirSync(path.join(ROOT,'tools')).filter(n=>/^lint_anim_.*\.mjs$/.test(n)).sort()){
+  const M=await import(pathToFileURL(path.join(ROOT,'tools',f)).href);
+  test(`${f}: the authored data passes its lint`,()=>{const e=M.lint();assert.equal(e.length,0,e.slice(0,12).join('\n')+(e.length>12?'\n... '+(e.length-12)+' more':''))});
+}
+
+test('the pensive look (look.pens) is the nervous worry face, never the old smirk',()=>{
+  for(const k of Object.keys(BODY))for(let v=0;v<BODY[k].v.length;v++){
+    const p=A.compose({lv:k,bv:v,pens:1,dir:[0,0],stage:0,air:1}),w=A.compose({lv:k,bv:v,face:'worry',dir:[0,0],stage:0,air:1});
+    assert.deepEqual(p,w,`pens on ${k} v${v} is not the worry face`)}
+  const legacy=A.compose({f:'idle',pens:1,old:1,dir:[0,0],stage:0,air:1}),worry=A.compose({f:'idle',face:'worry',old:1,dir:[0,0],stage:0,air:1});
+  assert.notDeepEqual(legacy,worry,'the legacy path keeps its old pens drawing');
+});
+
+test('a pose frame with hideCheek draws one cheek pair only, and the flip hides the other side',()=>{
+  const WK=ANIM_WALK.frames.findIndex(f=>f.hideCheek);if(WK<0)return;
+  const f=ANIM_WALK.frames[WK],cheeks=(g,cy)=>g[cy+1].reduce((n,c)=>n+(c==='c'?1:0),0);
+  const a=A.compose({pose:'walk:'+WK,dir:[0,0],stage:0,air:1}),m=A.compose({pose:'walk:'+WK,flip:1,dir:[0,0],stage:0,air:1}),n=A.compose({pose:'walk:0',dir:[0,0],stage:0,air:1});
+  assert.equal(cheeks(a,f.cy),2,'one cheek pair on the hide-cheek frame');assert.equal(cheeks(m,f.cy),2,'one cheek pair when flipped');assert.equal(cheeks(n,ANIM_WALK.frames[0].cy),4,'both cheek pairs on a normal frame');
+  const lx=g=>g[f.cy+1].findIndex(c=>c==='c'),mx=lx(m),ax=lx(a);assert.ok((ax<16)!==(mx<16),'the flip hides the opposite side');
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

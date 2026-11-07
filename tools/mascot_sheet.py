@@ -3,7 +3,7 @@
 import json, os, subprocess, sys
 from PIL import Image, ImageDraw
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MB = {'B':'#F1E9D2','b':'#C9BFA5','Y':'#F6B92B','k':'#1A1716','r':'#FF3333','p':'#FF9A9A','R':'#B01E23','w':'#ffffff','m':'#7A0A12','n':'#0B5A55','T':'#3FC2B5','o':'#FFD94A','h':'#00393B','c':'#FF7A7A','H':'#FF2E88'}
+MB = {'B':'#F1E9D2','b':'#C9BFA5','Y':'#F6B92B','k':'#1A1716','r':'#FF3333','p':'#FF9A9A','R':'#B01E23','w':'#ffffff','m':'#7A0A12','n':'#0B5A55','T':'#3FC2B5','o':'#FFD94A','h':'#00393B','c':'#FF7A7A','H':'#FF2E88','u':'#CF9A62','U':'#965F34','v':'#6E4324','V':'#2B1B10','a':'#7A5030','A':'#A2744A','g':'#7D8A38','G':'#9FD45A','e':'#22160D'}
 out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'mascot_sheet.png')
 S = int(sys.argv[2]) if len(sys.argv) > 2 else 6
 rows = json.loads(subprocess.check_output(['node', os.path.join(ROOT, 'tools', 'mascot_sheet.mjs')]))
