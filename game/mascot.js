@@ -20,7 +20,7 @@ export const shoeX=(ft,flip)=>{const F=FEET[ft]||FEET.stand;return F.feet.map(f=
 const leafLag=s=>{const l=s.sp|0;if(!s.pose)return l;const u=s.flip?-l:l,t=Math.min(0,u);return s.flip?-t:t};
 const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
 const cache=new Map();
-const KEYS=['lv','ft','arms','face','blink','happy','mouth','dir','stage','hat','mask','pose','flip','dx','air','lid','pens','sleep','gape','bv','hold','heart','q','fx','ll','forged','cling','turn','lean'];
+const KEYS=['lv','ft','arms','face','blink','happy','mouth','dir','stage','hat','mask','pose','flip','dx','air','lid','pens','sleep','gape','bv','hold','heart','q','fx','ll','forged','cling','turn','lean','xl','xs'];
 /* a cached canvas for a look (the pose frame may be taller than 64 rows: the canvas follows the grid) */
 export function sprite(s){
   const l=s.mac?{pose:'mac:0',air:1,dir:[0,0],stage:0}:{...s,ll:leafLag(s),sp:0,air:1},k=KEYS.map(n=>JSON.stringify(l[n])).join('|');

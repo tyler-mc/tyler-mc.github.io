@@ -1,0 +1,26 @@
+/* Delete Core (K10): the top of the tower, closed above. The Crystals fragment stands on its pedestal in the open, between the hole he came up through and the drop hatch; lifting it starts the delete: the room's top dissolves and the front moves down the tower, and the hatch a few steps west is the first fall. The hatch sits in a glass basin whose walls stand five tiles high: a root jump or a claw climb gets him over. A torch beside the pedestal, touched as he walks up to it, is the chase's first checkpoint. */
+export default {
+  id:'k10',name:'Delete Core',biome:'crystals',at:[0,-202],
+  grid:[
+    '########################################',
+    '#....##......#..........##.......#.....#',
+    '#....##......#..........##.......#.....#',
+    '#....##......#..........##.............#',
+    '#............#..........##.............#',
+    '#............#.........................#',
+    '#......................................#',
+    '#......................................#',
+    '#......................................#',
+    '#......................................#',
+    '#......................................#',
+    '#......................................#',
+    '#...............#.....#................#',
+    '#...............#.....#................#',
+    '#...............#.....#................#',
+    '#...............#.....#................#',
+    '#...............#.....#.FT.............#',
+    '##################QQQ######..........T.#',
+    '##################...##########.....####',
+  ],
+  ents:[],
+};

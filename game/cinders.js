@@ -53,7 +53,7 @@ export function spawnCinder(R,s){
 }
 function emberAt(e){e.x=e.hx+e.dr*Math.sin(e.ph);e.y=e.hy+e.amp*Math.sin(e.ph*2)}
 /* closed: 14 px along its face, 8 px deep, flush on it. Open on a wall: a ledge 14 px out from the wall, 6 px tall */
-function beetleBox(e){
+export function beetleBox(e){
   const cx=e.hx*T+T/2+e.ax*e.u+e.gx*2,cy=e.hy*T+T/2+e.ay*e.u+e.gy*2;
   if(e.st===1&&e.gx){e.w=14;e.h=6;e.x=e.gx>0?(e.hx+1)*T-14:e.hx*T;e.y=Math.round(cy)-3;return}
   e.w=e.ax?14:8;e.h=e.ax?8:14;e.x=cx-e.w/2;e.y=cy-e.h/2;
@@ -86,11 +86,11 @@ export function cinderTouch(S,R,ev){
   S.ens.forEach((e,i)=>{
     if(!e.mol)return;
     if(e.k==='ember'){if(e.st===0&&vinesOver(S,e)){e.st=1;e.t=EMBER.relight;ev.push('ember_out');return}
-      if(e.st===0&&hit<0&&!p.inv&&ov(hb,{x:e.x+1,y:e.y+1,w:e.w-2,h:e.h-2}))hit=i;return}
+      if(e.st===0&&hit<0&&!p.inv&&!e.lf&&ov(hb,{x:e.x+1,y:e.y+1,w:e.w-2,h:e.h-2}))hit=i;return}
     if(e.k==='beetle'){
       if(!e.wrap&&S.drillNow&&weak(e).some(([x,y])=>drilledNow(S,x,y))){e.st=1;e.wrap=BEETLE.shell;e.grace=0;beetleBox(e);e.pass=ov(e,p)?1:0;
         S.hit=Math.round(FEEL.HIT);S.cam.sh=3;ev.push('beetle_open');return}
-      if(!e.wrap&&!e.grace&&hit<0&&!p.inv&&ov(hb,{x:e.x+1,y:e.y+1,w:e.w-2,h:e.h-2}))hit=i;return}
+      if(!e.wrap&&!e.grace&&hit<0&&!p.inv&&!e.lf&&ov(hb,{x:e.x+1,y:e.y+1,w:e.w-2,h:e.h-2}))hit=i;return}
     if(e.k==='vent'){const b=ventBox(e);if(b&&hit<0&&!p.inv&&ov(hb,b))hit=i}
   });
   return hit;

@@ -90,11 +90,11 @@ export function floodTouch(S,R,inp,ev){
         if(land&&!S.items.board&&Math.hypot(p.x+9-e.x-e.w/2,p.y+12-e.y-e.h/2)<CRAB.tease){e.tz=2;e.wrap=CRAB.shell;e.vx=0;e.vy=0;e.cd=0;e.pass=ov(e,p)?1:0;ev.push('shell');return}}
       if(e.wrap>0||e.grace)return;
       if(ram&&ov(ram,e)){e.wrap=CRAB.shell;e.vx=(dash?p.dd:Math.sign(p.vx))*1.2;e.vy=0;e.cd=0;e.pass=ov(e,p)?1:0;S.hit=Math.round(FEEL.HIT);S.cam.sh=3;ev.push('shell');return}
-      if(!e.cd&&ov(hb,e)){const a=away(e);p.vx=a*2.6;p.vy=Math.min(p.vy,-2);p.ground=0;p.coy=0;p.mo=0;e.cd=40;e.dir=-a;ev.push('pinch')}
+      if(!e.cd&&!e.lf&&ov(hb,e)){const a=away(e);p.vx=a*2.6;p.vy=Math.min(p.vy,-2);p.ground=0;p.coy=0;p.mo=0;e.cd=40;e.dir=-a;ev.push('pinch')}
       return;
     }
-    if(e.m===3){if(!p.inv&&ov(hb,{x:e.x-3,y:e.y-3,w:e.w+6,h:e.h+6}))hit=i;return}
-    if(e.m!==0||e.cd)return;
+    if(e.m===3){if(!p.inv&&!e.lf&&ov(hb,{x:e.x-3,y:e.y-3,w:e.w+6,h:e.h+6}))hit=i;return}
+    if(e.m!==0||e.cd||e.lf||e.fz)return;   /* a fed or held fish knocks nobody and counts nothing */
     if(ram&&ov(ram,e)){e.pv=(dash?p.dd:Math.sign(p.vx))*3;e.cd=30;ev.push('ram');return}
     if(ov(hb,e)){const a=away(e);p.vx=a*2.4;p.vy=Math.min(p.vy,-1.6);p.ground=0;p.mo=0;e.pv=-a*1.5;e.cd=45;e.n++;S.cam.sh=Math.max(S.cam.sh,1.5);
       if(e.n>=FISH.knocks){e.m=1;e.t=FISH.tell;e.pv=0;ev.push('turn')}else ev.push('knock')}

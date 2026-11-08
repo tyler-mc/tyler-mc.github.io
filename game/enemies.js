@@ -2,10 +2,13 @@
    Wrapped (rooted) enemies are solid, harmless, and a wrapped puff loses buoyancy and falls. */
 import {T} from './state.js';
 import {move,solid,tile,ov} from './engine.js';
+import {feedMove} from './feed.js';   /* a plant on the ground: the Roots enemies go for it (game/feed.js) */
 import {spawnFlood,stepFlood} from './fish.js';   /* Flood: the hermit crab and the clownfish */
 import {spawnCinder,stepCinder,spawnVent} from './cinders.js';   /* Molten: ember sprite, slag beetle, geyser vents (after the others, so their indices hold) */
+import {spawnCrystal,stepCrystal} from './crystals.js';   /* Crystals: moving platforms and prism drifters (after the vents, so older indices hold) */
 
 export const WRAP=240,SLACK=60,GRACE=30;
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 
 /* thorns are ground to a Mossback: it walks over them and they never hurt it */
 const hard=c=>c===null||c==='#'||c==='='||c==='G'||c==='^'||c==='X';
@@ -22,7 +25,7 @@ function moss(R,s){
 }
 const puff=s=>({k:'puff',x:s.tx*T,y:s.ty*T,w:12,h:12,hx:s.tx*T,hy:s.ty*T,amp:s.amp??12,ph:0,sp:s.sp||.035,
   vy:0,ret:0,wrap:0,grace:0,pass:0,dx:0,dy:0});
-export const spawnEnemies=R=>[...R.spawns.map(s=>s.k==='M'?moss(R,s):s.k==='O'?puff(s):s.k==='E'||s.k==='K'?spawnCinder(R,s):spawnFlood(R,s)),...(R.vents||[]).map(v=>spawnVent(R,v))];
+export const spawnEnemies=R=>[...R.spawns.map(s=>s.k==='M'?moss(R,s):s.k==='O'?puff(s):s.k==='E'||s.k==='K'?spawnCinder(R,s):spawnFlood(R,s)),...(R.vents||[]).map(v=>spawnVent(R,v)),...(R.crys||[]).map(c=>spawnCrystal(R,c))];
 
 /* the crawler's box hugs the surface on its g side. An outer corner is a straight run, a quarter turn of
    radius 4 round the block's corner, and a straight run (og/om: the g and m the move started with). */
@@ -62,15 +65,18 @@ function crawl(S,R,e){
 export function stepEnemies(S,R,ev){
   for(const e of S.ens){
     const ox=e.x,oy=e.y;
-    if(e.mol)stepCinder(S,R,e,ev);
+    if(!(e.wrap>0)&&!(e.grace>0)&&feedMove(S,R,e,ev)){}   /* alerted by a plant, or going for one, flying home from one, or held by a seed (game/feed.js) */
+    else if(e.mol)stepCinder(S,R,e,ev);
+    else if(e.cr)stepCrystal(S,R,e,ev);   /* Crystals (game/crystals.js): its own wrap, grace and drift */
     else if(e.soft)stepFlood(S,R,e,ev);
     else if(e.wrap>0){
       if(--e.wrap===0){e.grace=GRACE;e.ret=1;ev.push('unwrap')}
       else if(e.k==='puff'){e.vy=Math.min(3,e.vy+.2);if(move(S,R,e,0,e.vy,[]).hy)e.vy=0;if(ov(e,S.p))e.pass=1}   /* sinks through him, never lifts him */
     }else if(e.grace>0)e.grace--;
-    else if(e.k==='moss')crawl(S,R,e);
+    else if(e.k==='moss'){crawl(S,R,e);if(e.fd&&e.fd.st==='go')crawl(S,R,e)}   /* going for a plant: twice as fast */
     else{
       const ty=e.hy+Math.sin(e.ph)*e.amp,d=ty-e.y;
+      if(e.x!==e.hx)move(S,R,e,clamp(e.hx-e.x,-.9,.9),0,[]);   /* a puff that was wrapped away from its post drifts back */
       if(e.ret){if(Math.abs(d)<=.8){e.y=ty;e.ret=0}else e.y+=Math.sign(d)*.8}
       else{e.ph+=e.sp;e.y=e.hy+Math.sin(e.ph)*e.amp}
     }

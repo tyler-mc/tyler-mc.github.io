@@ -11,13 +11,20 @@ import {sprite} from './mascot.js';
 import {BIOMES,NAMES,RE,serialize,headerComment,check,problems} from './dev/roomfmt.js';
 
 const DEV=/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)||/[?&]qa\b/.test(location.search);
-const TILES='#=.~^LX',ENTS='STMOPGIFBHVEK',HIST=200,AUTOSAVE=1200;
+const TILES='#=.~^LXQ',ENTS='STMOPGIFBHVEKWYRDZ',HIST=200,AUTOSAVE=1200;
 const TOOLS=[['brush','Brush','B'],['rect','Rect','R'],['fill','Fill','F'],['erase','Erase','E'],['pick','Pick','I'],['select','Select','V'],['move','Move room','M']];
 const FIELDS={'~':[['flow',-150,'current, px per frame x 100 (negative = west); the whole pool flows'],['fish',1,'a clownfish swims here']],H:[['dir',-1,'start direction, 1 or -1'],['left',0,'fence: westmost column'],['right',0,'fence: eastmost column'],['tease',1,'pulls into its shell once when he first lands within 10 tiles (before the board)']],O:[['amp',12,'bob height, px']],M:[['dir',-1,'start direction, 1 or -1']],I:[['item','root','item id']],B:[['lookx',0,'camera look while sitting, tiles right (negative = left)'],['looky',0,'camera look while sitting, tiles down (negative = up)']],
   V:[['height',4,'eruption height, tiles (1-16; a ceiling cuts it)'],['period',240,'outside the chase: frames between its steam puffs'],['phase',0,'outside the chase: frames into that rhythm'],['live',1,'erupts on that rhythm outside the chase too (default: harmless until the chase)']],
   E:[['drift',12,'figure-eight width, px each side'],['amp',6,'figure-eight height, px each way'],['pace',100,'speed, percent'],['phase',0,'start, frames into its path'],['ox',0,'px right of the tile (negative = left), to centre it in a gap'],['oy',0,'px down from the tile (negative = up)']],
   '=':[['opens','flood','a seal: solid until this biome\'s fragment is set in the door, then it crumbles for good']],
-  K:[['reach',1,'tiles it crawls each way along the cracked face (0: it sits)'],['dir',1,'start direction, 1 or -1'],['pace',100,'crawl speed, percent']]};
+  K:[['reach',1,'tiles it crawls each way along the cracked face (0: it sits)'],['dir',1,'start direction, 1 or -1'],['pace',100,'crawl speed, percent']],
+  /* Crystals (game/crystals.js, game/echo.js) */
+  Q:[['delay',24,'frames after he stands on it before it falls (back when the room is re-entered)']],
+  W:[['dx',4,'tiles it travels right (negative = left)'],['dy',0,'tiles it travels down (negative = up)'],['w',3,'width, tiles'],['sp',50,'speed, px per frame x100'],['pause',40,'frames it waits at each end'],['phase',0,'start, frames into its cycle']],
+  Y:[['aim','r','beam direction: u, d, l or r'],['amp',12,'drift, px each way (across its beam)'],['sp',100,'drift speed, percent'],['beam',0,'beam on/off period, frames (0: always on)'],['phase',0,'start, frames into its drift']],
+  R:[['id','a','its crystal lock (D) with the same id opens once every receiver of that id has been lit 30 frames']],
+  D:[['id','a','opens once every receiver (R) with this id has latched']],
+  Z:[['lag',120,'frames the Echo trails him']]};
 const LOOK={f:'idle',dir:[1,0],blink:0,face:0,happy:0,mouth:0,dx:0,stage:0};
 const clone=o=>JSON.parse(JSON.stringify(o)),clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
@@ -132,7 +139,7 @@ let rend=null,rcv=null;
 function paint(R,light){
   if(!rend){rcv=mk(VW,VH);rend=createRenderer(rcv)}
   const W=R.w*T,H=R.h*T,c=mk(W,H),x=c.getContext('2d');
-  const S={...newState(),mode:'play',lit:1,litT:60,match:1,items:{},pieces:[],ens:spawnEnemies(R),
+  const S={...newState(),mode:'play',edit:1,lit:1,litT:60,match:1,items:{},pieces:[],ens:spawnEnemies(R),
     torches:Object.fromEntries(R.torches.map(t=>[R.id+':'+t.tx+','+t.ty,1]))};
   S.p.hide=1;S.p.x=S.p.y=-9999;
   const had=R.biome in AMB,old=AMB[R.biome];if(!light)AMB[R.biome]=1;
@@ -148,7 +155,7 @@ function img(r){
 const SW={};
 function swatch(biome,ch){
   const k=biome+ch;if(SW[k])return SW[k];
-  const c=mk(T,T),x=c.getContext('2d'),g=ch==='S'?'.':ch,under='^MPGFBHVL'.includes(ch)?'#':ch==='K'?'X':'.';
+  const c=mk(T,T),x=c.getContext('2d'),g=ch==='S'?'.':ch,under='^MPGFBHVLQ'.includes(ch)?'#':ch==='K'?'X':'.';
   x.drawImage(paint(parse({id:'swatch',name:'',biome,at:[99999,99999],grid:['...','.'+g+'.','.'+under+'.'],ents:[]}),false),T,T,T,T,0,0,T,T);
   if(ch==='S')x.drawImage(sprite(LOOK),8,16,24,48,1,0,10,20);
   return SW[k]=c;

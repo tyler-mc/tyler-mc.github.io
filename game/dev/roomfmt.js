@@ -1,8 +1,9 @@
 /* Room file format and level checks for the editor. No DOM, so tools/test_rooms.mjs runs it under node.
    serialize() writes byte-for-byte what tools/dev_server.py writes; check() mirrors the server's limits;
    problems() is the editor's live validation list. */
-export const GLYPHS='#=.~^STPGIMOFBHLXVEK',BIOMES=['hub','roots','flood','molten','crystals'],MAXG=128;
-export const NAMES={'#':'Rock','=':'Rubble','.':'Air','~':'Water','^':'Thorns',S:'Start',T:'Torch',P:'Pressure plate',G:'Gate',I:'Item',M:'Mossback',O:'Spore puff',F:'Fragment pedestal',B:'Perch',H:'Hermit crab',L:'Lava',X:'Cracked rock',V:'Geyser vent',E:'Ember sprite',K:'Slag beetle'};
+export const GLYPHS='#=.~^STPGIMOFBHLXVEKQWYRDZ',BIOMES=['hub','roots','flood','molten','crystals'],MAXG=128;
+export const NAMES={'#':'Rock','=':'Rubble','.':'Air','~':'Water','^':'Thorns',S:'Start',T:'Torch',P:'Pressure plate',G:'Gate',I:'Item',M:'Mossback',O:'Spore puff',F:'Fragment pedestal',B:'Perch',H:'Hermit crab',L:'Lava',X:'Cracked rock',V:'Geyser vent',E:'Ember sprite',K:'Slag beetle',
+  Q:'Shard step',W:'Moving platform',Y:'Prism drifter',R:'Receiver',D:'Crystal lock',Z:'Echo'};
 export const RE={file:/^[a-z][a-z0-9_-]{0,31}$/,id:/^[a-z][a-z0-9]{0,15}$/,name:/^[A-Za-z0-9 .,!?:;()&-]{1,40}$/,key:/^[a-z][A-Za-z]{0,11}$/,str:/^[A-Za-z0-9_-]{1,24}$/};
 const isInt=(v,lo,hi)=>Number.isInteger(v)&&v>=lo&&v<=hi;
 
@@ -36,8 +37,8 @@ export function check(r,comment=''){
 }
 
 /* ---------- live validation ---------- */
-const open=c=>c!=='#'&&c!=='='&&c!=='X';
-const solid=c=>c==='#'||c==='='||c==='G'||c==='X';   /* X: cracked rock, solid till the claws drill it (game/claws.js) */
+const open=c=>c!=='#'&&c!=='='&&c!=='X'&&c!=='Q'&&c!=='R'&&c!=='D';
+const solid=c=>c==='#'||c==='='||c==='G'||c==='X'||c==='Q'||c==='R'||c==='D';   /* X: cracked rock, solid till the claws drill it (game/claws.js); Q shard step, R receiver, D crystal lock (game/crystals.js) */
 const runs=xs=>{const o=[];for(const x of xs.sort((a,b)=>a-b)){const l=o[o.length-1];if(l&&x===l[1]+1)l[1]=x;else o.push([x,x])}return o};
 const span=([a,b])=>a===b?`${a}`:`${a}-${b}`;
 /* rooms: [{id,name,biome,at,grid,ents}] in registry order. Returns [{lv:'err'|'warn',id,tx,ty,msg}] (tx,ty room-local) */
@@ -72,6 +73,14 @@ export function problems(rooms){
         let hit=0;for(let yy=Math.floor((y*12+1+oy-amp)/12);yy<=Math.floor((y*12+10+oy+amp)/12)&&!hit;yy++)for(let xx=Math.floor((x*12+1+ox-dr)/12);xx<=Math.floor((x*12+10+ox+dr)/12);xx++)if(solid(c(xx,yy))||c(xx,yy)==='X'){hit=1;break}
         if(hit)add('warn',r,x,y,`Ember sprite drifts into rock (drift ${dr}, amp ${amp})`)}
       if(ch==='B'&&solid(c(x,y-1)))add('warn',r,x,y,'Perch is under a ceiling (the mascot is 2 tiles tall)');
+      /* Crystals (game/crystals.js, echo.js) */
+      if((ch==='Q'||ch==='D')&&(x===0||y===0||x===W-1||y===H-1))add('warn',r,x,y,`${NAMES[ch]} on a room edge: once gone, it would open onto the next room`);
+      if(ch==='Q'&&'PFBHITV'.includes(c(x,y-1)))add('warn',r,x,y,`${NAMES[c(x,y-1)]} stands on a shard step: collapsed, it would float`);
+      if(ch==='Y'){const e=(r.ents||[]).find(e=>e.at[0]===x&&e.at[1]===y)||{};if('aim' in e&&!['u','d','l','r'].includes(e.aim))add('warn',r,x,y,'Prism drifter aim must be u, d, l or r')}
+      if(ch==='W'){const e=(r.ents||[]).find(e=>e.at[0]===x&&e.at[1]===y)||{},w=Number.isInteger(e.w)?e.w:3,dx=Number.isInteger(e.dx)?e.dx:0,dy=Number.isInteger(e.dy)?e.dy:0;
+        if(!dx&&!dy)add('warn',r,x,y,'Moving platform has no dx or dy: it never moves');
+        if(Math.min(x,x+dx)<0||Math.max(x,x+dx)+w>W||Math.min(y,y+dy)<0||Math.max(y,y+dy)>=H)add('warn',r,x,y,'Moving platform runs out of the room');
+        if('sp' in e&&Number.isInteger(e.sp)&&e.sp<10)add('warn',r,x,y,`Moving platform sp is px per frame x100: ${e.sp} is ${e.sp/100} px a frame`)}
       if(ch==='F'&&!BIOMES.slice(1).includes(r.biome))add('warn',r,x,y,'Fragment pedestal outside a biome: it holds that biome\'s fragment');
       if(ch==='O'){const e=(r.ents||[]).find(e=>e.at[0]===x&&e.at[1]===y),amp=e&&Number.isInteger(e.amp)?e.amp:12;
         for(let yy=Math.floor((y*12-amp)/12);yy<=Math.floor((y*12+11+amp)/12);yy++)if(solid(c(x,yy))){add('warn',r,x,y,`Spore puff bobs into rock (amp ${amp})`);break}}
@@ -82,7 +91,12 @@ export function problems(rooms){
     if(!count.T)add('err',r,null,null,'Torch missing: warps and respawns need one');
     if(count.G&&!count.P)add('err',r,null,null,'Gate without a pressure plate: it never opens');
     if(count.P&&!count.G)add('warn',r,null,null,'Pressure plate without a gate');
-    for(const e of r.ents||[]){const ch=c(e.at[0],e.at[1]);if(!'MOIBH~VEK'.includes(ch)&&!(ch==='='&&'opens' in e))add('warn',r,e.at[0],e.at[1],`Ent data on a '${ch}' tile does nothing`);
+    if(count.Z>1)add('warn',r,null,null,'More than one Echo (Z): only the first counts');
+    {const idOf=(x,y)=>{const e=(r.ents||[]).find(e=>e.at[0]===x&&e.at[1]===y);return String(e&&e.id!==undefined?e.id:'a')},rx=new Set(),dl=[];
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(g[y][x]==='R')rx.add(idOf(x,y));if(g[y][x]==='D')dl.push([x,y,idOf(x,y)])}
+      for(const [x,y,id] of dl)if(!rx.has(id))add('err',r,x,y,`Crystal lock '${id}' has no receiver (R) with its id: it never opens`);
+      for(const id of rx)if(!dl.some(d=>d[2]===id))add('warn',r,null,null,`Receiver id '${id}' has no crystal lock (D)`)}
+    for(const e of r.ents||[]){const ch=c(e.at[0],e.at[1]);if(!'MOIBH~VEKQWYRDZ'.includes(ch)&&!(ch==='='&&'opens' in e)&&!('erase' in e&&Object.keys(e).length===2))add('warn',r,e.at[0],e.at[1],`Ent data on a '${ch}' tile does nothing`);
       if('opens' in e&&ch!=='=')add('warn',r,e.at[0],e.at[1],`opens works only on rubble (=)`);
       if('opens' in e&&!BIOMES.slice(1).includes(e.opens))add('warn',r,e.at[0],e.at[1],`opens names no fragment (roots, flood, molten or crystals)`)}   /* a seal: rubble that crumbles once that fragment is in the door */
     /* edges: every open edge tile must meet an open tile in the room next door */

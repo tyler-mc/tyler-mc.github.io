@@ -29,19 +29,30 @@ import R_m8 from './molten_m8.js';
 import R_m9 from './molten_m9.js';
 import R_m10 from './molten_m10.js';
 import R_m11 from './molten_m11.js';
+import R_k1 from './crystals_k1.js';
+import R_k2 from './crystals_k2.js';
+import R_k3 from './crystals_k3.js';
+import R_k4 from './crystals_k4.js';
+import R_k5 from './crystals_k5.js';
+import R_k6 from './crystals_k6.js';
+import R_k7 from './crystals_k7.js';
+import R_k8 from './crystals_k8.js';
+import R_k9 from './crystals_k9.js';
+import R_k10 from './crystals_k10.js';
 import R_f1 from './flood_f1.js';
 import R_f2 from './flood_f2.js';
 import R_b10 from './flood_b10.js';
-const LIST=[R_hub,R_r1,R_r2,R_r3,R_r4,R_r5,R_a1,R_a2,R_a3,R_a4,R_a5,R_b1,R_b2,R_b3,R_b4,R_b5,R_b6,R_b7,R_m1,R_m2,R_m3,R_m4,R_m5,R_m6,R_m7,R_m8,R_m9,R_m10,R_m11,R_f1,R_f2,R_b10];
+const LIST=[R_hub,R_r1,R_r2,R_r3,R_r4,R_r5,R_a1,R_a2,R_a3,R_a4,R_a5,R_b1,R_b2,R_b3,R_b4,R_b5,R_b6,R_b7,R_m1,R_m2,R_m3,R_m4,R_m5,R_m6,R_m7,R_m8,R_m9,R_m10,R_m11,R_k1,R_k2,R_k3,R_k4,R_k5,R_k6,R_k7,R_k8,R_k9,R_k10,R_f1,R_f2,R_b10];
 /* rooms:end */
 
 export const ORDER=LIST.map(r=>r.id);
-export const AMB={hub:1,roots:.4,flood:.45,molten:.35};   /* Molten is darker: the lava crest, the embers and his own light carry it */
+export const AMB={hub:1,roots:.4,flood:.45,molten:.35,crystals:.6};   /* Molten is darker: the lava crest, the embers and his own light carry it; Crystals is the brightest spoke */
 export const ROOMS={};
 
 export function parse(src){
   const R={id:src.id,name:src.name,biome:src.biome,at:src.at.slice(),w:src.grid[0].length,h:src.grid.length,
-    g:src.grid.slice(),spawns:[],torches:[],plates:[],gates:[],items:[],pedestals:[],perches:[],vents:[],start:null};
+    g:src.grid.slice(),spawns:[],torches:[],plates:[],gates:[],items:[],pedestals:[],perches:[],vents:[],start:null,
+    crys:[],qd:{},rx:[],locks:[],lockAt:{},echo:null};
   const ent=(tx,ty)=>(src.ents||[]).find(e=>e.at[0]===tx&&e.at[1]===ty)||{};
   R.g.forEach((row,ty)=>[...row].forEach((c,tx)=>{
     const e=ent(tx,ty);
@@ -54,7 +65,18 @@ export function parse(src){
     else if(c==='B')R.perches.push({tx,ty,lookx:e.lookx||0,looky:e.looky||0});   /* a seat: stand still on it and he sits, the camera drifts toward its look */
     else if(c==='S')R.start={tx,ty};
     else if(c==='F')R.pedestals.push({tx,ty,piece:src.biome});   /* holds its biome's fragment */
+    /* Crystals (game/crystals.js, echo.js); the glyphs stay in R.g. W platform and Y prism drifter spawn into S.ens; Q shard
+       step (delay), R receiver and D crystal lock (id) are tiles; Z the Echo (lag) */
+    else if(c==='W'||c==='Y')R.crys.push({k:c,tx,ty,...e,at:undefined});
+    else if(c==='Q'){if(e.delay>0)R.qd[tx+','+ty]=e.delay}
+    else if(c==='R')R.rx.push({tx,ty,id:String(e.id??'a')});
+    else if(c==='D'){const id=String(e.id??'a');R.locks.push({tx,ty,id});R.lockAt[tx+','+ty]=id}
+    else if(c==='Z'&&!R.echo)R.echo={tx,ty,lag:e.lag>0?e.lag:120};
   }));
+  /* erase (K9's hush, render.js): how far the dissolved corners reach, 0..1. An ent field erase:<percent> on any tile (so the
+     editor and the dev server round-trip it), or a hand-written top-level erase:<0..1> */
+  {const pe=(src.ents||[]).reduce((m,e)=>e.erase>0?Math.max(m,e.erase/100):m,0);R.erase=Math.min(1,Math.max(pe,src.erase>0?src.erase:0))}
+  R.cry=R.crys.length||R.rx.length||R.locks.length||R.echo||R.g.some(r=>r.includes('Q'))?1:0;
   R.flows=(src.ents||[]).filter(e=>e.flow).map(e=>({at:e.at.slice(),flow:e.flow}));   /* currents (game/liquid.js) */
   /* seals: rubble (=) with ent opens:<biome> is solid until that biome's fragment is set in the door (engine solid(),
      sealOpen()). 'tx,ty' -> that biome; null when the room has none */
@@ -108,6 +130,19 @@ export const CHASES={
      the first wave restarts `gap` px behind his torch. Assist: the clock runs at 70% and the telegraph is 1.5 times as long
      (clock frames). Timings in tools/test_molten.mjs */
   molten:{kind:'geyser',dir:1,from:-164,beat:60,every:180,tel:48,erupt:54,gap:150,path:[[-164,3],[-92]]},
+  /* Crystals (game/sweep.js), kind 'sweep': the delete. Lifting the fragment at the top of K10 starts a front at world px y
+     `from`; after `beat` frames it moves DOWN at `rate` px/frame (path: [world px y, px/frame] stretches, the last one at or
+     above the front rules; it ends in the bare safe y). Everything above it is deleted (non-solid, drawn as void). Safe once
+     his box reaches the hub floor (`end`). After a death it restarts `gap` px above his torch (never above `from`); `at` can pin
+     a torch ('room:tx,ty': world px y). Assist: 70% speed, gap x1.5. All values are world px, not tiles.
+     Tuned on the real tower (tools/test_crystals_rooms2.mjs): the front starts at .8 px/frame through Delete Core, Delete
+     Hush and the Vault (K10-K8), quickens to 1.3 from the Atrium's top (K7, y -145 rows) and to 1.6 from Still Pool's top
+     (K5, y -95 rows), where the rooms are short falls. A clean run keeps a lead of 2 s or more in every room, at normal speed
+     and with Assist; a bot that stops 1 s in every room, or restarts at any torch it passes (300 px behind it), still clears it.
+     Fixer B, 2026-11-07, with the chase obstacles (K10's basin, K9's cup, K5's sill) and a torch on the fall line in K10, K9,
+     K6, K5, K3 and K1: clean bot 27.0 s (least lead 3.3 s, in K10; Assist 4.7 s), the 1-s-per-room bot 34.1 s (least lead
+     1.3 s). The front's whole run is about 37 s, so a longer clean run would need a longer front: a decision for Tyler */
+  crystals:{kind:'sweep',from:-202*12,end:192,beat:60,rate:.8,gap:300,path:[[-202*12,.8],[-145*12,1.3],[-95*12,1.6],[192]]},
 };
 /* the stuck hint: after minutes without progress he looks toward the first goal here not yet met.
    need: 'item:<id>', 'piece:<biome>' (carried) or 'placed:<biome>' (in the door); tile is optional (room centre) */
@@ -122,4 +157,9 @@ export const NEXT=[
   {need:'item:forged',room:'m3',tile:[22,9]},
   {need:'item:claws',room:'m6',tile:[20,16]},
   {need:'piece:molten',room:'m11',tile:[4,9]},
+  {need:'placed:molten',room:'hub',tile:[12,10]},   /* setting it opens the plug, the way up into Crystals */
+  /* Crystals: the Undo item in the doorway of Shard Steps' vault */
+  {need:'item:undo',room:'k2',tile:[16,10]},
+  /* the Crystals fragment on its pedestal in Delete Core, the top of the tower */
+  {need:'piece:crystals',room:'k10',tile:[24,16]},
 ];

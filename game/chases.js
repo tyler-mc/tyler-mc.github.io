@@ -9,7 +9,9 @@ import {T} from './state.js';
 import {ROOMS,CHASES} from './rooms/index.js';
 import {tideCols,levelAt,stirTide} from './tide.js';
 import {startGeyser,stepGeyser,resetGeyser,nearGeyser,progressGeyser} from './geysers.js';   /* Molten: kind 'geyser' (waves of eruptions, not a front) */
+import {startSweep,stepSweep,resetSweep,nearSweep,progressSweep} from './sweep.js';   /* Crystals: kind 'sweep' (a front moving down the tower) */
 const geyser=c=>c&&CHASES[c.id]&&CHASES[c.id].kind==='geyser';
+const sweep=c=>c&&CHASES[c.id]&&CHASES[c.id].kind==='sweep';
 
 export const WITHER=60,ASSIST_SPEED=.7,ASSIST_GAP=1.5,REST=20;
 /* the eel's surge (Flood): a cycle of `surge` frames on the chase clock c.t (so it needs no state of its own, and stops
@@ -28,11 +30,11 @@ export function speedAt(C,x){const d=C.dir||1;let v=C.path[0][1];for(const [tx,s
 export const worldX=S=>ROOMS[S.room].at[0]*T+S.p.x;
 export const worldY=S=>ROOMS[S.room].at[1]*T+S.p.y;
 
-export function startChase(S,id,ev){const C=CHASES[id];if(C.kind==='geyser')return startGeyser(S,id,ev);S.chase={id,on:1,x:C.from*T,t:-C.beat,w:0};if(C.tide){S.chase.y=C.tide.y0;S.chase.l=0}ev.push('chase_start')}
+export function startChase(S,id,ev){const C=CHASES[id];if(C.kind==='geyser')return startGeyser(S,id,ev);if(C.kind==='sweep')return startSweep(S,id,ev);S.chase={id,on:1,x:C.from*T,t:-C.beat,w:0};if(C.tide){S.chase.y=C.tide.y0;S.chase.l=0}ev.push('chase_start')}
 
 /* one frame. Returns true when the thorns (the eel) touch him (the engine then glitches him out). Then the tide's
    columns for his room (game/tide.js; none without a tide) */
-export function stepChase(S,ev){if(geyser(S.chase))return stepGeyser(S,ev);const hit=chase1(S,ev),c=S.chase,C=c&&CHASES[c.id],R=ROOMS[S.room];tideCols(S,R,C);
+export function stepChase(S,ev){if(geyser(S.chase))return stepGeyser(S,ev);if(sweep(S.chase))return stepSweep(S,ev);const hit=chase1(S,ev),c=S.chase,C=c&&CHASES[c.id],R=ROOMS[S.room];tideCols(S,R,C);
   if(C&&C.tide&&c.on&&!S.p.dead&&S.liq&&S.liq.tide)stirTide(S,R,c,C,surgeAt(c),surgeAt(c)===EEL.snap,reachOf({t:c.t-1},C),reachOf(c,C));   /* the eel churns the water (tide.js) */
   return hit}
 function chase1(S,ev){
@@ -63,7 +65,7 @@ function eelBeats(S,c,up0,up,ev){
 
 /* after a death: back to the checkpoint torch's restart point, a short rest, then on again */
 export function resetChase(S){
-  const c=S.chase;if(!c||!c.on)return;if(geyser(c))return resetGeyser(S);
+  const c=S.chase;if(!c||!c.on)return;if(geyser(c))return resetGeyser(S);if(sweep(c))return resetSweep(S);
   const C=CHASES[c.id],cp=S.cp,key=cp&&cp.room+':'+cp.tx+','+cp.ty,R=cp&&ROOMS[cp.room];
   const d=C.dir||1,x=C.at&&key in C.at?C.at[key]*T:R?(R.at[0]+cp.tx)*T+T/2-d*C.gap*(S.assist?ASSIST_GAP:1):C.from*T;
   c.x=d>0?Math.max(C.from*T,x):Math.min(C.from*T,x);c.t=-REST;
@@ -72,11 +74,11 @@ export function resetChase(S){
 
 /* how close the wall is, 0 (far) .. 1 (on him); the OS shake gets it in quarters */
 export function nearness(S){
-  const c=S.chase;if(!c||!c.on)return 0;if(geyser(c))return nearGeyser(S);
+  const c=S.chase;if(!c||!c.on)return 0;if(geyser(c))return nearGeyser(S);if(sweep(c))return nearSweep(S);
   const C=CHASES[c.id],d=C&&C.dir<0?c.x-(worldX(S)+S.p.w):worldX(S)-c.x;return d<=0?1:Math.max(0,1-d/200);
 }
 /* how far the front has come, 0 (its start) .. 1 (the safe line); the OS 'flood' level gets it in quarters */
 export function progress(S){
-  const c=S.chase,C=c&&CHASES[c.id];if(!C||!c.on)return 0;if(C.kind==='geyser')return progressGeyser(S);
+  const c=S.chase,C=c&&CHASES[c.id];if(!C||!c.on)return 0;if(C.kind==='geyser')return progressGeyser(S);if(C.kind==='sweep')return progressSweep(S);
   const a=C.from*T,b=endX(C);return b===a?1:Math.max(0,Math.min(1,(c.x-a)/(b-a)));
 }

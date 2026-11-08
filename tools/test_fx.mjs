@@ -3,6 +3,7 @@
    fxLevels, the OS's fourth-wall levels sent through mount's onFx (os.js draws them).
    No browser. Run: node tools/test_fx.mjs */
 import path from 'node:path';
+import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 
@@ -218,6 +219,73 @@ test('fxLevels Molten: heat 1 from the first room, shimmer 0 outside the chase, 
   assert.deepEqual([L.heat,L.shimmer,L.glow],[1,0,0]);for(const k of FLOODK)assert.ok(!(k in L),'no '+k);
   const v=S.ens.find(e=>e.k==='vent');assert.ok(v,'m1 has a vent');const st=v.st;
   v.st=2;assert.equal(lv(S).glow,1);v.st=st===2?0:st;assert.equal(lv(S).glow,0);
+});
+/* Crystals: a synthetic room (no crystals_k* rooms are needed) and a synthetic sweep, so these hold whatever the real tower is */
+const CRYK=['crystal','erase'],{CHASES}=await import(G+'rooms/index.js');
+ROOMS.fxcry=parse({id:'fxcry',name:'Fx crystal',biome:'crystals',at:[6000,6000],grid:['#'.repeat(30),...Array(10).fill('#'+'.'.repeat(28)+'#'),'#'.repeat(30)],ents:[]});
+CHASES.fxsweep={kind:'sweep',from:6000*T,end:6000*T+800,beat:60,rate:2,gap:150};
+const q4=v=>Math.round(v*4)/4;
+test('fxLevels: hub, Roots, Flood and Molten send no crystal or erase',()=>{
+  for(const [id,x,y] of [['hub',200,100],['r1',40,100],['b1',40,40],['m1',40,40]]){const L=lv(play(id,x,y));for(const k of CRYK)assert.ok(!(k in L),`${id} sends no ${k}`)}
+});
+test('fxLevels Crystals: crystal 1 in every Crystals room, erase 0 with no chase, no Flood or Molten keys',()=>{
+  const S=play('fxcry',2*T,10*T-PH);E.step(S,I(),[]);const L=lv(S);
+  assert.equal(L.biome,'crystals');assert.equal(L.crystal,1);assert.equal(L.erase,0);
+  for(const k of [...FLOODK,...MOLTK])assert.ok(!(k in L),'no '+k);
+});
+test('fxLevels Crystals: erase is the sweep\'s progress in quarters, growing with the front, 0 once it is over or for another kind',()=>{
+  const S=play('fxcry',2*T,10*T-PH),C=CHASES.fxsweep;CH.startChase(S,'fxsweep',[]);
+  assert.equal(S.chase.id,'fxsweep');let prev=0,seen=new Set();
+  for(let k=0;k<=20;k++){S.chase.y=C.from+(C.end-C.from)*k/20;S.chase.t=1;const L=lv(S),p=CH.progress(S);
+    assert.ok(Number.isFinite(L.erase)&&L.erase*4===Math.round(L.erase*4),'a quarter: '+L.erase);
+    assert.equal(L.erase,q4(p),'erase follows progress');assert.ok(L.erase>=prev,'never shrinks as the front comes down');prev=L.erase;seen.add(L.erase)}
+  assert.deepEqual([...seen].sort(),[0,.25,.5,.75,1],'every quarter shows on the way down');
+  S.chase.y=C.from+(C.end-C.from)*.6;assert.equal(lv(S).erase,.5);
+  S.chase.on=0;assert.equal(lv(S).erase,0,'outrun: 0 (the icons come back)');
+  S.chase=null;assert.equal(lv(S).erase,0,'no chase: 0');
+  S.chase={id:'roots',on:1,x:0,t:0,w:0};assert.equal(lv(S).erase,0,'a thorn chase in Crystals does not erase');
+  S.chase={id:'fxsweep',on:1,y:NaN,t:0,w:0,x:0};assert.equal(lv(S).erase,0,'a front with no y yet: 0, never NaN');
+});
+test('fxLevels: rewind only once he owns Undo (in every biome), 1 while it runs back, else 0',()=>{
+  for(const [id,x,y] of [['fxcry',2*T,10*T-PH],['hub',200,100],['r1',40,100]]){
+    assert.ok(!('rewind' in lv(play(id,x,y))),id+': no rewind without Undo');
+    const S=play(id,x,y,{undo:1});E.step(S,I(),[]);assert.equal(lv(S).rewind,0,id+': 0 when not held');
+    S.undo.on=1;assert.equal(lv(S).rewind,1,id+': 1 while rewinding');S.undo.on=0;assert.equal(lv(S).rewind,0)}
+});
+test('fxLevels Crystals teardown: leaving for the hub drops crystal and erase (the host clears them on the new biome)',()=>{
+  const S=play('fxcry',2*T,10*T-PH,{undo:1});CH.startChase(S,'fxsweep',[]);S.chase.y=CHASES.fxsweep.from+400;const A=lv(S);
+  assert.equal(A.crystal,1);assert.ok(A.erase>0);
+  E.enterRoom(S,'hub',{x:200,y:100});S.chase=null;const B=lv(S);
+  assert.equal(B.biome,'hub');for(const k of CRYK)assert.ok(!(k in B),'hub sends no '+k);assert.equal(B.rewind,0,'rewind still sent, at 0');
+});
+test('fxLevels Roots: thorns 0 outside the thorn chase, 0.25 at its start, growing in quarters to 1; never in other biomes or other chases',()=>{
+  const S=play('r1',40,100);assert.equal(lv(S).thorns,0,'no chase: 0');
+  const C=CHASES.roots,a=C.from*T;S.chase={id:'roots',on:1,x:a,t:-C.beat,w:0};
+  assert.equal(lv(S).thorns,.25,'the start of the chase already shows');
+  let prev=0;for(let k=0;k<=20;k++){S.chase.x=a+(CH.endX?CH.endX(C)-a:12000)*k/20;const v=lv(S).thorns;
+    assert.ok(v>=prev&&v<=1&&v*4===Math.round(v*4),'a growing quarter: '+v);prev=v}
+  S.chase.on=0;assert.equal(lv(S).thorns,0,'outrun: 0');
+  S.chase={id:'flood',on:1,x:0,t:0,w:0};assert.equal(lv(S).thorns,0,'the eel chase does not grow thorns');
+  for(const [id,x,y] of [['hub',200,100],['b1',40,40],['m1',40,40]]){const H=play(id,x,y);H.chase={id:'roots',on:1,x:a,t:0,w:0};assert.ok(!('thorns' in lv(H)),id+' sends no thorns')}
+});
+test('fxLevels: scorch once Molten is finished (fragment in hand with its chase over, or placed), in every biome, never before',()=>{
+  const mk=2,rooms=[['hub',200,100],['r1',40,100],['b1',40,40],['m1',40,40],['fxcry',2*T,10*T-PH]];
+  for(const [id,x,y] of rooms)assert.ok(!('scorch' in lv(play(id,x,y))),id+': no scorch yet');
+  for(const [id,x,y] of rooms){const S=play(id,x,y);S.pieces[mk]=1;CH.startChase(S,'molten',[]);
+    assert.equal(S.chase.on,1,'the real geyser chase is on');assert.ok(!('scorch' in lv(S)),id+': not while the Molten chase runs');
+    S.cp={room:'m1',tx:2,ty:2};CH.resetChase(S);assert.equal(S.chase.on,1,'a death does not end the chase');assert.ok(!('scorch' in lv(S)),id+': nor after a death mid-chase');
+    S.chase.on=0;assert.equal(lv(S).scorch,1,id+': scorched once the chase is done (outrun)');
+    S.chase=null;assert.equal(lv(S).scorch,1,id+': and after the thorns have withered');
+    const P=play(id,x,y);P.placed[mk]=1;assert.equal(lv(P).scorch,1,id+': placed counts too');
+    const O=play(id,x,y);O.pieces[0]=1;O.pieces[1]=1;assert.ok(!('scorch' in lv(O)),id+': other fragments do not scorch')}
+});
+test('os.js has an effect for every key fxLevels sends (osFx.set drops unknown names silently)',()=>{
+  const src=fs.readFileSync(path.join(ROOT,'os.js'),'utf8'),m=src.match(/const FX=\{([\s\S]*?)\};/);
+  assert.ok(m,'the FX table');const names=new Set([...m[1].matchAll(/([a-z]+):/g)].map(a=>a[1]));
+  const S=play('fxcry',2*T,10*T-PH,{undo:1,root:1});CH.startChase(S,'fxsweep',[]);
+  const R=play('r1',40,100);R.chase={id:'roots',on:1,x:CHASES.roots.from*T,t:0,w:0};const M=play('m1',40,40);M.pieces[2]=1;
+  const keys=new Set();for(const T0 of [S,R,M,play('r1',40,100),play('b1',40,40),play('m1',40,40)])for(const k of Object.keys(lv(T0)))if(k!=='biome')keys.add(k);
+  for(const k of keys)assert.ok(names.has(k),'os.js FX has '+k);
 });
 test('fxLevels is a pure function of the state: same state, same levels, nothing in it changes',()=>{
   const S=play('m10',40,40);for(let i=0;i<90;i++)E.step(S,I({r:i%2}),[]);const snap=JSON.stringify(S);

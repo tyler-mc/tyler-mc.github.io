@@ -29,7 +29,7 @@ NAME_RE = re.compile(r"^[A-Za-z0-9 .,!?:;()&-]{1,40}$")
 KEY_RE = re.compile(r'^[a-z][A-Za-z]{0,11}$')
 STR_RE = re.compile(r'^[A-Za-z0-9_-]{1,24}$')
 BIOMES = ('hub', 'roots', 'flood', 'molten', 'crystals')
-GLYPHS = set('#=.~^STPGIMOFBHLXVEK')
+GLYPHS = set('#=.~^STPGIMOFBHLXVEKQWYRDZ')   # Q W Y R D Z: Crystals (game/crystals.js, game/echo.js)
 MAX_BODY = 256 * 1024
 LOCK = threading.Lock()
 

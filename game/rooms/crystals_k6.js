@@ -1,0 +1,26 @@
+/* Prism Gallery (K6): the prism drifter. He arrives at the bottom east, climbs to the gallery and must cross a pit west, where a drifter against the pit's west wall shoots its beam straight up across the way to a receiver in the ceiling; the beam lights it at once and the exit lock opens (met safely first). Three ways past: a root burst wraps the drifter (it sinks, the beam is cut), a dash rams it (the lens shatters), or a vine grown under it on the pit wall, up past its lens, holds the beam to nothing. In the chase he falls from the slot into the pit and must beat the beam again, then drops through the floor west and runs past a torch to the hatch. */
+export default {
+  id:'k6',name:'Prism Gallery',biome:'crystals',at:[0,-114],
+  grid:[
+    '####.....#########...###################',
+    '#...DDDDD........R.....................#',
+    '#......................................#',
+    '#........###...........................#',
+    '#......................................#',
+    '#......................................#',
+    '#............##........................#',
+    '#.........T.....#.......T..............#',
+    '######...########Y..################...#',
+    '######...########...################...#',
+    '#...............#...#..................#',
+    '#...............#..##.........####.....#',
+    '#...............#####..................#',
+    '#......................................#',
+    '#.......................####...........#',
+    '#......................................#',
+    '#............T.........................#',
+    '##################QQQ######..........T.#',
+    '##################...##########.....####',
+  ],
+  ents:[{at:[17,8],aim:'u',amp:0},{at:[17,1],id:'a'},{at:[4,1],id:'a'},{at:[5,1],id:'a'},{at:[6,1],id:'a'},{at:[7,1],id:'a'},{at:[8,1],id:'a'}],
+};

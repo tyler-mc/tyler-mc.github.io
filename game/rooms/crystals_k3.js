@@ -1,0 +1,26 @@
+/* Rewind Walk (K3): three moving platforms over a pit, its floor three rows under them, so a miss costs only the wait. W1 runs east; W2 is a lift eight tiles past its end (a root jump or a dash); W3 is a lift the pit floor cannot reach; from its top a jump goes up past the ceiling to the exit shelf. A rewind replays a missed timing. Glass spikes on the east wall stop a climb round the platforms. In the chase he lands on the hatch and falls through its shaft past a torch hung under it (the chase's checkpoint here; a restart there comes back in mid-air at the shaft's foot and drops straight into Shard Steps). */
+export default {
+  id:'k3',name:'Rewind Walk',biome:'crystals',at:[0,-57],
+  grid:[
+    '##################...##########.....####',
+    '#......................................#',
+    '#......................................#',
+    '#................................###...#',
+    '#.....................................^#',
+    '#.....................................^#',
+    '#.....................................^#',
+    '#.....................................^#',
+    '#...........................W.........^#',
+    '#.....................................^#',
+    '#.....................................^#',
+    '#.T....................W..............^#',
+    '#######.W.............................^#',
+    '#......................................#',
+    '#...........T..........................#',
+    '#.........########QQQ###################',
+    '#.........########.T.###################',
+    '#.........########...###################',
+    '####.....#########...###################',
+  ],
+  ents:[{at:[18,15],delay:45},{at:[19,15],delay:45},{at:[20,15],delay:45},{at:[8,12],dx:4,dy:0,sp:50,pause:30,w:3},{at:[23,11],dx:0,dy:-5,sp:40,pause:40,w:3},{at:[28,8],dx:0,dy:-3,sp:30,pause:50,w:3}],
+};

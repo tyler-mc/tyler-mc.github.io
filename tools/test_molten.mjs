@@ -123,11 +123,13 @@ const RM=IDS.map(id=>ROOMS[id]);
 }
 console.log('the hub\'s way down: sealed until the Flood fragment is in the door');
 const FK=PIECES.indexOf('flood');
-const sealSet=id=>Object.keys(ROOMS[id].seals||{}).sort().join(' ');
+const sealSet=(id,b)=>Object.keys(ROOMS[id].seals||{}).filter(k=>!b||ROOMS[id].seals[k]===b).sort().join(' ');
 { const H=ROOMS.hub,M1=ROOMS.m1;
-  ok(H.g[16]==='###################====='&&H.g[17]==='####################===#'&&sealSet('hub')==='20,16 20,17 21,16 21,17 22,16 22,17'&&Object.values(H.seals).every(b=>b==='flood'),
+  ok(H.g[16]==='###################====='&&H.g[17]==='####################===#'&&sealSet('hub','flood')==='20,16 20,17 21,16 21,17 22,16 22,17'&&Object.values(H.seals).every(b=>b==='flood'||b==='molten'),
     "the hub's bottom funnel keeps its rubble and its shape; its middle (cols 20-22, rows 16-17) is a seal (ents opens:'flood'), its lips (19,16) and (23,16) plain rubble");
-  ok(ORDER.filter(id=>ROOMS[id].seals).sort().join(',')==='hub,m1'&&sealSet('m1')==='41,0 42,0 43,0 44,0 45,0 46,0'&&M1.g[0].slice(41,47)==='======',"the only seals in the world: the hub's funnel and the row of Ember Ridge under it (cols 41-46, world x 17-22)");
+  ok(ORDER.filter(id=>ROOMS[id].seals).sort().join(',')==='hub,k1,m1'&&sealSet('m1')==='41,0 42,0 43,0 44,0 45,0 46,0'&&M1.g[0].slice(41,47)==='======'&&
+    sealSet('hub','molten')==='4,0 5,0 5,1 6,0 6,1 6,2 7,0 7,1 8,0'&&sealSet('k1')==='4,18 5,18 6,18 7,18 8,18'&&Object.values(ROOMS.k1.seals).every(b=>b==='molten'),
+    "the only seals in the world: the hub's funnel and the row of Ember Ridge under it (cols 41-46, world x 17-22), and the hub's top plug (opens:'molten') with the row of Quiet Gallery over it (R1, Crystals)");
   /* who borders whom: list every room past a Molten room's edge that is not Molten */
   const out={};for(const R of RM){const add=(x,y)=>{const N=roomAtTile(R.at[0]+x,R.at[1]+y);if(N&&N.biome!=='molten')(out[R.id+'>'+N.id]=out[R.id+'>'+N.id]||[]).push([x,y])};
     for(let y=0;y<R.h;y++)for(const x of [-1,R.w])add(x,y);for(let x=0;x<R.w;x++)for(const y of [-1,R.h])add(x,y)}   /* edges only: a corner touches nothing he can cross */

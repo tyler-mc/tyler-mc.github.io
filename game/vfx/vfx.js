@@ -20,11 +20,12 @@ import fireflies from './effects/fireflies.js';
 import fallingLeaves from './effects/falling-leaves.js';
 import fog from './effects/fog.js';
 import bubbles from './effects/bubbles.js';
+import embers from './effects/embers.js';
 import {USE,COLORS,AMBIENT,ROOM_AMBIENT,FOG,OFF,MAX} from './map.js';
 
 export const LIGHT_GAIN=1.6;   /* light-buffer luminance (0..1 a px) x this goes into the renderer's L; 1.6 was the harness's guess */
 export const DT=1/60;          /* engine STEP */
-const FX={sparkle,pickup,'power-up':powerUp,'holy-light':holyLight,impact,movement,fireflies,'falling-leaves':fallingLeaves,fog,bubbles};
+const FX={sparkle,pickup,'power-up':powerUp,'holy-light':holyLight,impact,movement,fireflies,'falling-leaves':fallingLeaves,fog,bubbles,embers};
 /* options these effects use already packed (their fallbacks are pre-mapped), so '#rrggbb' must be packed here */
 const PACKED={'holy-light':['colors'],impact:['ramp'],movement:['colors','groundColor']};
 const LAYERS=['back','front'],SOLID='#=';   /* rock and rubble (render.js solidCh, less the gate, which moves) */

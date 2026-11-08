@@ -1,6 +1,6 @@
 /* Synthesized Web Audio only. Nothing plays until unlock() runs inside a user gesture. */
 export function createAudio(muteKey){
-  let ac=null,master=null,sfxBus=null,crk=null,rmb=null,rst=null,roar=null,roarF=null,hush=null,ambs={},cur=null,muted=false,drip=0,near=0;
+  let ac=null,master=null,sfxBus=null,crk=null,rmb=null,rst=null,roar=null,roarF=null,hush=null,ambs={},cur=null,muted=false,drip=0,near=0,hum=null,sweepO=null,sweepG=null;
   try{muted=localStorage.getItem(muteKey)==='1'}catch(_){}
   const now=()=>ac.currentTime;
   function buf(sec,fill){const b=ac.createBuffer(1,Math.floor(ac.sampleRate*sec),ac.sampleRate),d=b.getChannelData(0);fill(d,ac.sampleRate);return b}
@@ -60,6 +60,17 @@ export function createAudio(muteKey){
       ambs.tide=mk(g=>{const s=src(NB,true),f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=520;const sg=ac.createGain();sg.gain.value=.16;
         s.connect(f).connect(sg).connect(g);s.start();const l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=.19;lg.gain.value=.12;l.connect(lg).connect(sg.gain);l.start();
         const b=src(brown,true),bf=ac.createBiquadFilter();bf.type='lowpass';bf.frequency.value=140;const bg=ac.createGain();bg.gain.value=.45;b.connect(bf).connect(bg).connect(g);b.start()});
+      /* glass (Crystals): a quiet glassy bed, two high sines a ninth apart that shimmer slowly against each other, a thin
+         band of high air and a faint low floor */
+      ambs.glass=mk(g=>{[[1319,.018,.11],[1480,.012,.07],[1976,.008,.05]].forEach(([f,v,r])=>{const o=ac.createOscillator(),og=ac.createGain(),l=ac.createOscillator(),lg=ac.createGain();
+          o.type='sine';o.frequency.value=f;og.gain.value=v;l.frequency.value=r;lg.gain.value=v*.9;l.connect(lg).connect(og.gain);o.connect(og).connect(g);o.start();l.start()});
+        const s=src(NB,true),f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=4200;f.Q.value=3;const sg=ac.createGain();sg.gain.value=.025;s.connect(f).connect(sg).connect(g);s.start();
+        const b=src(brown,true),bf=ac.createBiquadFilter();bf.type='lowpass';bf.frequency.value=120;const bg=ac.createGain();bg.gain.value=.22;b.connect(bf).connect(bg).connect(g);b.start()});
+      /* a prism beam's hum: a low saw and its octave through a low-pass, silent until he nears a live beam (hum(v)) */
+      {const o=ac.createOscillator(),o2=ac.createOscillator(),f=ac.createBiquadFilter();o.type='sawtooth';o.frequency.value=110;o2.type='sine';o2.frequency.value=220.6;
+        f.type='lowpass';f.frequency.value=700;hum=ac.createGain();hum.gain.value=0;o.connect(f);o2.connect(f);f.connect(hum).connect(master);o.start();o2.start()}
+      /* the delete sweep (Crystals chase): a low rising drone; rumble(v) drives it in the glass rooms in place of the thorns' rustle */
+      {sweepO=ac.createOscillator();sweepO.type='triangle';sweepO.frequency.value=48;sweepG=ac.createGain();sweepG.gain.value=0;sweepO.connect(sweepG).connect(master);sweepO.start()}
     }
     if(ac.state==='suspended')ac.resume();
   }
@@ -87,6 +98,12 @@ export function createAudio(muteKey){
       const u=Math.min(1,(lv-2.2)/2.4);noise(.06+.04*u,.1+.06*u,'lowpass',800+500*u,200);if(u>.5)tone('sine',100,40,.1,(u-.5)*.2)},
     footstep:o=>{const k=vary(o,.08);noise(.03,.035,'bandpass',1400*k,600*k,1.4)},   /* A10: +-8%, under the jump */
     swim:()=>noise(.15,.08,'bandpass',500,1200,2),
+    /* feeding (game/feed.js): a chomp, the spat-out seed, a leaf growing, a flower opening */
+    eat:()=>{noise(.07,.12,'lowpass',700,300);tone('square',150,110,.06,.05)},
+    spit:()=>{noise(.1,.1,'bandpass',900,2200,1.5);tone('sine',420,260,.12,.06)},
+    alert:()=>{tone('square',880,1100,.07,.05)},
+    sprout:()=>{const t=now();tone('sine',330,520,.16,.07,t);tone('sine',440,700,.18,.06,t+.1)},
+    bloom:()=>{const t=now();[392,523,659].forEach((f,i)=>tone('sine',f,f*1.01,.5,.07,t+i*.09))},
     plate:()=>tone('square',120,90,.08,.1),
     gateOpen:()=>{noise(.35,.15,'lowpass',500,150);tone('square',80,60,.3,.06)},
     gateShut:()=>{tone('sine',70,40,.2,.3);noise(.12,.2,'lowpass',400,100)},
@@ -140,7 +157,32 @@ export function createAudio(muteKey){
     ember_lit:()=>{noise(.25,.12,'bandpass',800,2600,1);tone('triangle',180,360,.15,.05)},
     beetle_open:()=>{tone('square',220,110,.08,.14);noise(.12,.2,'lowpass',900,200,1.2)},
     beetle_shut:()=>{tone('triangle',140,260,.12,.08);noise(.1,.1,'bandpass',1200,600,1.5)},
+    /* Crystals (game/undo.js, crystals.js, echo.js, sweep.js): the rewind's reversed whoosh (it swells and cuts off), an
+       empty meter's click and the soft settle as time runs on; a shard step ticking as it cracks and shattering as it
+       drops; a drifter's lens breaking; a receiver latching (a rising glass chime) and its lock sliding open; the Echo
+       waking (a breath drawn in backwards), wrapped, rammed; the sweep starting (a deep drone) and its edge eating tiles */
+    undo_start:()=>{rev(.38,.32,'bandpass',500,3200);rev(.38,.06,'sine',180,640)},
+    undo_empty:()=>{tone('square',1900,1300,.018,.07);noise(.02,.05,'highpass',4000,3000)},
+    undo_end:()=>tone('sine',700,460,.12,.035),
+    shard_crack:()=>{tone('triangle',2600,1900,.03,.06);noise(.04,.06,'highpass',5000,3500)},
+    shard_fall:()=>{const t=now();[2637,3136,2349,3520,2794].forEach((f,i)=>tone('sine',f,f*.92,.18,.035,t+i*.03));noise(.45,.14,'highpass',3500,1200,.8,t)},
+    prism_shatter:()=>{const t=now();[3951,3136,4699,3520].forEach((f,i)=>tone('triangle',f,f*.9,.14,.04,t+i*.025));noise(.3,.16,'highpass',5000,2000,.8,t);tone('sine',300,120,.15,.06,t)},
+    beam_hum:()=>tone('sawtooth',110,108,.25,.03),
+    receiver_lock:()=>{const t=now();[784,988,1175,1568].forEach((f,i)=>tone('sine',f,f,.5,.07,t+i*.07))},
+    lock_open:()=>{noise(.5,.12,'bandpass',1400,300,1.4);const t=now()+.05;[392,523].forEach((f,i)=>tone('sine',f,f,.6,.06,t+i*.08))},
+    echo_wake:()=>{rev(.7,.14,'lowpass',200,900);rev(.7,.05,'sine',98,147)},
+    echo_wrap:()=>{tone('triangle',500,180,.2,.12);noise(.08,.1,'bandpass',900,400,2)},
+    echo_ram:()=>{tone('sine',380,240,.1,.1);noise(.06,.08,'lowpass',900,300)},
+    sweep_rumble:()=>{const t=now();tone('sine',46,30,2.2,.45,t);noise(1.8,.3,'lowpass',500,60,1,t);rev(.9,.08,'sine',60,120)},
+    sweep_edge:()=>{const t=now();for(let i=0;i<8;i++)tone('square',2200-i*210,1800-i*200,.025,.03,t+i*.03);noise(.25,.06,'highpass',6000,2500,.7,t)},
   };
+  /* reversed: a long swell to the peak, then cut off at once (a sound played backwards); kind 'sine' is a tone, else a noise filter type */
+  function rev(dur,vol,kind,f0,f1,t=now()){
+    const g=ac.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+dur);g.gain.linearRampToValueAtTime(0,t+dur+.03);
+    let s;if(kind==='sine'){s=ac.createOscillator();s.type='sine';s.frequency.setValueAtTime(f0,t);s.frequency.exponentialRampToValueAtTime(f1,t+dur);s.connect(g)}
+    else{s=src(NB);const f=ac.createBiquadFilter();f.type=kind;f.Q.value=1.2;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);s.connect(f).connect(g)}
+    g.connect(sfxBus);s.start(t);s.stop(t+dur+.06);
+  }
   return {
     unlock,
     muted:()=>muted,
@@ -150,9 +192,12 @@ export function createAudio(muteKey){
     /* v: how far the hush has swelled, 0..1 (0 = silent) */
     hush(v){if(hush)hush.gain.setTargetAtTime(v*.16,now(),.8)},
     /* v: the thorn wall's (the eel's) nearness 0..1 (0 = silent) */
-    rumble(v){if(!rmb)return;near=v;const w=cur==='tide';   /* in the Flood the eel's tide roars and builds in place of the thorns' rustle */
-      rmb.gain.setTargetAtTime(v*(w?.5:.9),now(),.15);rst.gain.setTargetAtTime(w?0:v*v*.5,now(),.1);
-      roar.gain.setTargetAtTime(w?v*1.1:0,now(),.25);roarF.frequency.setTargetAtTime(140+760*v*v,now(),.3)},
+    rumble(v){if(!rmb)return;near=v;const w=cur==='tide',gl=cur==='glass';   /* in the Flood the eel's tide roars and builds in place of the thorns' rustle; in Crystals the sweep's drone rises */
+      rmb.gain.setTargetAtTime(v*(w?.5:gl?.6:.9),now(),.15);rst.gain.setTargetAtTime(w||gl?0:v*v*.5,now(),.1);
+      roar.gain.setTargetAtTime(w?v*1.1:0,now(),.25);roarF.frequency.setTargetAtTime(140+760*v*v,now(),.3);
+      sweepG.gain.setTargetAtTime(gl?v*.22:0,now(),.2);sweepO.frequency.setTargetAtTime(48+90*v*v,now(),.4)},
+    /* v: how near a live prism beam is, 0..1 (crystalart.js beamNear; 0 = silent) */
+    hum(v){if(hum)hum.gain.setTargetAtTime(v*v*.07,now(),.08)},
     amb(name){
       if(!ac)return;
       if(name!==cur){for(const k in ambs)ambs[k].gain.setTargetAtTime(k===name?(k==='cave'?.5:.35):0,now(),.6);cur=name}

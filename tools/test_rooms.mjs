@@ -89,7 +89,7 @@ try{
     ['path traversal ../x',()=>save('../x',room('trav')),400],
     ['file name index',()=>save('index',room('idxx')),400],
     ['file name with a dot',()=>save('a.b',room('dot')),400],
-    ['unknown glyph',()=>save('bad1',room('bad1',{grid:['####','#Z.#','####']})),400],
+    ['unknown glyph',()=>save('bad1',room('bad1',{grid:['####','#J.#','####']})),400],   /* J: no tile (Z is the Crystals Echo) */
     ['mismatched row widths',()=>save('bad2',room('bad2',{grid:['####','#T.','####']})),400],
     ['duplicate id',()=>save('bad3',room('r1')),409],
     ['quote in name',()=>save('bad4',room('bad4',{name:"O'Brien"})),400],

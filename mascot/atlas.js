@@ -8,6 +8,7 @@ import {BODY} from './body.js';
 import {FEET} from './feet.js';
 import {ARMS} from './arms.js';
 import {LEAF} from './leaf.js';
+import {XLEAF} from './xleaf.js';
 import {HATS,GEAR} from './hats.js';
 import {FACES,LIDS} from './faces.js';
 import {ANIM_TRASH} from './anim_trash.js';
@@ -76,7 +77,10 @@ export function compose(s){
     if(hat)stamp(g,hat.rows,tip[0]-hat.ax,tip[1]-hat.ay);
     const top=LEAF.stem.reduce((m,p)=>p[1]<m[1]?p:m,LEAF.stem[0]);
     for(let i=1;i<=lift;i++){const y=tip[1]+top[1]-i;if(g[y])g[y][tip[0]+top[0]]='n'}
-    if(LS)stamp(g,LS.rows,tip[0]+LS.ox+ll,tip[1]+LS.oy-lift)}
+    const XS=s.xl&&XLEAF[s.xl]&&XLEAF[s.xl][Math.max(0,Math.min(2,s.xs|0))],xs=()=>stamp(g,XS.rows,tip[0]+3+XS.dx,tip[1]-3-lift+XS.dy);   /* the game's extra leaf (under the main one) or flower (over it): mascot/xleaf.js */
+    if(XS&&s.xl==='leaf')xs();
+    if(LS)stamp(g,LS.rows,tip[0]+LS.ox+ll,tip[1]+LS.oy-lift);
+    if(XS&&s.xl==='flower')xs()}
   if(PF&&PF.over)stamp(g,PF.over.rows,PF.over.x0,PF.over.y0);
   if(fl)for(let y=0;y<Hh;y++)g[y].reverse();
   if(PF&&PF.baked){shiftX(g,s.dx|0);if(s.fx)putFx(g,s.fx);return g}

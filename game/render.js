@@ -18,12 +18,16 @@ import {MAXF,FEEL} from './player.js';
 import {isLiq} from './liquid.js';
 import {solid,tile,sealOpen} from './engine.js';   /* the edge pose's ground is collision's own (a cycle, used only at draw time) */
 import {lavaBody,lavaCrest,crackedTile,drawVines,newRubble,stepRubble,drawRubble,clawsItem,clawsHud} from './lavaart.js';   /* Molten: lava, cracked walls, vines, the claws */
+import {feedLook} from './feed.js';   /* feeding: the chewing face, his extra leaf or flower */
+import {drawFeed} from './feedart.js';
+import * as CA from './crystalart.js';   /* Crystals: glass tiles, shard steps, receivers, locks, platforms, drifters, beams, the Echo, the pool, Undo, the sweep */
 
 const PAL={
   hub:{bg:'#121118',bg2:'#1b1a23',rock:'#3b3843',rockL:'#5a5668',rockD:'#27252e',out:'#09080c',top:'#6e6984',topL:'#8b86a0',strand:'#1f1d26'},
   roots:{bg:'#0a120c',bg2:'#112016',rock:'#3a2a1d',rockL:'#56402c',rockD:'#251a11',out:'#070805',top:'#3f6b2a',topL:'#6a9a3c',strand:'#24190f'},
   molten:{bg:'#120a08',bg2:'#1c110d',rock:'#3e3430',rockL:'#5c4d46',rockD:'#28201d',out:'#080505',top:'#6a4a3a',topL:'#9a6a4a',strand:'#1e1512'},   /* basalt, ash on the lips */
   flood:{bg:'#07111a',bg2:'#0e1f2c',rock:'#33475a',rockL:'#557089',rockD:'#202d38',out:'#05080b',top:'#5a8f99',topL:'#86c0c4',strand:'#15212a'},   /* wet slate, sea-green lips */
+  crystals:CA.CPAL,   /* pale glass blue, white, cold violet (game/crystalart.js) */
 };
 const RUB={rub:'#5c544c',rubL:'#80766a',rubD:'#3a342f'};
 const DOOR={st:'#6a6676',stL:'#8a8698',stD:'#47444f',gr:'#24222b',fr:'#34313c'};
@@ -109,10 +113,12 @@ function buildLayer(R){
   const nz=(px,py)=>{const gx=px/24,gy=py/24,x0=Math.floor(gx),y0=Math.floor(gy),fx=gx-x0,fy=gy-y0,
     a=hash(x0,y0),b=hash(x0+1,y0),c=hash(x0,y0+1),e=hash(x0+1,y0+1);return (a+(b-a)*fx)*(1-fy)+(c+(e-c)*fx)*fy};
   for(let py=0;py<H;py++)for(let px=0;px<W;px++)put(px,py,nz(px,py)*.55>bay(px,py)?C.bg2:C.bg);
-  /* hanging roots / stalactite strands from ceilings */
+  const cry=R.biome==='crystals';if(cry)CA.crystalBg(put,W,H,R.w*7+R.h);   /* glass pillars */
+  /* hanging roots / stalactite strands from ceilings (Crystals: glass spikes) */
   for(let ty=0;ty<R.h-1;ty++)for(let tx=0;tx<R.w;tx++){
     if(!rockCh(R,tx,ty)||solidCh(R,tx,ty+1)||hash(tx,ty+99)>.45)continue;
     const sx=tx*T+(hash(tx,ty)*10|0),len=6+(hash(ty,tx)*22|0);
+    if(cry){CA.crystalSpike(put,C,sx,(ty+1)*T,len);continue}
     for(let i=0;i<len;i++)put(sx+Math.round(Math.sin(i*.35+tx)*1.2),(ty+1)*T+i,C.strand);
   }
   if(R.id==='hub')paintDoor(put);   /* game/door.js */
@@ -120,6 +126,7 @@ function buildLayer(R){
     const ch=R.g[ty][tx];
     if(ch==='#'){
       const up=!rockCh(R,tx,ty-1),dn=!rockCh(R,tx,ty+1),lf=!rockCh(R,tx-1,ty),rt=!rockCh(R,tx+1,ty);
+      if(cry){CA.crystalRock(put,C,tx,ty,up,dn,lf,rt);continue}
       for(let j=0;j<T;j++)for(let i=0;i<T;i++){
         const px=tx*T+i,py=ty*T+j,h=hash(px,py);let c=h<.07?C.rockD:h>.95?C.rockL:C.rock;
         if((py+((px/5)|0)*3)%11===0&&h<.6)c=C.rockD;
@@ -219,6 +226,8 @@ export function createRenderer(cv,{reduce=false}={}){
     if(S.say&&S.say.n<S.say.text.length*2)s.mouth=(S.say.n>>2)&1;
     if(p.land>0&&S.mode==='intro')s.face='huh';
     if(S.say&&S.say.pose==='beg'){const n=S.say.n;s.face='beg';s.blink=0;s.dir=[0,0];s.dx=reduce?0:((n>>4)&1?1:-1);s.f=reduce?'idle':(n>>2)&1?'breath':'idle'}   /* begging: rocks and bobs for the line */
+    feedLook(S,s);
+    if(S.say&&S.say.pose==='scared'){s.face='scared';s.blink=0;s.happy=0}   /* the host's worried line (Wakeup > Quit) */
     if(s.stage&&live(S)){const o=sprout(fx);if(o)s.sp=o}   /* A11: the sprout trails his speed (only drawn from stage 1): the atlas's leaf lag */
     if(p.cl&&!p.dead){s.f='cling';s.dir=[p.cl,-1];s.dx=0;s.face='';s.happy=0;s.sp=0}   /* clinging (game/claws.js): one fixed pose a side, nothing else shows */
     if(LOOK.hat&&LOOK.hat!=='none')s.hat=LOOK.hat;if(LOOK.mask)s.mask=1;   /* the OS Control Panel's hat and skull mask */
@@ -249,7 +258,7 @@ export function createRenderer(cv,{reduce=false}={}){
   /* pulse and dust (game/fx.js): one fixed step per world step, from tick(). Not in S, so Undo and saves never hold them.
      A new room, or an S.t that does not follow the last step (warp, reset, restore()), clears them; draw() shows them only
      while S is still at the step they were made for. frozen: the world spent this step on hit-stop. */
-  const fx=createFx(),at={room:null,t:NaN},rub=newRubble();
+  const fx=createFx(),at={room:null,t:NaN},rub=newRubble(),trail=CA.newTrail();
   const vfx=createVfx({reduce,mk,rooms:ROOMS,PIECES,fragCentre,T,VW,VH,isLiq});   /* outside S too; it clears on the same room/S.t test */
   const live=S=>S.room===at.room&&S.t===at.t;
   function step(S,ev,frozen){
@@ -257,6 +266,7 @@ export function createRenderer(cv,{reduce=false}={}){
     if(S.room!==at.room||S.t!==at.t+1)clearFx(fx);
     at.room=S.room;at.t=S.t;
     stepRubble(rub,S,ev);   /* a drill's rubble (game/lavaart.js) */
+    if(R&&R.biome==='crystals')CA.stepTrail(trail,S);   /* the pool's reflection: his last LAG positions, kept here (never in S) */
     /* a seal crumbling open (engine door(): 'unseal'): its rubble falls down the shaft, a puff of grit hangs */
     if(R&&R.seals&&ev.includes('unseal'))for(const key in R.seals){if(!sealOpen(S,R.seals[key]))continue;const [tx,ty]=key.split(',').map(Number);
       for(let n=0;n<9;n++)rub.q.push({x:tx*T+1+hash(tx*9+n,ty)*10,y:ty*T+1+hash(ty*7+n,tx)*10,vx:(hash(n,tx*3+ty)-.5)*1.6,vy:-.6-hash(tx+n,ty*5)*1.4,t:0,c:n%4===3?3:n%3})}
@@ -289,13 +299,15 @@ export function createRenderer(cv,{reduce=false}={}){
     waterBody(ctx,S,R,ox,oy,t);   /* liquid surfaces from S.liq (game/floodart.js) */
     lavaBody(ctx,S,R,ox,oy,t,reduce);   /* Molten's lava (game/lavaart.js) */
     tideBody(ctx,S,R,ox,oy);   /* a chase's tide (game/tide.js) */
+    const cry=R.biome==='crystals';
+    if(cry)CA.drawReflection(ctx,S,R,trail,ox,oy,t,reduce);   /* the still pool shows him 2 s late (the Echo, foreshadowed) */
     /* seals: rubble until its fragment is in the door; between the fragment landing and the crumble it shakes */
     {const sl=sealsOf(R);if(sl)for(const k in sl){if(sealOpen(S,k))continue;const w=S.placed&&S.placed[PIECES.indexOf(k)]&&!reduce?((t>>1)&1?1:-1):0;ctx.drawImage(sl[k],-ox+w,-oy)}}
     /* dynamic tiles */
     for(let ty=0;ty<R.h;ty++)for(let tx=0;tx<R.w;tx++){
       const c=R.g[ty][tx];if(c==='.'||c==='#')continue;
       const x=tx*T-ox,y=ty*T-oy;if(x<-T||y<-T||x>VW||y>VH)continue;
-      if(c==='~'||c==='L'){}   /* drawn above by waterBody and lavaBody */
+      if(c==='~'||c==='L'||c==='Q'||c==='W'||c==='Y'||c==='Z'||c==='R'||c==='D'){}   /* drawn above by waterBody and lavaBody; Crystals: W Y are entities, Z a marker, Q R D drawn after the light */
       else if(c==='X')crackedTile(ctx,S,R,PAL[R.biome]||PAL.roots,tx,ty,x,y,t,reduce);   /* cracked rock, gone once drilled (game/lavaart.js) */
       else if(c==='G'){const hgt=Math.round(T*(1-S.gate));if(hgt>0){for(const bx of [1,5,9]){ctx.fillStyle='#6b4a2b';ctx.fillRect(x+bx,y,2,hgt);ctx.fillStyle='#8a6440';ctx.fillRect(x+bx,y,1,hgt)}ctx.fillStyle='#3a2a1d';if(hgt>6)ctx.fillRect(x,y+4,T,2)}}
       else if(c==='P'){const down=S.plate;ctx.fillStyle='#47444f';ctx.fillRect(x,y+T-2,T,2);ctx.fillStyle='#8a8698';ctx.fillRect(x+1,y+(down?T-3:T-5),T-2,down?1:3);if(!down){ctx.fillStyle='#6a6676';ctx.fillRect(x+1,y+T-4,T-2,2)}ctx.fillStyle=down?'#dff7ff':'#5b6a70';ctx.fillRect(x+5,y+(down?T-3:T-5),2,1)}
@@ -309,7 +321,7 @@ export function createRenderer(cv,{reduce=false}={}){
         ctx.fillStyle='#4a3322';ctx.fillRect(x,y+8,T,4);ctx.fillStyle='#7a5a3a';ctx.fillRect(x,y+8,T,1);ctx.fillStyle='#2e1f14';ctx.fillRect(x+1,y+11,T-2,1);
         ctx.fillStyle='#3f7a3a';ctx.fillRect(x+2,y+7,3,1);ctx.fillRect(x+8,y+7,2,1);ctx.fillRect(x+3,y+6,1,1);
       }
-      else if(c==='I'){const it=R.items.find(o=>o.tx===tx&&o.ty===ty);if(it&&it.id==='board'&&!S.items.board)boardItem(ctx,x,y,t);else if(it&&it.id==='forged'){if(!S.items.forged)boardItem(ctx,x,y,t,1)}else if(it&&it.id==='claws'){if(!S.items.claws)clawsItem(ctx,x,y,t)}else if(it&&!S.items[it.id]){const b=Math.round(Math.sin(t*.06)*1.5);blit(ctx,SEED,x+2,y+2+b,SEED_P);if((t>>3)%5===0){ctx.fillStyle='#fff';ctx.fillRect(x+1+((t>>3)%3)*4,y-1+b,1,1)}}}
+      else if(c==='I'){const it=R.items.find(o=>o.tx===tx&&o.ty===ty);if(it&&it.id==='board'&&!S.items.board)boardItem(ctx,x,y,t);else if(it&&it.id==='forged'){if(!S.items.forged)boardItem(ctx,x,y,t,1)}else if(it&&it.id==='claws'){if(!S.items.claws)clawsItem(ctx,x,y,t)}else if(it&&it.id==='undo'){if(!S.items.undo)CA.undoItem(ctx,x,y,t)}else if(it&&!S.items[it.id]){const b=Math.round(Math.sin(t*.06)*1.5);blit(ctx,SEED,x+2,y+2+b,SEED_P);if((t>>3)%5===0){ctx.fillStyle='#fff';ctx.fillRect(x+1+((t>>3)%3)*4,y-1+b,1,1)}}}
     }
     /* the shrine's carved pedestal (F), its biome's fragment standing on it until he lifts it */
     for(const f of R.pedestals){const cx=f.tx*T+T/2-ox,fy=(f.ty+1)*T-oy;if(cx<-40||cx>VW+40||fy<-60||fy>VH+20)continue;
@@ -356,10 +368,20 @@ export function createRenderer(cv,{reduce=false}={}){
     if(p.dead&&Array.isArray(S.flash)&&blinkOn){ctx.fillStyle='#fff';thorn(R,S.flash[0],S.flash[1],(px,py)=>ctx.fillRect(px-ox,py-oy,1,1))}
     /* enemies: drawn after the light so they always read. k: colour amount (1 full, 0 grey while wrapped, -1 flash) */
     drawVines(ctx,S,ox,oy,t,reduce);drawRubble(ctx,rub,S,PAL[R.biome]||PAL.roots,ox,oy);   /* the claws' vines and a drill's rubble (game/lavaart.js) */
+    if(cry){   /* Crystals (game/crystalart.js): receivers and locks (their rings read in any light), then every beam under the drifters */
+      for(let ty=Math.max(0,Math.floor(oy/T));ty<=Math.min(R.h-1,Math.floor((oy+VH)/T)+1);ty++)for(let tx=Math.max(0,Math.floor(ox/T));tx<=Math.min(R.w-1,Math.floor((ox+VW)/T));tx++)
+        if(R.g[ty][tx]==='Q')CA.drawShard(ctx,S,R,tx,ty,tx*T-ox,ty*T-oy,t,reduce);   /* shard steps (footholds read in any light, like vines): intact, cracking, falling, gone */
+      for(const r of R.rx)CA.drawReceiver(ctx,S,R,r.tx,r.ty,r.tx*T-ox,r.ty*T-oy,t,reduce);
+      for(const l of R.locks)CA.drawLock(ctx,S,R,l.tx,l.ty,l.tx*T-ox,l.ty*T-oy,t,reduce);
+      S.ens.forEach((e,i)=>{if(e.k==='prism')CA.drawBeam(ctx,S,R,e,ox,oy,t,reduce,p.dead&&S.flash===i&&blinkOn)});
+    }
     S.ens.forEach((e,i)=>{
       if(e.mol)return drawMolten(ctx,S,R,e,ox,oy,t,reduce,p.dead&&S.flash===i&&blinkOn);   /* Molten (game/moltenart.js): its own culling */
+      if(e.cr&&e.k==='plat'){if(e.x<ox+VW+8&&e.x+e.w>ox-8&&vis(e.x,e.y))CA.drawPlat(ctx,e,X(e.x),Y(e.y));return}   /* a moving glass platform (soft: before the Flood branch) */
       if(!vis(e.x,e.y))return;
       const fl=p.dead&&S.flash===i&&blinkOn,jit=e.grace&&!reduce?((t>>1)&1?1:-1):0,bx=X(e.x)+jit,by=Y(e.y);
+      if(e.cr){const k=fl?-1:!e.wrap?1:e.wrap<SLACK?1-e.wrap/SLACK:0,M=CA.drawPrism(ctx,e,bx,by,t,(c,x,y)=>k<0?'#fff':shade(c,x,y,k));   /* the prism drifter */
+        if(!fl&&e.wrap)wrapped(ctx,M,e,t,reduce);else if(!fl&&e.grace)snapped(ctx,M,e);return}
       if(e.soft)return (e.k==='crab'?drawCrab:drawFish)(ctx,e,bx,by,t,fl?-1:1,reduce);   /* Flood (game/floodart.js) */
       const k=fl?-1:!e.wrap?1:e.wrap<SLACK?1-e.wrap/SLACK:0,M=(e.k==='moss'?drawMoss:drawPuff)(ctx,e,bx,by,t,k);
       if(fl)return;
@@ -367,10 +389,15 @@ export function createRenderer(cv,{reduce=false}={}){
       else if(e.grace)snapped(ctx,M,e);
       else if(e.k==='puff'&&!reduce)spores(ctx,e,bx,by);
     });
+    /* the Echo (game/echo.js): his dark silhouette 2 s behind; as a root-wrapped step it carries the root bands */
+    if(cry&&S.edit)CA.echoMarker(ctx,R,ox,oy);   /* the room editor only: where the Echo starts (Z) */
+    if(cry&&S.echo&&S.echo.on){const M=CA.drawEcho(ctx,S,R,ox,oy,t,reduce,p.dead&&S.flash==='echo'&&blinkOn);if(M&&S.echo.wrap>0)wrapped(ctx,M,{wrap:S.echo.wrap},t,reduce)}
     /* M1b: the thorn wall over everything but him; the fragment's ghost in its recess, its flight there, the slot's pulse */
-    if(S.chase&&!(CHASES[S.chase.id]&&(CHASES[S.chase.id].tide||CHASES[S.chase.id].kind)))thornWall(ctx,S,R,ox,oy,t,reduce,p.dead&&S.flash==='chase'&&blinkOn);
+    if(S.chase&&S.chase.id==='crystals'){}   /* the sweep's void is drawn over him, below */
+    else if(S.chase&&!(CHASES[S.chase.id]&&(CHASES[S.chase.id].tide||CHASES[S.chase.id].kind)))thornWall(ctx,S,R,ox,oy,t,reduce,p.dead&&S.flash==='chase'&&blinkOn);
     else drawEel(ctx,S,R,ox,oy,t,reduce,p.dead&&S.flash==='chase'&&blinkOn);   /* Flood: the eel (asleep in its lair before the chase) */
     if(R.id==='hub')slotFx(ctx,S,ox,oy,t,reduce);
+    drawFeed(ctx,S,ox,oy,t,reduce);   /* plants dropped in from the desktop, a let-go leaf or flower, a spat-out seed (game/feedart.js) */
     /* root strands run from his shoes to their tips every frame */
     const st0=look(S),sx=Math.round(p.x)+9-CX-ox,sy=Math.round(p.y)+23-SOLE-oy,fy=sy+SOLE+1;   /* the cell's soles (row SOLE) land on the box's last row */
     const feet=shoeX(st0.ft,st0.flip).map(x=>[sx+Math.round(x),fy]);
@@ -401,12 +428,17 @@ export function createRenderer(cv,{reduce=false}={}){
       }
     }
     if(vl)vfx.drawFront(ctx,ox,oy);   /* 'emissive' front layers: over him, under the HUD */
+    if(cry)CA.voidCorners(ctx,R,ox,oy,t,reduce);   /* K9 (R.erase): the world's corners already missing */
+    CA.sweepVoid(ctx,S,R,ox,oy,t,reduce);   /* the delete sweep (S.chase.id 'crystals', any room it reaches): everything above its front is gone */
+    CA.rewindLook(ctx,S,t,reduce);   /* Undo: the view drains and runs back (only while S.undo.on, and a short fade after) */
+    CA.undoRing(ctx,S,ox,oy,t,reduce);   /* the Undo meter: a ring of pixels round him */
     /* HUD: what he carries */
     if(S.lit){
       let hx=4;
       if(S.items.root){blit(ctx,SEED,hx,4,SEED_P);hx+=11}
       if(S.items.board){boardHud(ctx,hx,6,S.items.forged);hx+=12}
       if(S.items.claws){clawsHud(ctx,hx,5);hx+=8}
+      if(S.items.undo){CA.undoHud(ctx,hx,2);hx+=13}
       drawHudPieces(ctx,S.pieces,hx,3,mk);   /* quarter-disc fragments, hollow until carried (game/door.js) */
     }
   }

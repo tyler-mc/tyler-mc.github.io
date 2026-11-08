@@ -271,6 +271,37 @@ function reveal(host,on,ms){const im=host&&$('img.full',host);if(im)dissolve(im,
 
 /* ================= window manager ================= */
 const WIN={}; let Z=20, topId=null; const order=[];
+/* ================= Wake Up: what the OS does to its windows. Every window gets a frame canvas (.fxm: 2px pixels over the frame, for moss,
+   char and scorch) and a body layer (.fxb: CSS over the content with no pointer, for water, frost and soot). The game's own window and
+   the crash alert keep their bodies clear. A ResizeObserver redraws a window the moment it opens or is resized ================= */
+const WFX={moss:0,char:0,scorch:0},WFX_CLEAR=new Set(['game','crash']);
+const winHash=s=>{let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return (h>>>0)%9973};
+const winRO=new ResizeObserver(es=>es.forEach(e=>{const w=e.target._w;if(w)winFxSync(w)}));
+function winFxMount(w){
+  const el=w.el,wf=$('.wf',el),wb=$('.wbw',el);if(!wf||!wb)return;
+  const cv=document.createElement('canvas');cv.className='fxm';cv.hidden=true;cv.setAttribute('aria-hidden','true');el.appendChild(cv);
+  const fb=document.createElement('div');fb.className='fxb';fb.setAttribute('aria-hidden','true');wf.appendChild(fb);
+  w.fxm=cv;w.fxb=fb;el._w=wb._w=w;winRO.observe(el);winRO.observe(wb);
+}
+const winFxAll=()=>{for(const id in WIN)winFxSync(WIN[id])};
+function winFxSync(w){
+  const el=w.el,wb=$('.wbw',el),cv=w.fxm;if(!cv||!wb)return;
+  const W=el.offsetWidth,H=el.offsetHeight;if(!W||!H)return;
+  const bx=wb.offsetLeft,by=wb.offsetTop,bw=wb.offsetWidth,bh=wb.offsetHeight,k=bx+','+by+','+bw+','+bh;
+  if(w.fxb.dataset.k!==k){w.fxb.dataset.k=k;w.fxb.style.cssText=`left:${bx}px;top:${by}px;width:${bw}px;height:${bh}px;--sy:${Math.max(32,Math.round(bh*.14)*2)}px`}   /* the water line: a seventh of the way down, on the 2px grid */
+  if(!(WFX.moss||WFX.char||WFX.scorch)){if(!cv.hidden){cv.hidden=true;delete cv.dataset.k}return}
+  const P=3,cw=Math.ceil(W/2)+2*P,ch=Math.ceil(H/2)+2*P,ft=$('.wfoot',el),er=el.getBoundingClientRect();
+  const fy=ft&&ft.offsetHeight&&!el.classList.contains('shaded')?Math.round((ft.getBoundingClientRect().top-er.top)/2)+P:-1;   /* the footer's top line: the buddy's second perch */
+  const key=[cw,ch,WFX.moss,WFX.char,WFX.scorch,fy].join();
+  cv.hidden=false;if(cv.dataset.k===key)return;cv.dataset.k=key;
+  cv.width=cw;cv.height=ch;cv.style.width=cw*2+'px';cv.style.height=ch*2+'px';
+  const x=cv.getContext('2d'),n=winHash(w.id);
+  if(WFX.char)charWin(x,cw,ch,P,WFX.char,n);
+  if(WFX.scorch)scorchWin(x,cw,P,fy,n);
+  if(WFX.moss)mossWin(x,cw,ch,P,WFX.moss,n);
+  if(WFX_CLEAR.has(w.id)){const r=wb.getBoundingClientRect();x.clearRect(Math.round((r.left-er.left)/2)+P,Math.round((r.top-er.top)/2)+P,Math.ceil(r.width/2),Math.ceil(r.height/2))}
+}
+let gameFs=false,quitDead=false,quitGo=false;   /* the Wakeup menu: full screen on, Quit glitched to "No Escape", the Quit sequence running */
 /* ================= D5: always-visible scrollbar for a window body (works the same in every browser) ================= */
 function mountSb(el){
   const body=$('.wbody',el),bar=$('.vsb',el),thm=$('.thm',bar),trk=$('.trk',bar);
@@ -310,7 +341,7 @@ function makeWin(o){
   el.style.setProperty('--acc',o.acc||RED);el.style.setProperty('--acc-ink',o.ink||INK);
   desk.insertBefore(el,$('#strip'));
   const w=WIN[o.id]={id:o.id,el,title:o.title,acc:o.acc||RED,ink:o.ink||INK,base:[o.acc||RED,o.ink||INK],open:false,opener:null,onopen:o.onopen,onshown:o.onshown,onclose:o.onclose,keep:!!o.noClose,min:false,onmin:o.onmin,onrestore:o.onrestore};
-  wire(w);if(o.init)o.init(el);mountArt(el);mountSb(el);return w;
+  wire(w);if(o.init)o.init(el);mountArt(el);mountSb(el);winFxMount(w);return w;
 }
 function setAccent(id,acc,ink){const w=WIN[id];if(!w)return;w.acc=acc;w.ink=ink;w.el.style.setProperty('--acc',acc);w.el.style.setProperty('--acc-ink',ink);renderStrip()}
 function resetAccent(id){const w=WIN[id];if(w)setAccent(id,w.base[0],w.base[1])}
@@ -433,6 +464,7 @@ function wire(w){
 
 /* ================= control strip + indicators ================= */
 function renderStrip(){
+  syncWakeMenu();
   $('#stabs').innerHTML=order.map(id=>{const w=WIN[id];return `<button class="stab bev${id===topId?' on':''}${w.el.classList.contains('shaded')?' shaded':''}${w.min?' min':''}" data-id="${id}" style="--a:${w.acc};--ai:${w.ink}" aria-pressed="${id===topId}"><i class="sw"></i><span class="stt">${esc(w.title)}</span></button>`}).join('');
 }
 $('#stabs').addEventListener('click',e=>{const b=e.target.closest('.stab');if(!b)return;const id=b.dataset.id;if(WIN[id].min){restoreWin(id,b);return}if(WIN[id].el.classList.contains('shaded'))shade(id,false);focusWin(id,{bump:true});WIN[id].el.focus({preventScroll:true})});
@@ -1375,12 +1407,20 @@ function toCompost(p){
   const ic=$('#ic-trash .ic');if(ic&&!reduce){ic.classList.remove('pop2');void ic.offsetWidth;ic.classList.add('pop2')}
   if(!reduce)burst(p.x,p.y,18);
 }
+/* a plant dragged over the open Wake Up window or its icon goes into the game, where he can eat it (game/feed.js). The game says whether it will take one (lit, playing) */
+const plift=document.createElement('div');plift.id='plift';plift.setAttribute('aria-hidden','true');desk.appendChild(plift);
+/* a dragged plant moves to #plift (over every window) and goes back to its own layer when let go; the pointer is captured again after the move */
+function liftPlant(el,id){const home=el.parentNode,cs=getComputedStyle(el),sw=el.style.width,sh=el.style.height;el.style.width=cs.width;el.style.height=cs.height;plift.appendChild(el);el.setPointerCapture(id);
+  return ()=>{el.style.width=sw;el.style.height=sh;home.appendChild(el)}}
+const gameTakes=()=>!!(game&&game.canDrop&&WIN.game&&WIN.game.open&&game.canDrop());
+function overGame(pt){for(const n of document.elementsFromPoint(pt.clientX,pt.clientY)){if(n.closest('.pl,#buddy,#bub'))continue;return n.closest('#ic-wake,#w-game')}return null}
+const gameHot=o=>{const i=$('#ic-wake'),w=WIN.game&&WIN.game.el;if(i)i.classList.toggle('hot',!!o&&o===i);if(w)w.classList.toggle('hot',!!o&&o===w)};
 const plantDown=e=>{
   const el=e.target.closest('.pl.act');if(!el||e.button!==0)return;
   const p=[...plants].find(q=>q.el===el);if(!p||!['seed','sprout','bloom','heap','glow'].includes(p.st))return;
   e.preventDefault();e.stopPropagation();el.setPointerCapture(e.pointerId);
   const r0=el.getBoundingClientRect(),gx=e.clientX-r0.left,gy=e.clientY-r0.top;
-  const sx=e.clientX,sy=e.clientY,ox=p.x,oy=p.y;let moved=false,raf=0,sw=null,pvx=0,px0=ox,lt=0;
+  const sx=e.clientX,sy=e.clientY,ox=p.x,oy=p.y;let unlift=null,moved=false,raf=0,sw=null,pvx=0,px0=ox,lt=0;
   const sway=t=>{const dt=Math.min(.05,(t-lt)/1000)||.016;lt=t;const vx=(p.x-px0)/Math.max(dt,.001);const ax=Math.max(-9000,Math.min(9000,(vx-pvx)/Math.max(dt,.001)));pvx=vx;px0=p.x;
     let rem=dt;while(rem>0){const h=Math.min(rem,.008);sw.step(h,ax);rem-=h}
     el.style.transform=`rotate(${rotQ(sw.th)}deg)`;raf=requestAnimationFrame(sway)};
@@ -1388,12 +1428,13 @@ const plantDown=e=>{
     if(!moved){if(Math.hypot(dx,dy)<5)return;
       // pulled out of the ground: no soil, roots showing
       moved=true;clearTimeout(p.t);p.pulled=true;drawPlant(el,p.st,finalFrame(p),p.col,true);
-      el.classList.add('drag');el.style.transformOrigin=gx+'px '+gy+'px';sw=Swing(46,2.4);lt=performance.now();raf=requestAnimationFrame(sway)}
+      el.classList.add('drag');unlift=liftPlant(el,e.pointerId);el.style.transformOrigin=gx+'px '+gy+'px';sw=Swing(46,2.4);lt=performance.now();raf=requestAnimationFrame(sway)}
     const dw=desk.clientWidth,dh=desk.clientHeight;
-    p.x=Math.min(Math.max(ox+dx,12),dw-12);p.y=Math.min(Math.max(oy+dy,56),dh-8);plantEl(p);buddy.classList.toggle('hot',['seed','sprout','bloom','glow'].includes(p.st)&&overBuddy(ev));trashHot(overTrash(ev))};
+    p.x=Math.min(Math.max(ox+dx,12),dw-12);p.y=Math.min(Math.max(oy+dy,56),dh-8);plantEl(p);buddy.classList.toggle('hot',['seed','sprout','bloom','glow'].includes(p.st)&&overBuddy(ev));trashHot(overTrash(ev));gameHot(p.st!=='heap'&&gameTakes()&&overGame(ev))};
   const up=ev=>{el.removeEventListener('pointermove',mv);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);
-    cancelAnimationFrame(raf);el.classList.remove('drag');el.style.transform='';el.style.transformOrigin='';buddy.classList.remove('hot');trashHot(false);
+    cancelAnimationFrame(raf);el.classList.remove('drag');if(unlift)unlift();el.style.transform='';el.style.transformOrigin='';buddy.classList.remove('hot');trashHot(false);gameHot(false);
     if(!moved){if(p.st==='sprout')bloom(p);else if(p.st==='heap')sowHeap(p);return}
+    if(p.st!=='heap'&&gameTakes()&&overGame(ev)){const r=el.getBoundingClientRect();if(game.drop(p.st,r.left+r.width/2,r.bottom,p.col)){dropPlant(p);TK.discover('feed-game');return}}   /* refused (not lit yet, too many on the ground): it replants where it was let go */
     if(overTrash(ev)){toCompost(p);return}
     if(p.st==='seed'&&overBuddy(ev)){spit(p);return}
     if(['sprout','bloom','glow'].includes(p.st)&&overBuddy(ev)){eat(p);return}
@@ -1642,7 +1683,8 @@ addEventListener('resize',()=>{if(!carry)clampBuddy()});
 /* dragged into the Trash: it drops in, the lid lifts, two eyes peek out and blink, then it hops back out */
 const lerp=(a,b,k)=>a+(b-a)*k,wait=ms=>new Promise(r=>setTimeout(r,ms));
 const anim=(ms,fn)=>new Promise(res=>{const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
-const trashFrame=k=>{const ic=$('#ic-trash .ic');if(!ic)return;const m=$('canvas.moss',ic);ic.innerHTML=svg(ICON[k],2)+svg(ICON[k],2,{fill:'url(#ck)',cls:'selov'});if(m)ic.appendChild(m)};
+const trashFrame=k=>{const ic=$('#ic-trash .ic');if(!ic)return;const m=$$('canvas',ic);ic.innerHTML=svg(ICON[k],2)+svg(ICON[k],2,{fill:'url(#ck)',cls:'selov'});m.forEach(c=>ic.appendChild(c));   /* the game's effects (moss, water, crystal) stay on */
+  ic.dataset.fr=k;if(FXL.crystal)cryIcon($('#ic-trash'))};
 /* the dive's hand-drawn frames (mascot/anim_trash.js): 0 ready, 1..3 turning, 4/5 upside down kicking, 6/7 rummage tilts, 8..11 the same four seen from behind (in the can); fl=1 mirrors (turning on past 180 for the climb out) */
 const trashPose=(i,fl=0)=>{Object.assign(BS,{pose:'trash:'+i,flip:fl,air:1,face:0,happy:0,mouth:0,hop:0,bv:0});bRender()};
 async function trashDive(){
@@ -2038,7 +2080,7 @@ function vxCollect(){
   };
   wins.forEach(w=>{const wr=w.getBoundingClientRect(),bw=$('.wbw',w),br=bw?bw.getBoundingClientRect():null;
     shard(w,wr,4,3,(x,y)=>br&&x>br.left&&x<br.right&&y>br.top&&y<br.bottom);
-    [...$('.wf',w).children].forEach(k=>leaf(k,wr))});
+    [...$('.wf',w).children].filter(k=>!k.matches('.fxb')).forEach(k=>leaf(k,wr))});
   const bar=$('#mbar');shard(bar,bar.getBoundingClientRect(),8,1);[...bar.querySelectorAll('.mb-l>*,.mb-r>*')].forEach(k=>leaf(k));
   const st=$('#strip');if(st.getBoundingClientRect().width>0){const sin=$('.sin',st);paint(st);paint(sin);[...sin.children].forEach(k=>leaf(k))}
   $$('#icons .icon,.unrd').forEach(i=>leaf(i));
@@ -2198,6 +2240,7 @@ function wakePulse(){
 function syncWake(){
   if(gameState()==='on'){addWakeIcon(false);if(gameLit()){gameWin(true);if(!trapped)trapNow()}}
   const s=PREF(SEED_KEY,'');if(s)showSprout(s==='2');
+  if(PREF(SCORCH_KEY,''))scorchApply(1);
   crumbleUnr();syncWallCP();
 }
 /* the game window: un-closable, fixed size, minimizable, and black until the torch is lit. The engine loads on first open */
@@ -2324,15 +2367,85 @@ function gameEvent(n,d={}){
   else if(n==='done')finishGame();
 }
 
+/* ================= Wake Up menu: Full Screen, Options, Quit. Shown in the menu bar only while the game window is in front ================= */
+function syncWakeMenu(){
+  const b=$('#mbar [data-menu="wakeup"]');if(!b)return;
+  const on=gameFront();b.hidden=!on;
+  if(!on&&b.getAttribute('aria-expanded')==='true')closeMenu(false);
+  /* full screen belongs to the game: anything else coming to the front (Window menu, a link) ends it; the Options window is the one guest */
+  if(gameFs&&topId!=='game'&&topId!=='wkopts')toggleFs();
+}
+/* Full Screen: the window grows to the whole desktop, its chrome and the strip go, and the menu bar stays. Esc or the menu item leaves */
+let fsDesk=null;
+function toggleFs(){
+  const w=WIN.game;if(!w||isMobile())return;const el=w.el;
+  const a=el.getBoundingClientRect();
+  if(!gameFs){
+    gameFs=true;fsDesk=[desk.clientWidth,desk.clientHeight];
+    zoomRects(a,desk.getBoundingClientRect(),()=>{if(!gameFs)return;el.classList.add('gfs');document.body.classList.add('gfs');if(game)game.setFill(true)});
+  }else{
+    gameFs=false;el.classList.remove('gfs');document.body.classList.remove('gfs');if(game)game.setFill(false);
+    if(fsDesk&&(fsDesk[0]!==desk.clientWidth||fsDesk[1]!==desk.clientHeight))gameFit(el);   /* the browser was resized meanwhile */
+    zoomRects(desk.getBoundingClientRect(),el.getBoundingClientRect());
+  }
+  const r=$('.tg',el);if(r&&topId==='game')r.focus({preventScroll:true});   /* not when another window ended full screen by coming to the front */
+}
+/* Options: sound and Assist, the same two the game keeps in tos_game_mute and tos_assist. Before the engine has loaded they are written straight to storage */
+function wakeOpt(k,v){
+  try{
+    if(k==='snd'){if(game)game.setMute(!v);else localStorage.setItem('tos_game_mute',v?'0':'1')}
+    else if(game)game.setAssist(v);else localStorage.setItem('tos_assist',v?'1':'0');
+  }catch(_){}
+}
+const wakeOptOn=k=>{try{return k==='snd'?(game?!game.getMute():localStorage.getItem('tos_game_mute')!=='1'):(game?game.getAssist():localStorage.getItem('tos_assist')==='1')}catch(_){return k==='snd'}};
+function openWakeOpts(){
+  if(!WIN.wkopts)makeWin({id:'wkopts',title:'Wake Up Options',x:0,y:0,w:320,
+    body:`<div class="cp2"><div class="mi-in" role="group" aria-label="Wake Up options">
+  <button class="mi" role="checkbox" aria-checked="true" data-wo="snd"><span class="tk" aria-hidden="true"></span><span>Sound</span></button>
+  <button class="mi" role="checkbox" aria-checked="false" data-wo="ast"><span class="tk" aria-hidden="true"></span><span>Assist (easier chases)</span></button>
+ </div></div>`,
+    init(el){el.addEventListener('click',e=>{const b=e.target.closest('[data-wo]');if(!b)return;const on=b.getAttribute('aria-checked')!=='true';b.setAttribute('aria-checked',String(on));wakeOpt(b.dataset.wo,on)})},
+    onopen(el){$$('[data-wo]',el).forEach(b=>b.setAttribute('aria-checked',String(wakeOptOn(b.dataset.wo))));
+      el.style.left=Math.max(8,Math.round((desk.clientWidth-el.offsetWidth)/2))+'px';el.style.top=Math.max(16,Math.round((desk.clientHeight-el.offsetHeight)/2-24))+'px'}});
+  openWin('wkopts',$('#mbar [data-menu="wakeup"]'));
+}
+/* Quit: the screen tears, the menu item scrambles into "No Escape", and once the dust settles the mascot says what we are all thinking. Later clicks just twitch */
+function glitchText(el,to,ms){
+  return new Promise(res=>{
+    if(!ms){el.textContent=to;res();return}
+    const n=Math.max(el.textContent.length,to.length),t0=performance.now(),G='ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghkmnopqrstuvwxyz#%&*?/';
+    const iv=setInterval(()=>{const k=(performance.now()-t0)/ms;
+      if(k>=1){clearInterval(iv);el.textContent=to;res();return}
+      let t='';for(let i=0;i<n;i++)t+=k>(i+1)/(n+1)?(to[i]||''):G[(Math.random()*G.length)|0];
+      el.textContent=t},50);
+  });
+}
+async function wakeQuit(btn){
+  if(quitGo)return;quitGo=true;
+  const first=!quitDead;
+  await screenGlitch(reduce?0:first?900:320);
+  quitDead=true;
+  const lab=btn&&btn.isConnected?$('span',btn):null;
+  if(lab)await glitchText(lab,'No Escape',reduce?0:600);
+  if(!reduce)await wait(first?700:350);
+  if(curMenu&&curMenu.dataset.menu==='wakeup')closeMenu(false);
+  quitGo=false;
+  if(first)wakeWorry(0);
+}
+/* he can only speak once he is in the light and not mid-line; try for a few seconds */
+function wakeWorry(n){if(game&&game.say&&game.say("...that's not good",{pose:'scared'}))return;if(n<40)setTimeout(()=>wakeWorry(n+1),250)}
+
 /* ================= Wake Up: the OS reacts to the game. The engine calls onFx(name, level 0..1); a new biome clears the last one's ================= */
-const FX={moss:mossFx,seed:seedFx,shake:shakeFx,wet:wetFx,slosh:sloshFx,flood:floodFx,
-  heat:v=>hazeFx('heat',v),shimmer:v=>hazeFx('shimmer',v),glow:v=>{glowFx(v);hazeFx('glow',v)},scorch:NOP,erase:NOP,crystal:NOP};
+const FX={moss:mossFx,seed:seedFx,shake:shakeFx,thorns:thornsFx,scorch:scorchFx,wet:wetFx,slosh:sloshFx,flood:floodFx,
+  heat:v=>{hazeFx('heat',v);magmaFx(v)},shimmer:v=>hazeFx('shimmer',v),glow:v=>{glowFx(v);hazeFx('glow',v)},
+  crystal:crystalFx,erase:eraseFx,rewind:rewindFx};
 const fxLv={};let fxBio='';
+const FX_KEEP=n=>n==='seed'||n==='scorch';   /* the seed in the Trash and the scorched perches stay through a new biome, a minimize and the game's end */
 const osFx={
-  set(n,v){if(n==='biome'){if(v!==fxBio){osFx.clear();fxBio=v}return}if(!FX[n])return;v=+v||0;if(fxLv[n]===v)return;fxLv[n]=v;if(n==='seed'||!(WIN.game&&WIN.game.min))FX[n](v)},
-  clear(){for(const n in fxLv)if(n!=='seed'){if(fxLv[n])FX[n](0);delete fxLv[n]}fxBio=''},
-  suspend(){for(const n in fxLv)if(n!=='seed'&&fxLv[n])FX[n](0)},
-  resume(){for(const n in fxLv)if(n!=='seed'&&fxLv[n])FX[n](fxLv[n])}
+  set(n,v){if(n==='biome'){if(v!==fxBio){osFx.clear();fxBio=v}return}if(!FX[n])return;v=+v||0;if(fxLv[n]===v)return;fxLv[n]=v;if(FX_KEEP(n)||!(WIN.game&&WIN.game.min))FX[n](v)},
+  clear(){for(const n in fxLv)if(!FX_KEEP(n)){if(fxLv[n])FX[n](0);delete fxLv[n]}fxBio=''},
+  suspend(){for(const n in fxLv)if(!FX_KEEP(n)&&fxLv[n])FX[n](0)},
+  resume(){for(const n in fxLv)if(!FX_KEEP(n)&&fxLv[n])FX[n](fxLv[n])}
 };
 /* Roots: moss creeps up the desktop icons, on the icon's own pixels, bottom and edges first, spilling 1-2px past the outline,
    with tufts on top edges, highlight specks and strands hanging below. The engine's level (0.2 at the first torch .. 1) is
@@ -2340,6 +2453,7 @@ const osFx={
 const MOSS=['#0C2209','#173F11','#25601A','#3A8526','#62B13A','#A6E05C','#E4F79A'];
 function mossFx(v){
   const e=v?.42+.58*Math.min(1,v):0,P=2,N=32+P*2;
+  WFX.moss=e?Math.round(e*20)/20:0;winFxAll();   /* the windows' frames take it too (mossWin) */
   $$('#icons .icon').forEach((b,n)=>{
     const ic=$('.ic',b);let c=$('canvas.moss',ic);
     if(!v){if(c)c.remove();return}
@@ -2393,7 +2507,7 @@ function shakeFx(v){
    holds water or heat behind its title; the desktop takes the tide or the heat haze on one canvas between the wallpaper
    and the icons; icons and the Trash react on their own pixels. FXL is what shows (all 0 while the game is minimized).
    Nothing here takes a pointer or covers an icon, a label or a window. Reduced motion: the same pictures, held still. ---- */
-const FXL={wet:0,slosh:0,flood:0,heat:0,shimmer:0,glow:0};
+const FXL={thorns:0,wet:0,slosh:0,flood:0,heat:0,shimmer:0,glow:0,crystal:0,erase:0,rewind:0};
 const WTR={crest:'#8fd2ff',crestD:'#3f80b8',top:'#123e69',deep:'#0b2a4a',abyss:'#081d35',streak:'#2b6aa3',hi:'#d6f1ff',pale:'#bfe6ff'};   /* the game's water (game/floodart.js) */
 const HOT={rust:'#7a3f22',emb:'#c8742e',embL:'#e3a15c',crest:'#ffb04a',pop:'#ffe7a8'};   /* Molten's embers and lava crest (game/moltenart.js, lavaart.js) */
 const fxHash=(a,b)=>{let h=Math.imul(a|0,374761393)+Math.imul(b|0,668265263)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296};
@@ -2408,6 +2522,7 @@ function fxTiles(){
   r.setProperty('--fxww',wave([WTR.crest,WTR.crestD,WTR.hi],WTR.top));r.setProperty('--fxwb',WTR.top);
   r.setProperty('--fxtw',wave([WTR.crestD,WTR.crest,'#FFFFFF'],WTR.pale));r.setProperty('--fxtb',WTR.pale);
   r.setProperty('--fxhg',mk(16,32,p=>{for(let j=0;j<32;j++)for(let i=0;i<16;i++){const v=j/31;if(v*v*.9>(B4[(j&3)*4+(i&3)]+.5)/16)p(i,j,v>.85?HOT.embL:v>.6?HOT.emb:HOT.rust)}}));
+  r.setProperty('--fxsoot',mk(16,32,p=>{for(let j=0;j<32;j++)for(let i=0;i<16;i++){const v=j/31;if(v*v*.75>(B4[(j&3)*4+(i&3)]+.5)/16)p(i,j,v>.85?'#8a6648':'#a98764')}}));   /* the charred windows' soot: warm brown dither, dense at the foot */
   r.setProperty('--fxht',mk(16,16,p=>{for(let k=0;k<4;k++){const i=(k*5+2)%16,j=(k*9+3)%16;p(i,j,HOT.crest);p(i,(j+1)%16,HOT.emb)}}));
 }
 /* the haze's strength: a faint floor while he is in Molten, rising with the geyser chase, flaring while a vent erupts */
@@ -2433,12 +2548,12 @@ function tideFloat(h){if(Math.abs(h-flH)<6&&h)return;flH=h;const lim=desk.getBou
   $$('#icons .icon').forEach(b=>{const q=b.getBoundingClientRect();b.classList.toggle('fl',h>0&&!isMobile()&&q.height>0&&q.top+q.height*.45>lim)})}
 const tideTo=()=>FXL.flood>0?Math.round(desk.clientHeight*(.12+.5*FXL.flood)):0;
 /* Molten: the heat haze (heat, shimmer and glow all feed it) */
-function hazeFx(n,v){FXL[n]=v;tabSync();deskFx()}
+function hazeFx(n,v){FXL[n]=v;tabSync();deskFx();charSync()}
 /* the desktop canvas: tide and haze, 12 frames a second while either shows; none on phones, where windows cover the desktop */
-let fxC=null,fxRaf=0,fxT0=0,fxLast=0,tideH=0,hzImg=null;
+let fxC=null,fxRaf=0,fxT0=0,fxLast=0,tideH=0,hzImg=null,thG=0;   /* thG: how far the thorns have grown (0..1), easing toward FXL.thorns */
 function deskFx(){
-  const on=FXL.flood>0||hazeLv()>0||tideH>=1;
-  if(!on||isMobile()){if(fxC){fxC.remove();fxC=null}cancelAnimationFrame(fxRaf);fxRaf=0;tideH=0;return}
+  const on=FXL.flood>0||hazeLv()>0||tideH>=1||FXL.thorns>0||thG>=.02;
+  if(!on||isMobile()){if(fxC){fxC.remove();fxC=null}cancelAnimationFrame(fxRaf);fxRaf=0;tideH=0;thG=0;return}
   if(!fxC){fxC=document.createElement('canvas');fxC.className='fxd';fxC.setAttribute('aria-hidden','true');wall.after(fxC)}
   if(reduce){deskDraw(0);return}
   if(!fxRaf){fxT0=performance.now();fxRaf=requestAnimationFrame(deskTick)}
@@ -2447,11 +2562,13 @@ function deskTick(t){fxRaf=0;if(!fxC)return;if(isMobile()){deskFx();return}if(t-
 function deskDraw(t){
   const W=desk.clientWidth,Hd=desk.clientHeight,hz=hazeLv(),to=tideTo();
   const d=to-tideH;tideH=reduce||Math.abs(d)<3?to:tideH+(d<0?Math.min(-3,Math.max(-10,d*.1)):Math.max(1,Math.min(6,d*.1)));   /* the tide comes in slowly, drains faster */
-  const bh=hz?Math.round(Hd*(.16+.44*hz)):0,H=Math.max(tideH>=1?Math.ceil(tideH)+8:0,bh);
-  if(!H||!W){if(fxC){fxC.remove();fxC=null}tideH=0;tideFloat(0);return false}
+  const tt=FXL.thorns;thG=reduce?tt:thG+(tt-thG)*(tt<thG?.25:.08);if(!tt&&thG<.02)thG=0;   /* the thorns grow slowly, wither faster */
+  const bh=hz?Math.round(Hd*(.16+.44*hz)):0,H=thG>=.02?Hd:Math.max(tideH>=1?Math.ceil(tideH)+8:0,bh);
+  if(!H||!W){if(fxC){fxC.remove();fxC=null}tideH=0;thG=0;tideFloat(0);return false}
   if(fxC.width!==W||fxC.height!==H){fxC.width=W;fxC.height=H;fxC.style.width=W+'px';fxC.style.height=H+'px'}
   const x=fxC.getContext('2d');x.clearRect(0,0,W,H);
   if(bh)hazeDraw(x,W,H,Hd,bh,hz,t);
+  if(thG>=.02)thornDraw(x,W,H,thG,t);
   if(tideH>=1)tideDraw(x,W,H,tideH,t);
   tideFloat(tideH>=1?tideH:0);
   return true;
@@ -2509,7 +2626,7 @@ function glowFx(v){
 /* Flood: the Trash fills with water. Its window: water from the items' middle down, the items bobbing at the surface; its
    desktop icon: water inside the can, drips down its sides and a puddle at its foot */
 function wetFx(v){
-  FXL.wet=v?1:0;if(v)fxTiles();WIN.trash.el.classList.toggle('wet',!!v);
+  FXL.wet=v?1:0;if(v)fxTiles();WIN.trash.el.classList.toggle('wet',!!v);document.documentElement.classList.toggle('fxwet',!!v);   /* html.fxwet: every other window's water (.fxb) */
   const ic=$('#ic-trash .ic');let c=ic&&$('canvas.wet',ic);
   if(!v){if(c)c.remove();return}
   if(!ic||c||!ICON.trash)return;
@@ -2520,6 +2637,252 @@ function wetFx(v){
   for(let j=28;j<=33;j++)for(let i=-2;i<34;i++){const dx=(i+.5-16)/13,dy=(j+.5-30.5)/2.2;if(dx*dx+dy*dy>1||on(i,j))continue;
     C(i,j,j<=29?WTR.crest:(i+j)&1?WTR.crestD:WTR.streak)}
   [[6,16],[6,19],[25,15],[25,21],[25,22]].forEach(([i,j])=>{if(!on(i,j))C(i,j,WTR.crestD)});C(6,20,WTR.crest);C(25,23,WTR.crest);
+}
+/* ---- Window and desktop effects for the biomes (Roots, Molten, and the scorch): each draws on its own pixels ---- */
+/* Roots: moss creeps over a window's frame (at the icons' level): the bottom and the corners first, a thin fringe on the top (the
+   title stays readable), tufts above the top edge and strands hanging off the bottom, spilling a few pixels outside. P is the margin */
+function mossWin(x,W,Hh,P,e,n){
+  const H=(i,j,s=0)=>fxHash(i*31+n*977+s,j+n*13),x0=P,y0=P,x1=W-P,y1=Hh-P,D=1+e*5,M=new Uint8Array(W*Hh),at=(i,j)=>i<0||j<0||i>=W||j>=Hh?0:M[j*W+i];
+  for(let j=y0;j<y1;j++)for(let i=x0;i<x1;i++){
+    const fy=(j-y0)/(y1-y0),d=Math.min(i-x0,x1-1-i,(j-y0)*2.4,(y1-1-j)*.8),dep=D*(.5+.9*fy);   /* thinner on top, deeper toward the bottom */
+    if(d>=dep)continue;
+    if(H(i,j)<Math.min(.97,(1-d/dep)*1.1)*(.5+.45*e))M[j*W+i]=1}
+  const C=(i,j,k)=>{x.fillStyle=MOSS[k];x.fillRect(i,j,1,1)};
+  for(let j=y0;j<y1;j++)for(let i=x0;i<x1;i++){if(!at(i,j))continue;
+    const h=H(i+7,j+3,1),up=!at(i,j-1),dn=!at(i,j+1),up2=!at(i,j-2);
+    let k=up?(h<.55?5:4):up2?4:h<.12?1:h<.7?2:3;
+    if(dn)k=Math.min(k,1);if(!at(i-1,j)&&!up)k=Math.min(6,k+1);
+    C(i,j,k);
+    if(j===y0&&H(i,j,29)<.3+.4*e){const L=1+(H(j,i+5,2)*(1+2*e)|0);for(let t=1;t<=L&&j-t>=0;t++)C(i,j-t,t===L?(H(i,t,3)<.5?6:5):4)}   /* tufts above the top edge */
+    if(j===y1-1&&H(i,j,9)<.25+.35*e){const L=1+(H(i,j+5,4)*(2+2*e)|0);for(let t=1;t<=L&&j+t<Hh;t++)C(i,j+t,t===L?3:0)}   /* strands off the bottom */
+    if(i===x0&&H(j,i,13)<.35){C(i-1,j,1);if(H(j,i,15)<.5)C(i-2,j,0)}else if(i===x1-1&&H(j,i,17)<.35){C(i+1,j,1);if(H(j,i,19)<.5)C(i+2,j,0)}   /* a few pixels over the sides */
+    if(!up&&!dn&&H(j+77,i,5)<.035+.05*e)C(i,j,6)}
+}
+/* Molten: the windows are charred. Soot burns in from the edges in ragged dithered steps (heavier at the bottom, thin on top so the
+   title reads) and a few ember cracks glow where it bit deepest. c is the haze's strength, 0.5..1. The body's soot is CSS (--fxsoot) */
+const SOOT=['#3a2218','#241410','#120b09'];
+function charWin(x,W,Hh,P,c,n){
+  const x0=P,y0=P,x1=W-P,y1=Hh-P,D=2+c*7;
+  for(let j=y0;j<y1;j++)for(let i=x0;i<x1;i++){
+    const d=Math.min(i-x0-3*fxHash(j>>1,n),x1-1-i-3*fxHash(j>>1,n+1),(j-y0)*2.4-3*fxHash(i>>1,n+2),(y1-1-j)*.7-3*fxHash(i>>1,n+3));
+    if(d>=D)continue;const g=1-d/D,th=(B4[(j&3)*4+(i&3)]+.5)/16;if(g*1.15<=th)continue;
+    x.fillStyle=g>.7?SOOT[2]:g>.4?SOOT[1]:SOOT[0];x.fillRect(i,j,1,1)}
+  for(let k=0;k<4;k++){
+    const s=(k+((n>>3)&3))&3,t=fxHash(n,k+5);let px,py,dx=0,dy=0;
+    if(s===0){px=x0+Math.floor(t*(x1-x0));py=y0;dy=1}else if(s===1){px=x1-1;py=y0+Math.floor(t*(y1-y0));dx=-1}
+    else if(s===2){px=x0+Math.floor(t*(x1-x0));py=y1-1;dy=-1}else{px=x0;py=y0+Math.floor(t*(y1-y0));dx=1}
+    const L=3+Math.floor(fxHash(n,k+9)*(2+4*c));
+    for(let m=0;m<L;m++){x.fillStyle=m<L*.4?HOT.crest:m<L*.75?HOT.emb:HOT.rust;x.fillRect(px,py,1,1);
+      const sw=fxHash(px*7+m,py+n)<.4?(fxHash(m,k+n)<.5?1:-1):0;if(dx){px+=dx;py+=sw}else{py+=dy;px+=sw}}
+  }
+}
+/* the buddy's perches (a window's top edge, its footer's top line, the strip's top edge): blotches of soot a few pixels deep with a
+   rust edge, every so often along the line */
+function scorchLine(x,x0,x1,y,n,seed,ink,edge,spark){
+  for(let i=x0+Math.floor(fxHash(seed,n)*18);i<x1-3;){
+    const w=5+Math.floor(fxHash(i,n+seed)*9);
+    for(let t=0;t<w&&i+t<x1;t++){const mid=t>w*.25&&t<w*.75,h=1+(mid?1:0)+(fxHash(i+t,n+seed+1)<.3?1:0);
+      for(let k=0;k<h;k++){x.fillStyle=k===h-1&&h>1?edge:ink;x.fillRect(i+t,y+k,1,1)}
+      if(mid&&fxHash(i+t,n+seed+2)<.12){x.fillStyle=spark;x.fillRect(i+t,y+h,1,1)}}
+    i+=w+10+Math.floor(fxHash(i,n+seed+3)*28)}
+}
+function scorchWin(x,W,P,fy,n){
+  scorchLine(x,P,W-P,P,n,1,SOOT[2],SOOT[0],HOT.rust);
+  if(fy>=0)scorchLine(x,P,W-P,fy,n,2,SOOT[2],SOOT[0],HOT.rust);
+}
+const SCORCH_KEY='tos_wake_scorch';
+function scorchApply(on){
+  WFX.scorch=on?1:0;winFxAll();
+  const st=$('#strip');let c=$('canvas.fxsc',st);
+  if(!on){if(c)c.remove();return}
+  if(!c){c=document.createElement('canvas');c.className='fxsc';c.setAttribute('aria-hidden','true');st.appendChild(c);new ResizeObserver(()=>scorchStrip()).observe(st)}
+  scorchStrip();
+}
+function scorchStrip(){
+  const c=$('canvas.fxsc',$('#strip'));if(!c)return;const W=Math.ceil($('#strip').offsetWidth/2);if(!W)return;
+  if(c.width!==W||c.height!==6){c.width=W;c.height=6;c.style.width=W*2+'px';c.style.height='12px';const x=c.getContext('2d');scorchLine(x,0,W,0,31,3,'#5a3a28','#7a3f22',HOT.emb)}   /* on the strip's ink, in rust and ember: soot would not show */
+}
+function scorchFx(v){if(v){PSET(SCORCH_KEY,'1');scorchApply(1)}}
+/* Molten: the windows char while the haze is up (the strip tab, the haze and the char all come from the same level) */
+function charSync(){
+  const h=hazeLv(),c=h?Math.round((.45+.55*h)*8)/8:0;
+  document.documentElement.classList.toggle('fxchr',c>0);if(c>0)fxTiles();
+  if(WFX.char!==c){WFX.char=c;winFxAll()}
+}
+/* Molten: magma crusts over the desktop icons, thick on top and thinning toward the foot (so each still reads), glowing in blocks
+   (molten cells, embers, dark crust), with drips hanging off the lowest covered edge. The canvas flickers a touch (CSS) */
+const MAG=['#2a140d','#4a2616','#7a3f22'];
+function magmaFx(v){
+  $$('#icons .icon').forEach((b,n)=>{
+    const ic=$('.ic',b);let c=$('canvas.mag',ic);
+    if(!v){if(c)c.remove();return}
+    const rows=iconRows(b);if(!rows||c)return;
+    c=document.createElement('canvas');c.className='mag';c.width=c.height=36;c.setAttribute('aria-hidden','true');ic.appendChild(c);
+    const x=c.getContext('2d'),on=(i,j)=>i>=0&&j>=0&&i<32&&j<32&&rows[j][i]!=='.',H=(i,j,s=0)=>fxHash(i*31+n*977+s,j+n*13),C=(i,j,k)=>{x.fillStyle=k;x.fillRect(i+2,j+2,1,1)};
+    let top=32,bot=0;for(let j=0;j<32;j++)for(let i=0;i<32;i++)if(on(i,j)){top=Math.min(top,j);bot=Math.max(bot,j)}
+    if(bot<top)return;
+    const ht=Math.max(1,bot-top),edge=(i,j)=>!on(i-1,j)||!on(i+1,j)||!on(i,j-1)||!on(i,j+1);
+    const cov=(i,j)=>on(i,j)&&H(i,j,5)<Math.max(0,.95-.8*(j-top)/ht+(edge(i,j)?.14:0));
+    for(let j=0;j<32;j++)for(let i=0;i<32;i++){if(!cov(i,j))continue;
+      const r=H(Math.floor(i/3),Math.floor(j/3),9),hh=H(i,j,2);
+      C(i,j,!cov(i,j-1)&&hh<.4?HOT.pop:r<.22?(hh<.3?HOT.pop:hh<.7?HOT.crest:HOT.embL):r<.45?(hh<.25?HOT.embL:HOT.emb):r<.75?(hh<.3?MAG[2]:HOT.rust):MAG[hh<.5?0:1])}
+    for(let i=0;i<32;i++){let jb=-1;for(let j=31;j>=0;j--)if(cov(i,j)){jb=j;break}
+      if(jb<0||on(i,jb+1)||H(i,3,7)>.3)continue;
+      const L=1+Math.floor(H(i,4,7)*4);for(let t=1;t<=L;t++)C(i,jb+t,t===L?HOT.pop:t<3?HOT.crest:HOT.emb)}   /* drips below the lowest covered pixel of a column */
+    for(let j=-1;j<33;j++)for(let i=-1;i<33;i++){if(on(i,j))continue;
+      if((cov(i-1,j)||cov(i+1,j)||cov(i,j-1))&&H(i,j,11)<.28)C(i,j,H(i,j,13)<.5?HOT.emb:HOT.rust)}   /* spills just past the outline */
+  });
+}
+/* Roots: the thorn chase grows thorns over the background (the desktop canvas, under the icons and windows): vines climb from
+   the bottom edge and creep in from the sides and the top, each with paired barbs and a red tip, swaying a little; g is how far they have grown */
+const THC={d:'#1b120a',s:'#4a3320',h:'#6e4d2c',r:'#8e2323',t:'#e04848'};
+function thornDraw(x,W,H,g,t){
+  const vine=(ox,oy,ax,ay,len,seed)=>{
+    const px=-ay,py=ax,gv=Math.max(0,Math.min(1,g*1.35-fxHash(seed,1)*.35)),L=Math.round(len*gv);if(L<6)return;
+    const at=s=>{const w=Math.sin(s*.04+seed*7)*Math.min(10,s*.12)+(reduce?0:Math.sin(t*.9+seed)*Math.min(4,s*.05));return [Math.round((ox+ax*s+px*w)/2)*2,Math.round((oy+ay*s+py*w)/2)*2]};
+    for(let s=0;s<=L;s+=2){
+      const [gx,gy]=at(s),th=Math.max(2,Math.round((8-6*s/L)/2)*2);
+      x.fillStyle=THC.d;x.fillRect(gx-th/2-2,gy-th/2-2,th+4,th+4);
+      x.fillStyle=THC.s;x.fillRect(gx-th/2,gy-th/2,th,th);
+      if(s%6===0){x.fillStyle=THC.h;x.fillRect(gx-th/2,gy-th/2,2,2)}}
+    for(let s=10;s<L-4;s+=16){
+      const [gx,gy]=at(s),side=((s/16|0)&1)?1:-1,tl=8+Math.floor(fxHash(s,seed)*8);
+      for(let q=2;q<=tl;q+=2){const bx=gx+px*side*q+ax*(q>>1),by=gy+py*side*q+ay*(q>>1),z=q>tl*.55?2:4;
+        x.fillStyle=THC.d;x.fillRect(bx-z/2-1,by-z/2-1,z+2,z+2);x.fillStyle=q>=tl-1?THC.t:THC.r;x.fillRect(bx-z/2,by-z/2,z,z)}}
+    const [ex,ey]=at(L);x.fillStyle=THC.t;x.fillRect(ex-1,ey-1,3,3);   /* the growing tip */
+  };
+  const cnt=(len,gap)=>Math.max(2,Math.ceil(len/gap));
+  for(let k=0,N=cnt(W,110);k<N;k++)vine(Math.round(fxHash(k,41)*W),H,0,-1,H*(.26+.34*fxHash(k,43)),k+1);
+  for(let k=0,N=cnt(H,160);k<N;k++)vine(0,Math.round(fxHash(k,47)*H),1,0,W*(.06+.12*fxHash(k,49)),k+101);
+  for(let k=0,N=cnt(H,260);k<N;k++)vine(W,Math.round(fxHash(k,53)*H),-1,0,W*(.04+.08*fxHash(k,59)),k+201);
+  for(let k=0,N=cnt(W,230);k<N;k++)vine(Math.round(fxHash(k,61)*W),0,0,1,H*(.1+.16*fxHash(k,67)),k+301);
+}
+function thornsFx(v){if(!v&&fxLv.thorns)thG=0;FXL.thorns=v;deskFx()}   /* cleared or minimized: gone at once (the chase ending lets them wither) */
+/* ---- Crystals. The Trash turns to crystal: its icon cut into cold facets with shards growing at its foot and on its lid,
+   its window frosted with pale facets. The delete sweep dissolves the desktop icons in order, top first, as its front
+   comes down: each icon's own pixels drop out in a fixed dither, top first, a dark edge leading, then its label (no fade;
+   the buttons keep their place and still work). Holding Undo runs the dither back so they return, and lays a faint scan
+   over the desktop and the game's tab. Reduced motion: the same pictures, held still ---- */
+const CG={k:'#141831',vD:'#5a4fa6',v:'#8b7fd8',vL:'#b9b0f0',iD:'#6f86c4',i:'#a9c4f0',iL:'#d9e7ff',w:'#ffffff'};   /* the game's crystal (game/crystalart.js) */
+function crystalFx(v){FXL.crystal=v?1:0;if(v)cryTiles();WIN.trash.el.classList.toggle('crys',!!v);document.documentElement.classList.toggle('fxcry',!!v);cryIcon()}
+/* the Trash icon: a fixed Voronoi of faces over the can (each its own tone, a white seam on its lit side and violet on its
+   shaded side), the can's ribs and halftone kept as lighter and darker steps, the outline in the crystal's ink, and shards */
+const CRS=[[8,9,0],[22,8,1],[9,17,0],[19,13,2],[13,26,1],[23,22,3]];   /* face seeds: x, y, tone */
+const CRT=[CG.iL,CG.i,CG.vL,CG.iD,CG.v,CG.i],CRD=[CG.i,CG.iD,CG.v,CG.vD,CG.vD,CG.iD];
+const CRSH=[[4,31,8,4,-1.5],[7,31,4,3,0],[27,31,10,5,1.5],[30,31,5,3,1],[8,6,5,3,-.5],[24,6,4,3,.5]];   /* shards: x, base y, height, width, lean (icon px) */
+const iconRows=b=>{const ic=$('.ic',b);return ICON[ic.dataset.fr||ic.dataset.ic||(b.id==='ic-wake'?'wake':'')]};
+/* shards: [x, base y, height, width, lean] (icon px), drawn off the icon only, a dark outline round each */
+function cryShards(x,on,list){
+  const C=(i,j,k)=>{x.fillStyle=k;x.fillRect(i+2,j+2,1,1)};
+  for(const [sx,by,h,w,ln] of list){
+    const inS=(i,j)=>{if(j>by||j<by-h)return false;const k=(by-j)/h;return Math.abs(i+.5-(sx+ln*k))<=(w/2)*(1-k)+.01};
+    for(let j=by-h-1;j<=by+1;j++)for(let i=Math.floor(sx-w-3);i<=sx+w+3;i++){if(i<-2||j<-2||i>33||j>33||on(i,j))continue;
+      if(inS(i,j)){const k=(by-j)/h;C(i,j,!inS(i,j-1)?CG.w:i+.5<sx+ln*k?(k>.5?CG.iL:CG.i):(k>.5?CG.vL:CG.v))}
+      else if(inS(i-1,j)||inS(i+1,j)||inS(i,j-1)||inS(i,j+1))C(i,j,CG.k)}}
+}
+/* every desktop icon turns to crystal. The Trash keeps its own cut (the can's ribs, shards at its foot and lid); the others take a
+   Voronoi seeded across their own bounding box (so each cuts differently), the outline in the crystal's ink, a few shards growing off
+   their top edge and standing beside their foot. `only` redraws just that icon (the Trash while the buddy rummages) */
+function cryIcon(only){
+  (only?[only]:$$('#icons .icon')).forEach((b,n)=>{
+    const ic=$('.ic',b);if(!ic)return;let c=$('canvas.crys',ic);
+    if(!FXL.crystal){if(c)c.remove();return}
+    const rows=iconRows(b);if(!rows)return;
+    const tr=b.id==='ic-trash',fr=ic.dataset.fr||ic.dataset.ic||'';
+    if(c&&!tr&&c.dataset.k===fr)return;   /* the others do not change once cut */
+    if(!c){c=document.createElement('canvas');c.className='crys';c.width=c.height=36;c.setAttribute('aria-hidden','true');ic.appendChild(c)}
+    c.dataset.k=fr;const x=c.getContext('2d');x.clearRect(0,0,36,36);
+    const on=(i,j)=>i>=0&&j>=0&&i<32&&j<32&&rows[j][i]!=='.',C=(i,j,k)=>{x.fillStyle=k;x.fillRect(i+2,j+2,1,1)};
+    let top=32,bot=0,lo=32,hi=0;for(let j=0;j<32;j++)for(let i=0;i<32;i++)if(on(i,j)){top=Math.min(top,j);bot=Math.max(bot,j);lo=Math.min(lo,i);hi=Math.max(hi,i)}
+    if(bot<top)return;
+    const id=winHash(fr||'x'),seeds=tr?CRS:Array.from({length:7},(_,k)=>[lo+fxHash(id+k,3)*(hi-lo),top+fxHash(id+k,5)*(bot-top),k%6]);
+    const can=tr?(i,j)=>on(i,j)&&'gGw'.includes(rows[j][i]):(i,j)=>on(i,j)&&rows[j][i]!=='k';   /* the Trash: only the can (the sprout on top keeps its colours) */
+    const face=(i,j)=>{let b=0,d=1e9;seeds.forEach(([a,e],k)=>{const q=(i-a)*(i-a)+(j-e)*(j-e)*1.3;if(q<d){d=q;b=k}});return b};
+    for(let j=0;j<32;j++)for(let i=0;i<32;i++){if(!on(i,j))continue;const ch=rows[j][i];
+      if(ch==='k'){C(i,j,CG.k);continue}
+      if(!can(i,j))continue;
+      const f=face(i,j),t=seeds[f][2];
+      if((can(i-1,j)&&face(i-1,j)!==f)||(can(i,j-1)&&face(i,j-1)!==f))C(i,j,CG.w);
+      else if((can(i+1,j)&&face(i+1,j)!==f)||(can(i,j+1)&&face(i,j+1)!==f))C(i,j,CG.vD);
+      else C(i,j,tr?(ch==='w'&&j>12?CG.w:i>=19&&j>11||ch==='G'&&j<=12?CRD[t]:CRT[t]):(i>lo+(hi-lo)*.6&&j>top+(bot-top)*.3?CRD[t]:CRT[t]))}   /* the Trash: the ribs stay lit, the right side (the old halftone) a step darker; the others: the lower right a step darker */
+    if(tr)return cryShards(x,on,CRSH);
+    const colTop=i=>{for(let j=0;j<32;j++)if(on(i,j))return j;return -1},colBot=i=>{for(let j=31;j>=0;j--)if(on(i,j))return j;return -1};
+    const pick=(k,a,z)=>Math.round(a+fxHash(id+k,11)*(z-a)),sh=[];
+    for(let k=0;k<2;k++){const i=pick(k,lo+2,hi-2),t0=colTop(i);if(t0>=0)sh.push([i,t0+1,3+Math.floor(fxHash(id+k,13)*3),3+Math.floor(fxHash(id+k,17)*2),fxHash(id+k,19)*2-1])}   /* off the top edge */
+    sh.push([lo-1,bot+1,5+Math.floor(fxHash(id,23)*3),4,-1.5],[hi+1,bot+1,4+Math.floor(fxHash(id,29)*3),4,1.5]);   /* beside the foot, leaning out */
+    cryShards(x,on,sh)
+  });
+}
+/* the Trash window's frost: a 32px tile of pale faces (wrapping Voronoi) with fine cool seams, drawn once, shown at 2x */
+let cryTl=0;
+function cryTiles(){
+  if(cryTl)return;cryTl=1;const c=document.createElement('canvas');c.width=c.height=32;const x=c.getContext('2d');
+  const P=[[3,4],[14,2],[25,7],[8,14],[19,13],[29,19],[4,24],[15,24],[24,28]],TN=['#eef4ff','#e2ebfd','#f7faff','#e9e6fb','#dfe9fb','#f2f0ff','#e6eefd','#f9fbff','#e3eafb'];
+  const near=(i,j)=>{let a=1e9,b=1e9,n=0;P.forEach(([px,py],k)=>{const dx=Math.min(Math.abs(i-px),32-Math.abs(i-px)),dy=Math.min(Math.abs(j-py),32-Math.abs(j-py)),d=Math.hypot(dx,dy);if(d<a){b=a;a=d;n=k}else if(d<b)b=d});return [n,b-a]};
+  for(let j=0;j<32;j++)for(let i=0;i<32;i++){const [n,g]=near(i,j);x.fillStyle=g<.9?'#c4d0f0':TN[n];x.fillRect(i,j,1,1)}
+  document.documentElement.style.setProperty('--fxcr',`url(${c.toDataURL()})`);
+}
+/* the sweep: erF is how far the front has come down the icons (0..N, in icons, top first; ties left first). Icon n shows
+   u=clamp((erF-n)*1.25) gone, its label a quarter behind, so a unit is wholly gone at erF=n+1. A mask (36px grid at 2x, ES
+   steps, cached) keeps the pixels whose threshold (half how low they sit, half a fixed hash) is at or over u; a canvas paints
+   the next band of what is left black, a few pale, re-picked every 140 ms (the sweep's flickering edge in the game) */
+const ES=16;let erF=0,erRaf=0,erLast=0,erOrd=null;const erMk=new Map();
+const erTh=(n,i,j,lab)=>lab?fxHash(i+n*53,j+977):.5*j/35+.5*fxHash(i+n*41,j+n*7);
+function erMask(n,s,lab){
+  const key=(lab?'l':'i')+n+','+s;let u=erMk.get(key);if(u)return u;
+  const N=lab?16:36,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d');x.fillStyle='#000';
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++)if(erTh(n,i,j,lab)>=s/ES)x.fillRect(i,j,1,1);
+  u=`url(${c.toDataURL()})`;erMk.set(key,u);return u;
+}
+function erSetMask(e,m,pos){if(m){e.style.setProperty('-webkit-mask',m+' '+pos);e.style.setProperty('mask',m+' '+pos)}else{e.style.removeProperty('-webkit-mask');e.style.removeProperty('mask')}}
+const erTo=()=>FXL.rewind||!erOrd?0:FXL.erase*erOrd.length;
+function erDraw(t){
+  if(!erOrd)return;const sd=reduce?0:Math.floor(t/140);
+  erOrd.forEach((b,n)=>{
+    const ic=$('.ic',b),lb=$('.lb',b),k=(erF-n)*1.25,s=Math.ceil(Math.max(0,Math.min(1,k))*ES),sl=Math.ceil(Math.max(0,Math.min(1,k-.25))*ES);
+    if(!ic)return;
+    if(+(b.dataset.es||0)!==s){b.dataset.es=s;erSetMask(ic,s?erMask(n,s):'','-4px -4px/72px 72px no-repeat')}
+    if(lb&&+(b.dataset.el||0)!==sl){b.dataset.el=sl;erSetMask(lb,sl?erMask(n%4,sl,1):'','0 0/32px 32px repeat')}
+    let c=$('canvas.ers',ic);
+    if(!s||s>=ES){if(c)c.remove();return}
+    const key=s+','+sd;if(c&&c.dataset.k===key)return;
+    const rows=ICON[ic.dataset.fr||ic.dataset.ic||(b.id==='ic-wake'?'wake':'')];if(!rows)return;
+    if(!c){c=document.createElement('canvas');c.className='ers';c.width=c.height=36;c.setAttribute('aria-hidden','true');ic.appendChild(c)}
+    c.dataset.k=key;const x=c.getContext('2d'),u=s/ES;x.clearRect(0,0,36,36);
+    for(let j=0;j<32;j++)for(let i=0;i<32;i++){if(rows[j][i]==='.')continue;const th=erTh(n,i+2,j+2);if(th<u||th>=u+.1)continue;
+      x.fillStyle=fxHash(i*7+sd,j+n*13)<.14?'#e8f1ff':'#000';x.fillRect(i+2,j+2,1,1)}
+  });
+}
+/* the front passes 4 icons a second; a rewind runs them all back in about a third of a second */
+function erTick(t){
+  erRaf=0;if(!erOrd)return;const N=erOrd.length,to=erTo();
+  if(t-erLast>=33){const dt=erLast?Math.min(.1,(t-erLast)/1000):0;erLast=t;const d=to-erF,sp=d<0?Math.max(8,N*2.5):4;
+    erF=Math.abs(d)<=sp*dt?to:erF+Math.sign(d)*sp*dt;erDraw(t)}
+  if(erF!==to||erF%1)erRaf=requestAnimationFrame(erTick);else{erLast=0;if(!to&&!FXL.erase)erEnd()}
+}
+function eraseSync(snap){
+  if(FXL.erase>0&&!erOrd)erOrd=$$('#icons .icon').map(b=>[b,b.getBoundingClientRect()]).sort((a,c)=>Math.abs(a[1].top-c[1].top)>8?a[1].top-c[1].top:a[1].left-c[1].left).map(a=>a[0]);
+  if(!erOrd)return;
+  const to=erTo();
+  if(snap||reduce){erF=to;erLast=0;erDraw(0)}
+  if(erF===to&&(reduce||!(erF%1))){if(!to&&!FXL.erase)erEnd();return}
+  if(!erRaf)erRaf=requestAnimationFrame(erTick);
+}
+function erEnd(){
+  cancelAnimationFrame(erRaf);erRaf=0;erLast=0;erF=0;
+  if(erOrd)erOrd.forEach(b=>{const ic=$('.ic',b),lb=$('.lb',b);delete b.dataset.es;delete b.dataset.el;if(ic){erSetMask(ic,'');const c=$('canvas.ers',ic);if(c)c.remove()}if(lb)erSetMask(lb,'')});
+  erOrd=null;
+}
+/* a 0 from suspend or clear (osFx still holds the level) puts every icon back at once; the engine's own 0 (the chase over) runs the dither back */
+function eraseFx(v){const snap=!v&&!!fxLv.erase;FXL.erase=v;eraseSync(snap)}
+/* Undo held: the icons come back (the dither run in reverse) and a faint scan rolls up the desktop (above the icons, under
+   the windows and the mascot) and over the game's tab; let go, the sweep takes them again */
+let scanEl=null;
+function rewindFx(v){
+  FXL.rewind=v?1:0;const on=!!v;document.documentElement.classList.toggle('fxr',on);
+  if(on&&!scanEl){scanEl=document.createElement('div');scanEl.className='fxscan';scanEl.setAttribute('aria-hidden','true');desk.appendChild(scanEl)}
+  else if(!on&&scanEl){scanEl.remove();scanEl=null}
+  eraseSync(false);
 }
 
 /* ================= Wake Up: the ending. The window finally closes, the OS reboots home, the icon goes, the door's medallion is the wallpaper ================= */
@@ -2616,6 +2979,7 @@ const MENUS={
  file:()=>[['Read Me',()=>openWin('readme')],['Work',()=>openWin('work')],['Career',()=>openWin('career')],['How I Work',()=>openWin('how')],["Who I've Worked With",()=>openWin('worked')],'-',['Close Window',()=>topId&&closeWin(topId),'Esc',!topId||WIN[topId].keep]],
  view:()=>[['as Icons',()=>{setView('icons');openWin('work')},null,false,view==='icons'],['as List',()=>{setView('list');openWin('work')},null,false,view==='list'],'-',['Simple view',openSimple],['80s version',()=>set80(!v80on),null,false,v80on]],
  window:()=>order.length?order.map(id=>[WIN[id].title,()=>{if(WIN[id].min){restoreWin(id);return}shade(id,false);focusWin(id,{bump:true})},null,false,id===topId]):[['Read Me',()=>openWin('readme')]],
+ wakeup:()=>[[gameFs?'Exit Full Screen':'Full Screen',toggleFs,gameFs?'Esc':null],['Options…',openWakeOpts],'-',[quitDead?'No Escape':'Quit',wakeQuit,null,false,undefined,true]],
  special:()=>[['Clear Seeds',clearSeeds,null,seeds===0],['Preview 100 seeds',showAlert,'C'],['Preview 404',show404]]
 };
 function openMenu(btn,focusFirst){
@@ -2623,11 +2987,11 @@ function openMenu(btn,focusFirst){
   const items=MENUS[btn.dataset.menu]();
   menuEl.innerHTML='<div class="mi-in"></div>';const box=menuEl.firstChild;menuEl.setAttribute('aria-label',btn.textContent.trim()||'Seed menu');
   items.forEach(it=>{if(it==='-'){const s=document.createElement('div');s.className='msep';s.setAttribute('role','separator');box.appendChild(s);return}
-    const [label,fn,key,dis,chk]=it;const b=document.createElement('button');b.className='mi';
+    const [label,fn,key,dis,chk,keep]=it;const b=document.createElement('button');b.className='mi';
     b.setAttribute('role',chk!==undefined?'menuitemradio':'menuitem');if(chk!==undefined)b.setAttribute('aria-checked',String(!!chk));
     b.innerHTML=`<span>${esc(label)}</span>${key?`<kbd>${key}</kbd>`:''}`;
     if(dis)b.setAttribute('aria-disabled','true');
-    b.addEventListener('click',()=>{if(dis)return;closeMenu(false);fn()});box.appendChild(b)});
+    b.addEventListener('click',()=>{if(dis)return;if(keep)fn(b);else{closeMenu(false);fn()}});box.appendChild(b)});   /* keep: the item holds the menu open and gets its own button */
   const r=btn.getBoundingClientRect();menuEl.style.left=Math.round(Math.min(r.left,innerWidth-224))+'px';menuEl.style.top=Math.round(r.bottom)+'px';menuEl.hidden=false;
   if(focusFirst)$('.mi',menuEl).focus();
 }
@@ -2664,6 +3028,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     if(!alertW.hidden){hideAlert();return}
     if(curMenu){closeMenu(true);return}
+    if(gameFs&&topId==='game'){toggleFs();return}
     if(topId){closeWin(topId);return}
   }
   if(!alertW.hidden||gameFront())return;
@@ -2732,7 +3097,7 @@ paintMarks();stage();renderStrip();updInd();BS.mask=PREF(MASK_KEY,'0')==='1'?1:0
 if(/[?&]qa\b/.test(location.search))window.__b={setHat,setWall,ssStart,ssStop,makeHeap,sowHeap,dance,wither,get compost(){return compost},get bin(){return bin},get unr(){return unr},setMask,syncSkull,vxCollect,get crash(){return crash},unrOut,unrIn,unrOpen,unrTryAgain,binFeed,mawEat,get BS(){return BS},toCompost,trashDive,sproutFate,set80,show404,get v80on(){return v80on},plant,plants,sprout,bloom,eat,crumble,bubbleP:v=>{BUBBLE_P=v},get perch(){return perch},ditherIn,clearDither,get bubbles(){return speakN},dropBuddy,hopOnto,logoClick,discoveryClick,get logoN(){return logoN},get ST(){return ST},get endingDone(){return endingDone},plant:plant,showAlert,openWin,closeWin,setView,get carry(){return carry},get seeds(){return seeds},get top(){return topId},
   /* Wake Up: unlock the icon without the crash, let the game window be closed, or forget the unlock (reload after) */
   wake(){if(unr.on)unrReset();if(WIN.crash.open)closeWin('crash');if(PREF(GAME_KEY,'')==='')PSET(GAME_KEY,'on');addWakeIcon(true);crumbleUnr();wakeNew=false;wakePulse()},
-  releaseGame:()=>releaseWin('game'),unwake:()=>{PSET(GAME_KEY,'');PSET(SEED_KEY,'');PSET(TRAP_KEY,'');PSET(MIN_KEY,'');PSET(BEG_KEY,'')},openGame,
+  releaseGame:()=>releaseWin('game'),unwake:()=>{PSET(GAME_KEY,'');PSET(SEED_KEY,'');PSET(SCORCH_KEY,'');scorchApply(0);delete fxLv.scorch;PSET(TRAP_KEY,'');PSET(MIN_KEY,'');PSET(BEG_KEY,'')},openGame,
   untrap(){untrap();syncMascotCP();if(!buddy.hidden){clampBuddy();dropBuddy()}},get trapped(){return trapped},set suckMs(v){suckMs=v},heyBub,
   begNow(){PSET(BEG_KEY,'1');begSoon()},finishGame,osFx,gameReveal,get gdk(){return gdk},minimizeWin,restoreWin,releaseWin,restart,get WIN(){return WIN},get game(){return game}};
 /* the site's old anchors still work: index.html#work, #about, #experience, #contact, and #<project-slug> open the matching window */

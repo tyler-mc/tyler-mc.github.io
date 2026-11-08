@@ -13,7 +13,13 @@ import {newLiquid,stepLiquid,isLiq,inTide} from './liquid.js';
 import {stepVines,isDrilled} from './claws.js';   /* Molten: vines grow and wither; drilled cracked walls (game/claws.js) */
 import {floodTouch} from './fish.js';
 import {cinderTouch} from './cinders.js';   /* Molten: embers, slag beetles, geyser columns */
+import {crySolid,cryBoxes,crystalTouch} from './crystals.js';   /* Crystals: shard steps, locks, receivers, platforms, drifters */
+import {echoHolds} from './echo.js';   /* Crystals: the Echo */
+import {beamNear} from './crystalart.js';
+import {gone} from './sweep.js';   /* Crystals: the delete sweep's front (kind 'sweep', game/chases.js) */   /* Crystals: how near a live beam is, for its hum */
 import {DBUF,BDEMO,boardDemo} from './board.js';
+import {stepFeed,addDrop} from './feed.js';   /* feeding: plants dropped in from the OS desktop */
+import {undoStep,undoRecord,undoClear,undoFill,undoDemo,undoDemoEnd} from './undo.js';   /* Crystals: Undo, the ring buffer and its meter */
 export {T,VW,VH};
 
 const STEP=1000/60,clamp=(v,a,b)=>v<a?a:v>b?b:v;
@@ -38,8 +44,9 @@ function sealed(S,R,tx,ty){
 export function solid(S,R,tx,ty){
   const out=tx<0||ty<0||tx>=R.w||ty>=R.h;
   if(out&&R.id==='hub'&&!S.lit)return true;
+  if(S.chase&&gone(S,R,ty))return false;   /* Crystals: above the delete sweep's front the world is gone (game/sweep.js) */
   const c=tile(R,tx,ty);
-  return c===null||c==='#'||(c==='='&&sealed(S,R,tx,ty))||(c==='G'&&(out||S.gate<.5))||(c==='X'&&(out||!isDrilled(S,tx,ty)));   /* X: cracked rock, till drilled */
+  return c===null||c==='#'||(c==='='&&sealed(S,R,tx,ty))||(c==='G'&&(out||S.gate<.5))||(c==='X'&&(out||!isDrilled(S,tx,ty)))||((c==='Q'||c==='D'||c==='R')&&crySolid(S,R,tx,ty,c,out));   /* X: cracked rock, till drilled; Q D R: game/crystals.js */
 }
 function hits(S,R,b,boxes){
   const o=[],x0=Math.floor(b.x/T),x1=Math.ceil((b.x+b.w)/T)-1,y0=Math.floor(b.y/T),y1=Math.ceil((b.y+b.h)/T)-1;
@@ -59,7 +66,7 @@ export function move(S,R,b,dx,dy,boxes=[],corner=0){
       for(let k=1;k<=corner&&r.hy;k++)for(const s of [dx<=0?-k:0,dx>=0?k:0])if(s&&r.hy&&!hits(S,R,{x:b.x+s,y:b.y-1,w:b.w,h:b.h},boxes).length){b.x+=s;b.y--;r.hy=0}}}}
   return r;
 }
-const solids=S=>S.ens.map((e,i)=>e.wrap>0&&!e.pass?{x:e.x,y:e.y,w:e.w,h:e.h,i}:null).filter(Boolean);
+const solids=S=>[...S.ens.map((e,i)=>e.wrap>0&&!e.pass?{x:e.x,y:e.y,w:e.w,h:e.h,i}:null).filter(Boolean),...cryBoxes(S)];   /* + Crystals platforms and a wrapped Echo (no i: crystals.js carries him) */
 
 /* ---------- rooms, checkpoints, respawn ---------- */
 /* where to stand for a torch: centred on it, dropped to the floor, nudged out of walls */
@@ -73,17 +80,19 @@ export function enterRoom(S,id,pos){
   const R=ROOMS[id],p=S.p;
   S.room=id;S.ens=spawnEnemies(R);S.liq=newLiquid(R,R.flows);S.gate=S.latch&&S.latch[id]?1:0;S.plate=0;S.roots=[];S.flash=-1;S.sit=0;S.still=0;
   S.vines=[];S.drilled=[];S.drillNow=[];S.crack=null;p.cl=0;p.cv=0;   /* Molten: vines and drilled walls are this visit's */
+  S.cr={};S.echo={on:0,log:[],i:0};undoClear(S);if(S.feed){S.feed.drops=[];S.feed.shed=[];S.feed.spit=[];S.feed.pop=[]}   /* Crystals: room-local state, the Echo asleep, no rewind across a seam (game/undo.js) */
   if(pos){p.x=pos.x;p.y=pos.y;p.vx=0;p.vy=0}
   p.on=-1;camera(S,R,1);
 }
 const hubTorch=()=>{const t=ROOMS.hub.torches[0];return {room:'hub',tx:t.tx,ty:t.ty}};
 function respawn(S,ev){
   const cp=S.cp||hubTorch(),R=ROOMS[cp.room],p=S.p;
+  resetChase(S);   /* a running chase restarts a fair gap behind this torch (game/chases.js); before spot(), or a sweep front still above the torch deletes the rows it is looking for */
   enterRoom(S,cp.room,spot(S,R,cp.tx,cp.ty));
   p.dead=0;p.rez=12;p.inv=45;p.ground=0;p.coy=0;p.buf=0;p.carry=0;p.demo=0;p.jq=0;p.dt=0;p.surf=0;p.bo=0;p.mo=0;p.db=0;p.bd=0;p.sj=0;p.burn=0;p.cl=0;p.cv=0;p.vc=0;p.wj=0;ev.push('rez');   /* no dash, surf, burn, cling or board demo carries over */
-  resetChase(S);   /* a running chase restarts a fair gap behind this torch (game/chases.js) */
 }
-function die(S,ev,src){const p=S.p;if(p.dead||p.inv)return;p.dead=18;p.gl=18;p.vx=0;p.vy=0;S.flash=src;ev.push('die')}
+function die(S,ev,src){const p=S.p;if(p.dead||p.inv)return;p.dead=18;if(S.feed){S.feed.head=null;S.feed.eat=null}   /* a death takes the leaf or flower he grew (game/feed.js) */p.gl=18;p.vx=0;p.vy=0;S.flash=src;ev.push('die');
+  undoClear(S);undoDemoEnd(S);S.echo={on:0,log:[],i:0}}   /* no rewind across a death; the Echo sleeps */
 /* the camera follows him; sitting on a perch it drifts slowly (4% a frame) toward the perch's look, PERCH.drift frames in.
    Vertically it aims at c.gy, his ground height, not at him (C1, C2). c.gt counts frames on the ground. */
 function camera(S,R,snap){
@@ -103,7 +112,7 @@ function camera(S,R,snap){
    chase, a death or leaving the seat stands him up. Nothing makes him sit and nothing keeps him there. */
 function perch(S,R,inp,ev){
   const p=S.p,q=S.mode==='play'&&p.ground&&!p.dead&&!(S.chase&&S.chase.on)&&Math.abs(p.vx)<.05?perchOf(R,p):null;
-  const idle=!(inp.l||inp.r||inp.u||inp.d||inp.j||inp.jp||inp.b||inp.bp||inp.drag);
+  const idle=!(inp.l||inp.r||inp.u||inp.d||inp.j||inp.jp||inp.b||inp.bp||inp.z||inp.drag);
   if(q&&idle){if(S.still<PERCH.wait)S.still++;else{if(!S.sit)ev.push('sit');S.sit++}}
   else{if(S.sit)ev.push('stand');S.still=0;S.sit=0}
 }
@@ -154,14 +163,15 @@ function touch(S,R,ev){
     const key=R.id+':'+t.tx+','+t.ty;
     if(R.id==='hub'&&!S.lit){S.lit=1;S.litT=0;S.mode='play';ev.push('torch')}
     if(!S.torches[key]){S.torches[key]=1;ev.push('light')}
+    undoFill(S);   /* a torch fills the Undo meter at once */
     if(!S.cp||S.cp.room!==R.id||S.cp.tx!==t.tx||S.cp.ty!==t.ty){S.cp={room:R.id,tx:t.tx,ty:t.ty};ev.push('cp')}
   }
-  for(const it of R.items)if(!S.items[it.id]&&ov(p,trect(it.tx,it.ty))&&!(it.id==='forged'&&!S.items.board)){S.items[it.id]=1;if(it.id==='root'){p.root=1;p.demo=1}else{p.dc=1;if(it.id==='board'||it.id==='forged')p.bd=1}ev.push('item')}   /* each shows its move (demo(), board.js boardDemo); the forged board waits for the board */
+  for(const it of R.items)if(!S.items[it.id]&&ov(p,trect(it.tx,it.ty))&&!(it.id==='forged'&&!S.items.board)){S.items[it.id]=1;if(it.id==='root'){p.root=1;p.demo=1}else if(it.id==='undo'){undoFill(S);S.undo.demo=1;S.undo.dp=0}else{p.dc=1;if(it.id==='board'||it.id==='forged')p.bd=1}ev.push('item')}   /* each shows its move (demo(), board.js boardDemo, undo.js undoDemo); the forged board waits for the board */
   /* a fragment on its pedestal (it rests above the tile): walking into it lifts it, and its biome's chase wakes */
   for(const f of R.pedestals){const k=PIECES.indexOf(f.piece);if(k<0||S.pieces[k]||!ov(p,pedRect(f)))continue;
     S.pieces[k]=1;S.cam.sh=3;ev.push('piece');if(CHASES[f.piece]&&!(S.chase&&S.chase.on))startChase(S,f.piece,ev)}
   if(R.plates.length){
-    const held=R.plates.some(({tx,ty})=>{const r={x:tx*T+1,y:ty*T+8,w:T-2,h:4};return ov(p,r)||S.ens.some(e=>e.wrap>0&&e.tz!==2&&ov(e,r))});   /* not a teasing crab's shell (fish.js) */
+    const held=R.plates.some(({tx,ty})=>{const r={x:tx*T+1,y:ty*T+8,w:T-2,h:4};return ov(p,r)||S.ens.some(e=>e.wrap>0&&e.tz!==2&&ov(e,r))||echoHolds(S,r)});   /* not a teasing crab's shell (fish.js) */
     if(held&&!S.plate)ev.push('plate');
     S.plate=held?1:0;
     /* a gate he has walked through latches open for good (saved), so the far side can never trap him */
@@ -173,7 +183,7 @@ function touch(S,R,ev){
   }
   if(p.inv)return;
   const hb=ins(p,3);
-  S.ens.forEach((e,i)=>{if(!e.soft&&!e.wrap&&!e.grace&&ov(hb,ins(e,1)))die(S,ev,i)});   /* Flood's soft ones: floodTouch */
+  S.ens.forEach((e,i)=>{if(!e.soft&&!e.wrap&&!e.grace&&!e.lf&&ov(hb,ins(e,1)))die(S,ev,i)});   /* Flood's soft ones: floodTouch */
   if(p.dead)return;
   const x0=Math.floor(p.x/T),x1=Math.floor((p.x+p.w)/T),y0=Math.floor(p.y/T),y1=Math.floor((p.y+p.h)/T);
   for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++)if(R.g[ty]&&R.g[ty][tx]==='^'&&ov(ins(p,2),spikeRect(R,tx,ty)))return die(S,ev,[tx,ty]);
@@ -227,7 +237,7 @@ function stuck(S,ev){
   if(++S.stuck>=STUCK){const g=goal(S);S.hint=g&&{...g,k:S.stuck-STUCK}}   /* k: frames since he started looking */
 }
 
-/* inp: {l,r,u,d,j,jp,drag:{x,y}|null,any} */
+/* inp: {l,r,u,d,j,jp,b,bp,z,zp,drag:{x,y}|null,any} (z/zp: Undo held / pressed this frame) */
 export function step(S,inp,ev=[]){
   let R=ROOMS[S.room];const p=S.p;
   S.t++;
@@ -240,6 +250,10 @@ export function step(S,inp,ev=[]){
   if(S.lit&&S.litT<60)S.litT++;
   if(p.gl>0)p.gl--;
   if(p.dead){if(--p.dead===0)respawn(S,ev);camera(S,ROOMS[S.room]);return ev}
+  /* Undo (game/undo.js): the pickup demo holds the key; a rewind frame restores the room-local subset from the buffer and
+     runs only the anchored things (the chase does not wait, the camera follows), so nothing else steps or records */
+  if(S.mode==='play'&&S.undo&&S.undo.demo)inp=undoDemo(S);
+  if(undoStep(S,inp,ev)){if(S.sit)ev.push('stand');S.sit=0;S.still=0;if(stepChase(S,ev))die(S,ev,'chase');camera(S,R);return ev}   /* the key stands him up off a perch */
   if(p.rez>0)p.rez--;
   if(p.inv>0)p.inv--;
   stepEnemies(S,R,ev);
@@ -259,17 +273,20 @@ export function step(S,inp,ev=[]){
     {const wd=inp.l&&!inp.r?-1:inp.r&&!inp.l?1:0;bumpStep(S,!!(wd&&p.ground&&!p.dead&&!p.demo&&!p.bd&&hits(S,R,{x:p.x+wd,y:p.y,w:p.w,h:p.h},[]).length),'walk',ev)}   /* walked into one */
   }
   p.jq=0;
+  stepFeed(S,ROOMS[S.room],ev);   /* plants dropped in from the desktop: fall, get eaten, grow his leaf (game/feed.js) */
   perch(S,R,inp,ev);
   burst(S,ev);
   if(S.mode==='dark')S.idle=inp.any||inp.drag?0:S.idle+1;
   {const c=floodTouch(S,R,inp,ev);if(c>=0)die(S,ev,c)}   /* rams, pinches, knocks, a piranha's chomp, shell pushes (game/fish.js) */
   {const c=cinderTouch(S,R,ev);if(c>=0)die(S,ev,c)}   /* vines smother embers, drills open beetles; an ember, a beetle or an eruption (game/cinders.js) */
+  {const c=crystalTouch(S,R,ev);if(c!==-1)die(S,ev,c)}   /* Crystals: shard steps, beams, receivers, rams, the Echo (game/crystals.js, echo.js) */
   touch(S,R,ev);
   stepLiquid(S,R,ev);   /* ripples (game/liquid.js) */
   if(!p.dead)transition(S,R);
   if(S.mode==='play'&&!S.seen[S.room]){S.seen[S.room]=1;ev.push('room')}
   if(stepChase(S,ev))die(S,ev,'chase');   /* game/chases.js */
   stuck(S,ev);
+  undoRecord(S);   /* this live frame into the Undo buffer (only while he owns it; never dead) */
   camera(S,ROOMS[S.room]);
   return ev;
 }
@@ -305,18 +322,26 @@ const CSS=`
 const px=(d,w=14)=>`<svg width="${w*2}" height="${w*2}" viewBox="0 0 ${w} ${w}" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="${d}"/></svg>`;
 const ICON={l:px('M3 7h1V6h1V5h1V4h1V3h1v8H7v-1H6V9H5V8H4V7z'),r:px('M6 3h1v1h1v1h1v1h1v1h1v1h-1v1H9v1H8v1H7v1H6z'),
   j:px('M7 2h1v1h1v1h1v1h1v1H9v6H6V6H4V5h1V4h1V3h1z'),b:px('M1 3h4v1H1zM2 5h3v1H2zM3 9h8v-1h2v1h1v1h-1v1h-1v1H3v-1H2v-2h1z'),
+  z:px('M4 0h1v1h-1zM3 1h3v1h-3zM2 2h7v1h-7zM1 3h9v1h-9zM2 4h3v1h-3zM8 4h3v1h-3zM3 5h1v1h-1zM9 5h3v1h-3zM10 6h2v1h-2zM0 7h2v1h-2zM11 7h2v1h-2zM0 8h2v1h-2zM11 8h2v1h-2zM1 9h2v1h-2zM10 9h2v1h-2zM1 10h3v1h-3zM9 10h3v1h-3zM2 11h9v1h-9zM3 12h7v1h-7z'),   /* Undo: a counter-clockwise arrow (the same drawing as crystalart.js UNDO_PATH: band, HUD, pickup) */
   on:px('M2 5h2l3-3h1v10H7L4 9H2zM10 4h1v1h1v4h-1v1h-1V9h1V5h-1z'),off:px('M2 5h2l3-3h1v10H7L4 9H2zM9 5h1v1h1V5h1v1h-1v1h1v1h-1v1h-1V8H9V7h1V6H9z')};
-/* the board: Shift, X or K (L and M are kept for Undo and the map) */
-export const keyOf=c=>({ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d',Space:'j',ShiftLeft:'b',ShiftRight:'b',KeyX:'b',KeyK:'b'})[c];
+/* the board: Shift, X or K; Undo: L or Z (held); M is kept for the map */
+export const keyOf=c=>({ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d',Space:'j',ShiftLeft:'b',ShiftRight:'b',KeyX:'b',KeyK:'b',KeyL:'z',KeyZ:'z'})[c];
 
 /* The OS's fourth-wall levels for this frame (pure; no clock, no randomness): {biome, ...} with only the biome's own keys.
    Every level is coarse (0/1 or quarters) so the host restarts its effects rarely. mount() sends each one through
-   onFx when it changes. */
+   onFx when it changes. Crystals sends 'crystal' (1 in every Crystals room) and 'erase' (the sweep chase's progress,
+   quarters, 0 outside it); 'rewind' goes out in every biome once he owns Undo. */
 const RT=ORDER.filter(id=>ROOMS[id].biome==='roots').flatMap(id=>ROOMS[id].torches.map(t=>id+':'+t.tx+','+t.ty));
 export function fxLevels(S){
   const R=ROOMS[S.room],bio=R.biome,o={biome:bio},q=v=>Math.round(v*4)/4;
   if(S.items.root)o.seed=1;
-  if(bio==='roots')o.moss=Math.round(Math.max(.2,RT.filter(k=>S.torches[k]).length/Math.max(1,RT.length))*20)/20;
+  if(S.items.undo)o.rewind=S.undo&&S.undo.on?1:0;   /* Crystals: 1 while he holds Undo and the world runs back (sent in every biome once he owns it) */
+  if(bio==='roots'){
+    o.moss=Math.round(Math.max(.2,RT.filter(k=>S.torches[k]).length/Math.max(1,RT.length))*20)/20;
+    o.thorns=S.chase&&S.chase.on&&S.chase.id==='roots'?Math.max(.25,q(progress(S))):0;   /* the thorn chase grows thorns over the desktop's background as it goes */
+  }
+  const mk=PIECES.indexOf('molten');   /* Molten is finished when its chase is over with the fragment in hand (or placed): the OS's perches stay scorched from then on, in every biome */
+  if(mk>=0&&(S.pieces[mk]&&!(S.chase&&S.chase.on)||S.placed&&S.placed[mk]))o.scorch=1;
   o.shake=q(nearness(S));   /* a chase trembles the desktop harder as the thorns close in */
   if(bio==='flood'){
     const p=S.p,cx=p.x+PW/2,cy=p.y+PH/2,c=(R.g[Math.floor(cy/T)]||'')[Math.floor(cx/T)];
@@ -329,17 +354,24 @@ export function fxLevels(S){
     o.shimmer=S.chase&&S.chase.on&&CHASES[S.chase.id]&&CHASES[S.chase.id].kind==='geyser'?q(progress(S)):0;
     o.glow=S.ens.some(e=>e.k==='vent'&&e.st===2)?1:0;
   }
+  if(bio==='crystals'){
+    o.crystal=1;   /* the Trash turns to crystal from the first Crystals room */
+    const sw=S.chase&&S.chase.on&&CHASES[S.chase.id]&&CHASES[S.chase.id].kind==='sweep',pr=sw?progress(S):0;
+    o.erase=Number.isFinite(pr)?q(pr):0;   /* the delete sweep's front, quarters: the desktop icons dissolve in order as it passes */
+  }
   return o;
 }
 
 /* opts: dev, keyTarget, isActive(), look, assist (bool; default the tos_assist pref), onTorch({restored,warp}),
    onEvent(name,data): 'torch', 'item' {name}, 'piece' {biome}, 'place' {biome}, 'chase_start', 'chase_done', 'door' (all four set),
-   onFx(name,level), from fxLevels(): 'biome', 'moss', 'seed', 'shake' (0..1 in quarters while thorns or the eel chase him),
+   onFx(name,level), from fxLevels(): 'biome', 'moss', 'seed', 'rewind' (once he owns Undo: 1 while the world runs back, else 0),
+   'shake' (0..1 in quarters while thorns or the eel chase him), in Roots 'thorns' (0, or 0.25..1 in quarters while the thorn
+   chase runs: thorns grow over the desktop's background), 'scorch' (1 in every biome once Molten is finished: the buddy's perches stay scorched),
    in Flood 'wet' (1: the Trash fills with water), 'slosh' (1 while he is in the water or surfing it, else 0) and 'flood'
    (how far the eel's tide has come, 0..1 in quarters, 0 once it is over), and in Molten 'heat' (1: a faint heat haze),
    'shimmer' (how far he has come through the geyser chase, 0..1 in quarters, 0 outside it; the haze grows with it) and
    'glow' (1 while a vent in his room erupts, else 0: the desktop icons glow, the haze flares). A new 'biome' means the
-   host clears every effect but the seed; keys a biome does not send are 0 there.
+   host clears every effect but the seed and the scorch; keys a biome does not send are 0 there.
    'shake' in the geyser chase is how near a cracking or erupting vent is,
    onDone({restored}): once, after the door has finished opening (or on mount when a save has it open already); the host
    runs the ending from there (os.js: finishGame). The game never fires onEvent('done') itself. */
@@ -349,9 +381,9 @@ export function mount(el,opts={}){
   if(!document.getElementById('tg-css')){const s=document.createElement('style');s.id='tg-css';s.textContent=CSS;document.head.appendChild(s)}
   const root=document.createElement('div');root.className='tg';root.tabIndex=0;root.setAttribute('aria-label','Wake Up (game)');
   root.innerHTML=`<div class="tg-view"><canvas width="${VW}" height="${VH}"></canvas><div class="tg-bub"><span class="bg"></span><span class="bt"></span></div><button class="tg-mute" type="button"></button></div>
-<div class="tg-band"><div class="gp"><button type="button" data-k="l" aria-label="Left">${ICON.l}</button><button type="button" data-k="r" aria-label="Right">${ICON.r}</button></div><div class="gp"><button type="button" data-k="b" aria-label="Board" hidden>${ICON.b}</button><button type="button" data-k="j" aria-label="Jump">${ICON.j}</button></div></div>`;
+<div class="tg-band"><div class="gp"><button type="button" data-k="l" aria-label="Left">${ICON.l}</button><button type="button" data-k="r" aria-label="Right">${ICON.r}</button></div><div class="gp"><button type="button" data-k="z" aria-label="Undo" hidden>${ICON.z}</button><button type="button" data-k="b" aria-label="Board" hidden>${ICON.b}</button><button type="button" data-k="j" aria-label="Jump">${ICON.j}</button></div></div>`;
   el.appendChild(root);
-  const $=s=>root.querySelector(s),cv=$('canvas'),view=$('.tg-view'),bub=$('.tg-bub'),band=$('.tg-band'),muteB=$('.tg-mute'),boardB=$('[data-k="b"]');
+  const $=s=>root.querySelector(s),cv=$('canvas'),view=$('.tg-view'),bub=$('.tg-bub'),band=$('.tg-band'),muteB=$('.tg-mute'),boardB=$('[data-k="b"]'),undoB=$('[data-k="z"]');
   const rend=createRenderer(cv,{reduce}),au=createAudio(MUTE_KEY);
   /* his look (hat, skull mask) is the OS Control Panel's preference (tos_hat, tos_mask), never part of the save */
   const prefLook=()=>{try{return {hat:localStorage.getItem('tos_hat')||'none',mask:localStorage.getItem('tos_mask')==='1'?1:0}}catch(_){return {}}};
@@ -374,10 +406,10 @@ export function mount(el,opts={}){
   }
 
   /* input */
-  const K={l:0,r:0,u:0,d:0,j:0,b:0},B={l:0,r:0,j:0,b:0};let jq=0,bq=0,drag=null,touchUI=matchMedia('(pointer:coarse)').matches||/[?&]touch\b/.test(location.search);
+  const K={l:0,r:0,u:0,d:0,j:0,b:0,z:0},B={l:0,r:0,j:0,b:0,z:0};let jq=0,bq=0,zq=0,drag=null,touchUI=matchMedia('(pointer:coarse)').matches||/[?&]touch\b/.test(location.search);
   const active=()=>!opts.isActive||opts.isActive();
   const gesture=()=>au.unlock();
-  const kd=e=>{const k=keyOf(e.code);if(!k||e.metaKey||e.ctrlKey||e.altKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||!active())return;e.preventDefault();gesture();if(k==='j'&&!K.j&&!e.repeat)jq=1;if(k==='u'&&!K.u&&!e.repeat)jq=1;if(k==='b'&&!K.b&&!e.repeat)bq=1;K[k]=1};
+  const kd=e=>{const k=keyOf(e.code);if(!k||e.metaKey||e.ctrlKey||e.altKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||!active())return;e.preventDefault();gesture();if(k==='j'&&!K.j&&!e.repeat)jq=1;if(k==='u'&&!K.u&&!e.repeat)jq=1;if(k==='b'&&!K.b&&!e.repeat)bq=1;if(k==='z'&&!K.z&&!e.repeat)zq=1;K[k]=1};
   const ku=e=>{const k=keyOf(e.code);if(k)K[k]=0};
   const clearKeys=()=>{for(const k in K)K[k]=0;for(const k in B)B[k]=0;drag=null;ptr.clear();paintBand()};
   /* opts.keyTarget (the OS passes window) lets keys reach the game wherever focus sits; opts.isActive then decides */
@@ -400,7 +432,7 @@ export function mount(el,opts={}){
   /* touch band: each finger maps to the button under it, so move + jump work together and a finger can slide L<->R */
   const ptr=new Map();
   const under=e=>{const t=document.elementFromPoint(e.clientX,e.clientY);return t&&band.contains(t)&&t.closest('[data-k]')?t.closest('[data-k]').dataset.k:null};
-  function paintBand(){const n={l:0,r:0,j:0,b:0};for(const k of ptr.values())if(k)n[k]=1;if(n.j&&!B.j)jq=1;if(n.b&&!B.b)bq=1;Object.assign(B,n);
+  function paintBand(){const n={l:0,r:0,j:0,b:0,z:0};for(const k of ptr.values())if(k)n[k]=1;if(n.j&&!B.j)jq=1;if(n.b&&!B.b)bq=1;if(n.z&&!B.z)zq=1;Object.assign(B,n);
     band.querySelectorAll('[data-k]').forEach(b=>b.setAttribute('aria-pressed',B[b.dataset.k]?'true':'false'))}
   band.addEventListener('pointerdown',e=>{e.preventDefault();gesture();band.setPointerCapture(e.pointerId);ptr.set(e.pointerId,under(e));paintBand()});
   band.addEventListener('pointermove',e=>{if(ptr.has(e.pointerId)){ptr.set(e.pointerId,under(e));paintBand()}});
@@ -413,11 +445,11 @@ export function mount(el,opts={}){
   paintMute();
 
   /* layout: integer device-pixel scale; on touch screens, fit the width unless an integer scale fills 85% of it */
-  let scale=1;
+  let scale=1,fill=false;   /* fill: the host's full screen takes the fractional scale too, so the game grows into the space instead of stopping at a whole number */
   function fit(){
     root.classList.toggle('touch',touchUI);
     const dpr=devicePixelRatio||1,bh=touchUI?band.offsetHeight||76:0,W=root.clientWidth,H=root.clientHeight-bh;
-    const kd=Math.max(.05,Math.min(W*dpr/VW,H*dpr/VH)),ki=Math.floor(kd),k=kd<1?kd:!touchUI||ki/kd>=.85?ki:kd;
+    const kd=Math.max(.05,Math.min(W*dpr/VW,H*dpr/VH)),ki=Math.floor(kd),k=kd<1||fill?kd:!touchUI||ki/kd>=.85?ki:kd;
     scale=k/dpr;view.style.width=VW*scale+'px';view.style.height=VH*scale+'px';band.style.width=Math.max(VW*scale,240)+'px';
     /* mute (44px target) sits beside the view's top-right corner, else above it, else just inside it */
     const rg=(W-VW*scale)/2>=48,tg=!rg&&(root.clientHeight-VH*scale-bh)/2>=48;
@@ -426,10 +458,10 @@ export function mount(el,opts={}){
   const ro=new ResizeObserver(fit);ro.observe(root);fit();
 
   /* loop */
-  let raf=0,last=0,acc=0,userPaused=false,hidden=document.hidden,lastBub='',bHid=null,bDem=false;
+  let raf=0,last=0,acc=0,userPaused=false,hidden=document.hidden,lastBub='',bHid=null,bDem=false,zHid=null,zDem=false;
   function tick(){
-    const inp={l:K.l||B.l,r:K.r||B.r,u:K.u,d:K.d,j:K.j||K.u||B.j,jp:jq,b:K.b||B.b,bp:bq,drag:drag&&{x:drag.x,y:drag.y,cap:drag.cap},any:0};
-    inp.any=inp.l||inp.r||inp.u||inp.d||inp.j||jq||inp.b||bq;jq=0;bq=0;
+    const inp={l:K.l||B.l,r:K.r||B.r,u:K.u,d:K.d,j:K.j||K.u||B.j,jp:jq,b:K.b||B.b,bp:bq,z:K.z||B.z,zp:zq,drag:drag&&{x:drag.x,y:drag.y,cap:drag.cap},any:0};
+    inp.any=inp.l||inp.r||inp.u||inp.d||inp.j||jq||inp.b||bq||inp.z||zq;jq=0;bq=0;zq=0;
     /* frozen: step() spends this frame on hit-stop, so the renderer's pulse and dust hold too (read before step() counts it down) */
     const lit0=S.lit,frozen=S.hit>0&&S.mode!=='intro',ev=step(S,inp,[]);
     if(rend.step)rend.step(S,ev,frozen);   /* one fixed step of pulse and dust (render.js); draw() only reads them */
@@ -451,17 +483,18 @@ export function mount(el,opts={}){
     S.pieces.forEach((v,i)=>{if(v&&!seenP[i])emit('piece',{biome:PIECE[i]})});
     seenI={...S.items};seenP=S.pieces.slice();
     if(!opts.onFx||!S.lit)return;
-    const L=fxLevels(S);if(fxS.biome!==L.biome)for(const k in fxS)if(k!=='seed')delete fxS[k];
+    const L=fxLevels(S);if(fxS.biome!==L.biome)for(const k in fxS)if(k!=='seed'&&k!=='scorch')delete fxS[k];
     for(const k in L)fx(k,L[k]);   /* 'biome' first (object order), so os.js clears the last biome's effects before the new ones */
   }
   function sound(){
     const R=ROOMS[S.room];
-    au.amb(S.mode==='intro'||!S.lit?null:R.biome==='hub'?'cave':R.biome==='flood'?'tide':'moss');
+    au.amb(S.mode==='intro'||!S.lit?null:R.biome==='hub'?'cave':R.biome==='flood'?'tide':R.biome==='crystals'?'glass':'moss');
     au.hush(S.sit?clamp((S.sit-20)/PERCH.hush,0,1):0);   /* sitting on a perch: a soft pad of open fifths swells in */
     let v=0;const p=S.p,cx=p.x+PW/2,cy=p.y+PH/2;
     for(const t of R.torches){const lit=S.torches[R.id+':'+t.tx+','+t.ty],dd=Math.hypot(t.tx*T+6-cx,t.ty*T+6-cy);
       if(S.mode==='dark')v=Math.max(v,Math.pow(clamp(1-dd/300,0,1),1.6));else if(lit)v=Math.max(v,.3*clamp(1-dd/160,0,1))}
     au.crackle(S.mode==='intro'?0:v);
+    au.hum(R.biome==='crystals'&&S.mode==='play'&&!S.p.dead?beamNear(S,R):0);   /* a prism beam hums only when he is near it */
     au.rumble(S.chase?(S.chase.on?Math.max(.15,nearness(S)):Math.max(0,.15*(1-S.chase.w/30))):0);   /* the thorn wall: low rumble + rustle */
   }
   function bubble(){
@@ -487,6 +520,9 @@ export function mount(el,opts={}){
     {const h=!S.items.board;if(h!==bHid){bHid=h;boardB.hidden=h}}   /* the band shows only tools he owns (written on change) */
     /* the board's pickup demo dash: its button shows pressed, so a phone player sees which one does that */
     {const d=S.p.bd>=BDEMO.go&&S.p.dt>0;if(d!==bDem){bDem=d;boardB.setAttribute('aria-pressed',d||B.b?'true':'false')}}
+    /* Undo: shown once he owns it; during its pickup demo the button shows pressed while the demo holds the key */
+    {const h=!S.items.undo;if(h!==zHid){zHid=h;undoB.hidden=h}}
+    {const d=!!(S.undo&&S.undo.demo&&S.undo.dp===3);if(d!==zDem){zDem=d;undoB.setAttribute('aria-pressed',d||B.z?'true':'false')}}
     bubble();sound();hooks();
   }
   raf=requestAnimationFrame(frame);
@@ -509,7 +545,7 @@ export function mount(el,opts={}){
       const R=ROOMS[id],t=R.torches[R.torches.length-1];enterRoom(S,id,spot(S,R,t.tx,t.ty));
       if(!lit0&&opts.onTorch)opts.onTorch({restored:false,warp:true});
     },
-    grant(k,v){S.items[k]=v?1:0;if(v&&k==='root')S.p.root=1;if(v&&k==='board')S.p.dc=1;S.items=items(S.items);save(S)},   /* no forged board without the board */   /* the item's charge: the root jump, the dash */
+    grant(k,v){S.items[k]=v?1:0;if(v&&k==='root')S.p.root=1;if(v&&k==='board')S.p.dc=1;if(k==='undo'){undoClear(S);undoFill(S)}S.items=items(S.items);save(S)},   /* no forged board without the board */   /* the item's charge: the root jump, the dash */
     piece(i,v){S.pieces[i]=v?1:0;if(!v)S.placed[i]=0;save(S)},
     place(i,v){S.placed[i]=v?1:0;if(v)S.pieces[i]=1;S.door=S.placed.every(Boolean)?1:0;S.doorT=S.door?999:0;save(S)},
     assist(v){setAssist(v)},
@@ -530,10 +566,24 @@ export function mount(el,opts={}){
     resume(){if(!userPaused)return;userPaused=false;last=0;acc=0;if(!hidden)au.resume();root.focus({preventScroll:true})},
     destroy(){cancelAnimationFrame(raf);ro.disconnect();kt.removeEventListener('keydown',kd);kt.removeEventListener('keyup',ku);document.removeEventListener('visibilitychange',onVis);au.destroy();root.remove();if(window.__game===api)delete window.__game},
     getState:()=>snapshot(S),
+    /* feeding (game/feed.js): the host drops a desktop plant in. canDrop: lit and playing. drop(kind, clientX, clientY, col): kind seed|sprout|bloom (glow counts as bloom);
+       the point is where the plant's base is on the page: over the view it lands there, anywhere else (the window's frame, the Wake Up icon) it falls just ahead of him. False if refused */
+    canDrop:()=>S.lit&&S.mode==='play'&&!S.p.dead?true:false,
+    drop(kind,cx,cy,col){
+      if(!(S.lit&&S.mode==='play'&&!S.p.dead))return false;
+      const R=ROOMS[S.room],p=S.p,r=cv.getBoundingClientRect();
+      if(r.width&&cx>=r.left&&cx<=r.right&&cy>=r.top&&cy<=r.bottom){const q=toRoom({clientX:cx,clientY:cy});if(addDrop(S,R,kind,q.x,q.y,col))return true}
+      for(const s of [p.face,-p.face,0])if(addDrop(S,R,kind,p.x+p.w/2+s*34,p.y-6,col))return true;
+      return false;
+    },
     setLook(l){rend.setLook(l)},
     /* Assist (Control Panel): chases at 70% speed and restart further behind each torch. Also written to tos_assist */
     setAssist(v){setAssist(v)},
     getAssist:()=>!!assist,
+    /* sound (the Wakeup menu's Options, same switch as the corner button) */
+    setMute(v){au.setMute(!!v);paintMute()},
+    getMute:()=>au.muted(),
+    setFill(v){fill=!!v;fit()},
     /* a line from the host (pose 'beg' pleads); only once he is in the light and nothing else is being said. True if said */
     say(text,o={}){if(!S.lit||S.mode!=='play'||S.say||S.p.dead)return false;S.say={text,t:o.t||Math.max(160,text.length*7+80),n:0,pose:o.pose||''};return true},
     /* the host calls this inside its own gesture handler (Safari only starts audio there) */

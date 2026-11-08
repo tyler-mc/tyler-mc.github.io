@@ -1,0 +1,26 @@
+/* Quiet Gallery (K1): the calm arrival in Crystals, up through the hub plug (its rubble, and the row of this floor over it, opens once the Molten fragment is in the door). Glass columns hang over a still pool whose reflection shows him two seconds late. A seat on the step looks out over the pool. Past it a bridge of cracked glass spans a dip two tiles deep: it gives way behind him, harmlessly. Ledges climb east to the ceiling hole, a root jump each. In the chase he drops from Shard Steps' hatch into the pool, surfs or swims west, and passes a torch on the bank by the seat on his way to the plug. */
+export default {
+  id:'k1',name:'Quiet Gallery',biome:'crystals',at:[0,-19],
+  grid:[
+    '##################...##########.....####',
+    '#..............#.......#...............#',
+    '#..............#.......#...............#',
+    '#..............#.......#.........####..#',
+    '#..............#.......#...............#',
+    '#..............#.......#...............#',
+    '#..............#.......#...............#',
+    '#..............#.......#....#####......#',
+    '#......................#...............#',
+    '#......................................#',
+    '#...............................####...#',
+    '#......................................#',
+    '#......................................#',
+    '#........................####..........#',
+    '#......................................#',
+    '#..........TB........................T.#',
+    '#..........##~~~~~~~~~~~~###QQQQ########',
+    '#........T.##~~~~~~~~~~~~###....########',
+    '####=====###############################',
+  ],
+  ents:[{at:[4,18],opens:'molten'},{at:[5,18],opens:'molten'},{at:[6,18],opens:'molten'},{at:[7,18],opens:'molten'},{at:[8,18],opens:'molten'},{at:[12,15],lookx:6,looky:-2}],
+};

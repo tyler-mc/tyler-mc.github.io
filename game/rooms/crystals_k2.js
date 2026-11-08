@@ -1,0 +1,26 @@
+/* Shard Steps (K2): the Undo item. Shard steps climb from the arrival to a doorway in the vault wall, its floor slow shards; the item hangs in it, so every way in passes it. Picked up, the doorway gives way, he drops a short step, and the room runs back until he stands where he took it. Inside the vault one shard step stands five rows under the launch ledge: once it has fallen, no jump from the vault floor reaches the ledge, and glass spikes line the walls, so the way up is to rewind until the step is whole again. */
+export default {
+  id:'k2',name:'Shard Steps',biome:'crystals',at:[0,-38],
+  grid:[
+    '####.....#########...###################',
+    '#.............#........................#',
+    '#...........^^#........................#',
+    '#.#####.....^^#........................#',
+    '#^^.........^^#........................#',
+    '#^^.........^^#........................#',
+    '#^^.........^^#........................#',
+    '#^^.........^^#........................#',
+    '#^^......Q..^^#........................#',
+    '#^^...........#........................#',
+    '#...............I......................#',
+    '#...T..................................#',
+    '##############QQQQ.....................#',
+    '#....................QQ................#',
+    '#......................................#',
+    '#.............#####........QQ..........#',
+    '#......................................#',
+    '##################QQQ###.............T.#',
+    '##################...##########.....####',
+  ],
+  ents:[{at:[14,12],delay:55},{at:[15,12],delay:55},{at:[16,12],delay:55},{at:[17,12],delay:55},{at:[16,10],item:'undo'}],
+};

@@ -87,7 +87,7 @@ console.log('4. a current never carries him through a wall');
 
 console.log('6. board keys');
 { ok(['ShiftLeft','ShiftRight','KeyX','KeyK'].every(c=>E.keyOf(c)==='b'),'Shift, X and K all press the board');
-  ok(E.keyOf('Space')==='j'&&E.keyOf('KeyA')==='l'&&E.keyOf('KeyL')===undefined&&E.keyOf('KeyM')===undefined,'the other keys are unchanged; L and M stay free (Undo, map)');
+  ok(E.keyOf('Space')==='j'&&E.keyOf('KeyA')==='l'&&E.keyOf('KeyL')==='z'&&E.keyOf('KeyM')===undefined,'the other keys are unchanged; L is Undo, M stays free (map)');
 }
 
 console.log('7. the board shows itself on pickup');

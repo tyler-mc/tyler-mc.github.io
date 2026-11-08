@@ -26,11 +26,14 @@ export const USE={
   fireflies:{fx:'fireflies',     slot:'emissive',noLight:false,ambient:1,mask:1,ground:'floor',o:{grass:false,density:1,close:4},per:{density:'area',close:'w#'}},
   leaves:   {fx:'falling-leaves',slot:'emissive',noLight:true, ambient:1,mask:1,ground:'floor',o:{litter:false,leaves:24,drift:8},per:{leaves:'area#'}},
   fog:      {fx:'fog',           slot:'emissive',noLight:true, ambient:1,mask:1,o:{density:.3,layers:2,wind:10}},   /* density scales alpha and thickness */
+  /* Molten: ash and cinders drifting up. The live ember is a creature (a small flame that lights the dark and glitches him on touch),
+     so these never use its flame colours, never glow and never light: only the real ones do. heat:false drops the red shimmer. */
+  embers:   {fx:'embers',        slot:'emissive',noLight:true, ambient:1,mask:1,o:{heat:false,density:.55},per:{density:'w'}},
   bubbles:  {fx:'bubbles',       slot:'emissive',noLight:true, ambient:1,mask:1,vent:96,o:{tint:false,caustics:false,surface:false,density:.6,specks:1},per:{specks:'area'}},
 };
 
 /* ambient per biome; ROOM_AMBIENT overrides a room by id (e.g. r5:[] for a quiet shrine). Fog is optional and off. */
-export const AMBIENT={roots:['fireflies','leaves'],flood:['bubbles'],hub:[]};
+export const AMBIENT={roots:['fireflies','leaves'],flood:['bubbles'],molten:['embers'],hub:[]};
 export const ROOM_AMBIENT={};
 export const FOG={on:false,biomes:['hub','roots']};
 
@@ -72,4 +75,7 @@ export const COLORS={
   leaves:{any:{colors:[['#8cc04a','#6a9a3c','#3f6b2a','#1f3a16'],['#b4b85a','#8a8a3a','#5e5e26','#2e2e12'],['#8a6440','#6b4a2b','#4a3322','#24190f']]}},   /* green, olive, brown */
   fog:{roots:{colors:['#1c2a1e','#2a3a2c','#405440']},flood:{colors:['#14222e','#1f3342','#33495c']},any:{colors:['#1b1a23','#2b2a33','#3b3843']}},
   bubbles:{any:{colors:['#ffffff','#c6f3f0','#86c0c4','#4a7f8c']}},
+  /* embers hard-codes its colours: swapped exact pixel for pixel to moltenart's rust and ash (hot and yellow -> rustL, orange and
+     deep orange -> rust, the red tail -> basalt grey; ash greys to its ash). The creature's emb/embL/core never appear. */
+  embers:{any:{remap:{'#fff3a6':'#a0582e','#ffe26b':'#a0582e','#ff8a2a':'#7a3f22','#f2561d':'#7a3f22','#c9281f':'#47403b','#5a5160':'#6b625a','#3a3442':'#47403b'}}},
 };

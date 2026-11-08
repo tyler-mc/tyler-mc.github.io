@@ -623,6 +623,22 @@ const LEAF={
     ]}
   ],
 };
+/* The extra growth on his sprout after he eats a plant in the game (game/feed.js): a second leaf, or a flower, in three growth steps.
+   Rows are stamped with their top-left at (tip.x+3+dx, tip.y-3-lift+dy): (tip.x+3, tip.y-3) is the top of the stem, lift the hat's lift.
+   The leaf points left (the main leaf sweeps right) and is stamped UNDER the main leaf; the flower is the stage 4 flower (mascot/leaf.js) and is stamped OVER it.
+   Same palette letters as LEAF. Not used by the OS buddy: compose() only reads look.xl / look.xs, which default off. */
+const XLEAF={
+  leaf:[
+    {dx:-3,dy:-1,rows:[".hh.","hTnn"]},
+    {dx:-5,dy:-2,rows:["..hh..",".hTTh.","hhhhnn"]},
+    {dx:-7,dy:-3,rows:["..hhh...",".hTTTh..","hTTnnTh.",".hhhhhnn"]}
+  ],
+  flower:[
+    {dx:-1,dy:-2,rows:[".k.","kYk"]},
+    {dx:-2,dy:-4,rows:[".kkk.","kwYwk","kYoYk",".kkk."]},
+    {dx:-3,dy:-6,rows:[".kk.kk.","kwwkwwk","kwoYowk",".kYrYk.","kwoYoBk","kwBkBBk",".kk.kk."]}
+  ]
+};
 /* Authored head gear at twice the old size, drawn at native resolution (never upscaled). Lint: node tools/lint_anim_head.mjs.
    HATS[name] = {rows, ax, ay, lift}: the hat sits OVER the head tip; (ax,ay) is the pixel of rows stamped on BODY[level].tip; lift = how many rows compose extends the
    stem straight up (from the stem's top pixel) so the stem and leaf poke out above the hat; the leaf is stamped at (tip.x+ox, tip.y+oy-lift). Compose order: stem base,
@@ -4941,7 +4957,10 @@ function compose(s){
     if(hat)stamp(g,hat.rows,tip[0]-hat.ax,tip[1]-hat.ay);
     const top=LEAF.stem.reduce((m,p)=>p[1]<m[1]?p:m,LEAF.stem[0]);
     for(let i=1;i<=lift;i++){const y=tip[1]+top[1]-i;if(g[y])g[y][tip[0]+top[0]]='n'}
-    if(LS)stamp(g,LS.rows,tip[0]+LS.ox+ll,tip[1]+LS.oy-lift)}
+    const XS=s.xl&&XLEAF[s.xl]&&XLEAF[s.xl][Math.max(0,Math.min(2,s.xs|0))],xs=()=>stamp(g,XS.rows,tip[0]+3+XS.dx,tip[1]-3-lift+XS.dy);   /* the game's extra leaf (under the main one) or flower (over it): mascot/xleaf.js */
+    if(XS&&s.xl==='leaf')xs();
+    if(LS)stamp(g,LS.rows,tip[0]+LS.ox+ll,tip[1]+LS.oy-lift);
+    if(XS&&s.xl==='flower')xs()}
   if(PF&&PF.over)stamp(g,PF.over.rows,PF.over.x0,PF.over.y0);
   if(fl)for(let y=0;y<Hh;y++)g[y].reverse();
   if(PF&&PF.baked){shiftX(g,s.dx|0);if(s.fx)putFx(g,s.fx);return g}
@@ -5005,5 +5024,5 @@ function paint(ctx,g){
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const c=g[y][x];if(c!=='.'){ctx.fillStyle=MB[c];ctx.fillRect(x,y,1,1)}}
 }
 const drawBuddy=(ctx,s)=>paint(ctx,compose(s));
-window.MASCOT={FEET,ARMS,LEAF,HATS,GEAR,FACES,LIDS,BODY,ANIM_DANCE,ANIM_FX,FX_SPOT,ANIM_GROUND,ANIM_LEAN,ANIM_MAC,ANIM_ROOT,ROOT_FX,ANIM_SURF,SURF_FOAM,ANIM_TRASH,ANIM_WALK,WALK_STRIDE_PX,IDLE_TURN,IDLE_LEAN,WALK_TURN,WALK_LEAN,WALK_LOOKS,WALK_START,WALK_STOP,INK,W,H,CX,SOLE,grid,stamp,MB,compose,paint,drawBuddy};
+window.MASCOT={FEET,ARMS,LEAF,XLEAF,HATS,GEAR,FACES,LIDS,BODY,ANIM_DANCE,ANIM_FX,FX_SPOT,ANIM_GROUND,ANIM_LEAN,ANIM_MAC,ANIM_ROOT,ROOT_FX,ANIM_SURF,SURF_FOAM,ANIM_TRASH,ANIM_WALK,WALK_STRIDE_PX,IDLE_TURN,IDLE_LEAN,WALK_TURN,WALK_LEAN,WALK_LOOKS,WALK_START,WALK_STOP,INK,W,H,CX,SOLE,grid,stamp,MB,compose,paint,drawBuddy};
 })();
