@@ -1,6 +1,6 @@
 /* Hermit Cove: a hermit crab pinches him back; ram it with the board and it hides in its shell, a block he can push onto the plate that holds the gate. Past the gate a pool flows west with a clownfish in it: bump it three times and it turns. East, past its far torch, the way on to Eel Grotto (B10). */
 export default {
-  id:'f2',name:'Hermit Cove',biome:'flood',at:[312,8],
+  id:'f2',name:'Hermit Cove',biome:'flood',at:[336,8],
   grid:[
     '########################################################',
     '########################################################',

@@ -1,6 +1,6 @@
 /* Tidefall (B6): down the shaft. The first pool carries him east to a drop, ledges step down to a second pool that carries him back west, and its far bank is a tile above the water, so the root jump gets him out. A hole in the floor drops into Undertow. The ledges climb back up. */
 export default {
-  id:'b6',name:'Tidefall',biome:'flood',at:[228,0],
+  id:'b6',name:'Tidefall',biome:'flood',at:[252,0],
   grid:[
     '########################',
     '.......................#',
@@ -16,9 +16,9 @@ export default {
     '#....................###',
     '#....................###',
     '#......#............T..#',
-    '#......#~~~~~~~~~~~#####',
-    '#......#~~~~~~~~~~~#####',
-    '#......#~~~~~~~~~~~#####',
+    '#......#~~~~~~~~~~######',
+    '#......#~~~~~~~~~~######',
+    '#......#~~~~~~~~~~######',
     '##...###################',
   ],
   ents:[{at:[8,4],flow:70},{at:[12,15],flow:-60}],

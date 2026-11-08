@@ -1,6 +1,6 @@
 /* Atrium (K7): the tall climb, with the Echo two seconds behind. Two claw climbs (B1, B2), a shard bridge that falls behind him, the shard wall. The way out is a trapdoor lock under the exit, lit by a drifter under a one-shard springboard: standing on it, it falls, the beam lights the receiver and the trapdoor latches open, but the springboard is gone. Wait on the shard wall, rewind (Undo): the springboard comes back, the latch does not go away, and the root jump carries him up. In the chase he drops through the trapdoor, clings to the shard wall under it while a pulsed beam sweeps the fall, and runs to the hatch. */
 export default {
-  id:'k7',name:'Atrium',biome:'crystals',at:[0,-145],
+  id:'k7',name:'Atrium',biome:'crystals',at:[-21,-145],
   grid:[
     '###############################.....####',
     '####################...................#',
@@ -9,12 +9,12 @@ export default {
     '###########################R#DDD########',
     '#......................................#',
     '#......................................#',
-    '#.........................^Q^..........#',
     '#......................................#',
     '#......................................#',
-    '#..........................Y...........#',
+    '#.........................QQQ..........#',
+    '#......................................#',
     '#....................#Q................#',
-    '#....................#Q................#',
+    '#....................#Q....Y...........#',
     '#....................#Q............Q...#',
     '#....................#Q............Q...#',
     '#..............###QQQ#Q............Q...#',
@@ -34,5 +34,5 @@ export default {
     '####.....#########QQQ###################',
     '####.....#########...###################',
   ],
-  ents:[{at:[27,10],aim:'u',amp:0},{at:[37,18],aim:'l',amp:0,beam:300},{at:[27,4],id:'x'},{at:[29,3],id:'x'},{at:[30,3],id:'x'},{at:[31,3],id:'x'},{at:[29,4],id:'x'},{at:[30,4],id:'x'},{at:[31,4],id:'x'}],
+  ents:[{at:[37,18],aim:'l',amp:0,beam:300},{at:[27,4],id:'x'},{at:[29,3],id:'x'},{at:[30,3],id:'x'},{at:[31,3],id:'x'},{at:[29,4],id:'x'},{at:[30,4],id:'x'},{at:[31,4],id:'x'},{at:[27,12],aim:'u',amp:0}],
 };

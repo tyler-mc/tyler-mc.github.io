@@ -1,6 +1,6 @@
 /* Current Run (B3): one long pool that flows east, a clownfish swimming deep below, crossed twice. He floats in under a low roof and the current carries him east to an island walled off from the way on. A low tunnel over the pool, slits in its floor showing the water, takes him back west to a ledge under open sky; one jump up from it is the roof, and the roof runs east over everything to a stair down to the far door. Every bank is flush and every step is a plain jump, so with no item he can go either way; dropping off the ledge costs a ride back to the island. */
 export default {
-  id:'b3',name:'Current Run',biome:'flood',at:[108,0],
+  id:'b3',name:'Current Run',biome:'flood',at:[132,0],
   grid:[
     '########################################',
     '#########..............................#',

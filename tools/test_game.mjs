@@ -610,7 +610,7 @@ console.log('Roots fragment and the thorn chase');
 }
 
 console.log('the door slot');
-{ const door=(pieces=[1,0,0,0])=>{const S=playState('hub',144-P.PW/2,FLOOR-PH,{root:1});S.pieces=pieces.slice();run(S,3,I());return S};
+{ const door=(pieces=[1,0,0,0])=>{const S=playState('hub',144+288-P.PW/2,FLOOR-PH,{root:1});S.pieces=pieces.slice();run(S,3,I());return S};
   const S=door();const ev=run(S,1,I({j:1,jp:1}));
   ok(ev.includes('lift')&&!ev.includes('jump')&&S.slot&&S.slot.k===0,'at the door a jump/Up press sets the fragment off (no jump)');
   const x0=S.p.x,ev2=run(S,st.DOOR.fly-1,I({r:1}));const still=S.p.x===x0;ev2.push(...run(S,1,I()));
@@ -770,7 +770,7 @@ const HOME_R2=[
     L('r1 edge',()=>Bot.walk(S,rec,'r',S=>S.p.x>=50,100))&&L('r1 drop',()=>Bot.hop(S,rec,'r',S=>S.p.y+PH>150&&S.p.y+PH<=156.1,{jump:[0],roots:[0],holds:[1,2,4,6,8,10,12,14,16]}))&&
     L('r1 back',()=>Bot.hop(S,rec,'r',S=>S.p.on>=0&&Bot.hop(snapshot(S),[],'r',S=>S.p.x>222&&S.p.on<0),{waits:W10(60)}))&&L('r1 back 2',()=>Bot.hop(S,rec,'r',S=>S.p.x>222&&S.p.on<0))&&
     L('pillar',()=>Bot.walk(S,rec,'r',S=>S.p.x>=22*T,300))&&L('r1 exit',()=>Bot.search(S,rec,W10(64),C=>enc(0,1,1,C.p.ground),C=>C.room==='a1',600))&&L('home',()=>Bot.go(S,rec,'r',S=>S.room==='hub',900))&&
-    L('door',()=>Bot.walk(S,rec,'r',S=>S.p.x+P.PW/2>=134,400))&&L('place',()=>{rec.push(enc(0,0,1,1));E.step(S,dec(enc(0,0,1,1)),[]);return Bot.idle(S,rec,140)&&S.placed[0]===1});
+    L('door',()=>Bot.walk(S,rec,'r',S=>S.p.x+P.PW/2>=134+288,400))&&L('place',()=>{rec.push(enc(0,0,1,1));E.step(S,dec(enc(0,0,1,1)),[]);return Bot.idle(S,rec,140)&&S.placed[0]===1});
   ok(ok1,`the bot finds a whole run with the root jump only (${(rec.length/60).toFixed(0)} s of play)${fail?' FAILED at '+fail:''}`);
   restore(S,start);const evs={};let died=0;for(const c of rec){const ev=E.step(S,dec(c),[]);for(const e of ev)evs[e]=(evs[e]||0)+1;if(ev.includes('die'))died++}
   ok(!died&&S.placed[0]===1&&evs.chase_done===1&&evs.place===1&&S.seen.r5,`replayed from the start: no deaths, chase outrun, Roots fragment in the door (${Object.keys(S.seen).length} rooms seen)`);

@@ -1,6 +1,6 @@
 /* Rootway: the seed, then a safe first wrap: two Mossbacks crawl the thorn strip, one by each bank, too wide to jump. Wrap the near one from above and use it as a stepping stone (the torch just before it makes a miss free); the far one is the way back. The high exit needs the root jump. */
 export default {
-  id:'r1',name:'Rootway',biome:'roots',at:[-88,0],
+  id:'r1',name:'Rootway',biome:'roots',at:[-112,0],
   grid:[
     '########################################',
     '########.......#####..........##########',

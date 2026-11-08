@@ -175,7 +175,7 @@ console.log('f1 Shallows');
   { const S=playState('b7',38*T,48-PH);run(S,3,I());const r=[];const won=Bot.plan(S,r,'r',S=>S.room==='f1',{jumps:R20.map(i=>i*5),max:400,any:true});
     ok(won&&S.room==='f1','walking east off Undertow\'s far ledge enters Shallows');
     const B2=playState('f1',4*T,192-PH);run(B2,3,I());ok(Bot.plan(B2,[],'l',S=>S.room==='b7',{jumps:R20.map(i=>i*5),max:400,any:true}),'...and back west, up the rock step, into Undertow');
-    const D=newState();D.mode='dark';D.match=1;D.p.x=20*T;D.p.y=192-PH;run(D,300,I({r:1,j:1,jp:1}));ok(D.room==='hub','before the torch the dark hub still cannot be left east');}
+    const D=newState();D.mode='dark';D.match=1;D.p.x=64*T;D.p.y=192-PH;run(D,300,I({r:1,j:1,jp:1}));ok(D.room==='hub','before the torch the dark hub still cannot be left east');}
   ok(R.spawns.length===0&&R.torches.length>=2,'no enemies in the teaching room; torches at both lessons');
 }
 const farFloor=S=>S.room==='f1'&&S.p.ground&&S.p.x+PW>26*T+2&&S.p.y+PH<=192.1&&S.p.x<30*T;
@@ -341,20 +341,20 @@ const stage=(id,f)=>{const ok=f();if(!ok)console.log('    route stuck in',id);re
   ok(PRE.every(id=>ROOMS[id]&&ROOMS[id].biome==='flood')&&PRE.map(id=>ROOMS[id].name).join(', ')==='Tideshore, Swim Steps, Current Run, Clownfish Pools, Glass Reach, Tidefall, Undertow',
     `seven pre-board rooms: ${PRE.map(id=>id+' '+ROOMS[id].name).join(', ')}`);
   const nb=(a,b)=>ROOMS[b].at[0]===ROOMS[a].at[0]+ROOMS[a].w;
-  ok(ROOMS.b1.at[0]===ROOMS.hub.w&&ROOMS.b1.at[1]===0&&nb('b1','b2')&&nb('b2','b3')&&nb('b3','b4')&&nb('b4','b5')&&nb('b5','b6')&&ROOMS.b7.at[1]===ROOMS.b6.at[1]+ROOMS.b6.h&&nb('b7','f1')&&nb('f1','f2'),
+  ok(ROOMS.b1.at[0]===ROOMS.hub.at[0]+ROOMS.hub.w&&ROOMS.b1.at[1]===0&&nb('b1','b2')&&nb('b2','b3')&&nb('b3','b4')&&nb('b4','b5')&&nb('b5','b6')&&ROOMS.b7.at[1]===ROOMS.b6.at[1]+ROOMS.b6.h&&nb('b7','f1')&&nb('f1','f2'),
     'b1 to b6 run east along the top from the hub, b7 lies under b5 and b6, f1 and f2 run east from b7 (not mirrored)');
   const fl=ORDER.filter(id=>ROOMS[id].biome==='flood');
-  ok(fl.every(id=>{const R=ROOMS[id];return R.at[0]>=24&&R.at[1]>=0&&R.at[0]+R.w-1<=470&&R.at[1]+R.h-1<=40}),`every Flood room lies in the Flood box of the world plan (x 24..470, y 0..40): ${fl.map(id=>id+' '+ROOMS[id].at).join(' ')}`);
+  ok(fl.every(id=>{const R=ROOMS[id];return R.at[0]>=48&&R.at[1]>=0&&R.at[0]+R.w-1<=494&&R.at[1]+R.h-1<=40}),`every Flood room lies in the Flood box of the world plan (x 48..494, y 0..40): ${fl.map(id=>id+' '+ROOMS[id].at).join(' ')}`);
   ok(PRE.every(id=>!ROOMS[id].items.length),'no item in b1 to b7 (the board waits in f1)');
-  const H=ROOMS.hub,col=H.g.map(r=>r[23]).join('').slice(0,16);
-  ok(!col.includes('=')&&col.slice(11,14)==='...'&&H.g[14][23]==='~'&&ROOMS.b1.g[14][0]==='~',`the hub's east exit has no rubble (rubble means sealed; the rubble below row 15 is the Molten funnel): an open way over a rock step with water sunk in its top, the tide that runs on into Tideshore (col 23, rows 0-15: ${col})`);
+  const H=ROOMS.hub,col=H.g.map(r=>r[71]).join('').slice(0,16);
+  ok(!col.includes('=')&&col.slice(11,14)==='...'&&H.g[14][71]==='~'&&ROOMS.b1.g[14][0]==='~',`the hub's east exit has no rubble (rubble means sealed; the rubble below row 15 is the Molten funnel): an open way over a rock step with water sunk in its top, the tide that runs on into Tideshore (col 71, rows 0-15: ${col})`);
   ok(ROOMS.b1.perches.length===1&&ROOMS.b5.perches.length===1,'the calm rooms (b1 Tideshore, b5 Glass Reach) each have a seat');
   ok(ROOMS.b1.spawns.length===0&&!ROOMS.b1.plates.length,'Tideshore has nothing hostile');
   for(const [id,tx,ty] of [['b1',36,12],['b5',13,7]]){const S=at(id,tx*T+T/2-PW/2,(ty+1)*T-PH,{root:1});run(S,PERCH.wait+PERCH.drift,I());ok(S.sit>=PERCH.drift-5&&onPerch(S),`${id}: standing still on the seat he sits (${S.sit} frames) and the camera drifts toward its look`)}
 }
 const TIMES={};
 { // each room with the root and no board: from its way in to the next room, then replayed exactly
-  const starts={b1:['hub',12*T,192-PH],b2:['b1',44*T,168-PH],b3:['b2',33*T,144-PH],b4:['b3',37*T,144-PH],b5:['b4',41*T,96-PH],b6:['b5',33*T,48-PH],b7:['b6',3*T-3,204-PH-6]};
+  const starts={b1:['hub',36*T,192-PH],b2:['b1',44*T,168-PH],b3:['b2',33*T,144-PH],b4:['b3',37*T,144-PH],b5:['b4',41*T,96-PH],b6:['b5',33*T,48-PH],b7:['b6',3*T-3,204-PH-6]};
   for(const id of PRE){const [r0,x,y]=starts[id],S=playState(r0,x,y,{root:1});run(S,3,I());const rec=[],start=snapshot(S);
     const won=Bot.go(S,rec,r0==='b6'?'':'r',S=>S.room===id,{ks:r0==='b6'?[-1]:undefined,max:600})&&stage(id,()=>ROUTE[id](S,rec,false));
     TIMES[id]=rec.length/60;
@@ -363,7 +363,7 @@ const TIMES={};
     ok(won&&!died&&S.room===nxt&&!S.items.board,`${id} ${ROOMS[id].name}: root, no board, from ${r0} through to ${nxt}, replayed with no deaths (${(rec.length/60).toFixed(1)} s incl. the way in)`)}
 }
 { // no items at all: the first three rooms go through, and from anywhere in b1 to b4 he can walk (or swim) back west
-  const S=playState('hub',12*T,192-PH,{});run(S,3,I());const rec=[];
+  const S=playState('hub',36*T,192-PH,{});run(S,3,I());const rec=[];
   const won=Bot.go(S,rec,'r',S=>S.room==='b1')&&ROUTE.b1(S,rec)&&ROUTE.b2(S,rec)&&ROUTE.b3(S,rec);
   ok(won&&S.room==='b4'&&!S.items.root,`no items: from the hub through Tideshore, Swim Steps and Current Run into b4 (${(rec.length/60).toFixed(1)} s)`);
   const back={b1:'hub',b2:'b1',b3:'b2',b4:'b3'};
@@ -448,7 +448,7 @@ const TIMES={};
     ok(won&&wet>=150&&x0<11&&x1>30,`b7: the root bot swims the undertow from col ${x0.toFixed(1)} to ${x1.toFixed(1)} (${wet} frames in the water)`)}
 }
 { // the whole slice by script: hub, the seven pre-board rooms (sitting on both seats), Shallows and its board, Hermit Cove
-  const S=playState('hub',12*T,192-PH,{root:1});run(S,3,I());const rec=[],start=snapshot(S),enter={};
+  const S=playState('hub',36*T,192-PH,{root:1});run(S,3,I());const rec=[],start=snapshot(S),enter={};
   let won=Bot.go(S,rec,'r',S=>S.room==='b1');enter.b1=rec.length;
   for(const id of PRE){if(!won)break;won=stage(id,()=>ROUTE[id](S,rec,true));enter[id==='b7'?'f1':PRE[PRE.indexOf(id)+1]]=rec.length}
   won=won&&f1Run(S,rec)&&f2Run(S,rec);
@@ -466,6 +466,15 @@ const TIMES={};
     Bot.go(S,rec,'r',S=>S.p.ground&&ft(S)<=13*T+.1,{any:false,max:200})&&Bot.go(S,rec,'r',S=>S.p.ground&&S.p.x>=19*T&&ft(S)<=14*T+.1,{any:false})&&Bot.go(S,rec,'r',S=>S.p.ground&&ft(S)<=11*T+.1,{any:false,max:200})&&
     Bot.go(S,rec,'l',S=>S.p.ground&&ft(S)<=7*T+.1,{any:false,max:200})&&Bot.go(S,rec,'l',S=>S.p.ground&&ft(S)<=4*T+.1,{any:false,max:200})&&['b5','b4','b3','b2','b1','hub'].every(n=>Bot.go(S,rec,'l',S=>S.room===n,{max:1800}));
   ok(won&&S.room==='hub',`the way home: from Shallows back through Undertow, up Tidefall and west along the top to the hub (${(rec.length/60).toFixed(1)} s)`);
+}
+
+console.log('swimming: the dash button surfs');
+{ const mk=(items,face=1)=>{const S=playState('b1',27*T,14*T+10,items);S.p.face=face;run(S,60,I());return S};
+  const S=mk({root:1,board:1});ok(S.liq.wet===1&&!S.p.surf,'he floats in Tideshore\'s deep pool');
+  const ev=run(S,1,I({r:1,b:1,bp:1,any:1}));ok(S.p.surf===1&&ev.includes('surf')&&ev.indexOf('dash')<0&&Math.abs(S.p.y+PH-S.liq.s[0].ty*T)<4,'a dash press in the water lifts him onto the surface and he surfs');
+  ok(S.p.vx>1.5,`...the way he holds (vx ${S.p.vx.toFixed(2)})`);
+  const L=mk({root:1,board:1},-1);run(L,1,I({b:1,bp:1,any:1}));ok(L.p.surf===1&&L.p.vx<-1.5,'with no way held he surfs the way he faces');
+  const N=mk({root:1});run(N,1,I({r:1,b:1,bp:1,any:1}));ok(!N.p.surf,'without the board the button does nothing in the water');
 }
 
 console.log(`\n${passes} passed, ${fails} failed`);

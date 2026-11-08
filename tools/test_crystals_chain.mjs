@@ -21,7 +21,7 @@ const ALL={root:1,board:1,claws:1,forged:1};
 const t0=Date.now(),wall=()=>((Date.now()-t0)/1000).toFixed(0)+' s';
 const pos=S=>`${S.room} ${(S.p.x/T).toFixed(1)},${(ft(S)/T).toFixed(1)}`;
 
-const S=RK.playState('hub',8*T,192-PH,{...ALL});S.pieces=[1,1,1,0];
+const S=RK.playState('hub',32*T,192-PH,{...ALL});S.pieces=[1,1,1,0];
 /* every frame played on S (both bots call REC.tick after each real step): frames per room, seams, deaths */
 const per={},seams=[],deaths=[];let total=0,last=S.room;
 RK.REC.tick=(St,ev)=>{if(St!==S)return;total++;per[St.room]=(per[St.room]||0)+1;if(ev.includes('die'))deaths.push(`${pos(St)} (${St.flash}) frame ${total}`);

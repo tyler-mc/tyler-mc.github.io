@@ -1,6 +1,6 @@
 /* Root Cathedral: the quiet before the shrine, and the first stretch of the escape route. A seat west of the torch. Flat floor, a torch in the middle, nothing hangs below row 9. */
 export default {
-  id:'a5',name:'Root Cathedral',biome:'roots',at:[-378,-29],
+  id:'a5',name:'Root Cathedral',biome:'roots',at:[-402,-29],
   grid:[
     '####################################',
     '####################################',

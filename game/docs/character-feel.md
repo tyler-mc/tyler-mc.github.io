@@ -324,6 +324,24 @@ Risk: B3 can make a room built around the long drift harder. B4, B5, B7 and B9 m
 | Hit-stop | 3 frames | 3 frames | None | | |
 | Coyote, buffer, apex hold, no landing lag | yes | yes | None | | |
 
+### 7.1 Re-measured after the feel pass (2026-11-06)
+
+Frame counts come from the real `step()` with the defaults in `FEEL` (`ADEC` 0.13, `AREV` 0.18, `CORNER` 4). The visual rows are implemented and covered by tests. Nobody has judged them by eye in a browser yet.
+
+| Behaviour | Best-in-class | Before | After | Gap size now | Requirement |
+|---|---|---|---|---|---|
+| Air stop | 8 frames | 23 | 13 | Medium | B3 |
+| Ground reverse | 11 frames | 16 | 13 | Small | B2 |
+| Air reverse | 17 frames | 25 | 22 | Medium | B4 |
+| Ground start | 5 frames | 8 | 8 | Small, deferred | B6 |
+| Ceiling corner correction | 4 px | none | 4 px, player only | None | B5 |
+| Jump and land pulse, dust | yes | none | implemented | Unseen | A1 to A6 |
+| Run cycle, skid, footsteps, edge pose, sprout lag | yes | none | implemented | Unseen | A7 to A11, A13 |
+| Land and jump sound | no reference | constant | scaled by landing speed, pitch varies | Unseen | A9 |
+| Camera vertical window | yes | follows every jump | holds inside 44 px | None | C1, C2 |
+
+No row marked "Large" remains in the measured rows. The air rows stay Medium on purpose: the r1 and r4 rooms are tuned to the current numbers, and Tyler said the result looks good. Further tightening needs a decision from Tyler and a rerun of the room bots.
+
 ## 8. Constraints from the code
 
 ### 8.1 Sprite cache and rendering

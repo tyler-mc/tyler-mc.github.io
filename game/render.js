@@ -351,7 +351,7 @@ export function createRenderer(cv,{reduce=false}={}){
       /* the dark room's window edge: a faint dithered frame wherever the light comes near it */
       if(R.id==='hub'&&!S.lit){
         const edge=(x,y,d)=>{let l=0;for(let k=0;k<=14;k+=2){const i=(y+d[1]*k)*VW+x+d[0]*k;if(L[i]>l)l=L[i]}return l};
-        for(const [x0,y0,dx,dy,n,nx,ny] of [[0,0,1,0,VW,0,1],[0,VH-1,1,0,VW,0,-1],[0,0,0,1,VH,1,0],[VW-1,0,0,1,VH,-1,0]])
+        for(const [x0,y0,dx,dy,n,nx,ny] of [[0,0,1,0,VW,0,1],[0,VH-1,1,0,VW,0,-1],[0,0,0,1,VH,1,0],[VW-1,0,0,1,VH,-1,0]].filter(s=>!s[5]||(s[5]>0?ox<=0:ox>=R.w*T-VW)))   /* the sides only where the room's own wall is in view: the hub is wider than the window */
           for(let i=0;i<n;i++){const x=x0+dx*i,y=y0+dy*i,l=edge(x,y,[nx,ny]);if(l<=.05)continue;
             if(l*1.6>BT[y*VW+x]){ctx.fillStyle=(i&1)?'#8c8c8c':'#5a5a5a';ctx.fillRect(x,y,1,1)}
             if(l>.3&&(i&1)&&l>BT[y*VW+x]){ctx.fillStyle='#3a3a3a';ctx.fillRect(x+nx,y+ny,1,1)}}

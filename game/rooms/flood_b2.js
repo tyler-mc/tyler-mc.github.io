@@ -1,6 +1,6 @@
 /* Swim Steps (B2): three deep pools under low roofs. Walking in he floats; a stroke beside a bank flush with the water climbs him out. The second pool's far bank is a wall three tiles above the water that no stroke climbs: a stone in the pool, flush with the water, is the one place to climb out, and from it a jump makes the wall. The third pool, two tiles higher, is flush again. No hazards. */
 export default {
-  id:'b2',name:'Swim Steps',biome:'flood',at:[72,0],
+  id:'b2',name:'Swim Steps',biome:'flood',at:[96,0],
   grid:[
     '####################################',
     '####################################',
@@ -16,10 +16,10 @@ export default {
     '..............#####....##...........',
     '.......................##~~~~~~~####',
     '.T.....................##~~~~~~~####',
-    '####~~~~~~~##~~~~~~##~~##~~~~~~~####',
-    '####~~~~~~~##~~~~~~##~~##~~~~~~~####',
-    '####~~~~~~~##~~~~~~##~~#############',
+    '####~~~~~~~~~~~~~~~##~~##~~~~~~~####',
+    '####~~~~~~~~~~~~~~~##~~##~~~~~~~####',
+    '####~~~~~~~~~~~~~~~##~~#############',
     '####################################',
   ],
-  ents:[],
+  ents:[{at:[28,13],fish:1}],
 };

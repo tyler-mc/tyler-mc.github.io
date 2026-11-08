@@ -42,7 +42,10 @@ import R_k10 from './crystals_k10.js';
 import R_f1 from './flood_f1.js';
 import R_f2 from './flood_f2.js';
 import R_b10 from './flood_b10.js';
-const LIST=[R_hub,R_r1,R_r2,R_r3,R_r4,R_r5,R_a1,R_a2,R_a3,R_a4,R_a5,R_b1,R_b2,R_b3,R_b4,R_b5,R_b6,R_b7,R_m1,R_m2,R_m3,R_m4,R_m5,R_m6,R_m7,R_m8,R_m9,R_m10,R_m11,R_k1,R_k2,R_k3,R_k4,R_k5,R_k6,R_k7,R_k8,R_k9,R_k10,R_f1,R_f2,R_b10];
+import R_m12 from './m12.js';
+import R_room from './room.js';
+import R_room1 from './room1.js';
+const LIST=[R_hub,R_r1,R_r2,R_r3,R_r4,R_r5,R_a1,R_a2,R_a3,R_a4,R_a5,R_b1,R_b2,R_b3,R_b4,R_b5,R_b6,R_b7,R_m1,R_m2,R_m3,R_m4,R_m5,R_m6,R_m7,R_m8,R_m9,R_m10,R_m11,R_k1,R_k2,R_k3,R_k4,R_k5,R_k6,R_k7,R_k8,R_k9,R_k10,R_f1,R_f2,R_b10,R_m12,R_room,R_room1];
 /* rooms:end */
 
 export const ORDER=LIST.map(r=>r.id);
@@ -101,15 +104,15 @@ export function roomAtTile(wx,wy){
    ('room:tx,ty': world tile x). Assist slows it to 70% and widens the gap by half. */
 export const CHASES={
   /* from the shrine (r5) through the Root Cathedral, down Deep Roots, across Spore Gate and through Puff Drift's pits; safe
-     once he reaches Mossy Hush (Puff Drift's east border, x -234). The wall's speed changes by stretch (px/frame, ~4.7
+     once he reaches Mossy Hush (Puff Drift's east border, x -258). The wall's speed changes by stretch (px/frame, ~4.7
      tiles/s is .95): the descent of Deep Roots zigzags back west on every left ledge, so the sweep must crawl there (.2), and
      the pits of Puff Drift cost a puff wait each, so the wall is quicker there once he is ahead. A clean run takes about 31 s;
      a bot that hesitates 1 s in every room, or respawns at any torch on the path, still clears it (tools/test_game.mjs).
      The torch on Deep Roots' mid ledge sends him back west, toward the thorns, so its restart is pinned 32 tiles behind it
      inside the Cathedral; the top torch restarts at the Cathedral's west end so the long zigzag below it starts with room to spare */
-  roots:{from:-408,beat:60,gap:150,path:[[-408,.95],[-378,.85],[-342,.2],[-318,.8],[-282,.9],[-234]],at:{'r4:20,16':-354,'r4:4,5':-378}},
+  roots:{from:-432,beat:60,gap:150,path:[[-432,.95],[-402,.85],[-366,.2],[-342,.8],[-306,.9],[-258]],at:{'r4:20,16':-378,'r4:4,5':-402}},
   /* Flood (game/tide.js): dir -1, west. From the eel's lair at the foot of Eel Grotto (b10), up its steps and back through
-     Hermit Cove (f2) and Shallows (f1); safe at Shallows' west door (x 253), so Undertow's calm follows. For its 2 s beat the
+     Hermit Cove (f2) and Shallows (f1); safe at Shallows' west door (x 277), so Undertow's calm follows. For its 2 s beat the
      tide swells over the lair's rim; then the eel's snout (S.chase.x) moves. tide: y0 the level it swells from, rise its px
      per frame toward lv (by stretch: world tile x, world px y), drain its px per frame once outrun, lip how far the water
      runs ahead of the snout, edge and drop the curve of its leading edge, reach how high over the water the eel strikes.
@@ -119,8 +122,8 @@ export const CHASES={
      it 300 px (about 3 s) east of his torch. With the board a clean bot run takes about 20 s, closest 3 s behind him; a bot
      that waits 1 s in every room, or restarts at any torch on the way, still clears it; with the root alone it is about 27 s
      and the eel comes within 1 s (tools/test_flood_chase.mjs) */
-  flood:{dir:-1,from:440,beat:120,gap:300,path:[[440,1.3],[378,1.5],[312,1.5],[253]],
-    tide:{y0:448,rise:.5,drain:1,lip:120,edge:24,drop:40,reach:60,lv:[[440,412],[422,388],[416,364],[406,328],[384,304],[378,280],[312,278]]}},
+  flood:{dir:-1,from:464,beat:120,gap:300,path:[[464,1.3],[402,1.5],[336,1.5],[277]],
+    tide:{y0:448,rise:.5,drain:1,lip:120,edge:24,drop:40,reach:60,lv:[[464,412],[446,388],[440,364],[430,328],[408,304],[402,280],[336,278]]}},
   /* Molten (game/geysers.js), kind 'geyser': no front that kills, but waves of eruptions. From the pedestal at the west end
      of Geyser Core (m11, world x -164) east through the core and the vent field of Cinder Hush (m10); safe once past its
      last vent, at world x -92, before the seat, so the hush's calm half follows (R18). It only wakes when the molten
@@ -149,15 +152,15 @@ export const CHASES={
 export const NEXT=[
   {need:'item:root',room:'r1',tile:[23,15]},
   {need:'piece:roots',room:'r5',tile:[8,15]},
-  {need:'placed:roots',room:'hub',tile:[12,10]},
+  {need:'placed:roots',room:'hub',tile:[36,10]},
   {need:'item:board',room:'f1',tile:[8,15]},
   {need:'piece:flood',room:'b10',tile:[64,26]},
-  {need:'placed:flood',room:'hub',tile:[12,10]},   /* setting it opens the way down to Molten (the funnel's seal) */
+  {need:'placed:flood',room:'hub',tile:[36,10]},   /* setting it opens the way down to Molten (the funnel's seal) */
   /* Molten: the heat-forged board on the bank of Steam Lake's lane, the claws at the bottom of Cinder Pit, the fragment in Geyser Core */
   {need:'item:forged',room:'m3',tile:[22,9]},
   {need:'item:claws',room:'m6',tile:[20,16]},
   {need:'piece:molten',room:'m11',tile:[4,9]},
-  {need:'placed:molten',room:'hub',tile:[12,10]},   /* setting it opens the plug, the way up into Crystals */
+  {need:'placed:molten',room:'hub',tile:[36,10]},   /* setting it opens the plug, the way up into Crystals */
   /* Crystals: the Undo item in the doorway of Shard Steps' vault */
   {need:'item:undo',room:'k2',tile:[16,10]},
   /* the Crystals fragment on its pedestal in Delete Core, the top of the tower */

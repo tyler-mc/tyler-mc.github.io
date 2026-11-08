@@ -1,6 +1,6 @@
 /* Puff Drift: two pits 12 wide, too wide for the root jump, with a Spore puff hanging over the middle of each: wrap it from the lip, it sinks to a stone in the pit, step across. The east pit is safe (6 deep, rock floor, a step out); the west pit has thorns. */
 export default {
-  id:'a4',name:'Puff Drift',biome:'roots',at:[-282,0],
+  id:'a4',name:'Puff Drift',biome:'roots',at:[-306,0],
   grid:[
     '################################################',
     '################################################',

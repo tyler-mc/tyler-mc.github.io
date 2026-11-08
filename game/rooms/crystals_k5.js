@@ -1,6 +1,6 @@
 /* Still Pool (K5): the breather. A long still pool, a surf lane whose water shows him two seconds late, a seat by its west end, and ledges up to the exit. High in the west wall a sealed nook: a crystal lock beside a dark receiver that nothing here can light. Under the hatch slot a glass sill with a back wall four tiles high and a torch on it: in the chase he lands on the sill and root-jumps the wall west to the hatch, or drops east into the pool and swims back (slower; a rewind puts him back on the sill). */
 export default {
-  id:'k5',name:'Still Pool',biome:'crystals',at:[0,-95],
+  id:'k5',name:'Still Pool',biome:'crystals',at:[-21,-95],
   grid:[
     '##################...##########.....####',
     '######R................................#',

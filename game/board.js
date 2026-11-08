@@ -43,6 +43,18 @@ function surfStart(S,p,ev){
   if(p.buf>0){p.buf=0;p.surf=0;p.vy=-JV;p.jc=1;p.mo=p.vx;ev.push('jump');disturb(S.liq,p.x+PW/2,p.y+PH,2,12)}
 }
 
+/* swimming: the board comes up under him, he stands on the surface (within SWIM.up px above him, if the way up is clear) and
+   surfs the way he holds, or the way he faces; plain board on lava still burns, so no surf there */
+export const SWIM={up:60};
+function swimSurf(S,R,p,dir,ev,boxes){
+  const w=surfAt(S.liq,p.x+PW/2,p.y-SWIM.up,p.y+PH);
+  if(!w||burns(S,w))return false;
+  const y0=p.y;move(S,R,p,0,w.top-PH-y0,boxes);
+  if(Math.abs(p.y+PH-w.top)>1){p.y=y0;return false}   /* a ceiling in the way */
+  const d=dir||p.face;p.face=d;p.vx=d*SURF.v*.8;p.bo=1;p.buf=0;p.ground=0;p.coy=0;p.on=-1;
+  surfStart(S,p,ev);return true;
+}
+
 /* the pickup demo (engine.js touch() sets p.bd=1, step() feeds this in place of his input): a beat while the board slides
    out under him (floodart.js boardUnder), then one dash the way he faces; if he surfs (the dash, or a board already out, meets a
    liquid), the demo holds his way until the surf ends on a bank; then control back once he is down. Input
@@ -73,7 +85,8 @@ export function board(S,R,inp,ev,boxes){
   if(inp.bp)p.db=DBUF;
   if(p.db>0&&p.dc&&!p.dt&&!wetC(R,p,S)){
     p.dc=0;p.db=0;p.dt=DASH.n;p.dd=p.cl?-p.cl:dir||p.face;p.cl=0;p.cv=0;p.face=p.dd;p.bo=1;p.surf=0;p.mo=0;p.vy=0;p.jc=0;p.ground=0;p.coy=0;p.on=-1;ev.push('dash');
-  }else if(p.db>0&&!inp.bp)p.db--;   /* pressed early, it waits DBUF frames for a landing */
+  }else if(p.db>0&&!p.dt&&!p.surf&&p.burn<=0&&wetC(R,p,S)&&swimSurf(S,R,p,dir,ev,boxes)){p.db=0}   /* in the water the button rises onto the surface and surfs */
+  else if(p.db>0&&!inp.bp)p.db--;   /* pressed early, it waits DBUF frames for a landing */
   if(p.dt>0){   /* the dash: a straight line, no gravity, cut short by a wall */
     if(inp.jp)p.buf=6;
     p.dt--;const m=move(S,R,p,p.dd*DASH.v,0,boxes);p.vx=p.dd*DASH.v;p.walk=0;

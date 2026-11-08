@@ -1,6 +1,6 @@
 /* Hollow: too wide to clear. Wrap the Mossback on the thorn-topped pillar and stand on it to recharge. A second one keeps near the top of the pillar's far side, for the way back. */
 export default {
-  id:'r2',name:'Hollow',biome:'roots',at:[-178,0],
+  id:'r2',name:'Hollow',biome:'roots',at:[-202,0],
   grid:[
     '########################',
     '########################',

@@ -56,7 +56,7 @@ const B=ROOMS.b10,F2=ROOMS.f2,F1=ROOMS.f1,FL=[B,F2,F1];
   const door=[13,14,15];ok(door.every(y=>F2.g[y][F2.w-1]!=='#'&&B.g[y][0]!=='#')&&B.g.every((r,y)=>door.includes(y)||r[0]==='#')&&F2.g.every((r,y)=>door.includes(y)||r[F2.w-1]==='#'),"f2's east wall opens at rows 13-15 onto b10's west door, on the cove's floor (row 16), and nowhere else");
   let clash=0;for(let y=0;y<B.h;y++)for(let x=0;x<B.w;x++)if(roomAtTile(B.at[0]+x,B.at[1]+y)!==B)clash++;
   ok(!clash,'b10 overlaps no room (roomAtTile finds it on every one of its tiles)');
-  ok(B.at[0]>=24&&B.at[0]+B.w-1<=470&&B.at[1]>=0&&B.at[1]+B.h-1<=40,`b10 lies in the Flood box of the planning map (x 24..470, y 0..40): x ${B.at[0]}..${B.at[0]+B.w-1}, y ${B.at[1]}..${B.at[1]+B.h-1}; Roots is x < 0, the hub 0..24`);
+  ok(B.at[0]>=48&&B.at[0]+B.w-1<=494&&B.at[1]>=0&&B.at[1]+B.h-1<=40,`b10 lies in the Flood box of the planning map (x 48..494, y 0..40): x ${B.at[0]}..${B.at[0]+B.w-1}, y ${B.at[1]}..${B.at[1]+B.h-1}; Roots is x < -24, the hub -24..48`);
   ok(B.pedestals.length===1&&B.pedestals[0].piece==='flood'&&B.torches.length>=2,`one pedestal (the Flood fragment) and ${B.torches.length} torches`);
   ok(B.spawns.length===0&&!B.plates.length,'nothing hostile in b10 before the chase (the eel sleeps in its lair)');
   const src=fs.readFileSync(new URL('rooms/index.js',G),'utf8'),blk=/\/\* rooms:begin[^\n]*\*\/\n([\s\S]*?)\/\* rooms:end \*\//.exec(src)[1];
@@ -313,7 +313,7 @@ const IN={
   /* the live routes from tools/test_flood.mjs (other work is reshaping b1-b7), else the copy above */
   let ROUTE=null;try{const src=fs.readFileSync(new URL('./test_flood.mjs',import.meta.url),'utf8'),m=/\nconst ROUTE=(\{[\s\S]*?)\n\};/.exec(src);if(m)ROUTE=new Function('Bot','T','ft','return '+m[1]+'\n}')(Bot,T,ft)}catch(e){note('could not read ROUTE from tools/test_flood.mjs: '+e.message)}
   if(!ROUTE||!['b1','b2','b3','b4','b5','b6','b7'].every(k=>typeof ROUTE[k]==='function'))ROUTE=COPY;else note('b1-b7 routes read live from tools/test_flood.mjs');
-  const S=playState('hub',12*T,192-PH,{root:1});run(S,3,I());const rec=[];let at='hub',won=Bot.go(S,rec,'r',S=>S.room==='b1');
+  const S=playState('hub',36*T,192-PH,{root:1});run(S,3,I());const rec=[];let at='hub',won=Bot.go(S,rec,'r',S=>S.room==='b1');
   for(const id of ['b1','b2','b3','b4','b5','b6','b7']){if(!won)break;at=id;won=ROUTE[id](S,rec)}
   if(won){at='f1';won=IN.f1(S,rec)}if(won){at='f2';won=IN.f2(S,rec)}if(won){at='b10';won=IN.b10(S,rec)}
   ok(won&&S.pieces[FT]===1&&S.chase&&S.chase.on,`from the hub by script: b1-b7 with the root, the board in f1, f2, b10 and the fragment (${(rec.length/60).toFixed(1)} s)${won?'':' STUCK in '+at+' at '+S.room+' '+(S.p.x/T).toFixed(1)+','+(ft(S)/T).toFixed(1)+' (b1-b7 routes from test_flood.mjs; if those rooms are mid-edit, re-run)'}`);

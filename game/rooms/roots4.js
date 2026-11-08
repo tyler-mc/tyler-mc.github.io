@@ -1,6 +1,6 @@
 /* Deep Roots: a tall climb in seven ledges of different rise and gap (rises 4, 5, 4, 5, 3, 3 up from the first ledge; gaps 4, 4, 5, 5, 6, 3), alternating sides. The tall ones want the root jump; the two long low ones are a breather. No shaft is open top to bottom: the clear gap is one tile, narrower than he is, so a miss lands on the next ledge down. A Mossback walks the west part of the third ledge, and a wrapped puff would sink onto the floor and block the way out, so there is none here. At the top, the way west leads to the Root Cathedral. */
 export default {
-  id:'r4',name:'Deep Roots',biome:'roots',at:[-342,-18],
+  id:'r4',name:'Deep Roots',biome:'roots',at:[-366,-18],
   grid:[
     '########################',
     '#####..............#####',

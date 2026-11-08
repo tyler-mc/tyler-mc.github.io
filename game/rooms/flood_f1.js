@@ -1,6 +1,6 @@
 /* Shallows: the board, then two lessons that need it. Under a low ceiling the pit is too wide to jump, with water below: the dash puts the board out, he lands on the water and surfs, and a jump off (with the root) climbs the far side. Fallen in, the bank beside the water and a stair up the west wall (steps of 1, 2 and 2 tiles) let him out to try again with no item at all; the pit is 12 wide so its top step stays 11 tiles from the far wall and is no launch pad. Then a long lane of deep water with the way on four tiles above its far end: dash onto it, surf across and jump off. West: Undertow (B7), over a rock step. The board is found here, after about 80% of Flood. */
 export default {
-  id:'f1',name:'Shallows',biome:'flood',at:[252,8],
+  id:'f1',name:'Shallows',biome:'flood',at:[276,8],
   grid:[
     '############################################################',
     '############################################################',

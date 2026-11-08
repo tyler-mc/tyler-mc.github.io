@@ -1,6 +1,6 @@
 /* Wrap Steps: three walls, each a hair too tall for the root jump (6 tiles; it reaches 5.84). A Mossback at the east foot of each wall: wrap it from above, stand on it, climb. Every launch pad is 10 tiles from the next wall so nothing skips the lesson. A shelf on the west side of each wall makes the way back plain hops. */
 export default {
-  id:'a2',name:'Wrap Steps',biome:'roots',at:[-154,0],
+  id:'a2',name:'Wrap Steps',biome:'roots',at:[-178,0],
   grid:[
     '##################################################################',
     '##################################################################',

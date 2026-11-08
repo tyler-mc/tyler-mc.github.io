@@ -150,9 +150,9 @@ const sealSet=(id,b)=>Object.keys(ROOMS[id].seals||{}).filter(k=>!b||ROOMS[id].s
   /* the real door: carrying the Flood fragment, he sets it; the seal holds while it flies and for DOOR.crumble frames after
      it lands, then crumbles ('unseal', once) and stays open: through the slot's end, a JSON snapshot, a save and a reload */
   const st=await import(G+'state.js'),DO=st.DOOR;
-  const S=playState('hub',144-PW/2,192-PH,{root:1,board:1});S.pieces=[1,1,0,0];S.placed=[1,0,0,0];run(S,3,I());
-  const shaft=S=>[20,21,22].every(x=>!E.solid(S,ROOMS.hub,x,16)&&!E.solid(S,ROOMS.hub,x,17)&&!E.solid(S,ROOMS.m1,x+24,0));
-  const shut=S=>[20,21,22].every(x=>E.solid(S,ROOMS.hub,x,16)&&E.solid(S,ROOMS.hub,x,17)&&E.solid(S,ROOMS.m1,x+24,0));
+  const S=playState('hub',144+288-PW/2,192-PH,{root:1,board:1});S.pieces=[1,1,0,0];S.placed=[1,0,0,0];run(S,3,I());
+  const shaft=S=>[20,21,22].every(x=>!E.solid(S,ROOMS.hub,x+24,16)&&!E.solid(S,ROOMS.hub,x+24,17)&&!E.solid(S,ROOMS.m1,x+24,0));
+  const shut=S=>[20,21,22].every(x=>E.solid(S,ROOMS.hub,x+24,16)&&E.solid(S,ROOMS.hub,x+24,17)&&E.solid(S,ROOMS.m1,x+24,0));
   let tPlace=-1,tUn=-1,nUn=0,always=true,f=0;const evs=[];
   for(;f<DO.fly+DO.pulse+30;f++){const ev=E.step(S,f===0?I({j:1,jp:1}):I(),[]);evs.push(...ev);if(ev.includes('place'))tPlace=f;if(ev.includes('unseal')){tUn=f;nUn++}
     if(tUn<0&&!shut(S))always=false}
@@ -161,7 +161,7 @@ const sealSet=(id,b)=>Object.keys(ROOMS[id].seals||{}).filter(k=>!b||ROOMS[id].s
   const old={v:3,lit:1,items:{root:1},pieces:[1,1,0,0],torches:{},cp:null,latch:{},placed:[1,1,0,0],door:0,seen:{}};mem.setItem(st.SAVE_KEY,JSON.stringify(old));const O=st.resume(newState(),st.load(mem));
   ok(shaft(J)&&shaft(L)&&shaft(O)&&shut(st.resume(newState(),{v:5,lit:1,placed:[1,0,0,0]})),'it stays open: a JSON snapshot, a save and reload, and an old v3 save with Flood placed all have the shaft open; a save without it has it shut');
   /* walking east past the open funnel he drops through it to Ember Ridge, alive */
-  { const W=newState();restore(W,J);W.slot=null;W.p.x=17*T;W.p.y=192-PH;W.p.vx=0;W.p.vy=0;let ev=[];for(let i=0;i<300&&W.room==='hub';i++)ev.push(...E.step(W,I({r:W.p.x<20.5*T}),[]));for(let i=0;i<120;i++)ev.push(...E.step(W,I(),[]));
+  { const W=newState();restore(W,J);W.slot=null;W.p.x=41*T;W.p.y=192-PH;W.p.vx=0;W.p.vy=0;let ev=[];for(let i=0;i<300&&W.room==='hub';i++)ev.push(...E.step(W,I({r:W.p.x<44.5*T}),[]));for(let i=0;i<120;i++)ev.push(...E.step(W,I(),[]));
     ok(W.room==='m1'&&!ev.includes('die')&&W.p.ground,`with it open, walking east off the hub floor at the funnel drops him down the shaft into Ember Ridge, alive (lands at col ${(W.p.x/T).toFixed(0)}, row ${(ft(W)/T).toFixed(0)})`)}
 }
 

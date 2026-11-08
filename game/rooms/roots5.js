@@ -1,6 +1,6 @@
 /* Root Shrine: the Roots fragment rests on a carved pedestal. Lifting it wakes the thorns behind the west wall, and they chase him back east through the Root Cathedral, Deep Roots and Spore Gate, and stop at the west border of Puff Drift. */
 export default {
-  id:'r5',name:'Root Shrine',biome:'roots',at:[-402,-29],
+  id:'r5',name:'Root Shrine',biome:'roots',at:[-426,-29],
   grid:[
     '########################',
     '########################',

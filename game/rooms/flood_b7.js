@@ -1,15 +1,15 @@
 /* Undertow (B7): he drops in beside a hermit crab that pulls into its shell, by a plate and the gate that bars the straight way to Shallows; without the board the shell is no weight, so he goes down the pit and swims the undertow east against its current, then climbs out to the far ledge. The slab hangs low over most of the undertow, two tiles above the water, so no jump carries him over it: he swims it from the foot of the pit. */
 export default {
-  id:'b7',name:'Undertow',biome:'flood',at:[212,18],
+  id:'b7',name:'Undertow',biome:'flood',at:[236,18],
   grid:[
     '##################...###################',
-    '######........................G.........',
-    '######........................G.........',
-    '######..........T.....P..H....GT........',
-    '######........##################.......#',
-    '######........##################.....###',
-    '######....##..##################.....###',
-    '######....##..##################.......#',
+    '######................................G.',
+    '......................................G.',
+    '................T.....H.....P.........G.',
+    '..............##################......##',
+    '..............##################.....###',
+    '..........##..##################.....###',
+    '..........##..##################.......#',
     '######......################...........#',
     '########....################.......##..#',
     '########...........................##..#',
@@ -23,5 +23,5 @@ export default {
     '########################################',
     '########################################',
   ],
-  ents:[{at:[25,3],left:23,right:29,tease:1},{at:[20,12],flow:-40}],
+  ents:[{at:[20,12],flow:-40},{at:[22,3],left:23,right:29,tease:1}],
 };

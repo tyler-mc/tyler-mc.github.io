@@ -81,19 +81,19 @@ console.log('the hub plug: sealed until the Molten fragment is in the door');
 const sealSet=id=>Object.keys(ROOMS[id].seals||{}).filter(k=>ROOMS[id].seals[k]==='molten').sort().join(' ');
 { ok(sealSet('hub')==='4,0 5,0 5,1 6,0 6,1 6,2 7,0 7,1 8,0'&&sealSet('k1')==='4,18 5,18 6,18 7,18 8,18',"the plug (hub row 0 cols 4-8, row 1 cols 5-7, row 2 col 6) and the row of Quiet Gallery's floor over it are seals with opens:'molten'");
   const pairs=[];for(let x=0;x<24;x++)pairs.push(x);
-  const openCols=placed=>{const S=newState();S.lit=1;S.placed=placed.slice();return pairs.filter(x=>!E.solid(S,ROOMS.hub,x,0)&&!E.solid(S,ROOMS.k1,x,18))};
+  const openCols=placed=>{const S=newState();S.lit=1;S.placed=placed.slice();return pairs.filter(x=>!E.solid(S,ROOMS.hub,x+24,0)&&!E.solid(S,ROOMS.k1,x,18))};
   const combos=[];for(let m=0;m<8;m++)combos.push([m&1,(m>>1)&1,0,(m>>2)&1]);
   ok(combos.every(c=>!openCols(c).length),'sealed: without the Molten fragment placed (any of the others), no column is open between the hub and Quiet Gallery');
   ok(combos.every(c=>openCols(c.map((v,i)=>i===MK?1:v)).join(',')==='4,5,6,7,8'),'placed: exactly cols 4-8 open, whatever else is placed');
   /* the climb from the hub floor (two small ledges: row 12 col 3, row 4 cols 2-3) */
-  const climb=it=>{const S=playState('hub',8*T,192-PH,it);return reach(S,S=>S.room==='k1'&&S.p.ground,{budget:150000,prio:S=>S.room==='k1'?-1e6:S.p.y})};
+  const climb=(it,budget=150000)=>{const S=playState('hub',32*T,192-PH,it);return reach(S,S=>S.room==='k1'&&S.p.ground,{budget,prio:S=>S.room==='k1'?-1e6:S.p.y})};
   for(const it of [{root:1,claws:1},{root:1},{claws:1}]){const r=climb(it);ok(r.found,`with ${Object.keys(it).join(' + ')}: from the hub floor up through the open plug onto Quiet Gallery's floor (${r.found?sec(r.frames)+' s':'NOT FOUND'})`)}
-  if(!QUICK){const r=climb({});ok(!r.found&&r.exhausted,`with no item there is no way up (search exhausted after ${r.nodes} nodes)`)}
-  const N=playState('hub',8*T,192-PH,{root:1,claws:1});N.placed=[1,1,0,0];const rn=reach(N,S=>S.room==='k1',{budget:20000});ok(!rn.found,'with Molten not placed, the plug holds');
+  if(!QUICK){const r=climb({},450000);ok(!r.found&&r.exhausted,`with no item there is no way up (search exhausted after ${r.nodes} nodes)`)}
+  const N=playState('hub',32*T,192-PH,{root:1,claws:1});N.placed=[1,1,0,0];const rn=reach(N,S=>S.room==='k1',{budget:20000});ok(!rn.found,'with Molten not placed, the plug holds');
   /* the way back down (and the chase's last fall): walk off the plug's edge in K1 */
   const D=playState('k1',2*T,216-PH,ALL);const ev=run(D,240,i=>I({r:i<30}));
   ok(D.room==='hub'&&D.p.ground&&!ev.includes('die')&&!D.p.dead,`walking east off Quiet Gallery's west floor he drops through the plug and lands on the hub floor, alive (col ${(D.p.x/T).toFixed(0)}, feet ${ft(D)})`);
-  const D2=playState('k1',19*T,150,ALL);const wet=S=>(ROOMS.k1.g[Math.floor((S.p.y+PH/2)/T)]||'')[Math.floor((S.p.x+PW/2)/T)]==='~';const ev2=run(D2,500,(i,S)=>I({l:1,j:wet(S)&&i%24<6,jp:wet(S)&&i%24===0}));
+  const D2=playState('k1',19*T,150,ALL);const wet=S=>(ROOMS.k1.g[Math.floor((S.p.y+PH/2)/T)]||'')[Math.floor((S.p.x+PW/2)/T)]==='~';const ev2=[];for(let i=0;i<500&&!(D2.room==='hub'&&D2.p.ground);i++)ev2.push(...E.step(D2,I({l:1,j:wet(D2)&&i%24<6,jp:wet(D2)&&i%24===0}),[]));   /* stops at the first landing: the hub's west wing would carry him on to Seedbed */
   ok(D2.room==='hub'&&D2.p.ground&&!ev2.includes('die'),`from K2's hatch landing in the pool he swims west, strokes out onto the bank, walks on and drops through the plug into the hub, alive (${D2.room})`);
 }
 
@@ -112,7 +112,7 @@ const sealSet=id=>Object.keys(ROOMS[id].seals||{}).filter(k=>ROOMS[id].seals[k]=
 /* ---------------- the climb by bot ---------------- */
 console.log('the climb, room by room (bot; every frame recorded)');
 RK.REC.on=[];const REC=RK.REC.on;
-const B=playState('hub',8*T,192-PH,{...ALL});const start=snapshot(B);
+const B=playState('hub',32*T,192-PH,{...ALL});const start=snapshot(B);
 /* the bot stages (the same searches, priorities and order as before) live in tools/crystals_reach.mjs climbR1, so the chain
    test (tools/test_crystals_chain.mjs) walks the same climb on one carried state */
 const C1=RK.climbR1(B,{len:()=>REC.length}),marks=C1.marks,R2={root:1,board:1};

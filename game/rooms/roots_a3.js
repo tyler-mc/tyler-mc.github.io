@@ -1,6 +1,6 @@
 /* Mossy Hush: the breather. A seat at the east end looks down the tunnel. A low tunnel and a long pool sunk into the floor to wade through, nothing to solve. */
 export default {
-  id:'a3',name:'Mossy Hush',biome:'roots',at:[-234,0],
+  id:'a3',name:'Mossy Hush',biome:'roots',at:[-258,0],
   grid:[
     '########################################################',
     '########################################################',

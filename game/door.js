@@ -29,6 +29,9 @@ const TORCH=[270,168];
 
 /* the door's frame */
 export const DISC={x:144,y:126,r:28};
+/* The door is painted and measured in its own px space (DISC, CX, TORCH). The hub is 72 tiles wide and the door stands in its middle
+   third, so DX is how far, in room px, that space sits from the hub's west edge. */
+export const DX=24*12;
 const CX=144,AY=100,RI=46,RO=64,FL=192,SEAM=143;
 /* 5x7 runes (rows of bits, MSB left) carved up the pillars and round the arch */
 const RUNES=[[4,4,21,14,4,4,4],[16,24,20,18,17,16,16],[17,10,4,10,17,0,0],[4,10,17,4,4,4,4],[31,16,30,16,31,0,0],[17,17,31,17,17,4,4],[14,17,1,6,4,0,4],[4,6,5,4,12,20,4],[17,27,21,17,17,0,0],[4,14,21,4,4,10,17]];
@@ -50,7 +53,8 @@ function figure(fx,fy){
 }
 
 /* the door into the room layer: put(px,py,[r,g,b]) */
-export function paintDoor(put){
+export function paintDoor(put0){
+  const put=(x,y,c)=>put0(x+DX,y,c);
   /* a few weathering cracks: short random walks */
   const crack=new Set();
   for(let n=0;n<9;n++){let x=78+(hash(n,3)*136|0),y=60+(hash(n,9)*110|0);for(let k=0;k<10+(hash(n,5)*16|0);k++){crack.add(x+','+y);y+=1;x+=hash(n,k)<.33?-1:hash(n,k)>.66?1:0}}
@@ -162,7 +166,7 @@ function buildFrags(mk){
 export function drawFragments(ctx,S,ox,oy,mk){
   if(!FR)buildFrags(mk);
   const set=S.placed||S.pieces,R=DISC.r;
-  for(let i=0;i<4;i++)ctx.drawImage(FR[i][set&&set[i]?1:0],DISC.x-R-1-ox,DISC.y-R-1-oy);
+  for(let i=0;i<4;i++)ctx.drawImage(FR[i][set&&set[i]?1:0],DISC.x+DX-R-1-ox,DISC.y-R-1-oy);
 }
 
 /* HUD: the four fragments as a small disc, each quarter in its place (knob out on one straight edge, socket in the
@@ -192,11 +196,11 @@ export function drawHudPieces(ctx,pieces,x0,y0,mk){
    pedestal and the fly-in to the door (render.js). opts: {mk (canvas factory, required the first time), alpha}.
    TODO(door art owner): placeholder added by the M1b chase/door slice; it only reuses the slot canvases above (FR,
    quarter k's box centre on x,y). Replace the body freely, keeping the signature and "centred on x,y". */
-export const fragCentre=k=>{const s=[[-1,-1],[1,-1],[1,1],[-1,1]][k];return {x:DISC.x+s[0]*DISC.r/2,y:DISC.y+s[1]*DISC.r/2}};   /* its slot, room px */
+export const fragCentre=k=>{const s=[[-1,-1],[1,-1],[1,1],[-1,1]][k];return {x:DISC.x+DX+s[0]*DISC.r/2,y:DISC.y+s[1]*DISC.r/2}};   /* its slot, room px */
 export function drawFragment(ctx,k,x,y,opts={}){
   if(!FR)buildFrags(opts.mk);
   const R=DISC.r,c=fragCentre(k),a=ctx.globalAlpha;
   if(opts.alpha!==undefined)ctx.globalAlpha=a*opts.alpha;
-  ctx.drawImage(FR[k][1],Math.round(x-(c.x-DISC.x+R+1)),Math.round(y-(c.y-DISC.y+R+1)));
+  ctx.drawImage(FR[k][1],Math.round(x-(c.x-DX-DISC.x+R+1)),Math.round(y-(c.y-DISC.y+R+1)));
   ctx.globalAlpha=a;
 }

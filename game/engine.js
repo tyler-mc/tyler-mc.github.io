@@ -3,7 +3,7 @@
 import {T,VW,VH,MUTE_KEY,ASSIST_KEY,PIECES,DOOR,STUCK,PERCH,newState,snapshot,restore,save,load,clearSave,resume,items} from './state.js';
 import {ROOMS,ORDER,CHASES,NEXT,roomAtTile,perchOf} from './rooms/index.js';
 import {startChase,stepChase,resetChase,nearness,progress} from './chases.js';
-import {DISC} from './door.js';
+import {DISC,DX} from './door.js';
 import {stepPlayer,PW,PH,FEEL} from './player.js';
 import {spawnEnemies,stepEnemies,WRAP} from './enemies.js';
 import {createRenderer} from './render.js';
@@ -212,7 +212,7 @@ function door(S,R,inp,ev){
   if(S.door){if(!S.slot&&S.doorT<DOOR.open&&++S.doorT===DOOR.open)ev.push('opened');return inp}
   if(R.id!=='hub'||S.slot){S.dwell=0;return inp}
   const k=S.pieces.findIndex((v,i)=>v&&!S.placed[i]);
-  if(k<0||!p.ground||Math.abs(p.x+PW/2-DISC.x)>DOOR.zone){S.dwell=0;return inp}
+  if(k<0||!p.ground||Math.abs(p.x+PW/2-DISC.x-DX)>DOOR.zone){S.dwell=0;return inp}
   S.dwell=inp.l||inp.r||inp.j?0:S.dwell+1;
   if(!inp.jp&&S.dwell<DOOR.dwell)return inp;
   S.slot={k,t:0};S.dwell=0;ev.push('lift');
