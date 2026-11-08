@@ -3,7 +3,8 @@
 // fallen, the platforms' phases, the Echo's index and wrap, the gate, the latch count), so a search never merges a state where
 // a step has fallen with one where it has not. Options as in molten_reach.mjs, plus loose:true (drop the platform phases and
 // the Echo from the key: much faster, may miss routes, found routes are real), tb:n (a time bucket of n frames in the key,
-// so a loose search can still wait) and bad(ev,S) (prune as if he died).
+// so a loose search can still wait), bad(ev,S) (prune as if he died; it may also mark the clone, as the K4 pit proof does) and
+// xkey(S) (a string added to the key, for such a mark).
 // Undo: never search with it owned (A1: every snapshot copies the 181-frame buffer). noUndo(S) gives a clone without it, and
 // with the Undo item hidden so the search cannot re-pick it; go()/waitGo() are bot stages that search on such a clone and
 // replay the inputs on the real state. A rewind is never searched: it restores a past state, so it gives no distance.
@@ -40,12 +41,12 @@ function reach0(S0,target,o={}){
   const ms=MAC({dash:o.dash??!!S0.items.board,drop:o.drop??!!S0.items.claws}),score=o.prio||(S=>S.p.y);
   const heap=[],push=n=>{heap.push(n);let i=heap.length-1;while(i>0){const j=(i-1)>>1;if(heap[j].s<=n.s)break;heap[i]=heap[j];heap[j]=n;i=j}};
   const pop=()=>{const top=heap[0],last=heap.pop();if(heap.length){heap[0]=last;let i=0;for(;;){const a=2*i+1,b=a+1;let m=i;if(a<heap.length&&heap[a].s<heap[m].s)m=a;if(b<heap.length&&heap[b].s<heap[m].s)m=b;if(m===i)break;[heap[i],heap[m]]=[heap[m],heap[i]];i=m}}return top};
-  const lo=!!o.loose,seen=new Set([key(S0,q,tq,lo)]),nodes=[{snap:snapshot(S0),par:-1,m:null,f:0}];push({s:score(S0),id:0});let n=0;
+  const lo=!!o.loose,xk=o.xkey?S=>'|'+o.xkey(S):()=>'',seen=new Set([key(S0,q,tq,lo)+xk(S0)]),nodes=[{snap:snapshot(S0),par:-1,m:null,f:0}];push({s:score(S0),id:0});let n=0;
   if(target(S0))return {found:true,exhausted:false,nodes:1,inputs:[],frames:0};
   while(heap.length&&n<budget){const {id}=pop(),nd=nodes[id];n++;if(nd.f>=maxF)continue;
     for(const m of ms){const C=snapshot(nd.snap);let dead=false,won=false;
       for(let i=0;i<k;i++){const ev=E.step(C,inputAt(m,i),[]);if(o.dieOk&&(ev.includes('die')||C.p.dead)){won=true;break}if(ev.includes('die')||C.p.dead||bad(ev,C)){dead=true;break}if(target(C)){won=true;break}}
-      if(dead)continue;const kk=key(C,q,tq,lo)+(o.tb?'|'+Math.floor((nd.f+k)/o.tb):'');if(!won&&seen.has(kk))continue;seen.add(kk);
+      if(dead)continue;const kk=key(C,q,tq,lo)+(o.tb?'|'+Math.floor((nd.f+k)/o.tb):'')+xk(C);if(!won&&seen.has(kk))continue;seen.add(kk);
       const nid=nodes.length;nodes.push({snap:won?null:C,par:id,m,f:nd.f+k});
       if(won)return won_(S0,nodes,nid,k,target,o,n)
       push({s:score(C)+nodes[nid].f*1e-3,id:nid})}
@@ -88,12 +89,16 @@ export const at=(id,x,f,r=8)=>S=>S.room===id&&S.p.ground&&Math.abs(ft(S)-f)<.5&&
 export const toward=(x,f)=>S=>Math.hypot(S.p.x+PW/2-x*T,ft(S)-f);
 export const into=(id,x,f)=>S=>S.room===id?-1e6:toward(x,f)(S);
 const R2I={root:1,board:1};
-/* K4 Echo Hall: on the plate, and solution A (stand s, a full rewind, the Echo holds the gate, walk through it) */
-export const onPlate=S=>S.room==='k4'&&S.p.ground&&ft(S)===204&&Math.abs(S.p.x+PW/2-17.5*T)<5;
-export function solutionA(S,s,play){const ev=[];const P=i=>{ev.push(...play(S,i))};for(let i=0;i<s;i++)P(I());
-  let n=0;for(let i=0;i<100;i++){P(I({z:1,zp:i===0}));if(S.undo.on)n++;else if(i>2)break}
-  const t0=S.t;const g1=go(S,at('k4',17.6,96,5),{budget:20000,prio:toward(17.6,96),loose:1},{});
-  let w=0;while(S.gate<.5&&w<200&&!S.p.dead){P(I());w++}
+/* K4 Echo Hall (Fixer C, 2026-11-07): the plate sits on a lone shard at the foot of a thorn-walled pit east of the gate's
+   front. On the plate (pressed, standing on the shard), and solution A: stand s frames (the shard gives way after its delay),
+   a full rewind, the Echo replays the stand and holds the gate, walk through it. K4GATE: the gate's front, pressed against the gate */
+export const K4GATE=[10.6,84];
+export const onPlate=S=>S.room==='k4'&&S.p.ground&&S.plate===1;
+export function solutionA(S,s,play,{full=false}={}){const ev=[];const P=i=>{ev.push(...play(S,i))};for(let i=0;i<s&&!S.p.dead;i++)P(I());
+  /* rewind till he stands on the rim again east of the pit (where he dropped in), then let go; full: to the buffer's start */
+  let n=0;for(let i=0;i<100;i++){P(I({z:1,zp:i===0}));if(S.undo.on)n++;else if(i>2)break;if(!full&&i>4&&S.p.ground&&ft(S)<=8*T+.1&&S.p.x>12.5*T){P(I());break}}
+  const t0=S.t;const g1=go(S,at('k4',K4GATE[0],K4GATE[1],5),{budget:20000,prio:S=>toward(...K4GATE)(S)+(ft(S)>8*T+.5?600:0),loose:1},{});   /* steered off the floors below the rim (the pit, the hall) */
+  let w=0;while(S.gate<.5&&w<600&&!S.p.dead){P(I());w++}
   let k=0;while(!(S.latch&&S.latch.k4)&&k<60&&!S.p.dead){P(I({l:1}));k++}
   return {n,g1,w,latched:!!(S.latch&&S.latch.k4),dead:ev.includes('die')||!!S.p.dead,f:S.t-t0}}
 /* R1's climb by bot on B (from the hub floor, all items but Undo) up to standing in K6. len(): frames played so far (marks
@@ -123,9 +128,9 @@ export function climbR1(B,{len=()=>0,log=console.log}={}){
     stage('k3 W3',()=>waitGo(B,onW(0),{budget:15000,prio:wd(0)},{root:1},{stay:onW(1)}))&&
     stage('k3 exit',()=>waitGo(B,S=>S.room==='k4'&&S.p.ground,{budget:20000,prio:into('k4',33,-12)},{root:1},{stay:onW(0)}));
   /* K4: the Echo Hall, solution A */
-  let ok4=out.ok3&&legs('k4',[[23.5,168],[28.5,132],[24.5,96],[22,96]],{})&&stage('k4 plate',()=>go(B,onPlate,{budget:20000,prio:toward(17.5,204),loose:1},{}));
+  let ok4=out.ok3&&legs('k4',[[23.5,168],[28.5,132],[24.5,96],[22,96],[14.5,84]],{})&&stage('k4 plate',()=>go(B,onPlate,{budget:20000,prio:toward(12.5,192),loose:1},{}));
   out.plateF=-1;out.rA=null;
-  if(ok4){out.plateF=len()-marks.k4;const r=out.rA=solutionA(B,60,(S,i)=>play(S,[i]));
+  if(ok4){out.plateF=len()-marks.k4;const r=out.rA=solutionA(B,16,(S,i)=>play(S,[i]));
     ok4=r.latched&&!r.dead&&stage('k4 exit',()=>go(B,S=>S.room==='k5'&&S.p.ground,{budget:60000,prio:into('k5',6,-12),loose:1},{root:1}))}
   out.ok4=ok4;
   out.ok5=ok4&&perch('k5',14)&&legs('k5',[[20,192],[27,156],[33,120],[31,84],[34.5,36]],R2I,'k6');
@@ -148,12 +153,12 @@ export function reachFine(S0,target,o={}){
   const ms=MAC({dash:o.dash??!!S0.items.board,drop:o.drop??!!S0.items.claws}),score=o.prio||(S=>S.p.y);
   const heap=[],push=n=>{heap.push(n);let i=heap.length-1;while(i>0){const j=(i-1)>>1;if(heap[j].s<=n.s)break;heap[i]=heap[j];heap[j]=n;i=j}};
   const pop=()=>{const top=heap[0],last=heap.pop();if(heap.length){heap[0]=last;let i=0;for(;;){const a=2*i+1,b=a+1;let m=i;if(a<heap.length&&heap[a].s<heap[m].s)m=a;if(b<heap.length&&heap[b].s<heap[m].s)m=b;if(m===i)break;[heap[i],heap[m]]=[heap[m],heap[i]];i=m}}return top};
-  const seen=new Set([keyFine(S0,q,tq)]),nodes=[{snap:snapshot(S0),par:-1,m:null,f:0}];push({s:score(S0),id:0});let n=0;
+  const xk=o.xkey?S=>'|'+o.xkey(S):()=>'',seen=new Set([keyFine(S0,q,tq)+xk(S0)]),nodes=[{snap:snapshot(S0),par:-1,m:null,f:0}];push({s:score(S0),id:0});let n=0;
   if(target(S0))return {found:true,exhausted:false,nodes:1,inputs:[],frames:0};
   while(heap.length&&n<budget){const {id}=pop(),nd=nodes[id];n++;if(nd.f>=maxF)continue;
     for(const m of ms){const C=snapshot(nd.snap);let dead=false,won=false;
       for(let i=0;i<k;i++){const ev=E.step(C,inputAt(m,i),[]);if(o.dieOk&&(ev.includes('die')||C.p.dead)){won=true;break}if(ev.includes('die')||C.p.dead||bad(ev,C)){dead=true;break}if(target(C)){won=true;break}}
-      if(dead)continue;const kk=keyFine(C,q,tq);if(!won&&seen.has(kk))continue;seen.add(kk);
+      if(dead)continue;const kk=keyFine(C,q,tq)+xk(C);if(!won&&seen.has(kk))continue;seen.add(kk);
       const nid=nodes.length;nodes.push({snap:won?null:C,par:id,m,f:nd.f+k});
       if(won)return won_(S0,nodes,nid,k,target,o,n);
       push({s:score(C)+nodes[nid].f*1e-3,id:nid})}
@@ -167,7 +172,7 @@ export function Bot(S){const B={S,rec:[],ok:true,marks:{},log:[]};
   B.play=ins=>{for(const i of ins){const ev=E.step(S,i,[]);B.rec.push(enc(i));if(REC.tick)REC.tick(S,ev);if(ev.includes('die')){B.ok=false;B.log.push(`died (${S.flash}) in ${S.room} at ${(S.p.x/T).toFixed(1)},${(ft(S)/T).toFixed(1)}`);return false}}return true};
   B.idle=n=>B.play(Array(n).fill(I()));
   B.leg=(name,target,o={})=>{if(!B.ok)return false;const C=snapshot(S);C.items.undo=0;C.undo.buf=[];if(o.noEcho)C.echo={on:0,log:[],i:0};
-    const r=reachFine(C,target,{budget:60000,bad:o.ram?()=>false:ev=>ev.includes('echo_ram')||ev.includes('echo_wrap'),...o});
+    const r=(o.coarse?reach:reachFine)(C,target,{budget:60000,bad:o.ram?()=>false:ev=>ev.includes('echo_ram')||ev.includes('echo_wrap'),...o});   /* coarse: key() (with loose:1, the Echo out of it), for a leg where the Echo's index in the key starves the search */
     if(!r.found){B.ok=false;B.log.push(`stuck before ${name} in ${S.room} at ${(S.p.x/T).toFixed(1)},${(ft(S)/T).toFixed(1)} (${r.nodes} nodes)`);return false}
     B.marks[name]=B.rec.length;return B.play(r.inputs)};
   return B}
@@ -198,18 +203,21 @@ export function k7Bot(B){const k0=k7Approach(B),tr=k7trick(B);
 export const k8=f=>on('k8',f);
 export const LANDING=[10,8];
 /* segment A, from the entry: up the hall, the cracked corner (lock 3), across the pit (lock 1) onto its switch */
-export function k8A(A){
-  A.leg('up',k8(S=>S.p.ground&&ft(S)<=9*T+.1&&S.p.x>28*T),{prio:S=>S.p.y});
-  A.leg('X drill',S=>!!S.latch['k8:R:38,4'],{prio:S=>-S.p.x+S.p.y});
-  A.leg('takeoff',k8(S=>S.p.ground&&ft(S)<=9*T+.1&&S.p.x<30*T&&S.p.x>27.5*T),{prio:S=>Math.abs(S.p.x-29*T)+Math.abs(S.p.y-7*T)});
-  A.leg('pit',k8(S=>S.p.ground&&ft(S)<=9*T+.1&&S.p.x<14*T),{prio:S=>S.p.x,budget:150000});
-  A.leg('Q1',S=>S.cr.q&&S.cr.q['14,9']!==undefined,{prio:S=>-S.p.x});
-  A.leg('off Q1',k8(S=>S.p.ground&&S.p.x<12*T&&ft(S)<=9*T+.1),{prio:S=>S.p.x});A.idle(80);return A.ok}
+export function k8A(A,{ram=0}={}){   /* ram:1 lets the legs ram or wrap the Echo (a carried visit, where it follows him up from the arrival) */
+  const R=ram?{ram:1}:{};
+  A.leg('up',k8(S=>S.p.ground&&ft(S)<=9*T+.1&&S.p.x>28*T),{prio:S=>S.p.y,...R});
+  A.leg('X drill',S=>!!S.latch['k8:R:38,4'],{prio:S=>-S.p.x+S.p.y,...R});
+  A.leg('takeoff',k8(S=>S.p.ground&&ft(S)<=9*T+.1&&S.p.x<30*T&&S.p.x>27.5*T),{prio:S=>Math.abs(S.p.x-29*T)+Math.abs(S.p.y-7*T),...R});
+  A.leg('pit',k8(S=>S.p.ground&&ft(S)<=9*T+.1&&S.p.x<14*T),{prio:S=>S.p.x,budget:150000,...R});
+  A.leg('Q1',S=>S.cr.q&&S.cr.q['14,9']!==undefined,{prio:S=>-S.p.x,...R});
+  A.leg('off Q1',k8(S=>S.p.ground&&S.p.x<12*T&&ft(S)<=9*T+.1),{prio:S=>S.p.x,...R});A.idle(80);return A.ok}
 /* the Undo lock: from the gate's front, over the closet, down the shaft to the plate, stand s, rewind, wait at the gate, in to Q4, out */
 export function k8trick(B,{s=20,undo=true}={}){
   const S=B.S,g0=B.rec.length;B.idle(10);   /* a beat at the gate's front (where the rewind should bring him back) */
-  B.leg('closet roof',k8(S=>S.p.ground&&ft(S)<=5*T+.1&&S.p.x<10*T&&S.p.x>4*T),{prio:S=>S.p.y+S.p.x*.1,ram:1});
-  B.leg('shaft',k8(S=>S.p.ground&&ft(S)>=16*T-.1&&S.p.x<5*T),{prio:S=>-S.p.y+Math.abs(S.p.x-2*T)*.3,ram:1});
+  /* no ram on the way to the plate (Fixer A, after the engine's ram fix: a ram now pushes a waiting Echo back too, lag never
+     under 120, so every ram on the way delays the Echo's replay of the stand past the window) */
+  B.leg('closet roof',k8(S=>S.p.ground&&ft(S)<=5*T+.1&&S.p.x<10*T&&S.p.x>4*T),{prio:S=>S.p.y+S.p.x*.1});
+  B.leg('shaft',k8(S=>S.p.ground&&ft(S)>=16*T-.1&&S.p.x<5*T),{prio:S=>-S.p.y+Math.abs(S.p.x-2*T)*.3});
   {let n=0;while(B.ok&&!S.plate&&n<200){B.play([I({r:1})]);n++}let m=0;while(B.ok&&Math.abs(S.p.vx)>.01&&m<20){B.play([I()]);m++}}
   const res={plate:S.plate===1,toPlate:B.rec.length-g0,hist:S.undo.buf.length};
   B.idle(s);
@@ -222,7 +230,7 @@ export function k8trick(B,{s=20,undo=true}={}){
   /* wait for the gate; his own Echo (replaying the way he went) may walk into him while he waits: ram it (a dash pushes it back
      along its log and leaves it harmless a moment), then step back to the gate's side */
   let w=0;while(B.ok&&S.gate<.5&&w<400){const q=EC.echoBox(S);
-    if(q&&!EC.echoHarmless(S)&&Math.abs(q.y-S.p.y)<20&&Math.abs(q.x-S.p.x)<40&&S.p.dc){const d=q.x<S.p.x?{l:1}:{r:1};B.play([I({...d,b:1,bp:1})]);for(let i=0;i<12&&B.ok;i++)B.play([I(d)]);w+=13;continue}
+    if(q&&S.echo.i>=0&&!EC.echoHarmless(S)&&Math.abs(q.y-S.p.y)<20&&Math.abs(q.x-S.p.x)<40&&S.p.dc){   /* never a waiting one (i<0): it stands still at his start */const d=q.x<S.p.x?{l:1}:{r:1};B.play([I({...d,b:1,bp:1})]);for(let i=0;i<12&&B.ok;i++)B.play([I(d)]);w+=13;continue}
     if(S.p.ground&&(S.p.x<11.5*T||S.p.x>13.5*T)){B.play([I(S.p.x<11.5*T?{r:1}:{l:1})]);w++;continue}
     B.play([I()]);w++}res.wait=w;
   let k=0;while(B.ok&&(S.gate>=.5||S.latch.k8)&&!(S.cr.q&&S.cr.q['6,9']!==undefined)&&k<120){B.play([I({l:1})]);k++}
@@ -232,14 +240,14 @@ export function k8trick(B,{s=20,undo=true}={}){
   res.r4=!!S.latch['k8:R:6,5'];return res;
 }
 /* segment B: over the closet roof, down the shaft, surf the lava moat to the walled-off far bank, on its switch and off */
-export function k8Moat(BB){const SB=BB.S;
-  BB.leg('closet roof',k8(S=>S.p.ground&&ft(S)<=5*T+.1&&S.p.x<10*T&&S.p.x>4*T),{prio:S=>S.p.y+S.p.x*.1});
-  BB.leg('shaft',k8(S=>S.p.ground&&ft(S)>=16*T-.1&&S.p.x<5*T),{prio:S=>-S.p.y+Math.abs(S.p.x-2*T)*.3});
+export function k8Moat(BB,{ram=0}={}){const SB=BB.S,R=ram?{ram:1}:{};
+  BB.leg('closet roof',k8(S=>S.p.ground&&ft(S)<=5*T+.1&&S.p.x<10*T&&S.p.x>4*T),{prio:S=>S.p.y+S.p.x*.1,...R});
+  BB.leg('shaft',k8(S=>S.p.ground&&ft(S)>=16*T-.1&&S.p.x<5*T),{prio:S=>-S.p.y+Math.abs(S.p.x-2*T)*.3,...R});
   BB.leg('moat',k8(S=>S.p.ground&&S.p.x>=27.5*T&&ft(S)<=16*T+.1),{prio:S=>-S.p.x,ram:1});
   {let m=0;while(BB.ok&&!(SB.cr.q&&SB.cr.q['29,16']!==undefined)&&m<30){BB.play([I({r:1})]);m++}m=0;while(BB.ok&&SB.p.x>27.9*T&&m<40){BB.play([I({l:1})]);m++}BB.idle(70)}   /* on the switch, then back off it before it falls */
   return BB.ok}
 /* segment D: the vault door open, over the closet roof and out into K9 */
-export function k8Out(BD){BD.leg('closet roof',k8(S=>S.p.ground&&ft(S)<=5*T+.1&&S.p.x<10*T&&S.p.x>4*T),{prio:S=>S.p.y+S.p.x*.1});BD.leg('k9',S=>S.room==='k9'&&S.p.ground,{prio:wyp});return BD.ok}
+export function k8Out(BD,{ram=0}={}){const R=ram?{ram:1}:{};BD.leg('closet roof',k8(S=>S.p.ground&&ft(S)<=5*T+.1&&S.p.x<10*T&&S.p.x>4*T),{prio:S=>S.p.y+S.p.x*.1,...R});BD.leg('k9',S=>S.room==='k9'&&S.p.ground,{prio:wyp,...R});return BD.ok}
 /* K9 Delete Hush: in from below, the seat (the hush), up into K10 */
 export function k9Bot(B){const S=B.S;
   B.leg('into k9',S=>S.room==='k9'&&S.p.ground,{prio:wyp});

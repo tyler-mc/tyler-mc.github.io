@@ -169,9 +169,10 @@ if(want('k8')){
   const SC=k8visit({...ALL,undo:1},L2,...LANDING),BC=Bot(SC),rc=k8trick(BC);
   ok(BC.ok&&rc.gate&&rc.r4&&rc.steps>0,`lock 4 (Undo) from the landing torch: the rewind lands at the gate's front, the gate opens ${rc.wait} frames later and latches as he walks in; its rune lights: ${sec(BC.rec.length)} s${BC.ok?'':' '+BC.log.join('; ')}`);
   /* without Undo: see the bound proof below (he cannot get back to the gate before the natural Echo lets it shut) */
-  /* from every torch but the shaft's foot: from there his own Echo follows him up the shaft and meets him coming back down for
-     the plate (a dead end with the Echo: ram or wrap it; reported, not botted) */
-  const TORCH=R.torches.map(t=>[t.tx,t.ty]).filter(([x,y])=>!(x===3&&y===15));
+  /* from every torch (Fixer C, 2026-11-07: the shaft-foot torch (3,15) is gone: it sat on the way to the plate, so every
+     attempt re-checkpointed there and a death meant climbing the shaft with the Echo trailing) */
+  ok(!R.torches.some(t=>t.ty>12&&t.tx<30),`no torch on the low tier west of the arrival (the shaft, the plate tunnel, the moat): the torches are ${R.torches.map(t=>t.tx+','+t.ty).join(' ')}`);
+  const TORCH=R.torches.map(t=>[t.tx,t.ty]);
   for(const [tx,ty] of TORCH){const S=k8visit({...ALL,undo:1},L2,tx,ty),B=Bot(S);
     if(tx>30){B.leg('up',k8(S=>S.p.ground&&ft(S)<=9*T+.1&&S.p.x>28*T),{prio:S=>S.p.y,ram:1});B.leg('takeoff',k8(S=>S.p.ground&&ft(S)<=9*T+.1&&S.p.x<30*T&&S.p.x>27.5*T),{prio:S=>Math.abs(S.p.x-29*T)+Math.abs(S.p.y-7*T),ram:1});B.leg('pit',k8(S=>S.p.ground&&ft(S)<=9*T+.1&&S.p.x<14*T),{prio:S=>S.p.x,budget:150000,ram:1,noEcho:1})}
     if(ty>12)B.leg('up the shaft',k8(S=>S.p.ground&&ft(S)<=5*T+.1&&S.p.x<10*T&&S.p.x>4*T),{prio:S=>S.p.y,k:4,budget:30000,ram:1,noEcho:1});

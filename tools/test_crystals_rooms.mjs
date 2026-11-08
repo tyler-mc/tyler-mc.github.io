@@ -124,8 +124,8 @@ if(demo){const {drop,undoStart,back,pick,f}=demo;
   ok(demo.done&&f<300,`then control is his (${f} frames, ${sec(f)} s)`)}
 ok(ok2,'K2 Shard Steps: up the shard stair, the Undo item in the vault doorway, the demo, the shard step in the vault and the launch ledge into Rewind Walk');
 ok(ok3,'K3 Rewind Walk: onto W1, a root jump to the lift W2, W3, and up past the ceiling to the exit shelf into Echo Hall');
-if(C1.rA){const r=C1.rA;ok(r.latched&&!r.dead&&r.n===90,`K4 solution A: on the plate (${plateF} live frames after he came in, so the buffer is full), a full 3 s rewind (${r.n} steps), the Echo replays the stand and holds the gate; he walks through and it latches ${r.f} frames after the rewind`)}
-ok(ok4,'K4 Echo Hall: stair, bridge, the drop to the plate, solution A, the vault climb into Still Pool');
+if(C1.rA){const r=C1.rA;ok(r.latched&&!r.dead&&r.n>0,`K4 solution A: on the plate (${plateF} live frames after he came in), stands as the shard cracks, rewinds ${r.n} steps till he is back on the pit's east rim, hops to the gate's front, and the Echo, replaying the stand, holds the gate; he walks through and it latches ${r.f} frames after the rewind`)}
+ok(ok4,'K4 Echo Hall: stair, bridge, the east rim, the drop to the plate, solution A, the vault climb into Still Pool');
 ok(ok5,'K5 Still Pool: the seat by the pool, ledges over the surf lane, and up into Prism Gallery (K6)');
 RK.REC.on=null;
 { const ids=['k1','k2','k3','k4','k5','k6'],tt=[];for(let i=0;i<5;i++){const a=marks[ids[i]],b=marks[ids[i+1]];if(a!==undefined&&b!==undefined)tt.push(`${ids[i]} ${sec(b-a)} s`)}
@@ -152,6 +152,13 @@ const in2=(ev,S)=>S.room!=='k2'&&S.room!=='k3';
   const C=snapshot(S);let n=0;for(let i=0;i<100;i++){RK.play(C,[I({z:1,zp:i===0})]);if(C.undo.on)n++;else if(i>2)break;const q=sQ(C);if(q===undefined||q<=2)break}RK.play(C,[I()]);
   const e=go(C,S=>S.room==='k3'&&S.p.ground,{budget:60000,prio:into('k3',6,-12)},{root:1});
   ok(n>0&&E.solid(C,vault,9,8)&&e>0,`K2 with Undo: ${n} rewind steps bring the step back under him, and he climbs out (${sec(e)} s)`);
+  /* the first visit (independent review, 2026-11-07): with the step still whole he lands on it and jumps on at once (a jump
+     buffers 6 frames), so the vault is passed with no rewind. Reported, not asserted, because no K2 can forbid it: a rewind
+     only gives back a state of this visit since the pickup (the buffer starts empty there, and the demo rewinds to it), and
+     K2 holds nothing anchored that a rewind could keep (no Echo, no latch), so every route that uses a rewind has a twin that
+     does not. Undo is first needed in K4, where the anchored Echo keeps the stand */
+  if(!QUICK)for(const it of [{root:1},{...ALL}]){const F=playState('k2',8*T,144-PH,it);run(F,3,I());const t=tm(),r=reach(F,S=>S.room==='k3',{budget:150000,bad:in2,prio:S=>Math.hypot(S.p.x-4*T,S.p.y-12)});
+    note(`K2 first visit, the step whole, no Undo (${Object.keys(it).join(' + ')}): to K3 ${r.found?'in '+sec(r.frames)+' s (the vault does not demand a rewind on a first visit; see the comment)':'not found'} (${r.nodes} nodes) [${t()}]`)}
 }
 { /* K3: W1 to W2 needs the root or the board */
   const W=parse({id:'kj',name:'kj',biome:'crystals',at:[70000,70000],grid:['#'.repeat(40),...Array.from({length:12},()=>'#'+'.'.repeat(38)+'#'),'#'.repeat(40)],ents:[]});ROOMS.kj=W;
@@ -170,24 +177,46 @@ const in2=(ev,S)=>S.room!=='k2'&&S.room!=='k3';
     if(onW(1)(S)){hit={wait,da};break}}
   ok(!!hit,`with the board alone: a jump off W1's east end and a dash at its top lands on W2 (after ${hit&&hit.wait} frames on W1)`);
 }
-{ /* K4: the gate is the only way into the vault (a tile flood fill, exact) */
+{ /* K4 (Fixer C, 2026-11-07): solution A is the only way. The plate lies at the foot of a narrow slot east of the gate's front
+     (col 12, rows 9-16; its walls thorns, cols 11 and 13, rows 9-15), 120 px under the rim: once he has pressed it he never
+     stands outside the slot again (the pit proof: nothing to cling to, too deep to jump out of, and the 24 px between the
+     thorns leave no room to dash or to pass his Echo). The Echo holds the plate only while it replays his own stand, so with no
+     rewind the plate is never held while he is out of the slot; it falls the same way and ends him. A rewind takes him back
+     up, and the anchored Echo keeps the stand. The gate is the only way into the vault (a tile flood fill, exact) */
   const R=ROOMS.k4,fill=open=>{const S=newState();S.lit=1;S.gate=open?1:0;const seen=new Set(['36,17']),q=[[36,17]];while(q.length){const [x,y]=q.pop();for(const [a,b] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+a,ny=y+b;if(nx<0||ny<0||nx>=R.w||ny>=R.h||seen.has(nx+','+ny)||E.solid(S,R,nx,ny))continue;seen.add(nx+','+ny);q.push([nx,ny])}}return seen};
   const shut=fill(0),open=fill(1);ok(!shut.has('8,1')&&!shut.has('8,0')&&open.has('8,0'),'K4: with the gate shut no open tile joins the arrival to the vault or its ceiling hole; with it open they join');
-  const D=snapshot(B);   /* unused end state; rebuild the plate state */
+  const P=R.plates[0];
+  ok(R.plates.length===1&&P.tx===12&&P.ty===16&&R.g[17].slice(10,15)==='#####'&&span(9,15).every(y=>R.g[y].slice(10,15)==='#^.^#')&&R.g[16].slice(10,15)==='#.P.#'&&R.g[7].slice(10,15)==='#...#'&&R.g[8].slice(10,15)==='#...#'&&R.gates.every(g=>g.tx===9),
+    "K4's plate: on rock at the foot of a slot (col 12) walled with thorns from the rim down (cols 11 and 13, rows 9-15), 120 px under the rim; the gate (col 9) beside the slot's west rim, the gate's front (10,7)");
   const S=playState('k4',37*T,216-PH,{...ALL,undo:1});
-  const reachPlate=S=>legs4(S);function legs4(S){for(const [x,f] of [[23.5,168],[28.5,132],[24.5,96],[22,96]])if(go(S,at('k4',x,f),{budget:20000,prio:toward(x,f),loose:1},{})<0)return false;return go(S,onPlate,{budget:20000,prio:toward(17.5,204),loose:1},{})>=0}
-  ok(reachPlate(S),'K4: the bot walks in, up the stair, along the bridge and drops to the plate');
+  const legs4=S=>{for(const [x,f] of [[23.5,168],[28.5,132],[24.5,96],[22,96],[14.5,84]])if(go(S,at('k4',x,f),{budget:20000,prio:toward(x,f),loose:1},{})<0)return false;return go(S,onPlate,{budget:20000,prio:toward(12.5,192),loose:1},{})>=0};
+  ok(legs4(S),'K4: the bot walks in, up the stair and the bridge, onto the slot\'s east rim and drops onto the plate');
   const atP=snapshot(S),win=[];
-  for(const s of [40,50,60,70,80,90,100,110]){const A=snapshot(atP);const r=solutionA(A,s,(S,i)=>{const ev=[];for(const x of i?[i]:[])ev.push(...E.step(S,x,[]));return ev});if(r.latched&&!r.dead)win.push(s)}
-  ok(win.length===8,`K4 solution A works for every stand on the plate from 40 to 110 frames (latched for ${win.join(', ')})`);
-  { const A=snapshot(atP);run(A,60,I());go(A,at('k4',17.6,96,5),{budget:20000,prio:toward(17.6,96),loose:1},{});let lat=false;for(let i=0;i<300;i++){E.step(A,I({l:1}),[]);if(A.latch.k4){lat=true;break}}
-    ok(!lat,'K4 control: the same stand with no rewind, then the walk back up to the gate: it is shut, it never latches')}
-  { const A=noUndo(atP);run(A,40,I());for(const k of ['board','claws','forged'])A.items[k]=0;A.p.dc=0;const t=tm();const r=reach(A,S=>!!(S.latch&&S.latch.k4),{budget:60000,prio:toward(16.5,96),loose:1,tb:6});
-    let wrap=false;if(r.found){const C=snapshot(A);hidden(()=>{for(const i of r.inputs)if(E.step(C,i,[]).includes('echo_wrap'))wrap=true})}
-    ok(r.found&&wrap,`K4 solution B (no Undo, the root only): the root burst wraps his Echo on the plate and its body holds the gate while he climbs back to it (${r.found?sec(r.frames)+' s':'NOT FOUND'}) [${t()}]`)}
-  if(!QUICK)for(const it of [{},{board:1},{claws:1,board:1}]){const A=noUndo(atP);run(A,40,I());for(const k of ['root','board','claws','forged'])A.items[k]=it[k]?1:0;A.p.root=0;A.p.dc=it.board?1:0;const t=tm();
-    const r=reach(A,S=>!!(S.latch&&S.latch.k4),{budget:60000,prio:toward(16.5,96),loose:1,tb:6});
-    ok(!r.found,`K4 with no Undo and no root (${Object.keys(it).join(' + ')||'no item'}): the gate cannot be reached while the Echo holds the plate (evidence, ${r.nodes} nodes) [${t()}]`)}
+  for(const s of [4,16,28,40,60,80,100]){const A=snapshot(atP);const r=solutionA(A,s,(S,i)=>E.step(S,i,[]));if(r.latched&&!r.dead)win.push(s)}
+  ok(win.length===7,`K4 solution A works for every stand on the plate from 4 to 100 frames: a rewind back up to the rim, a hop to the gate's front, the Echo replays the stand and the gate opens (latched for ${win.join(', ')})`);
+  { const A=snapshot(atP);let died=-1;for(let i=0;i<300;i++)if(E.step(A,I(),[]).includes('die')){died=i;break}
+    ok(died>90&&died<=125&&A.flash==='echo'&&!A.latch.k4,`K4 control: the same stand with no rewind: his Echo comes down the slot and ends him ${died} frames after he landed on the plate (${A.flash})`)}
+  /* the pit proof on a cropped copy (cols 8-17, every row; solid edges): from the rim, every tool, no Undo, exhaustive. After he
+     first presses the plate he never stands outside the slot again. Before the plate the search keeps him within two rows over
+     the rim and off the walls (he only drops in: a cling or a vine out there holds nothing inside the slot, and a higher start
+     only enters it faster) */
+  const pitCopy=(echo)=>{const g=R.g.map((r,y)=>{let t=r.slice(8,18).replace(/Z/g,'.');if(y===0||y===18)t='#'.repeat(10);t='#'+t.slice(1,-1)+'#';if(echo&&y===1)t=t.slice(0,6)+'Z'+t.slice(7);return t});
+    const ents=echo?[{at:[6,1],lag:120}]:[];const id='kpit'+(echo?'e':'');ROOMS[id]=parse({id,name:id,biome:'crystals',at:[80000+(echo?300:0),70000],grid:g,ents});return id};
+  const inPit=S=>S.p.x+PW>3*T&&S.p.x<6*T&&ft(S)>7*T+1;
+  const pit=(id,x,{fine=false,budget=3000000}={})=>{const S=playState(id,(x-8)*T,7*T-PH,ALL);E.step(S,I(),[]);
+    const mark=(ev,C)=>{if(C.__e===undefined&&C.plate===1)C.__e=C.t;if(C.__e!==undefined&&ev.includes('echo_wrap'))C.__w=1;return C.__e===undefined&&(ft(C)<5*T||(C.vines&&C.vines.length>0)||!!C.p.cl)};
+    return (fine?RK.reachFine:reach)(S,C=>C.__e!==undefined&&!C.p.dead&&((!inPit(C)&&C.p.ground)||!!C.__w),
+      {budget,maxFrames:fine?520:900,bad:mark,xkey:C=>C.__e===undefined?'n':'e'+(C.__w?'w':''),prio:C=>C.__e===undefined?1e4+Math.abs(C.p.x-4*T):C.p.y})};
+  if(!QUICK){const cid=pitCopy(0);for(const x of [10,14]){const t=tm(),r=pit(cid,x);
+    ok(!r.found&&r.exhausted,`K4 pit proof (no Undo, every tool, exhaustive on a copy of cols 8-17): dropped in from the ${x<12?'gate\'s front':'east rim'}, once he has pressed the plate he never stands outside the slot again (${r.exhausted?'search exhausted after '+r.nodes+' nodes':'NOT exhausted, '+r.nodes+' nodes'}) [${t()}]`)}
+    delete ROOMS[cid]}
+  /* the same with the Echo awake (the fine key: its exact index, wrap and grace), wraps and rams allowed: after the plate no
+     state where it is wrapped or he is out */
+  if(!QUICK){const cid=pitCopy(1),t=tm(),r=pit(cid,14,{fine:true,budget:400000});
+    ok(!r.found,`K4 pit proof with the Echo awake (fine key, wraps and rams allowed): no root burst reaches it and no route out (${r.exhausted?'search exhausted after '+r.nodes+' nodes':'evidence, '+r.nodes+' nodes'}) [${t()}]`);delete ROOMS[cid]}
+  /* the whole room, steered (evidence): from the arrival with every tool and no Undo, the Echo awake, wraps and rams allowed */
+  if(!QUICK){const A=playState('k4',37*T,216-PH,ALL),t=tm();const r=reach(A,S=>!!(S.latch&&S.latch.k4),{budget:60000,maxFrames:2400,prio:S=>S.room!=='k4'?1e6:Math.abs(S.p.x-10*T)+Math.abs(ft(S)-7*T),bad:(ev,S)=>S.room!=='k4'});
+    ok(!r.found,`K4 without Undo (every tool, from the arrival, the Echo awake, wraps and rams allowed): the gate never latches (evidence, ${r.nodes} nodes) [${t()}]`)}
 }
 
 /* ---------------- fairness (CL6): every room is solvable from any state one 3 s rewind reaches ---------------- */
