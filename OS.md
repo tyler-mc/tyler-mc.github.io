@@ -58,13 +58,40 @@ Umami Cloud (cookieless, no personal data, no banner) next to the older Cloudfla
 - `contact` `{method}`: `email-open`, `email-copy`, `email-compose` (any `mailto:`), `linkedin`. `outbound` `{host, to}`: any other external link.
 - `project_read` `{slug, depth, secs}`: depth is 0/25/50/75/100 (how far down the bottom edge got), secs counts only while that window is the front one and the tab is visible, under 3 s dropped. Sent on close and when the tab is hidden. Direct case-study pages send it from `page.js` with `direct: 1`. `video` `{slug}`: first time a visitor presses play on a clip.
 - `discover` `{what, n, t}`: once per session per `what` (`plant`, `bloom`, `eat-flower`, `compost`, `glow-flower`, `mascot-3`, `icon-to-trash`, `hat:crown`, `80s`, `view-list`, `simple-view`, `distill-done`, ...). `n` is how many things have been found, `t` seconds since load. Steps of the two long paths have their own event names so Umami funnels can chart them: `crash_trash_open` → `crash_unreleased_out` → `crash_open` → `crash_retry` → `crash_skull`, and `ach_bar` → `ach_complete` → `ach_ending`.
-- The hidden Wake Up game has its own funnel, each step once per session: `game_wake` → `game_torch` → `game_item_<name>` → `game_piece_<biome>` → `game_done`. `game_wake`: the visitor opened (or brought back) the game window from its desktop icon; the first open also counts as an `open` of `/os/game`. `game_torch`: the torch was lit and the desktop came back (not sent when a reload resumes in the light). `game_item_<name>`: an item was picked up (`game_item_root` is the root double jump, `game_item_board` the dash board, `game_item_forged` the heat-forged board and `game_item_claws` the vine claws). `game_piece_<biome>`: a door piece was taken (`roots`, `flood`, `molten`, `crystals`). `game_done`: the door opened and the OS rebooted home. The engine reports these through `mount(el, {onEvent})`; `os.js` maps them in `gameEvent`.
+- The hidden Wake Up game has its own funnel, each step once per session: `game_wake` → `game_torch` → `game_item_<name>` → `game_piece_<biome>` → `game_done`. `game_wake`: the visitor opened (or brought back) the game window from its desktop icon; the first open also counts as an `open` of `/os/game`. `game_torch`: the torch was lit and the desktop came back (not sent when a reload resumes in the light). `game_item_<name>`: an item was picked up (`game_item_root` is the root double jump, `game_item_board` the dash board, `game_item_forged` the heat-forged board and `game_item_claws` the vine claws and `game_item_undo` the rewind). `game_piece_<biome>`: a door piece was taken (`roots`, `flood`, `molten`, `crystals`). `game_done`: the door opened and the OS rebooted home. Between `game_piece_*` and `game_done`: `game_chase_start_<biome>` / `game_chase_done_<biome>` (the chase a fragment wakes; the id is the biome, so one funnel step per chase), `game_place_<biome>` (a fragment set into the door) and `game_door` (all four in). The engine reports these through `mount(el, {onEvent})`; `os.js` maps them in `gameEvent`.
+- `game_leave` `{deaths, rooms, secs, hot, hotN, pieces, placed, items, seen}`: one stretch of play, sent when the tab hides, the Wake Up window is minimized or the game ends (under `?qa` it lands in `TK.log`). It is a *delta*: the engine's `takeStats()` hands over what happened since the last send and starts over, so sums in Umami stay true however often the tab hides, and nothing is sent when a stretch is empty. `deaths`, `secs` (the loop's own count; paused, hidden or minimized time adds nothing) and `rooms` (rooms entered for the first time) are for the stretch; `hot`/`hotN` are the room with the most deaths in it and its count (left out when there were none). `pieces` (held), `placed` (in the door), `items` and `seen` (rooms ever entered, saved across visits) are where he stands overall, so they say how far a returning player has got even though the funnel steps above are once per *session*.
 - `os_fallback`: the desktop was not ready within 4 s (the guard in `index.html` fired; it also fires on a very slow start that recovers later).
 - Events are attached to the last window the visitor opened, not necessarily the one in front.
 
 **Adding an event.** Call `TK.track('name', {small: 'values'})` (or `TK.discover('what')` for a one-off find) where it happens. Keep names under 50 characters and never send per-click events; the free tier is quota-limited.
 
 **Your own visits.** Visit `/?notrack` once in each browser (sets `localStorage['umami.disabled']`); `/?track` undoes it. Tagged links for applications: `/?utm_source=application&utm_campaign=<studio>`.
+
+## Reading the data (Umami dashboard)
+
+Checked against docs.umami.is in Nov 2026. The Hobby plan is 100K events a month with 6 months of history; pageviews count as events, so keep the "no per-click events" rule above.
+
+**What did people see?**
+- *Pages* (or *Sessions*): every opened window is a virtual pageview, so this is opens plus direct visits. Case studies are `/projects/<slug>.html`, other windows `/os/<id>`, Simple view `/simple.html`.
+- *Events → `project_read`, Properties tab*: what they actually read, not just opened. Break down by `slug`, then `depth` and `secs`. `direct: 1` is a direct case-study visit.
+- *Events → `open`*: break down by `win` and `via` (icon, card, link, hash, sys).
+
+**What did people click?**
+- *Events → `contact`* by `method` (`email-open`, `email-copy`, `email-compose`, `linkedin`) is the hiring signal. `outbound` by `host`, `video` by `slug`.
+- *Events → `discover`* by `what` shows which hidden things get found; `n` (found so far) and `t` (seconds in) show how deep a visit went.
+
+**Saved funnels (Funnel report; 2+ steps, a step is a URL or an event name, the window is the minutes allowed between steps).** A `*` works only at the end of a URL step.
+1. Hiring path: URL `/` → URL `/projects/*` → event `project_read` → event `contact`
+2. Crash: `crash_trash_open` → `crash_unreleased_out` → `crash_open` → `crash_retry` → `crash_skull`
+3. Achievements: `ach_bar` → `ach_complete` → `ach_ending`
+4. Wake Up, one per biome (a funnel cannot branch). Items belong to biomes: `root` is in Roots, `board` in Flood, `forged` and `claws` in Molten, Crystals has none. So `game_wake` → `game_torch` → that biome's item step (if any) → `game_piece_<biome>` → `game_chase_done_<biome>` → `game_place_<biome>`; then one shared tail, `game_door` → `game_done`. `game_chase_start_<biome>` is left out on purpose: lifting the fragment starts the chase in the same frame as `game_piece_<biome>`, so the two share a timestamp and a strictly ordered funnel could miscount it.
+5. Chases: `game_chase_start_<biome>` → `game_chase_done_<biome>` for how many players who start a chase outrun it (all four biomes have one).
+
+**Wake Up funnels show one sitting.** The save lasts across visits but the funnel events are once per *session*, and `game_torch` is not sent when a reload resumes lit. A returning player sends `game_wake` and then nothing until a new milestone, so they look like a drop-off at step 1. For how far people got overall use `game_leave`: break down `pieces`, `placed`, `items` and `seen`, and sum `deaths` and `secs` by `hot` to find the rooms players get stuck in.
+
+**Other views.** *Journey* for the path through windows, *UTM* for tagged application links (`/?utm_source=application&utm_campaign=<studio>`), *Goals* to pin `contact` as a conversion. Filter (the Filter button or a click on a metrics row) by Referrer (Sources), Country (Location) or Device (Environment); on the Events page an *Event properties* tab filters by a property such as `slug`.
+
+**Not in the docs.** The `umami.disabled` key that `/?notrack` sets was not found in Umami's tracker docs (only `data-do-not-track` is). After setting it, open the site and check *Realtime* shows no visit from you.
 
 ## Wake Up (the hidden game)
 
@@ -90,7 +117,7 @@ Umami Cloud (cookieless, no personal data, no banner) next to the older Cloudfla
 
 `.github/workflows/static.yml` uploads the whole repo (`path: '.'`). Before this branch is merged to `main`:
 
-- Exclude or gate: `game/index.html` (the standalone page; it shows the dev panel on any localhost), `game/dev/` (warp, grant and reset panel), `game/editor.js` (level editor), `tools/dev_server.py` (the editor's save endpoint, local only). In the embedded game the dev panel only loads under `?qa`, but the files are still fetchable if deployed.
+- Done: `static.yml` deletes `game/index.html`, `game/dev`, `game/editor.js`, `game/docs` and `tools` before the upload, so the standalone page, the dev panel, the level editor and the editor's save endpoint are not deployed. (In the embedded game the dev panel only loads under `?qa` anyway.)
 - `tools/bump_assets.py` does not know `game/`: the modules are fetched by `import()` with no `?v=` hash, and the engine's own `import` lines cannot carry one, so a visitor can get a stale mix after a deploy. Add the game files to the bump (or version the `import('/game/engine.js?v=…')` URL and the imports inside `game/`) before shipping.
 - The M2a stub (`gameStub`) is gone; `os.js` now needs `game/` to be deployed alongside it or opening Wake Up logs an import error.
 

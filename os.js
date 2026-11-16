@@ -2271,7 +2271,7 @@ function gameWin(parked){
     makeWin({id:'game',title:'Wake Up',x:40,y:32,w:GMW*3,noClose:true,noResize:true,minimizable:true,acc:INK,ink:'#FFFFFF',
       body:'<div class="gm" id="gm"></div>',
       onopen(el){gameFit(el);if(!gameLit())gameDark();gameMount(el)},
-      onmin(){if(game)game.pause();osFx.suspend();if(PREF(MIN_KEY,'')===''){PSET(MIN_KEY,'1');PSET(BEG_KEY,'1');setTimeout(heyBub,reduce?0:380)}},
+      onmin(){gameLeave();if(game)game.pause();osFx.suspend();if(PREF(MIN_KEY,'')===''){PSET(MIN_KEY,'1');PSET(BEG_KEY,'1');setTimeout(heyBub,reduce?0:380)}},
       onrestore(el){hideGBub();if(!game&&!gload){gameFit(el);gameMount(el)}else if(game){game.resume();if(PREF(BEG_KEY,'')==='1')begSoon()}osFx.resume()}});
     /* focus that lands on the window (a strip tab, a window closing) goes on to the game */
     WIN.game.el.addEventListener('focus',()=>{const r=$('.tg',WIN.game.el);if(r&&gameFront())r.focus({preventScroll:true})});
@@ -2364,8 +2364,22 @@ function gameEvent(n,d={}){
   if(n==='torch')TK.trackOnce('game_torch');
   else if(n==='item')TK.trackOnce('game_item_'+d.name);
   else if(n==='piece')TK.trackOnce('game_piece_'+d.biome);
+  else if(n==='place')TK.trackOnce('game_place_'+d.biome);   /* a piece set into the door */
+  else if(n==='chase_start'||n==='chase_done')TK.trackOnce('game_'+n+'_'+(d.id||'x'));   /* d.id is the biome whose piece set it off */
+  else if(n==='door')TK.trackOnce('game_door');   /* all four in, the step before game_done */
   else if(n==='done')finishGame();
 }
+/* game_leave: what one stretch of play looked like (deaths, new rooms, seconds, the room with the most deaths) plus where he
+   stands overall (pieces held and placed, items, rooms ever entered). The engine's takeStats() hands over the stretch since the
+   last call, so the sums in Umami stay true however often the tab hides. Sent when the tab hides, the window is minimized or the game ends */
+function gameLeave(){
+  if(!game||!game.takeStats)return;
+  const s=game.takeStats();
+  if(!s.secs&&!s.deaths&&!s.rooms)return;
+  if(!s.hot){delete s.hot;delete s.hotN}
+  TK.track('game_leave',s);
+}
+TK.onHide(gameLeave);
 
 /* ================= Wake Up menu: Full Screen, Options, Quit. Shown in the menu bar only while the game window is in front ================= */
 function syncWakeMenu(){
@@ -2889,6 +2903,7 @@ function rewindFx(v){
 function finishGame(){
   if(gameState()!=='on')return;
   TK.trackOnce('game_done');osFx.clear();
+  gameLeave();
   if(game){game.destroy();game=null}
   gameReveal(false);
   PSET(GAME_KEY,'done');const ic=$('#ic-wake');if(ic)ic.remove();

@@ -458,18 +458,26 @@ export function mount(el,opts={}){
   const ro=new ResizeObserver(fit);ro.observe(root);fit();
 
   /* loop */
+  /* analytics (os.js: game_leave): what happened since the host last asked, session-only (never saved). ticks only count
+     while the loop runs, so a paused, hidden or minimized game adds nothing */
+  const newSeg=()=>({deaths:0,byRoom:{},rooms:0,ticks:0});
+  let seg=newSeg(),chaseId='';
   let raf=0,last=0,acc=0,userPaused=false,hidden=document.hidden,lastBub='',bHid=null,bDem=false,zHid=null,zDem=false;
   function tick(){
     const inp={l:K.l||B.l,r:K.r||B.r,u:K.u,d:K.d,j:K.j||K.u||B.j,jp:jq,b:K.b||B.b,bp:bq,z:K.z||B.z,zp:zq,drag:drag&&{x:drag.x,y:drag.y,cap:drag.cap},any:0};
     inp.any=inp.l||inp.r||inp.u||inp.d||inp.j||jq||inp.b||bq||inp.z||zq;jq=0;bq=0;zq=0;
     /* frozen: step() spends this frame on hit-stop, so the renderer's pulse and dust hold too (read before step() counts it down) */
     const lit0=S.lit,frozen=S.hit>0&&S.mode!=='intro',ev=step(S,inp,[]);
+    if(S.mode!=='intro')seg.ticks++;
     if(rend.step)rend.step(S,ev,frozen);   /* one fixed step of pulse and dust (render.js); draw() only reads them */
     for(const e of ev){
       au.sfx(e,{lv:S.p.lv,reduce});   /* lv: the land sound scales with the fall (A9); reduce: no pitch variation (A12) */
       if(e==='cp'||e==='item'||e==='torch'||e==='latch'||e==='piece'||e==='place'||e==='chase_start'||e==='chase_done'||e==='room')save(S);
       if(e==='torch'&&!lit0){opts.onTorch&&opts.onTorch({restored:false});emit('torch')}
-      if(e==='chase_start'||e==='chase_done'||e==='door')emit(e,{});
+      if(e==='die'){seg.deaths++;seg.byRoom[S.room]=(seg.byRoom[S.room]||0)+1}
+      if(e==='room')seg.rooms++;
+      if(e==='chase_start'||e==='chase_done'){if(S.chase&&S.chase.id)chaseId=S.chase.id;emit(e,{id:chaseId})}   /* the id says which chase (one funnel step each) */
+      if(e==='door')emit(e,{});
       if(e==='place')emit('place',{biome:PIECE[S.slot?S.slot.k:0]});
       if(e==='opened'&&opts.onDone)opts.onDone({restored:false});   /* the door has finished opening (the ending is the host's) */
     }
@@ -566,6 +574,14 @@ export function mount(el,opts={}){
     resume(){if(!userPaused)return;userPaused=false;last=0;acc=0;if(!hidden)au.resume();root.focus({preventScroll:true})},
     destroy(){cancelAnimationFrame(raf);ro.disconnect();kt.removeEventListener('keydown',kd);kt.removeEventListener('keyup',ku);document.removeEventListener('visibilitychange',onVis);au.destroy();root.remove();if(window.__game===api)delete window.__game},
     getState:()=>snapshot(S),
+    /* analytics: the segment since the last call (then it starts over) plus where he stands overall. hot is the room with the
+       most deaths in the segment. rooms counts rooms entered for the first time (the 'room' event); seen is every room ever */
+    takeStats(){
+      const g=seg;seg=newSeg();
+      let hot='',hotN=0;for(const k in g.byRoom)if(g.byRoom[k]>hotN){hot=k;hotN=g.byRoom[k]}
+      return {deaths:g.deaths,rooms:g.rooms,secs:Math.round(g.ticks/60),hot,hotN,
+        pieces:S.pieces.filter(Boolean).length,placed:S.placed.filter(Boolean).length,items:Object.values(S.items).filter(Boolean).length,seen:Object.keys(S.seen).length};
+    },
     /* feeding (game/feed.js): the host drops a desktop plant in. canDrop: lit and playing. drop(kind, clientX, clientY, col): kind seed|sprout|bloom (glow counts as bloom);
        the point is where the plant's base is on the page: over the view it lands there, anywhere else (the window's frame, the Wake Up icon) it falls just ahead of him. False if refused */
     canDrop:()=>S.lit&&S.mode==='play'&&!S.p.dead?true:false,
